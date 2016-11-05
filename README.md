@@ -1,2 +1,2 @@
-# tefla
-Yet another deep-learning framework
+# Tefla
+Yet another deep-learning framework. Coming soon...
