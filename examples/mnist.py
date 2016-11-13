@@ -54,12 +54,8 @@ cnf = {
     'summary_dir': '/media/lalit/data/summary/mnist',
     'schedule': {
         0: 0.01,
-        50: 0.001,
-        90: 0.00019,
-        110: 0.00019,
-        120: 0.0001,
-        220: 0.00001,
-        251: 'stop',
+        30: 0.001,
+        50: 'stop',
     },
 }
 util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
