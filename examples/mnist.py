@@ -42,7 +42,7 @@ training_iter = BatchIterator(32, False)
 validation_iter = BatchIterator(32, False)
 
 
-def model(inp, is_training, reuse):
+def model(is_training, reuse):
     outputs_collection = 'training_activations' if is_training else 'prediction_activations'
     common_args = common_layer_args(is_training, reuse, outputs_collection)
     bn_args = make_args(updates_collections=None)
@@ -51,7 +51,7 @@ def model(inp, is_training, reuse):
     logit_args = make_args(activation=None, **common_args)
     pool_args = make_args(**common_args)
 
-    x = input(inp, **common_args)
+    x = input((None, cnf['w'], cnf['h'], 1), **common_args)
     x = conv2d(x, 20, name='conv1_1', **conv_args)
     x = max_pool(x, name='pool1', **pool_args)
     x = fully_connected(x, n_output=100, name='fc1', **fc_args)

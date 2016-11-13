@@ -169,7 +169,7 @@ class SupervisedTrainer(object):
                 batch_validation_sizes = []
                 for batch_num, (validation_X, validation_y) in enumerate(
                         self.validation_iterator(validation_files, validation_labels)):
-                    feed_dict_validation = {self.inputs: validation_X.transpose(0, 2, 3, 1),
+                    feed_dict_validation = {self.validation_inputs: validation_X.transpose(0, 2, 3, 1),
                                             self.target: self._adjust_ground_truth(validation_y)}
                     trace('6. Loading batch %d validation data done.' % batch_num, verbose)
 
@@ -283,12 +283,12 @@ class SupervisedTrainer(object):
             self._setup_regression_predictions_and_loss()
 
     def _setup_classification_predictions_and_loss(self):
-        with tf.name_scope('inputs'):
-            self.inputs = tf.placeholder(tf.float32, shape=(None, self.cnf['w'], self.cnf['h'], 3), name="input")
-        self.training_end_points = self.model(self.inputs, is_training=True, reuse=None)
+        self.training_end_points = self.model(is_training=True, reuse=None)
+        self.inputs = self.training_end_points['inputs']
         training_logits, self.training_predictions = self.training_end_points['logits'], self.training_end_points[
             'predictions']
-        self.validation_end_points = self.model(self.inputs, is_training=False, reuse=True)
+        self.validation_end_points = self.model(is_training=False, reuse=True)
+        self.validation_inputs = self.validation_end_points['inputs']
         validation_logits, self.validation_predictions = self.validation_end_points['logits'], \
                                                          self.validation_end_points[
                                                              'predictions']
@@ -307,11 +307,11 @@ class SupervisedTrainer(object):
             self.regularized_training_loss = training_loss + l2_loss * self.cnf['l2_reg']
 
     def _setup_regression_predictions_and_loss(self):
-        with tf.name_scope('inputs'):
-            self.inputs = tf.placeholder(tf.float32, shape=(None, self.cnf['w'], self.cnf['h'], 3), name="input")
-        self.training_end_points = self.model(self.inputs, is_training=True, reuse=None)
+        self.training_end_points = self.model(is_training=True, reuse=None)
+        self.inputs = self.training_end_points['inputs']
         self.training_predictions = self.training_end_points['predictions']
-        self.validation_end_points = self.model(self.inputs, is_training=False, reuse=True)
+        self.validation_end_points = self.model(is_training=False, reuse=True)
+        self.validation_inputs = self.validation_end_points['inputs']
         self.validation_predictions = self.validation_end_points['predictions']
         with tf.name_scope('predictions'):
             self.target = tf.placeholder(tf.float32, shape=(None, 1))

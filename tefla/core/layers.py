@@ -13,9 +13,11 @@ from tefla.utils import util as helper
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 
 
-def input(x, name='inputs', outputs_collections=None, **unused):
+def input(shape, name='inputs', outputs_collections=None, **unused):
     _check_unused(unused)
-    return _collect_named_outputs(outputs_collections, name, x)
+    with tf.name_scope(name):
+        inputs = tf.placeholder(tf.float32, shape=shape, name="input")
+    return _collect_named_outputs(outputs_collections, name, inputs)
 
 
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
