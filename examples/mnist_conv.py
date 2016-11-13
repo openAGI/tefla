@@ -13,6 +13,7 @@ from tefla.core.training import SupervisedTrainer
 from tefla.utils import util
 from tefla.core.layer_arg_ops import common_layer_args, make_args
 from tefla.core.layers import input, conv2d, fully_connected, max_pool, softmax, batch_norm_lasagne, prelu
+from tefla.core.mem_dataset import DataSet
 from collections import OrderedDict
 import logging
 
@@ -26,20 +27,6 @@ validation_labels = mnist[1].labels
 
 test_images = mnist[2].images.reshape(-1, 1, 28, 28)
 test_labels = mnist[2].labels
-
-
-class DataSet(object):
-    def __init__(self, training_files, training_labels, validation_files, validation_labels):
-        self.training_files = training_files
-        self.training_labels = training_labels
-        self.validation_files = validation_files
-        self.validation_labels = validation_labels
-
-    def print_info(self):
-        print(train_images.shape, train_labels.shape)
-        print(validation_images.shape, validation_labels.shape)
-        print(test_images.shape, test_labels.shape)
-
 
 data_set = DataSet(train_images, train_labels, validation_images, validation_labels)
 
