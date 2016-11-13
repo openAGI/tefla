@@ -19,19 +19,16 @@ import logging
 
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=False)
 
-train_images = mnist[0].images.reshape(-1, 1, 28, 28)
+width = 28
+height = 28
+
+train_images = mnist[0].images.reshape(-1, 1, height, width)
 train_labels = mnist[0].labels
 
-validation_images = mnist[1].images.reshape(-1, 1, 28, 28)
+validation_images = mnist[1].images.reshape(-1, 1, height, width)
 validation_labels = mnist[1].labels
 
-test_images = mnist[2].images.reshape(-1, 1, 28, 28)
-test_labels = mnist[2].labels
-
 data_set = DataSet(train_images, train_labels, validation_images, validation_labels)
-
-training_iter = BatchIterator(32, False)
-validation_iter = BatchIterator(32, False)
 
 
 def model(is_training, reuse):
@@ -43,7 +40,7 @@ def model(is_training, reuse):
     logit_args = make_args(activation=None, **common_args)
     pool_args = make_args(**common_args)
 
-    x = input((None, cnf['w'], cnf['h'], 1), **common_args)
+    x = input((None, height, width, 1), **common_args)
     x = conv2d(x, 20, name='conv1_1', **conv_args)
     x = max_pool(x, name='pool1', **pool_args)
     x = fully_connected(x, n_output=100, name='fc1', **fc_args)
@@ -56,12 +53,10 @@ def model(is_training, reuse):
 
 cnf = {
     'name': __name__.split('.')[-1],
-    'w': 28,
-    'h': 28,
     'classification': True,
     'validation_scores': [('validation accuracy', util.accuracy_wrapper), ('validation kappa', util.kappa_wrapper)],
     'l2_reg': 0.0000,
-    'summary_dir': '/media/lalit/data/summary/mnist',
+    'summary_dir': '/media/lalit/data/summary/mnist_conv',
     'schedule': {
         0: 0.01,
         50: 0.001,
@@ -74,5 +69,7 @@ cnf = {
 }
 util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
 
+training_iter = BatchIterator(32, False)
+validation_iter = BatchIterator(32, False)
 trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, classification=cnf['classification'])
-trainer.fit(data_set, None, 1, verbose=1, summary_every=10)
+trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)

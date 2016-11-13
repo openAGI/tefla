@@ -19,19 +19,16 @@ import logging
 
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=False)
 
+width = 28
+height = 28
+
 train_images = mnist[0].images
 train_labels = mnist[0].labels
 
 validation_images = mnist[1].images
 validation_labels = mnist[1].labels
 
-test_images = mnist[2].images
-test_labels = mnist[2].labels
-
 data_set = DataSet(train_images, train_labels, validation_images, validation_labels)
-
-training_iter = BatchIterator(32, False)
-validation_iter = BatchIterator(32, False)
 
 
 def model(is_training, reuse):
@@ -40,7 +37,7 @@ def model(is_training, reuse):
     fc_args = make_args(activation=relu, **common_args)
     logit_args = make_args(activation=None, **common_args)
 
-    x = input((None, cnf['w'] * cnf['h']), **common_args)
+    x = input((None, height * width), **common_args)
     x = fully_connected(x, n_output=100, name='fc1', **fc_args)
     logits = fully_connected(x, n_output=10, name="logits", **logit_args)
     predictions = softmax(logits, name='predictions', **common_args)
@@ -51,8 +48,6 @@ def model(is_training, reuse):
 
 cnf = {
     'name': __name__.split('.')[-1],
-    'w': 28,
-    'h': 28,
     'classification': True,
     'validation_scores': [('validation accuracy', util.accuracy_wrapper), ('validation kappa', util.kappa_wrapper)],
     'l2_reg': 0.0000,
@@ -69,5 +64,7 @@ cnf = {
 }
 util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
 
+training_iter = BatchIterator(32, False)
+validation_iter = BatchIterator(32, False)
 trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, classification=cnf['classification'])
-trainer.fit(data_set, None, 1, verbose=1, summary_every=10)
+trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)
