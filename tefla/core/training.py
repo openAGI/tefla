@@ -3,7 +3,6 @@ from __future__ import division, print_function, absolute_import
 import logging
 import os
 import pprint
-import shutil
 import time
 
 import numpy as np
@@ -121,8 +120,7 @@ class SupervisedTrainer(object):
                 batch_train_sizes = []
 
                 for batch_num, (X, y) in enumerate(self.training_iterator(files, labels)):
-                    feed_dict_train = {self.inputs: X.transpose(0, 2, 3, 1),
-                                       self.target: self._adjust_ground_truth(y)}
+                    feed_dict_train = {self.inputs: self._adjust_input(X), self.target: self._adjust_ground_truth(y)}
 
                     trace('1. Loading batch %d data done.' % batch_num, verbose)
                     if (epoch - 1) % summary_every == 0 and batch_num < 10:
@@ -169,7 +167,7 @@ class SupervisedTrainer(object):
                 batch_validation_sizes = []
                 for batch_num, (validation_X, validation_y) in enumerate(
                         self.validation_iterator(validation_files, validation_labels)):
-                    feed_dict_validation = {self.validation_inputs: validation_X.transpose(0, 2, 3, 1),
+                    feed_dict_validation = {self.validation_inputs: self._adjust_input(validation_X),
                                             self.target: self._adjust_ground_truth(validation_y)}
                     trace('6. Loading batch %d validation data done.' % batch_num, verbose)
 
@@ -245,8 +243,8 @@ class SupervisedTrainer(object):
             tf.scalar_summary('learning rate', self.learning_rate, collections=[TRAINING_EPOCH_SUMMARIES])
             tf.scalar_summary('training (cross entropy) loss', self.epoch_loss,
                               collections=[TRAINING_EPOCH_SUMMARIES])
-
-            tf.image_summary('input', self.inputs, 10, collections=[TRAINING_BATCH_SUMMARIES])
+            if len(self.inputs.get_shape()) == 4:
+                tf.image_summary('input', self.inputs, 10, collections=[TRAINING_BATCH_SUMMARIES])
             for key, val in self.training_end_points.iteritems():
                 variable_summaries(val, key, collections=[TRAINING_BATCH_SUMMARIES])
             for var in tf.trainable_variables():
@@ -324,6 +322,9 @@ class SupervisedTrainer(object):
 
             l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
             self.regularized_training_loss = training_loss + l2_loss * self.cnf['l2_reg']
+
+    def _adjust_input(self, X):
+        return X if len(self.inputs.get_shape()) != 4 else X.transpose(0, 2, 3, 1)
 
     def _adjust_ground_truth(self, y):
         return y if self.classification else y.reshape(-1, 1).astype(np.float32)

@@ -329,7 +329,7 @@ def _collect_named_outputs(outputs_collections, name, output):
 
 
 def _check_unused(unused):
-    allowed_keys = {'is_training', 'reuse', 'outputs_collections'}
+    allowed_keys = {'is_training', 'reuse', 'outputs_collections', 'trainable'}
     unused_keys = set(unused.keys())
     extra = unused_keys - allowed_keys
     if len(extra) > 0:
