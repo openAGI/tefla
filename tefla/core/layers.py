@@ -13,14 +13,14 @@ from tefla.utils import util as helper
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 
 
-def input(x, name='inputs', outputs_collections=None):
+def input(x, name='inputs', outputs_collections=None, **unused):
+    _check_unused(unused)
     return _collect_named_outputs(outputs_collections, name, x)
 
 
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
-                    w_regularizer=tf.nn.l2_loss,
-                    name='fc', batch_norm=None, batch_norm_params=None, activation=None, dropout_p=None,
-                    outputs_collections=None):
+                    w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
+                    dropout_p=None, outputs_collections=None):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     if len(x.get_shape()) != 2:
@@ -40,8 +40,9 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
         )
 
         if batch_norm is not None:
-            batch_norm_params = batch_norm_params or {}
-            output = batch_norm(tf.matmul(x, W), trainable=trainable, **batch_norm_params)
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(tf.matmul(x, W), is_training=is_training, reuse=reuse, trainable=trainable,
+                                **batch_norm_args)
         else:
             b = tf.get_variable(
                 name='b',
@@ -64,7 +65,7 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
 
 def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
            padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
-           name='conv2d', batch_norm=None, batch_norm_params=None, activation=None, use_bias=True,
+           name='conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
            outputs_collections=None):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
@@ -104,8 +105,9 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
                 output = tf.nn.bias_add(value=output, bias=b)
 
         if batch_norm is not None:
-            batch_norm_params = batch_norm_params or {}
-            output = batch_norm(output, trainable=trainable, **batch_norm_params)
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(output, is_training=is_training, reuse=reuse, trainable=trainable,
+                                **batch_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -113,7 +115,8 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', outputs_collections=None):
+def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', outputs_collections=None, **unused):
+    _check_unused(unused)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
@@ -127,7 +130,8 @@ def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', 
 
 
 def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', epsilon=0.000000000001,
-                outputs_collections=None):
+                outputs_collections=None, **unused):
+    _check_unused(unused)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
@@ -141,7 +145,8 @@ def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None, outputs_collections=None):
+def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None, outputs_collections=None, **unused):
+    _check_unused(unused)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name or "pool"):
@@ -154,7 +159,8 @@ def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None,
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def global_avg_pool(x, name="global_avg_pool", outputs_collections=None):
+def global_avg_pool(x, name="global_avg_pool", outputs_collections=None, **unused):
+    _check_unused(unused)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
@@ -162,7 +168,8 @@ def global_avg_pool(x, name="global_avg_pool", outputs_collections=None):
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None):
+def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **unused):
+    _check_unused(unused)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 2, "Input Tensor shape must be 2-D"
     x = tf.reshape(x, (-1, input_shape[1] // stride, stride))
@@ -254,25 +261,29 @@ def prelu(x, reuse, trainable=True, name='prelu', outputs_collections=None):
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def relu(x, reuse, name='relu', outputs_collections=None, **kwargs):
+def relu(x, name='relu', outputs_collections=None, **unused):
+    _check_unused(unused)
     with tf.name_scope(name):
         output = tf.nn.relu(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def leaky_relu(x, reuse, alpha=0.01, name='leaky_relu', outputs_collections=None, **kwargs):
+def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unused):
+    _check_unused(unused)
     with tf.name_scope(name):
         output = tf.nn.relu(x) + tf.mul(alpha, (x - tf.abs(x))) * 0.5
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def softmax(x, name='softmax', outputs_collections=None):
+def softmax(x, name='softmax', outputs_collections=None, **unused):
+    _check_unused(unused)
     with tf.name_scope(name):
         output = tf.nn.softmax(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def dropout(x, p, is_training, name='dropout', outputs_collections=None):
+def dropout(x, p, is_training, name='dropout', outputs_collections=None, **unused):
+    _check_unused(unused)
     with tf.name_scope(name):
         keep_p = 1. - p
         if is_training:
@@ -313,3 +324,11 @@ def _collect_named_outputs(outputs_collections, name, output):
     if outputs_collections is not None:
         tf.add_to_collection(outputs_collections, NamedOutputs(name, output))
     return output
+
+
+def _check_unused(unused):
+    allowed_keys = {'is_training', 'reuse', 'outputs_collections'}
+    unused_keys = set(unused.keys())
+    extra = unused_keys - allowed_keys
+    if len(extra) > 0:
+        raise ValueError("Layer got unexpected argument(s): %s" % extra)
