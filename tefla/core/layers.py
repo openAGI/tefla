@@ -21,8 +21,9 @@ def input(shape, name='inputs', outputs_collections=None, **unused):
 
 
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
-                    w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
-                    dropout_p=None, outputs_collections=None):
+                    w_regularizer=tf.nn.l2_loss,
+                    name='fc', batch_norm=None, batch_norm_params=None, activation=None, dropout_p=None,
+                    outputs_collections=None, use_bias=True):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     if len(x.get_shape()) != 2:
@@ -40,12 +41,9 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
             regularizer=w_regularizer,
             trainable=trainable
         )
+        output = tf.matmul(x, W)
 
-        if batch_norm is not None:
-            batch_norm_args = batch_norm_args or {}
-            output = batch_norm(tf.matmul(x, W), is_training=is_training, reuse=reuse, trainable=trainable,
-                                **batch_norm_args)
-        else:
+        if use_bias:
             b = tf.get_variable(
                 name='b',
                 shape=[n_output],
@@ -54,7 +52,11 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
                 trainable=trainable
             )
 
-            output = tf.nn.bias_add(value=tf.matmul(x, W), bias=b)
+            output = tf.nn.bias_add(value=output, bias=b)
+
+        if batch_norm is not None:
+            batch_norm_params = batch_norm_params or {}
+            output = batch_norm(output, trainable=trainable, **batch_norm_params)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -183,7 +185,8 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-batch_norm_tf = tf.contrib.layers.batch_norm
+def batch_norm_tf(x, name='bn', **kwargs):
+    return tf.contrib.layers.batch_norm(x, scope=name, **kwargs)
 
 
 def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='batchnorm',
