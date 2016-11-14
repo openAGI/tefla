@@ -37,8 +37,7 @@ data_set = DataSet(train_images, train_labels, validation_images, validation_lab
 def model(is_training, reuse):
     outputs_collection = 'training_activations' if is_training else 'prediction_activations'
     common_args = common_layer_args(is_training, reuse, outputs_collection)
-    bn_args = make_args(updates_collections=None, scope='batchnorm', scale=True)
-    conv_args = make_args(batch_norm=batch_norm_tf, batch_norm_args=bn_args, activation=prelu, **common_args)
+    conv_args = make_args(batch_norm=True, activation=prelu, **common_args)
     fc_args = make_args(activation=prelu, **common_args)
     logit_args = make_args(activation=None, **common_args)
     pool_args = make_args(**common_args)

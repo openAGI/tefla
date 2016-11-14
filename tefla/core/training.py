@@ -165,10 +165,10 @@ class SupervisedTrainer(object):
                 batch_validation_metrics = [[] for _, _ in self.validation_metrics_def]
                 epoch_validation_metrics = []
                 batch_validation_sizes = []
-                for batch_num, (validation_X, validation_y) in enumerate(
+                for batch_num, (validation_Xb, validation_yb) in enumerate(
                         self.validation_iterator(validation_X, validation_y)):
-                    feed_dict_validation = {self.validation_inputs: self._adjust_input(validation_X),
-                                            self.target: self._adjust_ground_truth(validation_y)}
+                    feed_dict_validation = {self.validation_inputs: self._adjust_input(validation_Xb),
+                                            self.target: self._adjust_ground_truth(validation_yb)}
                     logger.debug('6. Loading batch %d validation data done.' % batch_num)
 
                     if (epoch - 1) % summary_every == 0 and batch_num < 10:
@@ -191,10 +191,10 @@ class SupervisedTrainer(object):
                             feed_dict=feed_dict_validation)
                         logger.debug('7. Running validation steps without summary done.')
                     validation_losses.append(validation_loss_e)
-                    batch_validation_sizes.append(len(validation_X))
+                    batch_validation_sizes.append(len(validation_Xb))
 
                     for i, (_, metric_function) in enumerate(self.validation_metrics_def):
-                        metric_score = metric_function(validation_y, validation_predictions_e)
+                        metric_score = metric_function(validation_yb, validation_predictions_e)
                         batch_validation_metrics[i].append(metric_score)
                     logger.debug('8. Validation batch %d done' % batch_num)
 

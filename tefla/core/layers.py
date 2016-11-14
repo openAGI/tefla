@@ -21,9 +21,8 @@ def input(shape, name='inputs', outputs_collections=None, **unused):
 
 
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
-                    w_regularizer=tf.nn.l2_loss,
-                    name='fc', batch_norm=None, batch_norm_params=None, activation=None, dropout_p=None,
-                    outputs_collections=None, use_bias=True):
+                    w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
+                    dropout_p=None, outputs_collections=None, use_bias=True):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     if len(x.get_shape()) != 2:
@@ -57,8 +56,8 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
         if batch_norm is not None:
             if isinstance(batch_norm, bool):
                 batch_norm = batch_norm_tf
-            batch_norm_params = batch_norm_params or {}
-            output = batch_norm(output, trainable=trainable, **batch_norm_params)
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(output, is_training=is_training, reuse=reuse, trainable=trainable, **batch_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -114,8 +113,7 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
             if isinstance(batch_norm, bool):
                 batch_norm = batch_norm_tf
             batch_norm_args = batch_norm_args or {}
-            output = batch_norm(output, is_training=is_training, reuse=reuse, trainable=trainable,
-                                **batch_norm_args)
+            output = batch_norm(output, is_training=is_training, reuse=reuse, trainable=trainable, **batch_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -189,8 +187,8 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def batch_norm_tf(x, name='bn', **kwargs):
-    return tf.contrib.layers.batch_norm(x, scope=name, **kwargs)
+def batch_norm_tf(x, name='batchnorm', updates_collections=None, **kwargs):
+    return tf.contrib.layers.batch_norm(x, scope=name, updates_collections=updates_collections, **kwargs)
 
 
 def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='batchnorm',
