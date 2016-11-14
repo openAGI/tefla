@@ -92,3 +92,4 @@ weights/
 .idea/
 *.*~
 amodels/
+examples/*data
