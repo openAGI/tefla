@@ -27,7 +27,7 @@ import logging
               help='Image size within training directory.')
 @click.option('--data_standardizer', default='samplewise', show_default=True,
               help='samplewise or aggregate standardizer.')
-@click.option('--iterator_type', default='parallel', show_default=True,
+@click.option('--iterator_type', default='queued', show_default=True,
               help='parallel or queued.')
 @click.option('--start_epoch', default=1, show_default=True,
               help='Epoch number from which to resume training.')
