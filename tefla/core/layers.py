@@ -55,6 +55,8 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
             output = tf.nn.bias_add(value=output, bias=b)
 
         if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
             batch_norm_params = batch_norm_params or {}
             output = batch_norm(output, trainable=trainable, **batch_norm_params)
 
@@ -109,6 +111,8 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
                 output = tf.nn.bias_add(value=output, bias=b)
 
         if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
             batch_norm_args = batch_norm_args or {}
             output = batch_norm(output, is_training=is_training, reuse=reuse, trainable=trainable,
                                 **batch_norm_args)
