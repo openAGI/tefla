@@ -1,19 +1,22 @@
 import importlib
+import logging
 import os
 import subprocess
 import time
 from datetime import datetime
-from sklearn.metrics import auc, roc_curve
+
 import numpy as np
 import tensorflow as tf
+from sklearn.metrics import auc, roc_curve
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, accuracy_score
 from sklearn.preprocessing import label_binarize
-from quadratic_weighted_kappa import quadratic_weighted_kappa
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_util
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import variables
+
+from quadratic_weighted_kappa import quadratic_weighted_kappa
 
 
 def roc(y_true, y_pred, classes=[0, 1, 2, 3, 4]):
@@ -160,7 +163,6 @@ def dump_vars(sess):
 
 
 def init_logging(file_name, file_log_level, console_log_level):
-    import logging
     import sys
     logger = logging.getLogger('tefla')
     logger.setLevel(logging.DEBUG)
@@ -294,3 +296,30 @@ def get_variable_collections(variables_collections, name):
     else:
         variable_collections = variables_collections
     return variable_collections
+
+
+def load_variables(self, sess, saver, weights_from):
+    logger = logging.getLogger('tefla')
+    logger.info("---Loading session/weights from %s..." % weights_from)
+    try:
+        saver.restore(sess, weights_from)
+    except Exception as e:
+        logger.info("Unable to restore entire session from checkpoint. Error: %s." % e.message)
+        logger.info("Doing selective restore.")
+        try:
+            reader = tf.train.NewCheckpointReader(weights_from)
+            names_to_restore = set(reader.get_variable_to_shape_map().keys())
+            variables_to_restore = [v for v in tf.all_variables() if v.name[:-2] in names_to_restore]
+            logger.info("Loading %d variables: " % len(variables_to_restore))
+            for var in variables_to_restore:
+                logger.info("Loading: %s %s)" % (var.name, var.get_shape()))
+                restorer = tf.train.Saver([var])
+                try:
+                    restorer.restore(sess, weights_from)
+                except Exception as e:
+                    logger.info("Problem loading: %s -- %s" % (var.name, e.message))
+                    continue
+            logger.info("Loaded session/weights from %s" % weights_from)
+        except Exception:
+            logger.info("Couldn't load session/weights from %s; starting from scratch" % weights_from)
+            sess.run(tf.initialize_all_variables())

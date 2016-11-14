@@ -184,7 +184,8 @@ def load_augment(fname, preprocessor, w, h, is_training, aug_params=no_augmentat
     if standardizer:
         img = standardizer(img, is_training)
 
-    return img
+    # convert to tf format
+    return img.transpose(1, 2, 0)
 
 
 def image_no_preprocessing(fname):

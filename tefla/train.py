@@ -8,7 +8,7 @@ import tensorflow as tf
 
 tf.set_random_seed(127)
 
-from tefla.core import tvf_dataset
+from tefla.core.dir_dataset import DataSet
 from tefla.da.standardizer import AggregateStandardizer, SamplewiseStandardizer
 from tefla.core.iter_ops import create_training_iters
 from tefla.core.training import SupervisedTrainer
@@ -41,7 +41,7 @@ def main(model, train_cnf, data_dir, image_size, data_standardizer, iterator_typ
     if weights_from:
         weights_from = str(weights_from)
 
-    data_set = tvf_dataset.DataSet(data_dir, image_size)
+    data_set = DataSet(data_dir, image_size)
 
     if data_standardizer == 'samplewise':
         standardizer = SamplewiseStandardizer(clip=6)

@@ -91,3 +91,4 @@ ENV/
 weights/
 .idea/
 *.*~
+amodels/

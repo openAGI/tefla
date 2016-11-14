@@ -7,6 +7,9 @@ class SamplewiseStandardizer:
         self.clip = clip
         self.channel_wise = channel_wise
 
+    def update(self, **kwargs):
+        pass
+
     def __call__(self, img, is_training):
         if self.channel_wise:
             img_mean = img.mean(axis=(1, 2))
@@ -31,6 +34,9 @@ class AggregateStandardizer:
         self.ev = ev
         self.sigma = sigma
         self.color_vec = color_vec
+
+    def update(self, **kwargs):
+        self.color_vec = kwargs['color_vec']
 
     def __call__(self, img, is_training):
         np.subtract(img, self.mean[:, np.newaxis, np.newaxis], out=img)

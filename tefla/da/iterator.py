@@ -147,7 +147,7 @@ class ParallelDAIterator(QueuedDAIterator):
         shared_array_name = str(uuid4())
         try:
             shared_array = SharedArray.create(
-                shared_array_name, [len(Xb), 3, self.w, self.h], dtype=np.float32)
+                shared_array_name, [len(Xb), self.w, self.h, 3], dtype=np.float32)
 
             fnames, labels = Xb, yb
             args = []

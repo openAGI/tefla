@@ -28,19 +28,19 @@ class DataSet(object):
         self._validation_labels = data.get_labels(names, label_file=validation_labels_file).astype(np.int32)
 
     @property
-    def training_files(self):
+    def training_X(self):
         return self._training_files
 
     @property
-    def training_labels(self):
+    def training_y(self):
         return self._training_labels
 
     @property
-    def validation_files(self):
+    def validation_X(self):
         return self._validation_files
 
     @property
-    def validation_labels(self):
+    def validation_y(self):
         return self._validation_labels
 
     def num_training_files(self):

@@ -63,18 +63,18 @@ class SupervisedTrainer(object):
             trainable_vars = set(tf.trainable_variables())
             non_trainable_vars = all_vars.difference(trainable_vars)
 
-            logger.debug("\n---Trainable vars in model:")
+            logger.info("\n---Trainable vars in model:")
             name_shapes = map(lambda v: (v.name, v.get_shape()), trainable_vars)
             for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
-                logger.debug('%s %s' % (n, s))
+                logger.info('%s %s' % (n, s))
 
-            logger.debug("\n---Non Trainable vars in model:")
+            logger.info("\n---Non Trainable vars in model:")
             name_shapes = map(lambda v: (v.name, v.get_shape()), non_trainable_vars)
             for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
-                logger.debug('%s %s' % (n, s))
+                logger.info('%s %s' % (n, s))
 
-        logger.debug("\n---Number of Regularizable vars in model:")
-        logger.debug(len(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)))
+        # logger.debug("\n---Number of Regularizable vars in model:")
+        # logger.debug(len(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)))
 
         if verbose > 3:
             all_ops = tf.get_default_graph().get_operations()
@@ -83,12 +83,12 @@ class SupervisedTrainer(object):
             for n in sorted(names):
                 logger.debug(n)
 
-        print_layer_shapes(self.training_end_points)
+        _print_layer_shapes(self.training_end_points)
 
     def _train_loop(self, data_set, weights_from, start_epoch, summary_every,
                     verbose):
-        files, labels, validation_files, validation_labels = \
-            data_set.training_files, data_set.training_labels, data_set.validation_files, data_set.validation_labels
+        training_X, training_y, validation_X, validation_y = \
+            data_set.training_X, data_set.training_y, data_set.validation_X, data_set.validation_y
         saver = tf.train.Saver(max_to_keep=None)
         weights_dir = "weights"
         if not os.path.exists(weights_dir):
@@ -105,11 +105,11 @@ class SupervisedTrainer(object):
 
             sess.run(tf.initialize_all_variables())
             if weights_from:
-                self._load_variables(sess, saver, weights_from)
+                _load_variables(sess, saver, weights_from)
                 # sess.run(self.learning_rate.assign(0.003))
 
             logger.info("Initial learning rate: %f " % sess.run(self.learning_rate))
-            train_writer, validation_writer = create_summary_writer(self.cnf['summary_dir'], sess)
+            train_writer, validation_writer = _create_summary_writer(self.cnf['summary_dir'], sess)
 
             seed_delta = 100
             for epoch in xrange(start_epoch, self.num_epochs + 1):
@@ -119,46 +119,46 @@ class SupervisedTrainer(object):
                 training_losses = []
                 batch_train_sizes = []
 
-                for batch_num, (X, y) in enumerate(self.training_iterator(files, labels)):
-                    feed_dict_train = {self.inputs: self._adjust_input(X), self.target: self._adjust_ground_truth(y)}
+                for batch_num, (Xb, yb) in enumerate(self.training_iterator(training_X, training_y)):
+                    feed_dict_train = {self.inputs: self._adjust_input(Xb), self.target: self._adjust_ground_truth(yb)}
 
-                    trace('1. Loading batch %d data done.' % batch_num, verbose)
+                    logger.debug('1. Loading batch %d data done.' % batch_num)
                     if (epoch - 1) % summary_every == 0 and batch_num < 10:
-                        trace('2. Running training steps with summary...', verbose)
+                        logger.debug('2. Running training steps with summary...')
                         training_predictions_e, training_loss_e, summary_str_train, _ = sess.run(
                             [self.training_predictions, self.regularized_training_loss, training_batch_summary_op,
                              self.optimizer_step],
                             feed_dict=feed_dict_train)
                         train_writer.add_summary(summary_str_train, epoch)
                         train_writer.flush()
-                        trace('2. Running training steps with summary done.', verbose)
+                        logger.debug('2. Running training steps with summary done.')
                         if verbose > 3:
                             logger.debug("Epoch %d, Batch %d training loss: %s" % (epoch, batch_num, training_loss_e))
                             logger.debug("Epoch %d, Batch %d training predictions: %s" %
                                          (epoch, batch_num, training_predictions_e))
                     else:
-                        trace('2. Running training steps without summary...', verbose)
+                        logger.debug('2. Running training steps without summary...')
                         training_loss_e, _ = sess.run([self.regularized_training_loss, self.optimizer_step],
                                                       feed_dict=feed_dict_train)
-                        trace('2. Running training steps without summary done.', verbose)
+                        logger.debug('2. Running training steps without summary done.')
 
                     training_losses.append(training_loss_e)
-                    batch_train_sizes.append(len(X))
+                    batch_train_sizes.append(len(Xb))
                     if self.update_ops is not None:
-                        trace('3. Running update ops...', verbose)
+                        logger.debug('3. Running update ops...')
                         sess.run(self.update_ops, feed_dict=feed_dict_train)
-                        trace('3. Running update ops done.', verbose)
-                    trace('4. Training batch %d done.' % batch_num, verbose)
+                        logger.debug('3. Running update ops done.')
+                    logger.debug('4. Training batch %d done.' % batch_num)
 
                 epoch_training_loss = np.average(training_losses, weights=batch_train_sizes)
 
                 # Plot training loss every epoch
-                trace('5. Writing epoch summary...', verbose)
+                logger.debug('5. Writing epoch summary...')
                 summary_str_train = sess.run(training_epoch_summary_op,
                                              feed_dict={self.epoch_loss: epoch_training_loss})
                 train_writer.add_summary(summary_str_train, epoch)
                 train_writer.flush()
-                trace('5. Writing epoch summary done.', verbose)
+                logger.debug('5. Writing epoch summary done.')
 
                 # Validation prediction and metrics
                 validation_losses = []
@@ -166,37 +166,37 @@ class SupervisedTrainer(object):
                 epoch_validation_metrics = []
                 batch_validation_sizes = []
                 for batch_num, (validation_X, validation_y) in enumerate(
-                        self.validation_iterator(validation_files, validation_labels)):
+                        self.validation_iterator(validation_X, validation_y)):
                     feed_dict_validation = {self.validation_inputs: self._adjust_input(validation_X),
                                             self.target: self._adjust_ground_truth(validation_y)}
-                    trace('6. Loading batch %d validation data done.' % batch_num, verbose)
+                    logger.debug('6. Loading batch %d validation data done.' % batch_num)
 
                     if (epoch - 1) % summary_every == 0 and batch_num < 10:
-                        trace('7. Running validation steps with summary...', verbose)
+                        logger.debug('7. Running validation steps with summary...')
                         validation_predictions_e, validation_loss_e, summary_str_validate = sess.run(
                             [self.validation_predictions, self.validation_loss, validation_batch_summary_op],
                             feed_dict=feed_dict_validation)
                         validation_writer.add_summary(summary_str_validate, epoch)
                         validation_writer.flush()
-                        trace('7. Running validation steps with summary done.', verbose)
+                        logger.debug('7. Running validation steps with summary done.')
                         if verbose > 3:
                             logger.debug(
                                 "Epoch %d, Batch %d validation loss: %s" % (epoch, batch_num, validation_loss_e))
                             logger.debug("Epoch %d, Batch %d validation predictions: %s" % (
                                 epoch, batch_num, validation_predictions_e))
                     else:
-                        trace('7. Running validation steps without summary...', verbose)
+                        logger.debug('7. Running validation steps without summary...')
                         validation_predictions_e, validation_loss_e = sess.run(
                             [self.validation_predictions, self.validation_loss],
                             feed_dict=feed_dict_validation)
-                        trace('7. Running validation steps without summary done.', verbose)
+                        logger.debug('7. Running validation steps without summary done.')
                     validation_losses.append(validation_loss_e)
                     batch_validation_sizes.append(len(validation_X))
 
                     for i, (_, metric_function) in enumerate(self.validation_metrics_def):
                         metric_score = metric_function(validation_y, validation_predictions_e)
                         batch_validation_metrics[i].append(metric_score)
-                    trace('8. Validation batch %d done' % batch_num, verbose)
+                    logger.debug('8. Validation batch %d done' % batch_num)
 
                 epoch_validation_loss = np.average(validation_losses, weights=batch_validation_sizes)
                 for i, (_, _) in enumerate(self.validation_metrics_def):
@@ -204,13 +204,13 @@ class SupervisedTrainer(object):
                         np.average(batch_validation_metrics[i], weights=batch_validation_sizes))
 
                 # Write validation epoch summary every epoch
-                trace('9. Writing epoch validation summary...', verbose)
+                logger.debug('9. Writing epoch validation summary...')
                 summary_str_validate = sess.run(validation_epoch_summary_op,
                                                 feed_dict={self.epoch_loss: epoch_validation_loss,
                                                            self.validation_metric_placeholders: epoch_validation_metrics})
                 validation_writer.add_summary(summary_str_validate, epoch)
                 validation_writer.flush()
-                trace('9. Writing epoch validation summary done.', verbose)
+                logger.debug('9. Writing epoch validation summary done.')
 
                 custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[i]) for i, (name, _) in
                                          enumerate(self.validation_metrics_def)]
@@ -230,7 +230,7 @@ class SupervisedTrainer(object):
 
                 # Learning rate step decay
                 self.lr_decay_policy.update(self.learning_rate, epoch, self.schedule, sess, verbose)
-                trace('10. Epoch done. [%d]' % epoch, verbose)
+                logger.debug('10. Epoch done. [%d]' % epoch)
 
             train_writer.close()
             validation_writer.close()
@@ -324,42 +324,40 @@ class SupervisedTrainer(object):
             self.regularized_training_loss = training_loss + l2_loss * self.cnf['l2_reg']
 
     def _adjust_input(self, X):
-        return X if len(self.inputs.get_shape()) != 4 else X.transpose(0, 2, 3, 1)
+        # return X if len(self.inputs.get_shape()) != 4 else X.transpose(0, 2, 3, 1)
+        return X
 
     def _adjust_ground_truth(self, y):
         return y if self.classification else y.reshape(-1, 1).astype(np.float32)
 
-    def _load_variables(self, sess, saver, weights_from):
-        logger.info("---Loading session/weights from %s..." % weights_from)
+
+def _load_variables(sess, saver, weights_from):
+    logger.info("---Loading session/weights from %s..." % weights_from)
+    try:
+        saver.restore(sess, weights_from)
+    except Exception as e:
+        logger.info("Unable to restore entire session from checkpoint. Error: %s." % e.message)
+        logger.info("Doing selective restore.")
         try:
-            saver.restore(sess, weights_from)
-        except Exception as e:
-            logger.info("Unable to restore entire session from checkpoint. Error: %s." % e.message)
-            logger.info("Doing selective restore.")
-            try:
-                reader = tf.train.NewCheckpointReader(weights_from)
-                names_to_restore = set(reader.get_variable_to_shape_map().keys())
-                variables_to_restore = [v for v in tf.all_variables() if v.name[:-2] in names_to_restore]
-                logger.info("Loading %d variables: " % len(variables_to_restore))
-                for var in variables_to_restore:
-                    logger.info("Loading: %s %s)" % (var.name, var.get_shape()))
-                    restorer = tf.train.Saver([var])
-                    try:
-                        restorer.restore(sess, weights_from)
-                    except Exception as e:
-                        logger.info("Problem loading: %s -- %s" % (var.name, e.message))
-                        continue
-                logger.info("Loaded session/weights from %s" % weights_from)
-            except Exception:
-                logger.info("Couldn't load session/weights from %s; starting from scratch" % weights_from)
-                sess.run(tf.initialize_all_variables())
+            reader = tf.train.NewCheckpointReader(weights_from)
+            names_to_restore = set(reader.get_variable_to_shape_map().keys())
+            variables_to_restore = [v for v in tf.all_variables() if v.name[:-2] in names_to_restore]
+            logger.info("Loading %d variables: " % len(variables_to_restore))
+            for var in variables_to_restore:
+                logger.info("Loading: %s %s)" % (var.name, var.get_shape()))
+                restorer = tf.train.Saver([var])
+                try:
+                    restorer.restore(sess, weights_from)
+                except Exception as e:
+                    logger.info("Problem loading: %s -- %s" % (var.name, e.message))
+                    continue
+            logger.info("Loaded session/weights from %s" % weights_from)
+        except Exception:
+            logger.info("Couldn't load session/weights from %s; starting from scratch" % weights_from)
+            sess.run(tf.initialize_all_variables())
 
 
-def trace(msg, verbose):
-    logger.debug(msg)
-
-
-def create_summary_writer(summary_dir, sess):
+def _create_summary_writer(summary_dir, sess):
     # if os.path.exists(summary_dir):
     #     shutil.rmtree(summary_dir)
 
@@ -384,7 +382,7 @@ def variable_summaries(var, name, collections, extensive=True):
     return tf.histogram_summary(name, var, collections=collections, name='var_histogram_summary')
 
 
-def print_layer_shapes(end_points):
+def _print_layer_shapes(end_points):
     logger.info("Model layer output shapes:")
     for k, v in end_points.iteritems():
         logger.info("%s - %s" % (k, v.get_shape()))
