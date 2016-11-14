@@ -18,7 +18,7 @@ def test_eval_moving_vars():
         image_shape = (10, height, width, 3)
         image_values = np.random.rand(*image_shape)
         images = tf.constant(image_values, shape=image_shape, dtype=tf.float32)
-        output = batch_norm(images, is_training=False, reuse=None, decay=0.1)
+        output = batch_norm(images, is_training=False, reuse=None, decay=0.1, name='BatchNorm')
         assert len(tf.get_collection(tf.GraphKeys.UPDATE_OPS)) == 0
         # Initialize all variables
         sess.run(tf.initialize_all_variables())
@@ -54,7 +54,7 @@ def test_forced_update_moving_vars_and_output():
         decay = 0.8
         epsilon = 1e-5
         output_s = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon,
-                              updates_collections=None)
+                              updates_collections=None, name='BatchNorm')
         sess.run(tf.initialize_all_variables())
 
         moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
@@ -89,7 +89,8 @@ def test_delayed_update_moving_vars_and_output():
         images = tf.constant(image_values, shape=image_shape, dtype=tf.float32)
         decay = 0.8
         epsilon = 1e-5
-        output_s = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon)
+        output_s = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon,
+                              updates_collections=tf.GraphKeys.UPDATE_OPS, name='BatchNorm')
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         # updates_ops are added to UPDATE_OPS collection.
         assert len(update_ops) == 2
@@ -130,7 +131,8 @@ def test_delayed_update_moving_vars():
         images = tf.constant(image_values, shape=image_shape, dtype=tf.float32)
         decay = 0.1
         epsilon = 1e-5
-        output = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon)
+        output = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon,
+                            updates_collections=tf.GraphKeys.UPDATE_OPS, name='BatchNorm')
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         # updates_ops are added to UPDATE_OPS collection.
         assert len(update_ops) == 2
