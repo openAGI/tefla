@@ -35,8 +35,8 @@ class SupervisedTrainer(object):
         self.validation_iterator = validation_iterator
         self.classification = classification
         self.lr_decay_policy = lr_decay_policy
-        self.schedule = self.cnf['schedule']
-        self.validation_metrics_def = self.cnf['validation_scores']
+        self.schedule = self.cnf.get('schedule', {0: 0.01})
+        self.validation_metrics_def = self.cnf.get('validation_scores', [])
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
         self._setup_predictions_and_loss()
@@ -101,7 +101,7 @@ class SupervisedTrainer(object):
         validation_batch_summary_op = tf.merge_all_summaries(key=VALIDATION_BATCH_SUMMARIES)
         validation_epoch_summary_op = tf.merge_all_summaries(key=VALIDATION_EPOCH_SUMMARIES)
 
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.cnf['gpu_memory_fraction'])
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.cnf.get('gpu_memory_fraction', 0.9))
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             if start_epoch > 1:
                 weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
@@ -112,7 +112,8 @@ class SupervisedTrainer(object):
                 # sess.run(self.learning_rate.assign(0.003))
 
             logger.info("Initial learning rate: %f " % sess.run(self.learning_rate))
-            train_writer, validation_writer = _create_summary_writer(self.cnf['summary_dir'], sess)
+            train_writer, validation_writer = _create_summary_writer(self.cnf.get('summary_dir', '/tmp/tefla-summary'),
+                                                                     sess)
 
             seed_delta = 100
             for epoch in xrange(start_epoch, self.num_epochs + 1):
@@ -305,7 +306,7 @@ class SupervisedTrainer(object):
                     validation_logits, self.target))
 
             l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-            self.regularized_training_loss = training_loss + l2_loss * self.cnf['l2_reg']
+            self.regularized_training_loss = training_loss + l2_loss * self.cnf.get('l2_reg', 0.0)
 
     def _setup_regression_predictions_and_loss(self):
         self.training_end_points = self.model(is_training=True, reuse=None)
@@ -324,7 +325,7 @@ class SupervisedTrainer(object):
                 tf.square(tf.sub(self.validation_predictions, self.target)))
 
             l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-            self.regularized_training_loss = training_loss + l2_loss * self.cnf['l2_reg']
+            self.regularized_training_loss = training_loss + l2_loss * self.cnf.get('l2_reg', 0.0)
 
     def _adjust_input(self, X):
         # return X if len(self.inputs.get_shape()) != 4 else X.transpose(0, 2, 3, 1)

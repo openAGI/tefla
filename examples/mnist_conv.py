@@ -54,13 +54,11 @@ def model(is_training, reuse):
 training_cnf = {
     'classification': True,
     'validation_scores': [('validation accuracy', util.accuracy_wrapper), ('validation kappa', util.kappa_wrapper)],
-    'l2_reg': 0.0000,
-    'summary_dir': '/media/lalit/data/summary/mnist_conv',
-    'schedule': {
-        0: 0.01,
-        30: 0.001,
-        50: 'stop',
-    },
+    # 'schedule': {
+    #     0: 0.01,
+    #     30: 0.001,
+    #     50: 'stop',
+    # },
 }
 util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
 
