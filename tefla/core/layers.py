@@ -188,7 +188,7 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
 
 
 def batch_norm_tf(x, name='batchnorm', scale=True, updates_collections=None, **kwargs):
-    return tf.contrib.layers.batch_norm(x, scope=name, updates_collections=updates_collections, **kwargs)
+    return tf.contrib.layers.batch_norm(x, scope=name, scale=scale, updates_collections=updates_collections, **kwargs)
 
 
 def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='batchnorm',
@@ -334,7 +334,7 @@ def _collect_named_outputs(outputs_collections, name, output):
 
 
 def _check_unused(unused):
-    allowed_keys = {'is_training', 'reuse', 'drop_p', 'outputs_collections', 'trainable'}
+    allowed_keys = {'is_training', 'reuse', 'outputs_collections', 'trainable'}
     unused_keys = set(unused.keys())
     extra = unused_keys - allowed_keys
     if len(extra) > 0:
