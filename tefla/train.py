@@ -19,12 +19,10 @@ import logging
 @click.command()
 @click.option('--model', default=None, show_default=True,
               help='Relative path to model.')
-@click.option('--train_cnf', default=None, show_default=True,
+@click.option('--training_cnf', default=None, show_default=True,
               help='Relative path to training config file.')
 @click.option('--data_dir', default=None, show_default=True,
               help='Path to training directory.')
-@click.option('--image_size', default=256, show_default=True,
-              help='Image size within training directory.')
 @click.option('--data_standardizer', default='samplewise', show_default=True,
               help='samplewise or aggregate standardizer.')
 @click.option('--iterator_type', default='queued', show_default=True,
@@ -33,15 +31,16 @@ import logging
               help='Epoch number from which to resume training.')
 @click.option('--weights_from', default=None, show_default=True,
               help='Path to initial weights file.')
-def main(model, train_cnf, data_dir, image_size, data_standardizer, iterator_type, start_epoch, weights_from):
-    model = util.load_module(model).model
-    cnf = util.load_module(train_cnf).cnf
+def main(model, training_cnf, data_dir, data_standardizer, iterator_type, start_epoch, weights_from):
+    model_def = util.load_module(model)
+    model = model_def.model
+    cnf = util.load_module(training_cnf).cnf
 
     util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
     if weights_from:
         weights_from = str(weights_from)
 
-    data_set = DataSet(data_dir, image_size)
+    data_set = DataSet(data_dir, model_def.image_size[0])
 
     if data_standardizer == 'samplewise':
         standardizer = SamplewiseStandardizer(clip=6)
@@ -54,8 +53,8 @@ def main(model, train_cnf, data_dir, image_size, data_standardizer, iterator_typ
             cnf['sigma']
         )
 
-    training_iter, validation_iter = create_training_iters(cnf, data_set, standardizer, start_epoch,
-                                                           iterator_type == 'parallel')
+    training_iter, validation_iter = create_training_iters(cnf, data_set, standardizer, model_def.crop_size,
+                                                           start_epoch, iterator_type == 'parallel')
     trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, classification=cnf['classification'])
     trainer.fit(data_set, weights_from, start_epoch, verbose=1, summary_every=10)
 

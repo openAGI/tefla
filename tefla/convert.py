@@ -14,7 +14,7 @@ from tefla.da import data
 N_PROC = cpu_count()
 
 
-def convert(fname, crop_size):
+def convert(fname, target_size):
     img = Image.open(fname)
 
     blurred = img.filter(ImageFilter.BLUR)
@@ -45,7 +45,7 @@ def convert(fname, crop_size):
         bbox = square_bbox(img, fname)
 
     cropped = img.crop(bbox)
-    resized = cropped.resize([crop_size, crop_size])
+    resized = cropped.resize([target_size, target_size])
     return resized
 
 
@@ -69,11 +69,11 @@ def square_bbox(img, fname):
     return (left, upper, right, lower)
 
 
-def convert_square(fname, crop_size):
+def convert_square(fname, target_size):
     img = Image.open(fname)
     bbox = square_bbox(img)
     cropped = img.crop(bbox)
-    resized = cropped.resize([crop_size, crop_size])
+    resized = cropped.resize([target_size, target_size])
     return resized
 
 

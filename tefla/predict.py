@@ -13,7 +13,7 @@ from tefla.utils import util
 @click.command()
 @click.option('--model', default=None, show_default=True,
               help='Relative path to model.')
-@click.option('--train_cnf', default=None, show_default=True,
+@click.option('--training_cnf', default=None, show_default=True,
               help='Relative path to training config file.')
 @click.option('--predict_dir', help='Directory with Test Images')
 @click.option('--weights_from', help='Path to initial weights file.')
@@ -27,10 +27,11 @@ from tefla.utils import util
 @click.option('--sync', is_flag=True,
               help='Do all processing on the calling thread.')
 @click.option('--test_type', default='quasi', help='Specify test type, crop_10 or quasi')
-def predict(model, train_cnf, predict_dir, weights_from, data_standardizer, dataset_name, convert, image_size, sync,
+def predict(model, training_cnf, predict_dir, weights_from, data_standardizer, dataset_name, convert, image_size, sync,
             test_type):
-    model = util.load_module(model).model
-    cnf = util.load_module(train_cnf).cnf
+    model_def = util.load_module(model)
+    model = model_def.model
+    cnf = util.load_module(training_cnf).cnf
     weights_from = str(weights_from)
     images = data.get_image_files(predict_dir)
 
@@ -46,7 +47,7 @@ def predict(model, train_cnf, predict_dir, weights_from, data_standardizer, data
         )
 
     preprocessor = convert_preprocessor(image_size) if convert else None
-    prediction_iterator = create_prediction_iter(cnf, standardizer, preprocessor, sync)
+    prediction_iterator = create_prediction_iter(cnf, standardizer, model_def.crop_size, preprocessor, sync)
 
     if test_type == 'quasi':
         predictor = QuasiPredictor(model, cnf, weights_from, prediction_iterator, 20)

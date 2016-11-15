@@ -9,7 +9,7 @@ from tefla.da import iterator
 logger = logging.getLogger('tefla')
 
 
-def create_training_iters(cnf, data_set, standardizer, epoch, parallel=True):
+def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True):
     if parallel:
         training_iterator_maker = iterator.BalancingDAIterator
         validation_iterator_maker = iterator.ParallelDAIterator
@@ -20,7 +20,6 @@ def create_training_iters(cnf, data_set, standardizer, epoch, parallel=True):
         # validation_iterator_maker = iterator.QueuedDAIterator
         logger.info('Using queued iterators')
 
-    crop_size = (cnf['w'], cnf['h'])
     preprocessor = None
     training_iterator = training_iterator_maker(
         batch_size=cnf['batch_size_train'],
@@ -55,8 +54,7 @@ def convert_preprocessor(im_size):
     return functools.partial(convert.convert, crop_size=im_size)
 
 
-def create_prediction_iter(cnf, standardizer, preprocessor=None, sync=False):
-    crop_size = (cnf['w'], cnf['h'])
+def create_prediction_iter(cnf, standardizer, crop_size, preprocessor=None, sync=False):
     if sync:
         prediction_iterator_maker = iterator.DAIterator
     else:
