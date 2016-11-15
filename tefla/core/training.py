@@ -8,6 +8,8 @@ import time
 import numpy as np
 import tensorflow as tf
 
+from tefla.da.iterator import BatchIterator
+
 logger = logging.getLogger('tefla')
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -25,8 +27,8 @@ class StepDecayPolicy(object):
 
 
 class SupervisedTrainer(object):
-    def __init__(self, model, cnf, training_iterator, validation_iterator, classification=True,
-                 lr_decay_policy=StepDecayPolicy()):
+    def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
+                 validation_iterator=BatchIterator(128, False), classification=True, lr_decay_policy=StepDecayPolicy()):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator

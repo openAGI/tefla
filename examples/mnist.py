@@ -8,7 +8,6 @@ import tensorflow as tf
 tf.set_random_seed(127)
 
 from tensorflow.examples.tutorials.mnist import input_data
-from tefla.da.iterator import BatchIterator
 from tefla.core.training import SupervisedTrainer
 from tefla.utils import util
 from tefla.core.layer_arg_ops import common_layer_args, make_args, end_points
@@ -44,7 +43,6 @@ def model(is_training, reuse):
 
 
 training_cnf = {
-    'name': __name__.split('.')[-1],
     'classification': True,
     'validation_scores': [('validation accuracy', util.accuracy_wrapper), ('validation kappa', util.kappa_wrapper)],
     'l2_reg': 0.0000,
@@ -57,8 +55,5 @@ training_cnf = {
 }
 util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
 
-training_iter = BatchIterator(32, False)
-validation_iter = BatchIterator(32, False)
-trainer = SupervisedTrainer(model, training_cnf, training_iter, validation_iter,
-                            classification=training_cnf['classification'])
+trainer = SupervisedTrainer(model, training_cnf, classification=training_cnf['classification'])
 trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)
