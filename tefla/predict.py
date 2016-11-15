@@ -6,7 +6,6 @@ import numpy as np
 from tefla.core.iter_ops import create_prediction_iter, convert_preprocessor
 from tefla.core.prediction import QuasiPredictor
 from tefla.da import data
-from tefla.da.standardizer import AggregateStandardizer, SamplewiseStandardizer
 from tefla.utils import util
 
 
@@ -17,8 +16,6 @@ from tefla.utils import util
               help='Relative path to training config file.')
 @click.option('--predict_dir', help='Directory with Test Images')
 @click.option('--weights_from', help='Path to initial weights file.')
-@click.option('--data_standardizer', default='samplewise', show_default=True,
-              help='samplewise or aggregate standardizer.')
 @click.option('--dataset_name', default='dataset', help='Name of the dataset')
 @click.option('--convert', is_flag=True,
               help='Convert/preprocess files before prediction.')
@@ -27,7 +24,7 @@ from tefla.utils import util
 @click.option('--sync', is_flag=True,
               help='Do all processing on the calling thread.')
 @click.option('--test_type', default='quasi', help='Specify test type, crop_10 or quasi')
-def predict(model, training_cnf, predict_dir, weights_from, data_standardizer, dataset_name, convert, image_size, sync,
+def predict(model, training_cnf, predict_dir, weights_from, dataset_name, convert, image_size, sync,
             test_type):
     model_def = util.load_module(model)
     model = model_def.model
@@ -35,16 +32,7 @@ def predict(model, training_cnf, predict_dir, weights_from, data_standardizer, d
     weights_from = str(weights_from)
     images = data.get_image_files(predict_dir)
 
-    if data_standardizer == 'samplewise':
-        standardizer = SamplewiseStandardizer(clip=6)
-    else:
-        standardizer = AggregateStandardizer(
-            cnf['mean'],
-            cnf['std'],
-            cnf['u'],
-            cnf['ev'],
-            cnf['sigma']
-        )
+    standardizer = cnf.get('standardizer', None)
 
     preprocessor = convert_preprocessor(image_size) if convert else None
     prediction_iterator = create_prediction_iter(cnf, standardizer, model_def.crop_size, preprocessor, sync)

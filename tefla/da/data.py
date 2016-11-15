@@ -175,13 +175,13 @@ def load_augment(fname, preprocessor, w, h, is_training, aug_params=no_augmentat
         img = perturb(img, augmentation_params=aug_params, target_shape=(w, h), mode=fill_mode,
                       mode_cval=fill_mode_cval)
 
-    if save_to_dir:
+    if save_to_dir is not None:
         file_full_name = os.path.basename(fname)
         file_name, file_ext = os.path.splitext(file_full_name)
         fname2 = "%s/%s_DA_%d%s" % (save_to_dir, file_name, np.random.randint(1e4), file_ext)
         save_image(img, fname2)
 
-    if standardizer:
+    if standardizer is not None:
         img = standardizer(img, is_training)
 
     # convert to tf format

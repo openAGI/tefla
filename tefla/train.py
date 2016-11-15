@@ -9,7 +9,6 @@ import tensorflow as tf
 tf.set_random_seed(127)
 
 from tefla.core.dir_dataset import DataSet
-from tefla.da.standardizer import AggregateStandardizer, SamplewiseStandardizer
 from tefla.core.iter_ops import create_training_iters
 from tefla.core.training import SupervisedTrainer
 from tefla.utils import util
@@ -23,15 +22,13 @@ import logging
               help='Relative path to training config file.')
 @click.option('--data_dir', default=None, show_default=True,
               help='Path to training directory.')
-@click.option('--data_standardizer', default='samplewise', show_default=True,
-              help='samplewise or aggregate standardizer.')
 @click.option('--iterator_type', default='queued', show_default=True,
               help='parallel or queued.')
 @click.option('--start_epoch', default=1, show_default=True,
               help='Epoch number from which to resume training.')
 @click.option('--weights_from', default=None, show_default=True,
               help='Path to initial weights file.')
-def main(model, training_cnf, data_dir, data_standardizer, iterator_type, start_epoch, weights_from):
+def main(model, training_cnf, data_dir, iterator_type, start_epoch, weights_from):
     model_def = util.load_module(model)
     model = model_def.model
     cnf = util.load_module(training_cnf).cnf
@@ -41,17 +38,7 @@ def main(model, training_cnf, data_dir, data_standardizer, iterator_type, start_
         weights_from = str(weights_from)
 
     data_set = DataSet(data_dir, model_def.image_size[0])
-
-    if data_standardizer == 'samplewise':
-        standardizer = SamplewiseStandardizer(clip=6)
-    else:
-        standardizer = AggregateStandardizer(
-            cnf['mean'],
-            cnf['std'],
-            cnf['u'],
-            cnf['ev'],
-            cnf['sigma']
-        )
+    standardizer = cnf.get('standardizer', None)
 
     training_iter, validation_iter = create_training_iters(cnf, data_set, standardizer, model_def.crop_size,
                                                            start_epoch, iterator_type == 'parallel')

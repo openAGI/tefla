@@ -57,7 +57,9 @@ class QuasiPredictor(object):
         multiple_predictions = []
         for i, (xform, color_vec) in enumerate(zip(tfs, color_vecs), start=1):
             print('Quasi-random tta iteration: %d' % i)
-            self.prediction_iterator.standardizer.update(color_vec=color_vec)
+            standardizer = self.prediction_iterator.standardizer
+            if standardizer is not None:
+                standardizer.update(color_vec=color_vec)
             predictions = self.predictor._real_predict(X, sess, xform=xform)
             multiple_predictions.append(predictions)
         return np.mean(multiple_predictions, axis=0)
