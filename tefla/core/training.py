@@ -38,9 +38,9 @@ class SupervisedTrainer(object):
         self.schedule = self.cnf.get('schedule', {0: 0.01})
         self.validation_metrics_def = self.cnf.get('validation_scores', [])
 
-    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
+    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0, clip_norm=False):
         self._setup_predictions_and_loss()
-        self._setup_optimizer()
+        self._setup_optimizer(clip_norm=clip_norm)
         self._setup_summaries()
         self._setup_misc()
         self._print_info(data_set, verbose)
@@ -86,6 +86,27 @@ class SupervisedTrainer(object):
                 logger.debug(n)
 
         _print_layer_shapes(self.training_end_points)
+
+    def _clip_grad_norms(self, gradients_to_variables, max_norm=10):
+        """Clips the gradients by the given value.
+
+        Args:
+            gradients_to_variables: A list of gradient to variable pairs (tuples).
+            max_norm: the maximum norm value.
+
+        Returns:
+            A list of clipped gradient to variable pairs.
+         """
+        grads_and_vars = []
+        for grad, var in gradients_to_variables:
+            if grad is not None:
+                if isinstance(grad, tf.IndexedSlices):
+                    tmp = tf.clip_by_norm(grad.values, max_norm)
+                    grad = tf.IndexedSlices(tmp, grad.indices, grad.dense_shape)
+                else:
+                    grad = tf.clip_by_norm(grad, max_norm)
+            grads_and_vars.append((grad, var))
+        return grads_and_vars
 
     def _train_loop(self, data_set, weights_from, start_epoch, summary_every,
                     verbose):
@@ -269,13 +290,15 @@ class SupervisedTrainer(object):
                                   collections=[VALIDATION_EPOCH_SUMMARIES])
             self.validation_metric_placeholders = tuple(self.validation_metric_placeholders)
 
-    def _setup_optimizer(self):
+    def _setup_optimizer(self, clip_norm=False):
         self.learning_rate = tf.Variable(self.schedule[0], trainable=False, name="learning_rate")
         optimizer = tf.train.MomentumOptimizer(
             self.learning_rate,
             momentum=0.9,
             use_nesterov=True)  # .minimize(regularized_training_loss)
         self.grads_and_vars = optimizer.compute_gradients(self.regularized_training_loss, tf.trainable_variables())
+        if clip_norm:
+            self.grads_and_vars = self._clip_grad_norms(self.grads_and_vars)
         self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
 
     def _setup_predictions_and_loss(self):

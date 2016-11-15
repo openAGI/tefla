@@ -187,8 +187,8 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def batch_norm_tf(x, name='batchnorm', updates_collections=None, **kwargs):
-    return tf.contrib.layers.batch_norm(x, scope=name, updates_collections=updates_collections, **kwargs)
+def batch_norm_tf(x, name='batchnorm', scale=True, updates_collections=None, **kwargs):
+    return tf.contrib.layers.batch_norm(x, scope=name, scale=scale, updates_collections=updates_collections, **kwargs)
 
 
 def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='batchnorm',
@@ -289,10 +289,10 @@ def softmax(x, name='softmax', outputs_collections=None, **unused):
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def dropout(x, p, is_training, name='dropout', outputs_collections=None, **unused):
+def dropout(x, is_training, drop_p=0.5, name='dropout', outputs_collections=None, **unused):
     _check_unused(unused)
     with tf.name_scope(name):
-        keep_p = 1. - p
+        keep_p = 1. - drop_p
         if is_training:
             output = tf.nn.dropout(x, keep_p, seed=None)
             return _collect_named_outputs(outputs_collections, name, output)
