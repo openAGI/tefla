@@ -101,7 +101,8 @@ class SupervisedTrainer(object):
         validation_batch_summary_op = tf.merge_all_summaries(key=VALIDATION_BATCH_SUMMARIES)
         validation_epoch_summary_op = tf.merge_all_summaries(key=VALIDATION_EPOCH_SUMMARIES)
 
-        with tf.Session() as sess:
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.cnf['gpu_memory_fraction'])
+        with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             if start_epoch > 1:
                 weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
 
