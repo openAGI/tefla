@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from tefla.da import tta
+from utils import util
 
 
 class Predictor(object):
@@ -63,3 +64,33 @@ class QuasiPredictor(object):
             predictions = self.predictor._real_predict(X, sess, xform=xform)
             multiple_predictions.append(predictions)
         return np.mean(multiple_predictions, axis=0)
+
+
+class CropPredictor(object):
+    def __init__(self, model, cnf, weights_from, prediction_iterator, number_of_crops=10):
+        self.number_of_transforms = number_of_crops
+        self.cnf = cnf
+        self.weights_from = weights_from
+        self.prediction_iterator = prediction_iterator
+        self.predictor = Predictor(model, cnf, weights_from, prediction_iterator)
+
+    def predict(self, X):
+        saver = tf.train.Saver()
+        with tf.Session() as sess:
+            saver.restore(sess, self.weights_from)
+            return self._real_predict(X, sess)
+
+    def _real_predict(self, X, sess, **unused):
+        if self.number_of_crops > 1:
+            crop_size = np.array((self.cnf['w'], self.cnf['h']))
+            im_size = np.array(self.cnf['im_size'])
+            bboxs = util.get_bbox_10crop(crop_size, im_size)
+            multiple_predictions = []
+            for i, bbox in enumerate(bboxs, start=1):
+                print('Crop-determinastic iteration: %d' % i)
+                predictions = self.predictor._real_predict(X, sess, crop_bbox=bbox)
+                multiple_predictions.append(predictions)
+            return np.mean(multiple_predictions, axis=0)
+        elif self.number_of_crops==1:
+            predictions = self.predictor._real_predict(X, sess)
+            return predictions

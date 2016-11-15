@@ -87,6 +87,27 @@ class SupervisedTrainer(object):
 
         _print_layer_shapes(self.training_end_points)
 
+    def _clip_grad_norms(self, gradients_to_variables, max_norm=4):
+        """Clips the gradients by the given value.
+
+        Args:
+            gradients_to_variables: A list of gradient to variable pairs (tuples).
+            max_norm: the maximum norm value.
+
+        Returns:
+            A list of clipped gradient to variable pairs.
+         """
+        grads_and_vars = []
+        for grad, var in gradients_to_variables:
+            if grad is not None:
+                if isinstance(grad, tf.IndexedSlices):
+                    tmp = tf.clip_by_norm(grad.values, max_norm)
+                    grad = tf.IndexedSlices(tmp, grad.indices, grad.dense_shape)
+                else:
+                    grad = tf.clip_by_norm(grad, max_norm)
+            grads_and_vars.append((grad, var))
+        return grads_and_vars
+
     def _train_loop(self, data_set, weights_from, start_epoch, summary_every,
                     verbose):
         training_X, training_y, validation_X, validation_y = \
@@ -276,7 +297,8 @@ class SupervisedTrainer(object):
             momentum=0.9,
             use_nesterov=True)  # .minimize(regularized_training_loss)
         self.grads_and_vars = optimizer.compute_gradients(self.regularized_training_loss, tf.trainable_variables())
-        self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
+        self.clipped_grads_and_vars = self._clip_grad_norms(self.grads_and_vars)
+        self.optimizer_step = optimizer.apply_gradients(self.clipped_grads_and_vars)
 
     def _setup_predictions_and_loss(self):
         if self.classification:
