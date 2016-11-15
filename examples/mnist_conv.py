@@ -42,9 +42,9 @@ def model(is_training, reuse):
     x = conv2d(x, 32, name='conv1_1', **conv_args)
     x = conv2d(x, 32, name='conv1_2', **conv_args)
     x = max_pool(x, name='pool1', **common_args)
-    x = dropout(x, p=0.25, name='dropout1', **common_args)
+    x = dropout(x, drop_p=0.25, name='dropout1', **common_args)
     x = fully_connected(x, n_output=128, name='fc1', **fc_args)
-    x = dropout(x, p=0.5, name='dropout2', **common_args)
+    x = dropout(x, drop_p=0.5, name='dropout2', **common_args)
     logits = fully_connected(x, n_output=10, name="logits", **logit_args)
     predictions = softmax(logits, name='predictions', **common_args)
 
