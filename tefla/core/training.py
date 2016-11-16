@@ -392,7 +392,7 @@ def _print_layer_shapes(end_points):
         logger.info("%s - %s" % (k, v.get_shape()))
 
 
-def _clip_grad_norms(self, gradients_to_variables, max_norm=10):
+def _clip_grad_norms(self, gradients_to_variables, max_norm=5):
     """Clips the gradients by the given value.
 
     Args:

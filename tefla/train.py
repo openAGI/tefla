@@ -39,6 +39,8 @@ def main(model, training_cnf, data_dir, iterator_type, start_epoch, weights_from
 
     data_set = DataSet(data_dir, model_def.image_size[0])
     standardizer = cnf.get('standardizer', None)
+    if standardizer is not None:
+        print('using samplewise')
 
     training_iter, validation_iter = create_training_iters(cnf, data_set, standardizer, model_def.crop_size,
                                                            start_epoch, iterator_type == 'parallel')
