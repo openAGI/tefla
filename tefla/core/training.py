@@ -387,7 +387,7 @@ def variable_summaries(var, name, collections, extensive=True):
 
 
 def _print_layer_shapes(end_points):
-    logger.info("Model layer output shapes:")
+    logger.info("\nModel layer output shapes:")
     for k, v in end_points.iteritems():
         logger.info("%s - %s" % (k, v.get_shape()))
 

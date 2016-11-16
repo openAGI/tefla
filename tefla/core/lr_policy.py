@@ -15,6 +15,12 @@ class NoDecayPolicy(object):
     def update(self, learning_rate, training_history, sess, verbose):
         pass
 
+    def __str__(self):
+        return 'NoDecayPolicy(rate=%s)' % str(self.lr)
+
+    def __repr__(self):
+        return str(self)
+
 
 class StepDecayPolicy(object):
     def __init__(self, schedule):
@@ -30,3 +36,9 @@ class StepDecayPolicy(object):
             sess.run(learning_rate.assign(self.schedule[epoch]))
             if verbose > -1:
                 logger.info("Learning rate changed to: %f " % sess.run(learning_rate))
+
+    def __str__(self):
+        return 'StepDecayPolicy(schedule=%s)' % str(self.schedule)
+
+    def __repr__(self):
+        return str(self)
