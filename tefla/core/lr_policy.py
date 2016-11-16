@@ -14,10 +14,17 @@ class InitialLrMixin(object):
         return self._initial_lr
 
 
-class NoDecayPolicy(InitialLrMixin):
-    def update(self, learning_rate, training_history, sess, verbose):
+class NoBatchUpdateMixin(object):
+    def batch_update(self, learning_rate, iter_idx, n_iter_per_epoch, sess, verbose):
         pass
 
+
+class NoEpochUpdateMixin(object):
+    def epoch_update(self, learning_rate, training_history, sess, verbose):
+        pass
+
+
+class NoDecayPolicy(InitialLrMixin, NoBatchUpdateMixin, NoEpochUpdateMixin):
     def __str__(self):
         return 'NoDecayPolicy(rate=%s)' % str(self._initial_lr)
 
@@ -25,14 +32,14 @@ class NoDecayPolicy(InitialLrMixin):
         return str(self)
 
 
-class StepDecayPolicy(object):
+class StepDecayPolicy(NoBatchUpdateMixin):
     def __init__(self, schedule):
         self.schedule = schedule
 
     def initial_lr(self):
         return self.schedule[0]
 
-    def update(self, learning_rate, training_history, sess, verbose):
+    def epoch_update(self, learning_rate, training_history, sess, verbose):
         epoch_info = training_history[-1]
         epoch = epoch_info['epoch']
         if epoch in self.schedule.keys() and self.schedule[epoch] is not 'stop':
@@ -47,8 +54,8 @@ class StepDecayPolicy(object):
         return str(self)
 
 
-class AdaptiveDecayPolicy(InitialLrMixin):
-    def update(self, learning_rate, training_history, sess, verbose):
+class AdaptiveDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
+    def epoch_update(self, learning_rate, training_history, sess, verbose):
         epochs_info = training_history[-6:]
         if len(epochs_info) > 1:
             last_val_loss = epochs_info[0]['validation_loss']
@@ -64,7 +71,7 @@ class AdaptiveDecayPolicy(InitialLrMixin):
         return str(self)
 
 
-class AdaptiveUpDownDecayPolicy(InitialLrMixin):
+class AdaptiveUpDownDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
     def update(self, learning_rate, training_history, sess, verbose):
         epochs_info = training_history[-10:]
         if len(epochs_info) > 1:
@@ -84,18 +91,14 @@ class AdaptiveUpDownDecayPolicy(InitialLrMixin):
         return str(self)
 
 
-class PolyDecayPolicy(InitialLrMixin):
-    def __init__(self, initial_lr_value, power=10.0, max_epoch=500, n_iter_per_epoch=1):
+class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
+    def __init__(self, initial_lr_value, power=10.0, max_epoch=500):
         self.power = power
         self.max_epoch = max_epoch
-        self.n_iter_per_epoch = n_iter_per_epoch
         super(PolyDecayPolicy, self).__init__(initial_lr_value)
 
-    def update(self, learning_rate, training_history, sess, verbose):
-        epoch_info = training_history[-1]
-        epoch = epoch_info['epoch']
-        iter_idx = epoch
-        updated_lr = learning_rate * math.pow(1 - iter_idx / float(self.max_epoch * self.n_iter_per_epoch), self.power)
+    def batch_update(self, learning_rate, iter_idx, n_iter_per_epoch, sess, verbose):
+        updated_lr = learning_rate * math.pow(1 - iter_idx / float(self.max_epoch * n_iter_per_epoch), self.power)
         sess.run(learning_rate.assign(updated_lr))
         if verbose > -1:
             logger.info("Learning rate changed to: %f " % sess.run(learning_rate))

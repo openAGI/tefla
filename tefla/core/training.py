@@ -110,6 +110,8 @@ class SupervisedTrainer(object):
 
             seed_delta = 100
             training_history = []
+            batch_iter_idx = 1
+            batch_iters_per_epoch = len(data_set.training_X) // self.training_iterator.batch_size
             for epoch in xrange(start_epoch, self.num_epochs + 1):
                 np.random.seed(epoch + seed_delta)
                 tf.set_random_seed(epoch + seed_delta)
@@ -142,10 +144,15 @@ class SupervisedTrainer(object):
 
                     training_losses.append(training_loss_e)
                     batch_train_sizes.append(len(Xb))
+
                     if self.update_ops is not None:
                         logger.debug('3. Running update ops...')
                         sess.run(self.update_ops, feed_dict=feed_dict_train)
                         logger.debug('3. Running update ops done.')
+
+                    self.lr_policy.batch_update(self.learning_rate, batch_iter_idx, batch_iters_per_epoch, sess,
+                                                verbose)
+                    batch_iter_idx += 1
                     logger.debug('4. Training batch %d done.' % batch_num)
 
                 epoch_training_loss = np.average(training_losses, weights=batch_train_sizes)
@@ -234,8 +241,7 @@ class SupervisedTrainer(object):
 
                 training_history.append(epoch_info)
 
-                # Learning rate step decay
-                self.lr_policy.update(self.learning_rate, training_history, sess, verbose)
+                self.lr_policy.epoch_update(self.learning_rate, training_history, sess, verbose)
                 logger.debug('10. Epoch done. [%d]' % epoch)
 
             train_writer.close()
