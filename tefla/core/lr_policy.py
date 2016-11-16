@@ -70,13 +70,13 @@ class AdaptiveUpDownDecayPolicy(NoDecayPolicy):
             pair_losses = zip(val_losses, val_losses[1:])
             up_downs = map(lambda pair: pair[0] < pair[1], pair_losses)
             ups = len(filter(lambda up_down: up_down < 0, up_downs))
-            if ups > 7:
+            if ups > 6:
                 sess.run(learning_rate.assign(learning_rate* 0.9))
                 if verbose > -1:
                     logger.info("Learning rate changed to: %f " % sess.run(learning_rate))
 
     def __str__(self):
-        return 'AdaptiveDecayPolicy(schedule=%s)' % str(self.schedule)
+        return 'AdaptiveUpDownDecayPolicy(schedule=%s)' % str(self.schedule)
 
     def __repr__(self):
         return str(self)
@@ -90,7 +90,7 @@ class PolyDecayPolicy(NoDecayPolicy):
             logger.info("Learning rate changed to: %f " % sess.run(learning_rate))
 
     def __str__(self):
-        return 'AdaptiveDecayPolicy(schedule=%s)' % str(self.schedule)
+        return 'PolyDecayPolicy(schedule=%s)' % str(self.schedule)
 
     def __repr__(self):
         return str(self)
@@ -104,7 +104,7 @@ class InvDecayPolicy(NoDecayPolicy):
             logger.info("Learning rate changed to: %f " % sess.run(learning_rate))
 
     def __str__(self):
-        return 'AdaptiveDecayPolicy(schedule=%s)' % str(self.schedule)
+        return 'InvDecayPolicy(schedule=%s)' % str(self.schedule)
 
     def __repr__(self):
         return str(self)
