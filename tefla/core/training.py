@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 
 from tefla.da.iterator import BatchIterator
+from tefla.core.lr_policy import NoDecayPolicy
 
 logger = logging.getLogger('tefla')
 
@@ -18,29 +19,21 @@ VALIDATION_BATCH_SUMMARIES = 'validation_batch_summaries'
 VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 
-class StepDecayPolicy(object):
-    def update(self, learning_rate, epoch, schedule, sess, verbose):
-        if epoch in schedule.keys() and schedule[epoch] is not 'stop':
-            sess.run(learning_rate.assign(schedule[epoch]))
-            if verbose > -1:
-                logger.info("Learning rate changed to: %f " % sess.run(learning_rate))
-
-
 class SupervisedTrainer(object):
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), classification=True, lr_decay_policy=StepDecayPolicy()):
+                 validation_iterator=BatchIterator(128, False), classification=True, clip_norm=False):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
         self.validation_iterator = validation_iterator
         self.classification = classification
-        self.lr_decay_policy = lr_decay_policy
-        self.schedule = self.cnf.get('schedule', {0: 0.01})
+        self.lr_policy = cnf.get('lr_policy', NoDecayPolicy(0.01))
         self.validation_metrics_def = self.cnf.get('validation_scores', [])
+        self.clip_norm = clip_norm
 
-    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0, clip_norm=False):
+    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
         self._setup_predictions_and_loss()
-        self._setup_optimizer(clip_norm=clip_norm)
+        self._setup_optimizer()
         self._setup_summaries()
         self._setup_misc()
         self._print_info(data_set, verbose)
@@ -48,7 +41,7 @@ class SupervisedTrainer(object):
                          verbose)
 
     def _setup_misc(self):
-        self.num_epochs = dict((v, k) for k, v in self.schedule.iteritems()).get('stop', 500)
+        self.num_epochs = self.cnf.get('num_epochs', 500)
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         if self.update_ops is not None and len(self.update_ops) == 0:
             self.update_ops = None
@@ -87,27 +80,6 @@ class SupervisedTrainer(object):
 
         _print_layer_shapes(self.training_end_points)
 
-    def _clip_grad_norms(self, gradients_to_variables, max_norm=10):
-        """Clips the gradients by the given value.
-
-        Args:
-            gradients_to_variables: A list of gradient to variable pairs (tuples).
-            max_norm: the maximum norm value.
-
-        Returns:
-            A list of clipped gradient to variable pairs.
-         """
-        grads_and_vars = []
-        for grad, var in gradients_to_variables:
-            if grad is not None:
-                if isinstance(grad, tf.IndexedSlices):
-                    tmp = tf.clip_by_norm(grad.values, max_norm)
-                    grad = tf.IndexedSlices(tmp, grad.indices, grad.dense_shape)
-                else:
-                    grad = tf.clip_by_norm(grad, max_norm)
-            grads_and_vars.append((grad, var))
-        return grads_and_vars
-
     def _train_loop(self, data_set, weights_from, start_epoch, summary_every,
                     verbose):
         training_X, training_y, validation_X, validation_y = \
@@ -137,6 +109,7 @@ class SupervisedTrainer(object):
                                                                      sess)
 
             seed_delta = 100
+            training_history = []
             for epoch in xrange(start_epoch, self.num_epochs + 1):
                 np.random.seed(epoch + seed_delta)
                 tf.set_random_seed(epoch + seed_delta)
@@ -145,7 +118,7 @@ class SupervisedTrainer(object):
                 batch_train_sizes = []
 
                 for batch_num, (Xb, yb) in enumerate(self.training_iterator(training_X, training_y)):
-                    feed_dict_train = {self.inputs: self._adjust_input(Xb), self.target: self._adjust_ground_truth(yb)}
+                    feed_dict_train = {self.inputs: Xb, self.target: self._adjust_ground_truth(yb)}
 
                     logger.debug('1. Loading batch %d data done.' % batch_num)
                     if (epoch - 1) % summary_every == 0 and batch_num < 10:
@@ -192,7 +165,7 @@ class SupervisedTrainer(object):
                 batch_validation_sizes = []
                 for batch_num, (validation_Xb, validation_yb) in enumerate(
                         self.validation_iterator(validation_X, validation_y)):
-                    feed_dict_validation = {self.validation_inputs: self._adjust_input(validation_Xb),
+                    feed_dict_validation = {self.validation_inputs: validation_Xb,
                                             self.target: self._adjust_ground_truth(validation_yb)}
                     logger.debug('6. Loading batch %d validation data done.' % batch_num)
 
@@ -253,8 +226,16 @@ class SupervisedTrainer(object):
                     logger.info("Learning rate: %f " % sess.run(self.learning_rate))
                 saver.save(sess, "%s/model-epoch-%d.ckpt" % (weights_dir, epoch))
 
+                epoch_info = dict(
+                    epoch=epoch,
+                    training_loss=epoch_training_loss,
+                    validation_loss=epoch_validation_loss
+                )
+
+                training_history.append(epoch_info)
+
                 # Learning rate step decay
-                self.lr_decay_policy.update(self.learning_rate, epoch, self.schedule, sess, verbose)
+                self.lr_policy.update(self.learning_rate, training_history, sess, verbose)
                 logger.debug('10. Epoch done. [%d]' % epoch)
 
             train_writer.close()
@@ -290,14 +271,14 @@ class SupervisedTrainer(object):
                                   collections=[VALIDATION_EPOCH_SUMMARIES])
             self.validation_metric_placeholders = tuple(self.validation_metric_placeholders)
 
-    def _setup_optimizer(self, clip_norm=False):
-        self.learning_rate = tf.Variable(self.schedule[0], trainable=False, name="learning_rate")
+    def _setup_optimizer(self):
+        self.learning_rate = tf.Variable(self.lr_policy.initial_lr(), trainable=False, name="learning_rate")
         optimizer = tf.train.MomentumOptimizer(
             self.learning_rate,
             momentum=0.9,
             use_nesterov=True)  # .minimize(regularized_training_loss)
         self.grads_and_vars = optimizer.compute_gradients(self.regularized_training_loss, tf.trainable_variables())
-        if clip_norm:
+        if self.clip_norm:
             self.grads_and_vars = self._clip_grad_norms(self.grads_and_vars)
         self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
 
@@ -349,10 +330,6 @@ class SupervisedTrainer(object):
 
             l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
             self.regularized_training_loss = training_loss + l2_loss * self.cnf.get('l2_reg', 0.0)
-
-    def _adjust_input(self, X):
-        # return X if len(self.inputs.get_shape()) != 4 else X.transpose(0, 2, 3, 1)
-        return X
 
     def _adjust_ground_truth(self, y):
         return y if self.classification else y.reshape(-1, 1).astype(np.float32)
@@ -413,3 +390,25 @@ def _print_layer_shapes(end_points):
     logger.info("Model layer output shapes:")
     for k, v in end_points.iteritems():
         logger.info("%s - %s" % (k, v.get_shape()))
+
+
+def _clip_grad_norms(self, gradients_to_variables, max_norm=10):
+    """Clips the gradients by the given value.
+
+    Args:
+        gradients_to_variables: A list of gradient to variable pairs (tuples).
+        max_norm: the maximum norm value.
+
+    Returns:
+        A list of clipped gradient to variable pairs.
+     """
+    grads_and_vars = []
+    for grad, var in gradients_to_variables:
+        if grad is not None:
+            if isinstance(grad, tf.IndexedSlices):
+                tmp = tf.clip_by_norm(grad.values, max_norm)
+                grad = tf.IndexedSlices(tmp, grad.indices, grad.dense_shape)
+            else:
+                grad = tf.clip_by_norm(grad, max_norm)
+        grads_and_vars.append((grad, var))
+    return grads_and_vars

@@ -16,6 +16,7 @@ from tefla.utils import util
 from tefla.core.layer_arg_ops import common_layer_args, make_args, end_points
 from tefla.core.layers import input, conv2d, fully_connected, max_pool, softmax, prelu, dropout
 from tefla.core.mem_dataset import DataSet
+from tefla.core.lr_policy import StepDecayPolicy
 import logging
 
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=False)
@@ -54,11 +55,13 @@ def model(is_training, reuse):
 training_cnf = {
     'classification': True,
     'validation_scores': [('validation accuracy', util.accuracy_wrapper), ('validation kappa', util.kappa_wrapper)],
-    'schedule': {
-        0: 0.01,
-        30: 0.001,
-        50: 'stop',
-    },
+    'num_epochs': 50,
+    'lr_policy': StepDecayPolicy(
+        schedule={
+            0: 0.01,
+            30: 0.001,
+        }
+    )
 }
 util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
 
