@@ -10,6 +10,7 @@ logger = logging.getLogger('tefla')
 class InitialLrMixin(object):
     def __init__(self, initial_lr):
         self._base_lr = initial_lr
+        self._start_epoch = 1
 
     @property
     def base_lr(self):
@@ -57,7 +58,6 @@ class NoDecayPolicy(InitialLrMixin, NoBatchUpdateMixin, NoEpochUpdateMixin):
 class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
     def __init__(self, schedule, start_epoch=1):
         self.schedule = schedule
-        self._start_epoch = 1
         super(StepDecayPolicy, self).__init__(schedule[0])
 
     def epoch_update(self, learning_rate, training_history):
@@ -87,7 +87,6 @@ class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
 class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
     def __init__(self, base_lr, power=10.0, max_epoch=500, n_iter_per_epoch=1094):
         self.power = power
-        self._start_epoch = 1
         self.max_epoch = max_epoch
         self._n_iter_per_epoch = n_iter_per_epoch
         super(PolyDecayPolicy, self).__init__(base_lr)
@@ -112,7 +111,6 @@ class InvDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
     def __init__(self, base_lr, gamma=9.0, power=10.0, max_epoch=500, n_iter_per_epoch=1094):
         self.gamma = gamma
         self.power = power
-        self.start_epoch = 1
         self.max_epoch = max_epoch
         self._n_iter_per_epoch = n_iter_per_epoch
         super(PolyDecayPolicy, self).__init__(base_lr)
