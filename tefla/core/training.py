@@ -21,13 +21,16 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 class SupervisedTrainer(object):
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), classification=True, clip_norm=False):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.0005, classification=True, clip_norm=False, n_iter_per_epoch=1094):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
         self.validation_iterator = validation_iterator
         self.classification = classification
         self.lr_policy = cnf.get('lr_policy', NoDecayPolicy(0.01))
+        self.lr_policy.start_epoch = start_epoch
+        self.lr_policy.base_lr = resume_lr
+        self.lr_polciy.n_iter_per_epoch = n_iter_per_epoch
         self.validation_metrics_def = self.cnf.get('validation_scores', [])
         self.clip_norm = clip_norm
 
@@ -151,8 +154,7 @@ class SupervisedTrainer(object):
                         sess.run(self.update_ops, feed_dict=feed_dict_train)
                         logger.debug('3. Running update ops done.')
 
-                    learning_rate_value = self.lr_policy.batch_update(learning_rate_value, batch_iter_idx,
-                                                                      batch_iters_per_epoch)
+                    learning_rate_value = self.lr_policy.batch_update(learning_rate_value, batch_iter_idx)
                     batch_iter_idx += 1
                     logger.debug('4. Training batch %d done.' % batch_num)
 
@@ -402,7 +404,7 @@ def _print_layer_shapes(end_points):
         logger.info("%s - %s" % (k, v.get_shape()))
 
 
-def _clip_grad_norms(self, gradients_to_variables, max_norm=5):
+def _clip_grad_norms(gradients_to_variables, max_norm=5):
     """Clips the gradients by the given value.
 
     Args:

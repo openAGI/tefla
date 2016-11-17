@@ -97,7 +97,7 @@ class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
 
     @property
     def initial_lr(self):
-        return self.batch_update(self._base_lr, self.start_epoch * self.n_iter_per_epoch)
+        return self.batch_update(self._base_lr, self.start_epoch * self._n_iter_per_epoch)
 
     def __str__(self):
         return 'PolyDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power,
