@@ -66,3 +66,21 @@ class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
 
     def __repr__(self):
         return str(self)
+
+
+class InvDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
+    def __init__(self, initial_lr, gamma=9.0, power=10.0, max_epoch=500):
+        self.gamma = gamma
+        self.power = power
+        self.max_epoch = max_epoch
+        super(PolyDecayPolicy, self).__init__(initial_lr)
+
+    def batch_update(self, learning_rate, iter_idx, n_iter_per_epoch):
+        updated_lr = learning_rate * math.pow(1 + self.gamma * iter_idx, - self.power)
+        return updated_lr
+
+    def __str__(self):
+        return 'InvDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power, self.max_epoch)
+
+    def __repr__(self):
+        return str(self)
