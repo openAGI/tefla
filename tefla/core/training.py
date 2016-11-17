@@ -102,9 +102,9 @@ class SupervisedTrainer(object):
             sess.run(tf.initialize_all_variables())
             if weights_from:
                 _load_variables(sess, saver, weights_from)
-                # sess.run(self.learning_rate.assign(0.003))
 
-            logger.info("Initial learning rate: %f " % sess.run(self.learning_rate))
+            learning_rate_value = self.lr_policy.initial_lr
+            logger.info("Initial learning rate: %f " % learning_rate_value)
             train_writer, validation_writer = _create_summary_writer(self.cnf.get('summary_dir', '/tmp/tefla-summary'),
                                                                      sess)
 
@@ -120,7 +120,8 @@ class SupervisedTrainer(object):
                 batch_train_sizes = []
 
                 for batch_num, (Xb, yb) in enumerate(self.training_iterator(training_X, training_y)):
-                    feed_dict_train = {self.inputs: Xb, self.target: self._adjust_ground_truth(yb)}
+                    feed_dict_train = {self.inputs: Xb, self.target: self._adjust_ground_truth(yb),
+                                       self.learning_rate: learning_rate_value}
 
                     logger.debug('1. Loading batch %d data done.' % batch_num)
                     if (epoch - 1) % summary_every == 0 and batch_num < 10:
@@ -150,8 +151,8 @@ class SupervisedTrainer(object):
                         sess.run(self.update_ops, feed_dict=feed_dict_train)
                         logger.debug('3. Running update ops done.')
 
-                    self.lr_policy.batch_update(self.learning_rate, batch_iter_idx, batch_iters_per_epoch, sess,
-                                                verbose)
+                    learning_rate_value = self.lr_policy.batch_update(learning_rate_value, batch_iter_idx,
+                                                                      batch_iters_per_epoch)
                     batch_iter_idx += 1
                     logger.debug('4. Training batch %d done.' % batch_num)
 
@@ -160,7 +161,8 @@ class SupervisedTrainer(object):
                 # Plot training loss every epoch
                 logger.debug('5. Writing epoch summary...')
                 summary_str_train = sess.run(training_epoch_summary_op,
-                                             feed_dict={self.epoch_loss: epoch_training_loss})
+                                             feed_dict={self.epoch_loss: epoch_training_loss,
+                                                        self.learning_rate: learning_rate_value})
                 train_writer.add_summary(summary_str_train, epoch)
                 train_writer.flush()
                 logger.debug('5. Writing epoch summary done.')
@@ -229,8 +231,6 @@ class SupervisedTrainer(object):
                      custom_metrics_string)
                 )
 
-                if verbose > 0:
-                    logger.info("Learning rate: %f " % sess.run(self.learning_rate))
                 saver.save(sess, "%s/model-epoch-%d.ckpt" % (weights_dir, epoch))
 
                 epoch_info = dict(
@@ -241,7 +241,9 @@ class SupervisedTrainer(object):
 
                 training_history.append(epoch_info)
 
-                self.lr_policy.epoch_update(self.learning_rate, training_history, sess, verbose)
+                learning_rate_value = self.lr_policy.epoch_update(learning_rate_value, training_history)
+                if verbose > 0:
+                    logger.info("Learning rate: %f " % learning_rate_value)
                 logger.debug('10. Epoch done. [%d]' % epoch)
 
             train_writer.close()
@@ -278,14 +280,16 @@ class SupervisedTrainer(object):
             self.validation_metric_placeholders = tuple(self.validation_metric_placeholders)
 
     def _setup_optimizer(self):
-        self.learning_rate = tf.Variable(self.lr_policy.initial_lr(), trainable=False, name="learning_rate")
+        self.learning_rate = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
+        # Keep old variable around to load old params, till we need this
+        self.obsolete_learning_rate = tf.Variable(1.0, trainable=False, name="learning_rate")
         optimizer = tf.train.MomentumOptimizer(
             self.learning_rate,
             momentum=0.9,
             use_nesterov=True)  # .minimize(regularized_training_loss)
         self.grads_and_vars = optimizer.compute_gradients(self.regularized_training_loss, tf.trainable_variables())
         if self.clip_norm:
-            self.grads_and_vars = self._clip_grad_norms(self.grads_and_vars)
+            self.grads_and_vars = _clip_grad_norms(self.grads_and_vars)
         self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
 
     def _setup_predictions_and_loss(self):

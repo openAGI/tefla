@@ -53,12 +53,14 @@ class QuasiPredictor(object):
             return self._real_predict(X, sess)
 
     def _real_predict(self, X, sess, **unused):
-        tfs, color_vecs = tta.build_quasirandom_transforms(self.number_of_transforms, color_sigma=self.cnf['sigma'],
+        standardizer = self.prediction_iterator.standardizer
+        if standardizer is not None:
+            color_sigma = standardizer.sigma if hasattr(standardizer, 'sigma') else 0.5
+        tfs, color_vecs = tta.build_quasirandom_transforms(self.number_of_transforms, color_sigma=color_sigma,
                                                            **self.cnf['aug_params'])
         multiple_predictions = []
         for i, (xform, color_vec) in enumerate(zip(tfs, color_vecs), start=1):
             print('Quasi-random tta iteration: %d' % i)
-            standardizer = self.prediction_iterator.standardizer
             if standardizer is not None:
                 standardizer.update(color_vec=color_vec)
             predictions = self.predictor._real_predict(X, sess, xform=xform)
@@ -91,6 +93,6 @@ class CropPredictor(object):
                 predictions = self.predictor._real_predict(X, sess, crop_bbox=bbox)
                 multiple_predictions.append(predictions)
             return np.mean(multiple_predictions, axis=0)
-        elif self.number_of_crops==1:
+        elif self.number_of_crops == 1:
             predictions = self.predictor._real_predict(X, sess)
             return predictions
