@@ -4,17 +4,16 @@ from collections import namedtuple
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.ops import math_ops
-from tensorflow.python.training import moving_averages
-
 from tefla.core import initializers as initz
 from tefla.utils import util as helper
+from tensorflow.python.ops import math_ops
+from tensorflow.python.training import moving_averages
 
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 
 
 def input(shape, name='inputs', outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     with tf.name_scope(name):
         inputs = tf.placeholder(tf.float32, shape=shape, name="input")
     return _collect_named_outputs(outputs_collections, name, inputs)
@@ -122,7 +121,7 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
 
 
 def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
@@ -137,7 +136,7 @@ def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', 
 
 def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', epsilon=0.000000000001,
                 outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
@@ -152,7 +151,7 @@ def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool
 
 
 def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None, outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name or "pool"):
@@ -166,7 +165,7 @@ def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None,
 
 
 def global_avg_pool(x, name="global_avg_pool", outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
@@ -175,7 +174,7 @@ def global_avg_pool(x, name="global_avg_pool", outputs_collections=None, **unuse
 
 
 def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 2, "Input Tensor shape must be 2-D"
     x = tf.reshape(x, (-1, input_shape[1] // stride, stride))
@@ -269,28 +268,28 @@ def prelu(x, reuse, trainable=True, name='prelu', outputs_collections=None):
 
 
 def relu(x, name='relu', outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.relu(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
 
 def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.relu(x) + tf.mul(alpha, (x - tf.abs(x))) * 0.5
         return _collect_named_outputs(outputs_collections, name, output)
 
 
 def softmax(x, name='softmax', outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.softmax(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
 
 def dropout(x, is_training, drop_p=0.5, name='dropout', outputs_collections=None, **unused):
-    _check_unused(unused)
+    _check_unused(unused, name)
     with tf.name_scope(name):
         keep_p = 1. - drop_p
         if is_training:
@@ -333,9 +332,6 @@ def _collect_named_outputs(outputs_collections, name, output):
     return output
 
 
-def _check_unused(unused):
-    allowed_keys = {'is_training', 'reuse', 'outputs_collections', 'trainable'}
-    unused_keys = set(unused.keys())
-    extra = unused_keys - allowed_keys
-    if len(extra) > 0:
-        raise ValueError("Layer got unexpected argument(s): %s" % extra)
+def _check_unused(unused, name):
+    allowed_keys = ['is_training', 'reuse', 'outputs_collections', 'trainable']
+    helper.veryify_args(unused, allowed_keys, 'Layer "%s" got unexpected argument(s):' % name)

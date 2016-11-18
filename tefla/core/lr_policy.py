@@ -11,6 +11,7 @@ class InitialLrMixin(object):
     def __init__(self, initial_lr):
         self._base_lr = initial_lr
         self._start_epoch = 1
+        super(InitialLrMixin, self).__init__()
 
     @property
     def base_lr(self):
@@ -39,12 +40,12 @@ class NoEpochUpdateMixin(object):
         return learning_rate
 
     @property
-    def n_iter_per_epoch(self):
-        return self._n_iter_per_epoch
+    def n_iters_per_epoch(self):
+        return self._n_iters_per_epoch
 
-    @n_iter_per_epoch.setter
-    def n_iter_per_epoch(self, n_iter_per_epoch):
-        self._n_iter_per_epoch = n_iter_per_epoch
+    @n_iters_per_epoch.setter
+    def n_iters_per_epoch(self, n_iters_per_epoch):
+        self._n_iters_per_epoch = n_iters_per_epoch
 
 
 class NoDecayPolicy(InitialLrMixin, NoBatchUpdateMixin, NoEpochUpdateMixin):
@@ -53,6 +54,10 @@ class NoDecayPolicy(InitialLrMixin, NoBatchUpdateMixin, NoEpochUpdateMixin):
 
     def __repr__(self):
         return str(self)
+
+    @property
+    def initial_lr(self):
+        return self._base.lr
 
 
 class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
@@ -85,19 +90,19 @@ class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
 
 
 class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
-    def __init__(self, base_lr, power=10.0, max_epoch=500, n_iter_per_epoch=1094):
+    def __init__(self, base_lr, power=10.0, max_epoch=500, n_iters_per_epoch=1094):
         self.power = power
         self.max_epoch = max_epoch
-        self._n_iter_per_epoch = n_iter_per_epoch
+        self._n_iters_per_epoch = n_iters_per_epoch
         super(PolyDecayPolicy, self).__init__(base_lr)
 
     def batch_update(self, learning_rate, iter_idx):
-        updated_lr = self._base_lr * math.pow(1 - iter_idx / float(self.max_epoch * self._n_iter_per_epoch), self.power)
+        updated_lr = self._base_lr * math.pow(1 - iter_idx / float(self.max_epoch * self._n_iters_per_epoch), self.power)
         return updated_lr
 
     @property
     def initial_lr(self):
-        return self.batch_update(self._base_lr, self.start_epoch * self._n_iter_per_epoch)
+        return self.batch_update(self._base_lr, self.start_epoch * self._n_iters_per_epoch)
 
     def __str__(self):
         return 'PolyDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power,
@@ -108,12 +113,12 @@ class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
 
 
 class InvDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
-    def __init__(self, base_lr, gamma=9.0, power=10.0, max_epoch=500, n_iter_per_epoch=1094):
+    def __init__(self, base_lr, gamma=9.0, power=10.0, max_epoch=500, n_iters_per_epoch=1094):
         self.gamma = gamma
         self.power = power
         self.max_epoch = max_epoch
-        self._n_iter_per_epoch = n_iter_per_epoch
-        super(PolyDecayPolicy, self).__init__(base_lr)
+        self._n_iters_per_epoch = n_iters_per_epoch
+        super(PolyDecayPolicy, self).__init__(base_lrs)
 
     def batch_update(self, learning_rate, iter_idx):
         updated_lr = self.base_lr * math.pow(1 + self.gamma * iter_idx, - self.power)
@@ -121,7 +126,7 @@ class InvDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
 
     @property
     def initial_lr(self):
-        return self.batch_update(self.base_lr, self.start_epoch * self._n_iter_per_epoch)
+        return self.batch_update(self.base_lr, self.start_epoch * self._n_iters_per_epoch)
 
     def __str__(self):
         return 'InvDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power, self.max_epoch)

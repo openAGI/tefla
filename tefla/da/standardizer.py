@@ -1,14 +1,29 @@
 from __future__ import division, print_function, absolute_import
+
 import numpy as np
 
 
-class SamplewiseStandardizer:
+# Think of the classes in this module as da post-processors.
+# The standardizer name is a historical artifact.
+# A post-processor can be a standardizer, of course.
+
+class NoDAMixin(object):
+    def da_processing_params(self):
+        return {}
+
+    def set_tta_args(self, **kwargs):
+        pass
+
+
+class NoOpStandardizer(NoDAMixin):
+    def __call__(self, img, is_training):
+        return img
+
+
+class SamplewiseStandardizer(NoDAMixin):
     def __init__(self, clip, channel_wise=False):
         self.clip = clip
         self.channel_wise = channel_wise
-
-    def update(self, **kwargs):
-        pass
 
     def __call__(self, img, is_training):
         if self.channel_wise:
@@ -26,7 +41,7 @@ class SamplewiseStandardizer:
         return img
 
 
-class AggregateStandardizer:
+class AggregateStandardizer(object):
     def __init__(self, mean, std, u, ev, sigma=0.0, color_vec=None):
         self.mean = mean
         self.std = std
@@ -35,7 +50,10 @@ class AggregateStandardizer:
         self.sigma = sigma
         self.color_vec = color_vec
 
-    def update(self, **kwargs):
+    def da_processing_params(self):
+        return {'sigma': self.sigma}
+
+    def set_tta_args(self, **kwargs):
         self.color_vec = kwargs['color_vec']
 
     def __call__(self, img, is_training):
@@ -44,6 +62,7 @@ class AggregateStandardizer:
         if is_training:
             img = self.augment_color(img, sigma=self.sigma)
         else:
+            # tta (test time augmentation)
             img = self.augment_color(img, color_vec=self.color_vec)
         return img
 

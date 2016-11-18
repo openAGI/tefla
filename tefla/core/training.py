@@ -21,7 +21,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 class SupervisedTrainer(object):
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=False, n_iter_per_epoch=1094):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=False, n_iters_per_epoch=1094, gpu_memory_fraction=0.94):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -30,9 +30,10 @@ class SupervisedTrainer(object):
         self.lr_policy = cnf.get('lr_policy', NoDecayPolicy(0.01))
         self.lr_policy.start_epoch = start_epoch
         self.lr_policy.base_lr = resume_lr
-        self.lr_policy.n_iter_per_epoch = n_iter_per_epoch
+        self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
         self.validation_metrics_def = self.cnf.get('validation_scores', [])
         self.clip_norm = clip_norm
+        self.gpu_memory_fraction = gpu_memory_fraction
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
         self._setup_predictions_and_loss()
@@ -97,7 +98,7 @@ class SupervisedTrainer(object):
         validation_batch_summary_op = tf.merge_all_summaries(key=VALIDATION_BATCH_SUMMARIES)
         validation_epoch_summary_op = tf.merge_all_summaries(key=VALIDATION_EPOCH_SUMMARIES)
 
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.cnf.get('gpu_memory_fraction', 0.9))
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             if start_epoch > 1:
                 weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
@@ -114,7 +115,8 @@ class SupervisedTrainer(object):
             seed_delta = 100
             training_history = []
             batch_iter_idx = 1
-            batch_iters_per_epoch = len(data_set.training_X) // self.training_iterator.batch_size
+            n_iters_per_epoch = len(data_set.training_X) // self.training_iterator.batch_size
+            self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
             for epoch in xrange(start_epoch, self.num_epochs + 1):
                 np.random.seed(epoch + seed_delta)
                 tf.set_random_seed(epoch + seed_delta)
