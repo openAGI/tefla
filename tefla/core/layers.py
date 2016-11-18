@@ -187,11 +187,11 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def batch_norm_tf(x, name='batchnorm', scale=True, updates_collections=None, **kwargs):
+def batch_norm_tf(x, name='bn', scale=False, updates_collections=None, **kwargs):
     return tf.contrib.layers.batch_norm(x, scope=name, scale=scale, updates_collections=updates_collections, **kwargs)
 
 
-def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='batchnorm',
+def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='bn',
                        updates_collections=tf.GraphKeys.UPDATE_OPS, outputs_collections=None):
     with tf.variable_scope(name, reuse=reuse):
         beta = tf.get_variable(

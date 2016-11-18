@@ -21,7 +21,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 class SupervisedTrainer(object):
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.0005, classification=True, clip_norm=False, n_iter_per_epoch=1094):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=False, n_iter_per_epoch=1094):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -30,7 +30,7 @@ class SupervisedTrainer(object):
         self.lr_policy = cnf.get('lr_policy', NoDecayPolicy(0.01))
         self.lr_policy.start_epoch = start_epoch
         self.lr_policy.base_lr = resume_lr
-        self.lr_polciy.n_iter_per_epoch = n_iter_per_epoch
+        self.lr_policy.n_iter_per_epoch = n_iter_per_epoch
         self.validation_metrics_def = self.cnf.get('validation_scores', [])
         self.clip_norm = clip_norm
 
