@@ -21,7 +21,7 @@ def input(shape, name='inputs', outputs_collections=None, **unused):
 
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
                     w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
-                    dropout_p=None, outputs_collections=None, use_bias=True):
+                    outputs_collections=None, use_bias=True):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     if len(x.get_shape()) != 2:
@@ -60,9 +60,6 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
-
-        if dropout_p:
-            output = dropout(output, dropout_p, is_training=is_training)
 
         return _collect_named_outputs(outputs_collections, name, output)
 
