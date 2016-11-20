@@ -287,14 +287,35 @@ class SupervisedTrainer(object):
         self.learning_rate = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
         # Keep old variable around to load old params, till we need this
         self.obsolete_learning_rate = tf.Variable(1.0, trainable=False, name="learning_rate")
-        optimizer = tf.train.MomentumOptimizer(
-            self.learning_rate,
-            momentum=0.9,
-            use_nesterov=True)  # .minimize(regularized_training_loss)
+        optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
         self.grads_and_vars = optimizer.compute_gradients(self.regularized_training_loss, tf.trainable_variables())
         if self.clip_norm:
             self.grads_and_vars = _clip_grad_norms(self.grads_and_vars)
         self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
+
+    def _optimizer(self, lr, optname='momentum', decay=0.9, momentum=0.9, epsilon=1e-08, beta1=0.9, beta2=0.999):
+        """ definew the optimizer to use.
+
+        Args:
+            lr: learning rate, a scalar or a policy
+            optname: optimizer name
+            decay: variable decay value, scalar
+            momentum: momentum value, scalar
+
+        Returns:
+            optimizer to use
+         """
+        if optname == 'adadelta':
+            opt = tf.train.AdadeltaOptimizer(learning_rate=lr, rho=0.95, epsilon=1e-08, use_locking=False, name='Adadelta')
+        if optname == 'adagrad':
+            opt = tf.train.AdagradOptimizer(lr, initial_accumulator_value=0.1, use_locking=False, name='Adadelta')
+        if optname == 'rmsprop':
+            opt = tf.train.RMSPropOptimizer(lr, decay=0.9, momentum=0.0, epsilon=epsilon)
+        if optname == 'momentum':
+            opt = tf.train.MomentumOptimizer(lr, momentum, use_locking=False, name='momentum', use_nesterov=True)
+        if optname == 'adam':
+            opt = tf.train.AdamOptimizer(learning_rate=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, use_locking=False, name='Adam')
+        return opt
 
     def _setup_predictions_and_loss(self):
         if self.classification:
@@ -426,3 +447,96 @@ def _clip_grad_norms(gradients_to_variables, max_norm=5):
                 grad = tf.clip_by_norm(grad, max_norm)
         grads_and_vars.append((grad, var))
     return grads_and_vars
+
+
+def clip_grad_global_norms(tvars, loss, opt, global_norm=1, gate_gradients=1, gradient_noise_scale=4.0, GATE_GRAPH=2, grad_loss=None, agre_method=None, col_grad_ops=False):
+    """Clips the gradients by the given value.
+
+    Args:
+        tvars: trainable variables used for gradint updates
+        loss: total loss of the network
+        opt: optimizer
+        global_norm: the maximum global norm
+
+    Returns:
+        A list of clipped gradient to variable pairs.
+     """
+    var_refs = [v.ref() for v in tvars]
+    grads = tf.gradients(loss, var_refs, grad_ys=grad_loss, gate_gradients=(gate_gradients == 1), aggregation_method=agre_method, colocate_gradients_with_ops=col_grad_ops)
+    if gradient_noise_scale > 1:
+        grads = add_scaled_noise_to_gradients(list(zip(grads, tvars)), gradient_noise_scale=gradient_noise_scale)
+    if gate_gradients == GATE_GRAPH:
+        grads = tf.tuple(grads)
+    grads, _ = tf.clip_by_global_norm(grads, global_norm)
+    grads_and_vars = list(zip(grads, tvars))
+    return grads_and_vars
+
+
+def multiply_gradients(grads_and_vars, gradient_multipliers):
+    """Multiply specified gradients.
+
+    Args:
+        grads_and_vars: A list of gradient to variable pairs (tuples).
+        gradient_multipliers: A map from either `Variables` or `Variable` op names
+          to the coefficient by which the associated gradient should be scaled.
+
+    Returns:
+        The updated list of gradient to variable pairs.
+
+    Raises:
+        ValueError: If `grads_and_vars` is not a list or if `gradient_multipliers`
+        is empty or None or if `gradient_multipliers` is not a dictionary.
+    """
+    if not isinstance(grads_and_vars, list):
+        raise ValueError('`grads_and_vars` must be a list.')
+    if not gradient_multipliers:
+        raise ValueError('`gradient_multipliers` is empty.')
+    if not isinstance(gradient_multipliers, dict):
+        raise ValueError('`gradient_multipliers` must be a dict.')
+
+    multiplied_grads_and_vars = []
+    for grad, var in grads_and_vars:
+        if var in gradient_multipliers or var.op.name in gradient_multipliers:
+            key = var if var in gradient_multipliers else var.op.name
+            if grad is None:
+                raise ValueError('Requested multiple of `None` gradient.')
+
+            if isinstance(grad, tf.IndexedSlices):
+                tmp = grad.values * tf.constant(gradient_multipliers[key], dtype=grad.dtype)
+                grad = tf.IndexedSlices(tmp, grad.indices, grad.dense_shape)
+            else:
+                grad *= tf.constant(gradient_multipliers[key], dtype=grad.dtype)
+        multiplied_grads_and_vars.append((grad, var))
+    return multiplied_grads_and_vars
+
+
+def add_scaled_noise_to_gradients(grads_and_vars, gradient_noise_scale=10.0):
+    """Adds scaled noise from a 0-mean normal distribution to gradients
+
+    Args:
+        grads_and_vars: list of gradient and variables
+        gardient_noise_scale: value of noise factor
+
+    Returns:
+        noise added gradients
+
+    Raises:
+        ValueError: If `grads_and_vars` is not a list
+    """
+    if not isinstance(grads_and_vars, list):
+        raise ValueError('`grads_and_vars` must be a list.')
+
+    gradients, variables = zip(*grads_and_vars)
+    noisy_gradients = []
+    for gradient in gradients:
+        if gradient is None:
+            noisy_gradients.append(None)
+            continue
+        if isinstance(gradient, tf.IndexedSlices):
+            gradient_shape = gradient.dense_shape
+        else:
+            gradient_shape = gradient.get_shape()
+        noise = tf.truncated_normal(gradient_shape) * gradient_noise_scale
+        noisy_gradients.append(gradient + noise)
+    # return list(zip(noisy_gradients, variables))
+    return noisy_gradients
