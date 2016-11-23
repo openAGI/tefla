@@ -21,7 +21,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 class SupervisedTrainer(object):
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=False, n_iters_per_epoch=1094, gpu_memory_fraction=0.94):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=False, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -34,11 +34,13 @@ class SupervisedTrainer(object):
         self.validation_metrics_def = self.cnf.get('validation_scores', [])
         self.clip_norm = clip_norm
         self.gpu_memory_fraction = gpu_memory_fraction
+        self.is_summary = is_summary
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
         self._setup_predictions_and_loss()
         self._setup_optimizer()
-        self._setup_summaries()
+        if self.is_summary:
+            self._setup_summaries()
         self._setup_misc()
         self._print_info(data_set, verbose)
         self._train_loop(data_set, weights_from, start_epoch, summary_every,
@@ -88,15 +90,16 @@ class SupervisedTrainer(object):
                     verbose):
         training_X, training_y, validation_X, validation_y = \
             data_set.training_X, data_set.training_y, data_set.validation_X, data_set.validation_y
+        print(training_y)
         saver = tf.train.Saver(max_to_keep=None)
         weights_dir = "weights"
         if not os.path.exists(weights_dir):
             os.mkdir(weights_dir)
-
-        training_batch_summary_op = tf.merge_all_summaries(key=TRAINING_BATCH_SUMMARIES)
-        training_epoch_summary_op = tf.merge_all_summaries(key=TRAINING_EPOCH_SUMMARIES)
-        validation_batch_summary_op = tf.merge_all_summaries(key=VALIDATION_BATCH_SUMMARIES)
-        validation_epoch_summary_op = tf.merge_all_summaries(key=VALIDATION_EPOCH_SUMMARIES)
+        if self.is_summary:
+            training_batch_summary_op = tf.merge_all_summaries(key=TRAINING_BATCH_SUMMARIES)
+            training_epoch_summary_op = tf.merge_all_summaries(key=TRAINING_EPOCH_SUMMARIES)
+            validation_batch_summary_op = tf.merge_all_summaries(key=VALIDATION_BATCH_SUMMARIES)
+            validation_epoch_summary_op = tf.merge_all_summaries(key=VALIDATION_EPOCH_SUMMARIES)
 
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
@@ -109,8 +112,8 @@ class SupervisedTrainer(object):
 
             learning_rate_value = self.lr_policy.initial_lr
             logger.info("Initial learning rate: %f " % learning_rate_value)
-            train_writer, validation_writer = _create_summary_writer(self.cnf.get('summary_dir', '/tmp/tefla-summary'),
-                                                                     sess)
+            if self.is_summary:
+                train_writer, validation_writer = _create_summary_writer(self.cnf.get('summary_dir', '/tmp/tefla-summary'), sess)
 
             seed_delta = 100
             training_history = []
@@ -129,7 +132,7 @@ class SupervisedTrainer(object):
                                        self.learning_rate: learning_rate_value}
 
                     logger.debug('1. Loading batch %d data done.' % batch_num)
-                    if (epoch - 1) % summary_every == 0 and batch_num < 10:
+                    if epoch % summary_every == 0 and self.is_summary:
                         logger.debug('2. Running training steps with summary...')
                         training_predictions_e, training_loss_e, summary_str_train, _ = sess.run(
                             [self.training_predictions, self.regularized_training_loss, training_batch_summary_op,
@@ -164,11 +167,10 @@ class SupervisedTrainer(object):
 
                 # Plot training loss every epoch
                 logger.debug('5. Writing epoch summary...')
-                summary_str_train = sess.run(training_epoch_summary_op,
-                                             feed_dict={self.epoch_loss: epoch_training_loss,
-                                                        self.learning_rate: learning_rate_value})
-                train_writer.add_summary(summary_str_train, epoch)
-                train_writer.flush()
+                if self.is_summary:
+                    summary_str_train = sess.run(training_epoch_summary_op, feed_dict={self.epoch_loss: epoch_training_loss, self.learning_rate: learning_rate_value})
+                    train_writer.add_summary(summary_str_train, epoch)
+                    train_writer.flush()
                 logger.debug('5. Writing epoch summary done.')
 
                 # Validation prediction and metrics
@@ -182,7 +184,7 @@ class SupervisedTrainer(object):
                                             self.target: self._adjust_ground_truth(validation_yb)}
                     logger.debug('6. Loading batch %d validation data done.' % batch_num)
 
-                    if (epoch - 1) % summary_every == 0 and batch_num < 10:
+                    if (epoch - 1) % summary_every == 0 and self.is_summary:
                         logger.debug('7. Running validation steps with summary...')
                         validation_predictions_e, validation_loss_e, summary_str_validate = sess.run(
                             [self.validation_predictions, self.validation_loss, validation_batch_summary_op],
@@ -216,11 +218,10 @@ class SupervisedTrainer(object):
 
                 # Write validation epoch summary every epoch
                 logger.debug('9. Writing epoch validation summary...')
-                summary_str_validate = sess.run(validation_epoch_summary_op,
-                                                feed_dict={self.epoch_loss: epoch_validation_loss,
-                                                           self.validation_metric_placeholders: epoch_validation_metrics})
-                validation_writer.add_summary(summary_str_validate, epoch)
-                validation_writer.flush()
+                if self.is_summary:
+                    summary_str_validate = sess.run(validation_epoch_summary_op, feed_dict={self.epoch_loss: epoch_validation_loss, self.validation_metric_placeholders: epoch_validation_metrics})
+                    validation_writer.add_summary(summary_str_validate, epoch)
+                    validation_writer.flush()
                 logger.debug('9. Writing epoch validation summary done.')
 
                 custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[i]) for i, (name, _) in
@@ -249,9 +250,9 @@ class SupervisedTrainer(object):
                 if verbose > 0:
                     logger.info("Learning rate: %f " % learning_rate_value)
                 logger.debug('10. Epoch done. [%d]' % epoch)
-
-            train_writer.close()
-            validation_writer.close()
+            if self.is_summary:
+                train_writer.close()
+                validation_writer.close()
 
     def _setup_summaries(self):
         with tf.name_scope('summaries'):

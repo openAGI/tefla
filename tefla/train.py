@@ -23,17 +23,19 @@ import logging
               help='Relative path to training config file.')
 @click.option('--data_dir', default=None, show_default=True,
               help='Path to training directory.')
-@click.option('--iterator_type', default='queued', show_default=True,
+@click.option('--parallel', default=False, show_default=True,
               help='parallel or queued.')
 @click.option('--start_epoch', default=1, show_default=True,
               help='Epoch number from which to resume training.')
-@click.option('--gpu_memory_fraction', default=0.94, show_default=True,
+@click.option('--gpu_memory_fraction', default=0.92, show_default=True,
               help='Epoch number from which to resume training.')
 @click.option('--weights_from', default=None, show_default=True,
               help='Path to initial weights file.')
 @click.option('--resume_lr', default=0.01, show_default=True,
               help='Path to initial weights file.')
-def main(model, training_cnf, data_dir, iterator_type, start_epoch, weights_from, resume_lr, gpu_memory_fraction):
+@click.option('--is_summary', default=False, show_default=True,
+              help='Path to initial weights file.')
+def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, resume_lr, gpu_memory_fraction, is_summary):
     model_def = util.load_module(model)
     model = model_def.model
     cnf = util.load_module(training_cnf).cnf
@@ -45,10 +47,9 @@ def main(model, training_cnf, data_dir, iterator_type, start_epoch, weights_from
     data_set = DataSet(data_dir, model_def.image_size[0])
     standardizer = cnf.get('standardizer', NoOpStandardizer())
 
-    training_iter, validation_iter = create_training_iters(cnf, data_set, standardizer, model_def.crop_size,
-                                                           start_epoch, iterator_type == 'parallel')
-    trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, resume_lr, classification=cnf['classification'], gpu_memory_fraction=gpu_memory_fraction)
-    trainer.fit(data_set, weights_from, start_epoch, verbose=1, summary_every=10)
+    training_iter, validation_iter = create_training_iters(cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=False)
+    trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, resume_lr=resume_lr, classification=cnf['classification'], gpu_memory_fraction=gpu_memory_fraction, is_summary=is_summary)
+    trainer.fit(data_set, weights_from, start_epoch, verbose=1, summary_every=399)
 
 
 if __name__ == '__main__':
