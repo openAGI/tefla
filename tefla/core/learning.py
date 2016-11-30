@@ -123,7 +123,7 @@ class SupervisedTrainer(object):
                 batch_train_sizes = []
 
                 for batch_num, (Xb, yb) in enumerate(self.training_iterator(training_X, training_y)):
-                    feed_dict_train = {self.inputs: Xb, self.target: self._adjust_ground_truth(yb),
+                    feed_dict_train = {self.inputs: Xb, self.labels: self._adjust_ground_truth(yb),
                                        self.learning_rate: learning_rate_value}
 
                     log.debug('1. Loading batch %d data done.' % batch_num)
@@ -174,7 +174,7 @@ class SupervisedTrainer(object):
                 for batch_num, (validation_Xb, validation_yb) in enumerate(
                         self.validation_iterator(validation_X, validation_y)):
                     feed_dict_validation = {self.validation_inputs: validation_Xb,
-                                            self.target: self._adjust_ground_truth(validation_yb)}
+                                            self.validation_labels: self._adjust_ground_truth(validation_yb)}
                     log.debug('6. Loading batch %d validation data done.' % batch_num)
 
                     if (epoch - 1) % summary_every == 0 and self.is_summary:
@@ -402,8 +402,12 @@ class SupervisedTrainer(object):
         # Keep old variable around to load old params, till we need this
         self.obsolete_learning_rate = tf.Variable(1.0, trainable=False, name="learning_rate")
         optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
-        self.training_loss, self.grads_and_vars = self._process_towers_grads(optimizer, self.model, is_classification=self.cnf['classification'])
-        self.validation_loss = self._process_towers_loss(optimizer, self.model, is_classification=self.cnf['classification'])
+        self.inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[0], self.model.crop_size[1], 3), name="input")
+        self.labels = tf.placeholder(tf.int32, shape=(None,))
+        self.validation_inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[0], self.model.crop_size[1], 3), name="input")
+        self.validation_labels = tf.placeholder(tf.int32, shape=(None,))
+        self.training_loss, self.grads_and_vars = self._process_towers_grads(optimizer, self.model, is_classification=self.classification)
+        self.validation_loss = self._process_towers_loss(optimizer, self.model, is_classification=self.classification)
 
         if self.clip_norm:
             self.grads_and_vars = _clip_grad_norms(self.grads_and_vars)
