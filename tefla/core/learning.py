@@ -40,8 +40,7 @@ class SupervisedTrainer(object):
         log.setVerbosity(_verbosity(verbosity, log))
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10):
-        self._setup_predictions_and_loss()
-        self._setup_optimizer()
+        self._setup_model_loss()
         if self.is_summary:
             self._setup_summaries()
         self._setup_misc()
@@ -274,16 +273,6 @@ class SupervisedTrainer(object):
                                   collections=[VALIDATION_EPOCH_SUMMARIES])
             self.validation_metric_placeholders = tuple(self.validation_metric_placeholders)
 
-    def _setup_optimizer(self):
-        self.learning_rate = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
-        # Keep old variable around to load old params, till we need this
-        self.obsolete_learning_rate = tf.Variable(1.0, trainable=False, name="learning_rate")
-        optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
-        self.grads_and_vars = optimizer.compute_gradients(self.regularized_training_loss, tf.trainable_variables())
-        if self.clip_norm:
-            self.grads_and_vars = _clip_grad_norms(self.grads_and_vars)
-        self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
-
     def _optimizer(self, lr, optname='momentum', decay=0.9, momentum=0.9, epsilon=1e-08, beta1=0.9, beta2=0.999):
         """ definew the optimizer to use.
 
@@ -338,19 +327,24 @@ class SupervisedTrainer(object):
         else:
             return ce_loss_mean
 
-    def _tower_loss(self, scope, model, dataset, is_training, is_classification=True):
-        images, labels = dataset.distorted_inputs()
-
-        logits = model.inference(images)
-        if is_classification:
-            _, = self._loss_softmax(logits, labels, is_training)
+    def _tower_loss(self, scope, model, images, labels, is_training, resue, is_classification=True):
+        if is_training:
+            self.training_end_points = model(images, is_training=is_training, reuse=resue)
+            if is_classification:
+                _, = self._loss_softmax(self.training_end_points['logits'], labels, is_training)
+            else:
+                _, = self._loss_regression(self.training_end_points['logits'], labels, is_training)
+            losses = tf.get_collection('losses', scope)
+            total_loss = tf.add_n(losses, name='total_loss')
+            for l in losses + [total_loss]:
+                loss_name = re.sub('%s_[0-9]*/' % self.cnf['TOWER_NAME'], '', l.op.name)
+                tf.scalar_summary(loss_name, l)
         else:
-            _, = self._loss_regression(logits, labels, is_training)
-        losses = tf.get_collection('losses', scope)
-        total_loss = tf.add_n(losses, name='total_loss')
-        for l in losses + [total_loss]:
-            loss_name = re.sub('%s_[0-9]*/' % self.cnf['TOWER_NAME'], '', l.op.name)
-            tf.scalar_summary(loss_name, l)
+            self.validation_end_points = model(images, is_training=is_training, reuse=resue)
+            if is_classification:
+                total_loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
+            else:
+                total_loss = self._loss_regression(self.validation_end_points['logits'], labels, is_training)
 
         return total_loss
 
@@ -369,22 +363,51 @@ class SupervisedTrainer(object):
             average_grads.append(grad_and_var)
         return average_grads
 
-    def _process_towers_grads(self, opt, model, dataset):
+    def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
         tower_grads = []
+        images_gpus = tf.split(0, self.cnf['num_gpus'], self.inputs)
+        labels_gpus = tf.split(0, self.cnf['num_gpus'], self.labels)
         for i in xrange(self.cnf['num_gpus']):
             with tf.device('/gpu:%d' % i):
                 with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
-                    loss = self._tower_loss(scope, model, dataset)
+                    loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[i], is_training=is_training, reuse=reuse, is_classification=is_classification)
 
                     tf.get_variable_scope().reuse_variables()
+                    reuse = True
 
                     grads = opt.compute_gradients(loss)
                     tower_grads.append(grads)
 
         grads = self._average_gradients(tower_grads)
 
+        return grads, loss
+
+    def _process_towers_loss(self, opt, model, is_training=False, reuse=True, is_classification=True):
+        tower_loss = []
+        images_gpus = tf.split(0, self.cnf['num_gpus'], self.validation_inputs)
+        labels_gpus = tf.split(0, self.cnf['num_gpus'], self.validation_labels)
+        for i in xrange(self.cnf['num_gpus']):
+            with tf.device('/gpu:%d' % i):
+                with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
+                    loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[i], is_training=is_training, reuse=reuse, is_classification=is_classification)
+                    tower_loss.append(loss)
+
+        return sum(tower_loss)
+
     def _adjust_ground_truth(self, y):
         return y if self.classification else y.reshape(-1, 1).astype(np.float32)
+
+    def _setup_model_loss(self):
+        self.learning_rate = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
+        # Keep old variable around to load old params, till we need this
+        self.obsolete_learning_rate = tf.Variable(1.0, trainable=False, name="learning_rate")
+        optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
+        self.training_loss, self.grads_and_vars = self._process_towers_grads(optimizer, self.model, is_classification=self.cnf['classification'])
+        self.validation_loss = self._process_towers_loss(optimizer, self.model, is_classification=self.cnf['classification'])
+
+        if self.clip_norm:
+            self.grads_and_vars = _clip_grad_norms(self.grads_and_vars)
+        self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
 
     def _tensors_in_checkpoint_file(self, file_name, tensor_name=None, all_tensors=True):
         list_variables = []
