@@ -47,7 +47,7 @@ def main(model, training_cnf, data_dir, iterator_type, start_epoch, weights_from
 
     training_iter, validation_iter = create_training_iters(cnf, data_set, standardizer, model_def.crop_size,
                                                            start_epoch, iterator_type == 'parallel')
-    trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, resume_lr, classification=cnf['classification'], gpu_memory_fraction=gpu_memory_fraction)
+    trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, resume_lr=resume_lr, classification=cnf['classification'], gpu_memory_fraction=gpu_memory_fraction)
     trainer.fit(data_set, weights_from, start_epoch, verbose=1, summary_every=10)
 
 
