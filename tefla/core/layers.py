@@ -306,7 +306,7 @@ def _flatten(x, name='flatten'):
 
 
 def repeat(inputs, repetitions, layer, name='repeat', outputs_collections=None, *args, **kwargs):
-    with tf.variable_scope(name, 'Repeat', [inputs]):
+    with tf.variable_scope(name, 'Repeat'):
         inputs = tf.convert_to_tensor(inputs)
         if name is None:
             if hasattr(layer, '__name__'):

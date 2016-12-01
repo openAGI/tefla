@@ -304,3 +304,9 @@ def veryify_args(actual, allowed_keys, msg_prefix):
     extra = list(actual_keys - set(allowed_keys))
     if len(extra) > 0:
         raise ValueError("%s %s" % (msg_prefix, extra))
+
+
+def rms(x, name=None):
+    if name is None:
+        name = x.op.name + '/rms'
+    return tf.sqrt(tf.reduce_mean(tf.square(x)), name=name)
