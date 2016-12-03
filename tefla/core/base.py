@@ -97,6 +97,11 @@ class Base(object):
             opt = tf.train.AdamOptimizer(learning_rate=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, use_locking=False, name='Adam')
         return opt
 
+    def _moving_averages_op(self):
+        variable_averages = tf.train.ExponentialMovingAverage(self.cnf.get('MOVING_AVERAGE_DECAY', 0.999))
+        variables_averages_op = variable_averages.apply(tf.trainable_variables())
+        return variables_averages_op
+
     def _tensors_in_checkpoint_file(self, file_name, tensor_name=None, all_tensors=True):
         list_variables = []
         try:
