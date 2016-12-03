@@ -39,8 +39,8 @@ class SupervisedTrainer(object):
         log.setFIleHandler(log_file_name)
         log.setVerbosity(_verbosity(verbosity, log))
 
-    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10):
-        self._setup_model_loss()
+    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, keep_moving_averages=False):
+        self._setup_model_loss(keep_moving_averages)
         if self.is_summary:
             self._setup_summaries()
         self._setup_misc()
@@ -131,7 +131,7 @@ class SupervisedTrainer(object):
                         log.debug('2. Running training steps with summary...')
                         training_predictions_e, training_loss_e, summary_str_train, _ = sess.run(
                             [self.training_predictions, self.regularized_training_loss, training_batch_summary_op,
-                             self.optimizer_step],
+                             self.train_op],
                             feed_dict=feed_dict_train)
                         train_writer.add_summary(summary_str_train, epoch)
                         train_writer.flush()
@@ -140,7 +140,7 @@ class SupervisedTrainer(object):
                         log.debug("Epoch %d, Batch %d training predictions: %s" % (epoch, batch_num, training_predictions_e))
                     else:
                         log.debug('2. Running training steps without summary...')
-                        training_loss_e, _ = sess.run([self.regularized_training_loss, self.optimizer_step],
+                        training_loss_e, _ = sess.run([self.regularized_training_loss, self.train_op],
                                                       feed_dict=feed_dict_train)
                         log.debug('2. Running training steps without summary done.')
 
@@ -244,6 +244,11 @@ class SupervisedTrainer(object):
             if self.is_summary:
                 train_writer.close()
                 validation_writer.close()
+
+    def _moving_averages_op(self):
+        variable_averages = tf.train.ExponentialMovingAverage(self.cnf.get('MOVING_AVERAGE_DECAY', 0.999))
+        variables_averages_op = variable_averages.apply(tf.trainable_variables())
+        return variables_averages_op
 
     def _setup_summaries(self):
         with tf.name_scope('summaries'):
@@ -397,21 +402,27 @@ class SupervisedTrainer(object):
     def _adjust_ground_truth(self, y):
         return y if self.classification else y.reshape(-1, 1).astype(np.float32)
 
-    def _setup_model_loss(self):
+    def _setup_model_loss(self, keep_moving_averages=False):
         self.learning_rate = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
         # Keep old variable around to load old params, till we need this
         self.obsolete_learning_rate = tf.Variable(1.0, trainable=False, name="learning_rate")
         optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
         self.inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[0], self.model.crop_size[1], 3), name="input")
         self.labels = tf.placeholder(tf.int32, shape=(None,))
-        self.validation_inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[0], self.model.crop_size[1], 3), name="input")
+        self.validation_inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[0], self.model.crop_size[1], 3), name="validation_input")
         self.validation_labels = tf.placeholder(tf.int32, shape=(None,))
         self.training_loss, self.grads_and_vars = self._process_towers_grads(optimizer, self.model, is_classification=self.classification)
         self.validation_loss = self._process_towers_loss(optimizer, self.model, is_classification=self.classification)
 
         if self.clip_norm:
             self.grads_and_vars = _clip_grad_norms(self.grads_and_vars)
-        self.optimizer_step = optimizer.apply_gradients(self.grads_and_vars)
+        apply_gradients_op = optimizer.apply_gradients(self.grads_and_vars)
+        if keep_moving_averages:
+            variables_averages_op = self._moving_averages_op()
+            with tf.control_dependencies([apply_gradients_op, variables_averages_op]):
+                self.train_op = tf.no_op(name='train')
+        else:
+            self.train_op = apply_gradients_op
 
     def _tensors_in_checkpoint_file(self, file_name, tensor_name=None, all_tensors=True):
         list_variables = []
