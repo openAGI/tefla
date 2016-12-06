@@ -18,9 +18,13 @@ class Dataset(object):
     """A simple class for handling data sets."""
     __metaclass__ = ABCMeta
 
-    def __init__(self, name):
+    def __init__(self, name, decoder, data_dir=None, items_to_descriptions=None, **kwargs):
         """Initialize dataset using a subset and the path to the data."""
         self.name = name
+        self.decoer = decoder
+        self.data_dir = data_dir
+        self.items_to_descriptions = items_to_descriptions
+        self.__dict__.update(kwargs)
 
     @abstractmethod
     def num_classes(self):
@@ -32,7 +36,7 @@ class Dataset(object):
         """Returns the number of examples in the data subset."""
         pass
 
-    def data_files(self, data_dir):
+    def data_files(self):
         """Returns a python list of all (sharded) data subset files.
         Returns:
             python list of all (sharded) data set files.
@@ -40,14 +44,14 @@ class Dataset(object):
             ValueError: if there are not data_files matching the subset.
         """
         try:
-            data_files = [f for f in os.listdir(data_dir)]
-            data_files = [os.path.join(data_dir, f) for f in data_files]
+            data_files = [f for f in os.listdir(self.data_dir)]
+            data_files = [os.path.join(self.data_dir, f) for f in data_files]
             return np.array(sorted(data_files))
         except Exception:
-            raise ValueError('No files found for dataset %s at %s' % (self.name, data_dir))
+            raise ValueError('No files found for dataset %s at %s' % (self.name, self.data_dir))
 
     @property
-    def reader(self):
+    def reader_class(self):
         """Return a reader for a single entry from the data set.
         Returns:
             Reader object that reads the data set.
@@ -60,4 +64,4 @@ class Dataset(object):
         Returns:
             Decoder object that decodes the data samples.
         """
-        return tf.parse_single_example()
+        return self.decoder

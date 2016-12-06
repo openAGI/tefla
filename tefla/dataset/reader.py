@@ -1,29 +1,40 @@
+# -------------------------------------------------------------------#
+# Written by Mrinal Haloi
+# Contact: mrinal.haloi11@gmail.com
+# Copyright 2016, Mrinal Haloi
+# -------------------------------------------------------------------#
 import tensorflow as tf
 
 
 class Reader(object):
-    def __init__(self, reader_class, reader_kwargs, num_readers=8):
-        self.reader_kwargs = reader_kwargs or {}
-        self._readers = [reader_class(**reader_kwargs) for _ in range(num_readers)]
+    def __init__(self, dataset, reader_kwargs=None, shuffle=True, num_readers=16, capacity=1, num_epochs=None,):
+        reader_kwargs = reader_kwargs or {}
+        self.dataset = dataset
+        self.num_epochs = num_epochs
+        self.shuffle = shuffle
+        self.capacity = capacity
+        self._readers = [self.dataset.reader_class(**reader_kwargs) for _ in range(num_readers)]
 
     @property
     def num_readers(self):
         return len(self._readers)
 
-    def single_reader(self, data_files):
+    def single_reader(self):
         with tf.name_scope('single_reader'):
+            data_files = self.dataset.data_files()
             filename_queue = tf.string_input_producer(data_files, num_epochs=1, shuffle=False, capacity=1)
             # return key, value
             _, value = self._reader.read(filename_queue)
             return value
 
-    def parallel_reader(self, reader, data_files, num_epochs, shuffle=True, capacity=2048, num_readers=16, min_queue_examples=1024, batch_size=32):
+    def parallel_reader(self, min_queue_examples=1024):
         with tf.name_scope('parallel_reader'):
-            filename_queue = tf.train.string_input_producer(data_files, num_epochs=num_epochs, shuffle=shuffle)
-            if shuffle:
-                examples_queue = tf.RandomShuffleQueue(capacity=capacity, min_after_dequeue=min_queue_examples, dtypes=[tf.string])
+            data_files = self.dataset.data_files()
+            filename_queue = tf.train.string_input_producer(data_files, num_epochs=self.num_epochs, shuffle=self.shuffle)
+            if self.shuffle:
+                examples_queue = tf.RandomShuffleQueue(capacity=self.capacity, min_after_dequeue=min_queue_examples, dtypes=[tf.string])
             else:
-                examples_queue = tf.FIFOQueue(capacity=capacity, dtypes=[tf.string])
+                examples_queue = tf.FIFOQueue(capacity=self.capacity, dtypes=[tf.string])
 
             enqueue_ops = []
             for _reader in self._readers:

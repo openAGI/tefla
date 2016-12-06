@@ -1,9 +1,19 @@
+# -------------------------------------------------------------------#
+# Written by Mrinal Haloi
+# Contact: mrinal.haloi11@gmail.com
+# Copyright 2016, Mrinal Haloi
+# -------------------------------------------------------------------#
 import tensorflow as tf
 
 
 class Decoder(object):
     def __init__(self, feature_keys):
         self._feature_keys = feature_keys
+        self.feature_names = self._feature_keys.keys()
+
+    @property
+    def feature_names(self):
+        return self.feature_names
 
     def decode(self, example_serialized):
         """Parses an Example proto containing a training example of an image.
@@ -17,9 +27,25 @@ class Decoder(object):
         """
 
         features = tf.parse_single_example(example_serialized, self._feature_keys)
-        label = tf.cast(features['image/class/label'], dtype=tf.int32)
+        outputs = dict()
+        for feature in self.feature_names:
+            f_type = feature.split('/')[-1]
+            outputs.update({f_type: (self._decode_feature(f_type, features[feature]))})
 
-        return self._decode_jpeg(features['image/encoded']), label, features['image/class/text']
+        return outputs
+
+    def _decode_feature(self, f_type, feature):
+        return {
+            'label': tf.cast(feature, dtype=tf.int64),
+            'height': tf.cast(feature, dtype=tf.int64),
+            'width': tf.cast(feature, dtype=tf.int64),
+            'channels': tf.cast(feature, dtype=tf.int64),
+            'text': tf.cast(feature, dtype=tf.string),
+            'colorspace': tf.cast(feature, dtype=tf.string),
+            'format': tf.cast(feature, dtype=tf.string),
+            'filename': tf.cast(feature, dtype=tf.string),
+            'encoded': self._decode_jpeg(feature),
+        }[f_type]
 
     def _decode_jpeg(self, image_buffer, scope=None):
         """Decode a JPEG string into one 3-D float image Tensor.
