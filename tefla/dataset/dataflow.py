@@ -22,7 +22,7 @@ class Dataflow(object):
         outputs = self.dataset.decoder.decode(data)
         valid_items = outputs.keys()
         self._validate_items(items, valid_items)
-        return outputs
+        return [outputs[item] for item in items]
 
     def _validate_items(self, items, valid_items):
         if not isinstance(items, (list, tuple)):
