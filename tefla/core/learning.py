@@ -308,13 +308,15 @@ class SupervisedTrainer(Base):
 
                     tf.get_variable_scope().reuse_variables()
                     reuse = True
+                    if self.clip_by_global_norm:
+                        grads_and_vars = self._clip_grad_global_norms(tf.trainable_variables(), loss, opt, global_norm=self.norm_threshold, gradient_noise_scale=0.0)
+                    else:
+                        grads_and_vars = opt.compute_gradients(loss)
+                    tower_grads.append(grads_and_vars)
 
-                    grads = opt.compute_gradients(loss)
-                    tower_grads.append(grads)
+        grads_and_vars = self._average_gradients(tower_grads)
 
-        grads = self._average_gradients(tower_grads)
-
-        return grads, loss
+        return grads_and_vars, loss
 
     def _process_towers_loss(self, opt, model, is_training=False, reuse=True, is_classification=True):
         tower_loss = []
@@ -340,11 +342,11 @@ class SupervisedTrainer(Base):
         self.labels = tf.placeholder(tf.int32, shape=(None,))
         self.validation_inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[0], self.model.crop_size[1], 3), name="validation_input")
         self.validation_labels = tf.placeholder(tf.int32, shape=(None,))
-        self.training_loss, self.grads_and_vars = self._process_towers_grads(optimizer, self.model, is_classification=self.classification)
+        self.grads_and_vars, self.training_loss = self._process_towers_grads(optimizer, self.model, is_classification=self.classification)
         self.validation_loss = self._process_towers_loss(optimizer, self.model, is_classification=self.classification)
 
-        if self.clip_norm:
-            self.grads_and_vars = self._clip_grad_norms(self.grads_and_vars)
+        if self.clip_norm and not self.clip_by_global_norm:
+            self.grads_and_vars = self._clip_grad_norms(self.grads_and_vars, max_norm=self.norm_threshold)
         apply_gradients_op = optimizer.apply_gradients(self.grads_and_vars)
         if keep_moving_averages:
             variables_averages_op = self._moving_averages_op()

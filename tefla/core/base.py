@@ -22,7 +22,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 class Base(object):
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=False, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=0):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=0):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -34,10 +34,11 @@ class Base(object):
         self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
         self.validation_metrics_def = self.cnf.get('validation_scores', [])
         self.clip_norm = clip_norm
+        self.norm_threshold = norm_threshold
         self.gpu_memory_fraction = gpu_memory_fraction
         self.is_summary = is_summary
         log.setFIleHandler(log_file_name)
-        log.setVerbosity(self._verbosity(verbosity, log))
+        log.setVerbosity(self._verbosity(str(verbosity), log))
 
     def _setup_summaries(self, d_grads_and_var, g_grads_and_var=None):
         with tf.name_scope('summaries'):
@@ -166,7 +167,7 @@ class Base(object):
             grads_and_vars.append((grad, var))
         return grads_and_vars
 
-    def _clip_grad_global_norms(self, tvars, loss, opt, global_norm=1, gate_gradients=1, gradient_noise_scale=4.0, GATE_GRAPH=2, grad_loss=None, agre_method=None, col_grad_ops=False):
+    def _clip_grad_global_norms(self, tvars, loss, opt, global_norm=10, gate_gradients=1, gradient_noise_scale=4.0, GATE_GRAPH=2, grad_loss=None, agre_method=None, col_grad_ops=False):
         """Clips the gradients by the given value.
 
         Args:

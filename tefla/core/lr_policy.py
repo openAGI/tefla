@@ -57,7 +57,7 @@ class NoDecayPolicy(InitialLrMixin, NoBatchUpdateMixin, NoEpochUpdateMixin):
 
     @property
     def initial_lr(self):
-        return self._base.lr
+        return self._base_lr
 
 
 class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
