@@ -117,6 +117,60 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def upsample2d(input_, output_shape, is_training, reuse, filter_size=(5, 5), stride=(2, 2), init=initz.he_normal(seed=None),
+               batch_norm=None, activation=None, name="deconv2d", use_bias=True, with_w=False, outputs_collections=None, **unused):
+    input_shape = helper.get_input_shape(input_)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    with tf.variable_scope(name or 'upsample2d', reuse=reuse):
+        shape = [filter_size[0], filter_size[1], output_shape[-1], input_.get_shape()[-1]] if hasattr(init,
+                                                                                                      '__call__') else None
+
+        # filter : [height, width, output_channels, in_channels]
+        w = tf.get_variable(name='W', shape=shape, initializer=init)
+
+        output = tf.nn.conv2d_transpose(input_, w, output_shape=output_shape, strides=[1, stride[0], stride[1], 1])
+        if use_bias:
+            biases = tf.get_variable('biases', [output_shape[-1]], initializer=tf.constant_initializer(0.0))
+            output = tf.reshape(tf.nn.bias_add(output, biases), output.get_shape())
+
+        if batch_norm:
+            output = batch_norm(output, is_training=is_training, reuse=reuse, name='bn_upsample')
+
+        if activation:
+            output = activation(output, reuse=reuse)
+
+        tf.add_to_collection(tf.GraphKeys.ACTIVATIONS, output)
+
+        if with_w:
+            return _collect_named_outputs(outputs_collections, name, output), w, biases
+        else:
+            return _collect_named_outputs(outputs_collections, name, output)
+
+
+def _phase_shift(input_, r):
+    bsize, a, b, c = helper.get_input_shape(input_)
+    X = tf.reshape(input_, (bsize, a, b, r, r))
+    X = tf.transpose(X, (0, 1, 2, 4, 3))
+    X = tf.split(1, a, X)
+    X = tf.concat(2, [tf.squeeze(x) for x in X])
+    X = tf.split(1, b, X)
+    X = tf.concat(2, [tf.squeeze(x) for x in X])
+    output = tf.reshape(X, (bsize, a * r, b * r, 1))
+    return output
+
+
+def subpixel2d(input_, r, color=False, name=None, outputs_collections=None, **unused):
+    input_shape = helper.get_input_shape(input_)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    with tf.name_scope(name or "subpixel"):
+        if color:
+            inputc = tf.split(3, 3, input_)
+            output = tf.concat(3, [_phase_shift(x, r) for x in inputc])
+        else:
+            output = _phase_shift(input_, r)
+    return _collect_named_outputs(outputs_collections, name, output)
+
+
 def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', outputs_collections=None, **unused):
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
@@ -275,6 +329,41 @@ def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unu
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.relu(x) + tf.mul(alpha, (x - tf.abs(x))) * 0.5
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def lrelu(x, leak=0.2, phase=0, name="lrelu", outputs_collections=None, **unused):
+    with tf.variable_scope(name):
+        f1 = 0.5 * (1 + leak)
+        f2 = 0.5 * (1 - leak)
+        output = f1 * x + f2 * abs(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def maxout(x, k=2, phase=0, name='maxout', outputs_collections=None, **unused):
+    with tf.name_scope(name):
+        shape = [int(e) for e in x.get_shape()]
+        ax = len(shape)
+        ch = shape[-1]
+        assert ch % k == 0
+        shape[-1] = ch / k
+        shape.append(k)
+        x = tf.reshape(x, shape)
+        output = tf.reduce_max(x, ax)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def offset_maxout(x, k=2, phase=0, name='maxout', outputs_collections=None, **unused):
+    with tf.name_scope(name):
+        shape = [int(e) for e in x.get_shape()]
+        ax = len(shape)
+        ch = shape[-1]
+        assert ch % k == 0
+        shape[-1] = ch / k
+        shape.append(k)
+        x = tf.reshape(x, shape)
+        ofs = rng.randn(1000, k).max(axis=1).mean()
+        output = tf.reduce_max(x, ax) - ofs
         return _collect_named_outputs(outputs_collections, name, output)
 
 

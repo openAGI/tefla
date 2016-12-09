@@ -21,7 +21,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 class SupervisedTrainer(object):
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=False, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -428,7 +428,7 @@ def _print_layer_shapes(end_points):
         logger.info("%s - %s" % (k, v.get_shape()))
 
 
-def _clip_grad_norms(gradients_to_variables, max_norm=5):
+def _clip_grad_norms(gradients_to_variables, max_norm=10):
     """Clips the gradients by the given value.
 
     Args:
