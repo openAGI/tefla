@@ -5,8 +5,10 @@
 # -------------------------------------------------------------------#
 import tensorflow as tf
 
+log_loss = tf.contrib.losses.log_loss
 
-def log_loss(predictions, labels, eps=1e-15, name='log'):
+
+def log_loss_custom(predictions, labels, eps=1e-7, name='log'):
     with tf.name_scope(name):
         predictions = tf.to_float(predictions)
         labels = tf.to_float(labels)
