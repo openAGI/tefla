@@ -12,7 +12,7 @@ class Metric(object):
     def __init__(self, name=None):
         self.name = name
 
-    def metric(self, predictions, targets):
+    def metric(self, predictions, targets, **kwargs):
         raise NotImplementedError
 
 
@@ -137,7 +137,49 @@ class Kappa(Metric, MetricMixin):
         try:
             return 1.0 - numerator / denominator
         except ZeroDivisionError:
-            return 0.999
+            return 0.0001
+
+
+class KappaV2(Metric, MetricMixin):
+    def __init__(self, name='kappa'):
+        super(Kappa, self).__init__(name)
+
+    def metric(self, predictions, targets, num_classes=5, batch_size=32, **kwargs):
+        targets = np.array(targets)
+        predictions = np.array(predictions)
+        if targets.ndim == 1:
+            targets = one_hot(targets, m=num_classes)
+        if predictions.ndim == 1:
+            predictions = one_hot(predictions, m=num_classes)
+        return self._kappa_loss(predictions, targets, batch_size=batch_size, **kwargs)
+
+    def _kappa_loss(self, predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_size=32, name='kappa'):
+        with tf.name_scope(name):
+            labels = tf.to_float(labels)
+            predictions = tf.to_float(predictions)
+            repeat_op = tf.to_float(tf.tile(tf.reshape(tf.range(0, num_ratings), [num_ratings, 1]), [1, num_ratings]))
+            repeat_op_sq = tf.square((repeat_op -tf.transpose(repeat_op)))
+            weights= repeat_op_sq / tf.to_float((num_ratings - 1) ** 2)
+
+            pred_ = predictions ** y_pow
+            try:
+                pred_norm = pred_ / (eps + tf.reshape(tf.reduce_sum(pred_, 1), [-1, 1]))
+            except:
+                pred_norm = pred_ / (eps + tf.reshape(tf.reduce_sum(pred_, 1), [batch_size, 1]))
+
+            hist_rater_a = tf.reduce_sum(pred_norm, 0)
+            hist_rater_b = tf.reduce_sum(labels, 0)
+
+            conf_mat = tf.matmul(tf.transpose(pred_norm), labels)
+            print(pred_norm.get_shape())
+
+            nom = tf.reduce_sum(weights * conf_mat)
+            denom = tf.reduce_sum(weights * tf.matmul(tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) / tf.to_float(batch_size))
+
+            try:
+                return (1 - nom / denom)
+            except:
+                return (1 - nom / (denom + eps))
 
 
 class Auroc(Metric):
@@ -177,3 +219,9 @@ def accuracy_op(y_pred, y_true):
     with tf.name_scope('Accuracy'):
         acc = accuracy_score(y_true, y_pred.argmax(axis=1))
     return acc
+
+
+def one_hot(vec, m=None):
+    if m is None:
+        m = int(np.max(vec)) + 1
+    return np.eye(m)[vec].astype('int32')
