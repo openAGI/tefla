@@ -167,7 +167,7 @@ class Base(object):
             grads_and_vars.append((grad, var))
         return grads_and_vars
 
-    def _clip_grad_global_norms(self, tvars, loss, opt, global_norm=10, gate_gradients=1, gradient_noise_scale=4.0, GATE_GRAPH=2, grad_loss=None, agre_method=None, col_grad_ops=False):
+    def _clip_grad_global_norms(self, tvars, loss, opt, global_norm=8, gate_gradients=1, gradient_noise_scale=4.0, GATE_GRAPH=2, grad_loss=None, agre_method=None, col_grad_ops=False):
         """Clips the gradients by the given value.
 
         Args:

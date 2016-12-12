@@ -41,9 +41,9 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
         denom = tf.reduce_sum(weights * tf.matmul(tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) / tf.to_float(batch_size))
 
         try:
-            return - (1 - nom / denom)
+            return -(1 - nom / denom)
         except:
-            return - (1 - nom / (denom + eps))
+            return -(1 - nom / (denom + eps))
 
 
 def kappa_log_loss(predictions, labels, y_pow=1, batch_size=32, log_scale=0.5, log_offset=0.50, name='kappa_log'):
