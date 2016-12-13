@@ -4,10 +4,13 @@
 
 The code for data augmentation originally comes from
 https://github.com/benanne/kaggle-ndsb/blob/master/data.py
+
+Enhanced by Mrinal Haloi
 """
 from __future__ import division, print_function
 
 from PIL import Image
+from PIL import ImageEnhance
 
 import skimage
 import skimage.transform
@@ -36,6 +39,64 @@ def fast_warp(img, tf, output_shape, mode='constant', mode_cval=0, order=0):
         t_img[i] = _warp_fast(img[i], m, output_shape=output_shape,
                               mode=mode, cval=mode_cval, order=order)
     return t_img
+
+
+def contrast_transform(img, contrast_min=0.8, contrast_max=1.2):
+    if isinstance(img, (np.ndarray)):
+        img = Image.fromarray(img)
+    contrast_param = np.random.uniform(contrast_min, contrast_max)
+    t_img = ImageEnhance.Contrast(img).enhance(contrast_param)
+
+    return np.array(t_img)
+
+
+def brightness_transform(img, brightness_min=0.93, brightness_max=1.4):
+    if isinstance(img, (np.ndarray)):
+        img = Image.fromarray(img)
+    brightness_param = np.random.uniform(brightness_min, brightness_max)
+    t_img = ImageEnhance.Brightness(img).enhance(brightness_param)
+
+    return np.array(t_img)
+
+
+def build_rescale_transform_slow(downscale_factor, image_shape, target_shape):
+    """
+    This mimics the skimage.transform.resize function.
+    The resulting image is centered.
+    """
+    rows, cols = image_shape
+    trows, tcols = target_shape
+    col_scale = row_scale = downscale_factor
+    src_corners = np.array([[1, 1], [1, rows], [cols, rows]]) - 1
+    dst_corners = np.zeros(src_corners.shape, dtype=np.double)
+    # take into account that 0th pixel is at position (0.5, 0.5)
+    dst_corners[:, 0] = col_scale * (src_corners[:, 0] + 0.5) - 0.5
+    dst_corners[:, 1] = row_scale * (src_corners[:, 1] + 0.5) - 0.5
+
+    tform_ds = skimage.transform.AffineTransform()
+    tform_ds.estimate(src_corners, dst_corners)
+
+    # centering
+    shift_x = cols / (2.0 * downscale_factor) - tcols / 2.0
+    shift_y = rows / (2.0 * downscale_factor) - trows / 2.0
+    tform_shift_ds = skimage.transform.SimilarityTransform(translation=(shift_x, shift_y))
+    return tform_shift_ds + tform_ds
+
+
+def build_rescale_transform_fast(downscale_factor, image_shape, target_shape):
+    """
+    estimating the correct rescaling transform is slow, so just use the
+    downscale_factor to define a transform directly. This probably isn't
+    100% correct, but it shouldn't matter much in practice.
+    """
+    rows, cols = image_shape
+    trows, tcols = target_shape
+    tform_ds = skimage.transform.AffineTransform(scale=(downscale_factor, downscale_factor))
+    # centering
+    shift_x = cols / (2.0 * downscale_factor) - tcols / 2.0
+    shift_y = rows / (2.0 * downscale_factor) - trows / 2.0
+    tform_shift_ds = skimage.transform.SimilarityTransform(translation=(shift_x, shift_y))
+    return tform_shift_ds + tform_ds
 
 
 def build_centering_transform(image_shape, target_shape):
@@ -108,11 +169,6 @@ def definite_crop(img, bbox):
 
 
 def perturb(img, augmentation_params, target_shape, rng=np.random, mode='constant', mode_cval=0):
-    # # DEBUG: draw a border to see where the image ends up
-    # img[0, :] = 0.5
-    # img[-1, :] = 0.5
-    # img[:, 0] = 0.5
-    # img[:, -1] = 0.5
     shape = img.shape[1:]
     tform_centering = build_centering_transform(shape, target_shape)
     tform_center, tform_uncenter = build_center_uncenter_transforms(shape)
@@ -122,6 +178,17 @@ def perturb(img, augmentation_params, target_shape, rng=np.random, mode='constan
     return fast_warp(img, tform_centering + tform_augment,
                      output_shape=target_shape,
                      mode=mode, mode_cval=mode_cval)
+
+
+def perturb_rescaled(img, scale, augmentation_params, target_shape=(224, 224), rng=np.random):
+    """
+    scale is a DOWNSCALING factor.
+    """
+    tform_rescale = build_rescale_transform(scale, img.shape, target_shape)  # also does centering
+    tform_center, tform_uncenter = build_center_uncenter_transforms(img.shape)
+    tform_augment = random_perturbation_transform(rng=rng, **augmentation_params)
+    tform_augment = tform_uncenter + tform_augment + tform_center  # shift to center, augment, shift back (for the rotation/shearing)
+    return fast_warp(img, tform_rescale + tform_augment, output_shape=target_shape, mode='constant').astype('float32')
 
 
 # for test-time augmentation
