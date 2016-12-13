@@ -85,8 +85,8 @@ def summary_gradients(grad_vars, summary_types, collections=None):
             return
 
 
-def summary_image(tensor, name=None, collections=None):
+def summary_image(tensor, name=None, max_images=10, collections=None):
     if name is None:
         name = name + _formatted_name(tensor)
     with tf.name_scope('summary/image'):
-        tf.image_summary(name, tensor, collections=collections)
+        tf.image_summary(name, tensor, max_images=max_images, collections=collections)

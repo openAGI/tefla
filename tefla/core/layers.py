@@ -9,6 +9,7 @@ from tefla.utils import util as helper
 from tensorflow.python.ops import math_ops
 from tensorflow.python.training import moving_averages
 
+rng = np.random.RandomState([2016, 6, 1])
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 
 
@@ -47,7 +48,7 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
                 shape=[n_output],
                 dtype=tf.float32,
                 initializer=tf.constant_initializer(b_init),
-                trainable=trainable
+                trainable=trainable,
             )
 
             output = tf.nn.bias_add(value=output, bias=b)
@@ -93,7 +94,7 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
                     name='b',
                     shape=output.get_shape()[1:],
                     initializer=tf.constant_initializer(b_init),
-                    trainable=trainable
+                    trainable=trainable,
                 )
                 output = tf.add(output, b)
             else:
@@ -101,7 +102,7 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
                     name='b',
                     shape=[n_output_channels],
                     initializer=tf.constant_initializer(b_init),
-                    trainable=trainable
+                    trainable=trainable,
                 )
                 output = tf.nn.bias_add(value=output, bias=b)
 
