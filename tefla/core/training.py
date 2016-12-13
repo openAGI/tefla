@@ -10,6 +10,7 @@ import tensorflow as tf
 
 from tefla.da.iterator import BatchIterator
 from tefla.core.lr_policy import NoDecayPolicy
+from tefla.core.losses import kappa_log_loss_clipped
 
 logger = logging.getLogger('tefla')
 
@@ -35,6 +36,8 @@ class SupervisedTrainer(object):
         self.clip_norm = clip_norm
         self.gpu_memory_fraction = gpu_memory_fraction
         self.is_summary = is_summary
+        self.loss_type='kappa_log'
+        self.num_classes=5
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
         self._setup_predictions_and_loss()
@@ -324,26 +327,29 @@ class SupervisedTrainer(object):
         else:
             self._setup_regression_predictions_and_loss()
 
-    def _setup_classification_predictions_and_loss(self):
+    def _setup_classification_predictions_and_loss(self, loss_type='kappa_log'):
         self.training_end_points = self.model(is_training=True, reuse=None)
         self.inputs = self.training_end_points['inputs']
-        training_logits, self.training_predictions = self.training_end_points['logits'], self.training_end_points[
-            'predictions']
+        training_logits, self.training_predictions = self.training_end_points['logits'], self.training_end_points['predictions']
         self.validation_end_points = self.model(is_training=False, reuse=True)
         self.validation_inputs = self.validation_end_points['inputs']
-        validation_logits, self.validation_predictions = self.validation_end_points['logits'], \
-                                                         self.validation_end_points[
-                                                             'predictions']
-        with tf.name_scope('predictions'):
-            self.target = tf.placeholder(tf.int32, shape=(None,))
+        validation_logits, self.validation_predictions = self.validation_end_points['logits'], self.validation_end_points['predictions']
         with tf.name_scope('loss'):
-            training_loss = tf.reduce_mean(
-                tf.nn.sparse_softmax_cross_entropy_with_logits(
-                    training_logits, self.target))
+            if loss_type == 'kappa_log':
+                with tf.name_scope('predictions'):
+                    self.target = tf.placeholder(tf.int32, shape=(None, self.num_classes))
+                training_loss = kappa_log_loss_clipped(self.training_predictions, self.target, batch_size=self.training_iterator.batch_size)
+                self.validation_loss = kappa_log_loss_clipped(self.validation_predictions, self.target, y_pow=2, batch_size=self.training_iterator.batch_size)
+            else:
+                with tf.name_scope('predictions'):
+                    self.target = tf.placeholder(tf.int32, shape=(None,))
+                training_loss = tf.reduce_mean(
+                    tf.nn.sparse_softmax_cross_entropy_with_logits(
+                        training_logits, self.target))
 
-            self.validation_loss = tf.reduce_mean(
-                tf.nn.sparse_softmax_cross_entropy_with_logits(
-                    validation_logits, self.target))
+                self.validation_loss = tf.reduce_mean(
+                    tf.nn.sparse_softmax_cross_entropy_with_logits(
+                        validation_logits, self.target))
 
             l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
             self.regularized_training_loss = training_loss + l2_loss * self.cnf.get('l2_reg', 0.0)
@@ -368,7 +374,10 @@ class SupervisedTrainer(object):
             self.regularized_training_loss = training_loss + l2_loss * self.cnf.get('l2_reg', 0.0)
 
     def _adjust_ground_truth(self, y):
-        return y if self.classification else y.reshape(-1, 1).astype(np.float32)
+        if self.loss_type=='kappa_log':
+            return np.eye(self.num_classes)[y]
+        else:
+            return y if self.classification else y.reshape(-1, 1).astype(np.float32)
 
 
 def _load_variables(sess, saver, weights_from):
