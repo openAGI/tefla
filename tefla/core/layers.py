@@ -172,6 +172,67 @@ def subpixel2d(input_, r, color=False, name=None, outputs_collections=None, **un
     return _collect_named_outputs(outputs_collections, name, output)
 
 
+def highway_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
+            padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss,
+            name='highway_conv2d', activation=None, use_bias=True, outputs_collections=None):
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    with tf.variable_scope(name, reuse=reuse):
+        w_shape = [filter_size[0], filter_size[1], x.get_shape()[-1], n_output_channels] if hasattr(w_init, '__call__') else None
+
+        w_t_shape = [n_output_channels]
+        b_shape = [n_output_channels]
+        with tf.name_scope('main_gate'):
+            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+        with tf.name_scope('transform_gate'):
+            W_t, b_t = helper.weight_bias(w_t_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+        output = tf.nn.conv2d(
+            input=x,
+            filter=W,
+            strides=[1, stride[0], stride[1], 1],
+            padding=padding)
+        output = tf.add(output, b)
+        H = activation(output, name='activation')
+        T = tf.sigmoid(tf.matmul(output, W_t) + b_t, name='transform_gate')
+        C = tf.sub(1.0, T, name="carry_gate")
+        output = tf.add(tf.mul(H, T), tf.mul(output, C), name='output')
+
+        if activation:
+            output = activation(output, reuse=reuse, trainable=trainable)
+
+        return _collect_named_outputs(outputs_collections, name, output)
+
+    return output
+
+
+def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
+           w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, name='highway_fc2d', activation=None, use_bias=True, outputs_collections=None):
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
+    if len(x.get_shape()) != 2:
+        x = _flatten(x)
+
+    n_input = x.get_shape().as_list()[1]
+    w_shape = [n_input, n_output] if hasattr(w_init, '__call__') else None
+    b_shape = [n_output]
+    with tf.variable_scope(name, reuse=reuse):
+        with tf.name_scope('main_gate'):
+            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+        with tf.name_scope('transform_gate'):
+            W_t, b_t = helper.weight_bias(w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+        H = activation(tf.matmul(x, W) + b, name='activation')
+        T = tf.sigmoid(tf.matmul(x, W_t) + b_t, name='transform_gate')
+        C = tf.sub(1.0, T, name="carry_gate")
+        output = tf.add(tf.mul(H, T), tf.mul(x, C), name='output')
+
+        if activation:
+            output = activation(output, reuse=reuse, trainable=trainable)
+
+        return _collect_named_outputs(outputs_collections, name, output)
+
+    return output
+
+
 def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', outputs_collections=None, **unused):
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
