@@ -44,7 +44,7 @@ class Decoder(object):
             'colorspace': tf.cast(feature, dtype=tf.string),
             'format': tf.cast(feature, dtype=tf.string),
             'filename': tf.cast(feature, dtype=tf.string),
-            'encoded': self._decode_jpeg(feature),
+            'image': self._decode_jpeg(feature),
         }[f_type]
 
     def _decode_jpeg(self, image_buffer, scope=None):

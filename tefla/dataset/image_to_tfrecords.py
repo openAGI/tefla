@@ -14,9 +14,8 @@ import tensorflow as tf
 import glob
 import numpy as np
 from PIL import Image
-from config.config import cfg
 import random
-from dataset.decoder import ImageCoder
+from tefla.dataset.decoder import ImageCoder
 
 
 class TFRecords(object):
@@ -91,7 +90,7 @@ class TFRecords(object):
 
         return image_data, height, width
 
-    def _convert_to_example(self, filename, image_buffer, label, text, height, width, image_format='jpg', colorspace='RGB', channels=3):
+    def convert_to_example(self, filename, image_buffer, label, text, height, width, image_format='jpg', colorspace='RGB', channels=3):
         """Build an Example proto for an example.
         Args:
             filename: string, path to an image file, e.g., '/path/to/example.JPG'
@@ -113,10 +112,10 @@ class TFRecords(object):
             'image/class/text': self._bytes_feature(text),
             'image/format': self._bytes_feature(image_format),
             'image/filename': self._bytes_feature(os.path.basename(filename)),
-            'image/encoded': self._bytes_feature(image_buffer)}))
+            'image/encoded/image': self._bytes_feature(image_buffer)}))
         return example
 
-    def process_image_files_batch(self, coder, thread_index, ranges, name, filenames, texts, labels, num_shards):
+    def process_image_files_batch(self, coder, thread_index, ranges, name, filenames, texts, labels, num_shards, train_dir):
         """Processes and saves list of images as TFRecord in 1 thread.
         Args:
             coder: instance of ImageCoder to provide TensorFlow image coding utils.
@@ -143,7 +142,7 @@ class TFRecords(object):
             # Generate a sharded version of the file name, e.g. 'train-00002-of-00010'
             shard = thread_index * num_shards_per_batch + s
             output_filename = '%s-%.5d-of-%.5d' % (name, shard, num_shards)
-            output_file = os.path.join(cfg.TRAIN.train_dir, output_filename)
+            output_file = os.path.join(train_dir, output_filename)
             writer = tf.python_io.TFRecordWriter(output_file)
             print('processing')
             shard_counter = 0
@@ -153,7 +152,7 @@ class TFRecords(object):
                 label = labels[i]
                 text = texts[i]
                 image_buffer, height, width = self.process_image(filename, coder)
-                example = self._convert_to_example(filename, image_buffer, label, text, height, width)
+                example = self.convert_to_example(filename, image_buffer, label, text, height, width)
                 writer.write(example.SerializeToString())
                 shard_counter += 1
                 counter += 1
@@ -168,7 +167,7 @@ class TFRecords(object):
         print('%s [thread %d]: Wrote %d images to %d shards.' %(datetime.now(), thread_index, counter, num_files_in_thread))
         sys.stdout.flush()
 
-    def process_image_files(self, name, filenames, texts, labels, num_shards):
+    def process_image_files(self, name, filenames, texts, labels, num_shards, num_threads=4):
         """Process and save list of images as TFRecord of Example protos.
         Args:
             name: string, unique identifier specifying the data set
@@ -181,14 +180,14 @@ class TFRecords(object):
         assert len(filenames) == len(labels)
 
         # Break all images into batches with a [ranges[i][0], ranges[i][1]].
-        spacing = np.linspace(0, len(filenames), cfg.num_threads + 1).astype(np.int)
+        spacing = np.linspace(0, len(filenames), num_threads + 1).astype(np.int)
         ranges = []
         threads = []
         for i in xrange(len(spacing) - 1):
             ranges.append([spacing[i], spacing[i + 1]])
 
         # Launch a thread for each batch.
-        print('Launching %d threads for spacings: %s' % (cfg.num_threads, ranges))
+        print('Launching %d threads for spacings: %s' % (num_threads, ranges))
         sys.stdout.flush()
         # Create a mechanism for monitoring when all threads are finished.
         coord = tf.train.Coordinator()
