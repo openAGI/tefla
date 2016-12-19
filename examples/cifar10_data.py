@@ -1,4 +1,9 @@
 from __future__ import absolute_import
+# -------------------------------------------------------------------#
+# Written by Mrinal Haloi
+# Contact: mrinal.haloi11@gmail.com
+# Copyright 2016, Mrinal Haloi
+# -------------------------------------------------------------------#
 from __future__ import division
 from __future__ import print_function
 
