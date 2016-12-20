@@ -142,7 +142,7 @@ class Kappa(Metric, MetricMixin):
 
 class KappaV2(Metric, MetricMixin):
     def __init__(self, name='kappa'):
-        super(Kappa, self).__init__(name)
+        super(KappaV2, self).__init__(name)
 
     def metric(self, predictions, targets, num_classes=5, batch_size=32, **kwargs):
         targets = np.array(targets)
@@ -171,7 +171,6 @@ class KappaV2(Metric, MetricMixin):
             hist_rater_b = tf.reduce_sum(labels, 0)
 
             conf_mat = tf.matmul(tf.transpose(pred_norm), labels)
-            print(pred_norm.get_shape())
 
             nom = tf.reduce_sum(weights * conf_mat)
             denom = tf.reduce_sum(weights * tf.matmul(tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) / tf.to_float(batch_size))
@@ -187,7 +186,11 @@ class Auroc(Metric):
         super(Auroc, self).__init__(name)
         self.name = name
 
-    def metric(self, predictions, targets):
+    def metric(self, predictions, targets, num_classes=5):
+        if targets.ndim == 2:
+            targets = np.argmax(targets, axis=1)
+        if predictions.ndim == 1:
+            predictions = one_hot(predictions, m=num_classes)
         return self._auroc(predictions, targets)
 
     def _auroc(self, y_pred, y_true):
@@ -203,21 +206,26 @@ class F1score(Metric):
         super(F1score, self).__init__(name)
         self.name = name
 
-    def metric(self, predictions, targets):
+    def metric(self, predictions, targets, num_classes=5):
+        if targets.ndim == 2:
+            targets = np.argmax(targets, axis=1)
+        if predictions.ndim == 1:
+            predictions = one_hot(predictions, m=num_classes)
         return self._f1_score(predictions, targets)
 
-    def _f1_score(y_pred, y_true):
+    def _f1_score(self, y_pred, y_true):
         y_pred_2 = np.argmax(y_pred, axis=1)
         p, r, f1, s = precision_recall_fscore_support(y_true, y_pred_2)
         return accuracy_score(y_true, y_pred_2) if 0 in f1 else np.mean(f1)
 
 
-def accuracy_op(y_pred, y_true):
-    if not isinstance(y_true, tf.Tensor):
-        raise ValueError("mean_accuracy 'input' argument only accepts type "
-                         "Tensor, '" + str(type(input)) + "' given.")
+def accuracy_op(predictions, targets, num_classes=5):
     with tf.name_scope('Accuracy'):
-        acc = accuracy_score(y_true, y_pred.argmax(axis=1))
+        if targets.ndim == 2:
+            targets = np.argmax(targets, axis=1)
+        if predictions.ndim == 1:
+            predictions = one_hot(predictions, m=num_classes)
+        acc = accuracy_score(targets, np.argmax(predictions, axis=1))
     return acc
 
 

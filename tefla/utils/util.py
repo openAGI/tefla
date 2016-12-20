@@ -310,3 +310,28 @@ def rms(x, name=None):
     if name is None:
         name = x.op.name + '/rms'
     return tf.sqrt(tf.reduce_mean(tf.square(x)), name=name)
+
+
+def weight_bias(W_shape, b_shape, w_init=tf.truncated_normal, b_init=0.0, w_regularizer=tf.nn.l2_loss, trainable=True):
+    W = tf.Variable(name='W', shape=W_shape, initializer=w_init, regularizer=w_regularizer, trainable=trainable)
+    b = tf.Variable(name='b', shape=b_shape, initializer=tf.constant_initializer(b_init), trainable=trainable)
+    return W, b
+
+
+def one_hot_encoding(labels, num_classes, name='one_hot_encoding'):
+    """Transform numeric labels into onehot_labels.
+    Args:
+        labels: [batch_size] target labels.
+        num_classes: total number of classes.
+        scope: Optional scope for op_scope.
+    Returns:
+        one hot encoding of the labels.
+    """
+    with tf.op_scope(name):
+        batch_size = labels.get_shape()[0]
+        indices = tf.expand_dims(tf.range(0, batch_size), 1)
+        labels = tf.cast(tf.expand_dims(labels, 1), indices.dtype)
+        concated = tf.concat(1, [indices, labels])
+        onehot_labels = tf.sparse_to_dense(concated, tf.pack([batch_size, num_classes]), 1.0, 0.0)
+        onehot_labels.set_shape([batch_size, num_classes])
+        return onehot_labels
