@@ -21,6 +21,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 
 class SupervisedTrainer(object):
+
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
                  validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False):
         self.model = model
@@ -38,9 +39,10 @@ class SupervisedTrainer(object):
         self.is_summary = is_summary
         self.loss_type='kappa_log'
         self.num_classes=5
+        self.label_smoothing=0.009
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
-        self._setup_predictions_and_loss()
+        self._setup_predictions_and_loss(loss_type=self.loss_type)
         self._setup_optimizer()
         if self.is_summary:
             self._setup_summaries()
@@ -89,8 +91,7 @@ class SupervisedTrainer(object):
 
         _print_layer_shapes(self.training_end_points)
 
-    def _train_loop(self, data_set, weights_from, start_epoch, summary_every,
-                    verbose):
+    def _train_loop(self, data_set, weights_from, start_epoch, summary_every, verbose):
         training_X, training_y, validation_X, validation_y = \
             data_set.training_X, data_set.training_y, data_set.validation_X, data_set.validation_y
         print(training_y)
@@ -99,17 +100,17 @@ class SupervisedTrainer(object):
         if not os.path.exists(weights_dir):
             os.mkdir(weights_dir)
         if self.is_summary:
-            training_batch_summary_op = tf.merge_all_summaries(key=TRAINING_BATCH_SUMMARIES)
-            training_epoch_summary_op = tf.merge_all_summaries(key=TRAINING_EPOCH_SUMMARIES)
-            validation_batch_summary_op = tf.merge_all_summaries(key=VALIDATION_BATCH_SUMMARIES)
-            validation_epoch_summary_op = tf.merge_all_summaries(key=VALIDATION_EPOCH_SUMMARIES)
+            training_batch_summary_op = tf.summary.merge_all(key=TRAINING_BATCH_SUMMARIES)
+            training_epoch_summary_op = tf.summary.merge_all(key=TRAINING_EPOCH_SUMMARIES)
+            validation_batch_summary_op = tf.summary.merge_all(key=VALIDATION_BATCH_SUMMARIES)
+            validation_epoch_summary_op = tf.summary.merge_all(key=VALIDATION_EPOCH_SUMMARIES)
 
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             if start_epoch > 1:
                 weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
 
-            sess.run(tf.initialize_all_variables())
+            sess.run(tf.global_variables_initializer())
             if weights_from:
                 _load_variables(sess, saver, weights_from)
 
@@ -321,9 +322,9 @@ class SupervisedTrainer(object):
             opt = tf.train.AdamOptimizer(learning_rate=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, use_locking=False, name='Adam')
         return opt
 
-    def _setup_predictions_and_loss(self):
+    def _setup_predictions_and_loss(self, loss_type='kappa_log'):
         if self.classification:
-            self._setup_classification_predictions_and_loss()
+            self._setup_classification_predictions_and_loss(loss_type=loss_type)
         else:
             self._setup_regression_predictions_and_loss()
 
@@ -338,8 +339,8 @@ class SupervisedTrainer(object):
             if loss_type == 'kappa_log':
                 with tf.name_scope('predictions'):
                     self.target = tf.placeholder(tf.int32, shape=(None, self.num_classes))
-                training_loss = kappa_log_loss_clipped(self.training_predictions, self.target, batch_size=self.training_iterator.batch_size)
-                self.validation_loss = kappa_log_loss_clipped(self.validation_predictions, self.target, y_pow=2, batch_size=self.training_iterator.batch_size)
+                training_loss = kappa_log_loss_clipped(self.training_predictions, self.target, y_pow=2, label_smoothing=self.label_smoothing, batch_size=self.training_iterator.batch_size)
+                self.validation_loss = kappa_log_loss_clipped(self.validation_predictions, self.target, batch_size=self.training_iterator.batch_size)
             else:
                 with tf.name_scope('predictions'):
                     self.target = tf.placeholder(tf.int32, shape=(None,))
@@ -415,8 +416,8 @@ def _create_summary_writer(summary_dir, sess):
         os.mkdir(summary_dir + '/training')
         os.mkdir(summary_dir + '/validation')
 
-    train_writer = tf.train.SummaryWriter(summary_dir + '/training', graph=sess.graph)
-    val_writer = tf.train.SummaryWriter(summary_dir + '/validation', graph=sess.graph)
+    train_writer = tf.summary.FileWriter(summary_dir + '/training', graph=sess.graph)
+    val_writer = tf.summary.FileWriter(summary_dir + '/validation', graph=sess.graph)
     return train_writer, val_writer
 
 
