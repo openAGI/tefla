@@ -9,6 +9,7 @@ from tefla.utils import util
 
 
 class PredictSessionMixin(object):
+
     def __init__(self, weights_from):
         self.weights_from = weights_from
 
@@ -23,6 +24,7 @@ class PredictSessionMixin(object):
 
 
 class OneCropPredictor(PredictSessionMixin):
+
     def __init__(self, model, cnf, weights_from, prediction_iterator):
         self.model = model
         self.cnf = cnf
@@ -46,6 +48,7 @@ class OneCropPredictor(PredictSessionMixin):
 
 
 class QuasiPredictor(PredictSessionMixin):
+
     def __init__(self, model, cnf, weights_from, prediction_iterator, number_of_transforms):
         self.number_of_transforms = number_of_transforms
         self.cnf = cnf
@@ -70,6 +73,7 @@ class QuasiPredictor(PredictSessionMixin):
 
 
 class CropPredictor(PredictSessionMixin):
+
     def __init__(self, model, cnf, weights_from, prediction_iterator, crop_size, im_size, number_of_crops=10):
         self.number_of_crops = number_of_crops
         self.cnf = cnf
@@ -91,3 +95,26 @@ class CropPredictor(PredictSessionMixin):
         elif self.number_of_crops == 1:
             predictions = self.predictor._real_predict(X, sess)
             return predictions
+
+
+class EnsemblePredictor(object):
+
+    def __init__(self, predictors):
+        self.predictors = predictors
+
+    def predict(self, X, ensemble_typ='mean'):
+        multiple_predictions = []
+        for p in self.predictors:
+            print('Ensembler - running predictions using: %s' % p)
+            predictions = p.predict(X)
+            multiple_predictions.append(predictions)
+        multiple_predictions = np.array(multiple_predictions, dtype=np.float32)
+        return _ensemble(ensemble_type, multiple_predictions)
+
+
+def _ensemble(en_type, x):
+    return {
+        'mean': np.mean(x, axis=0),
+        'gmean': np.gmean(x, axis=0),
+        'log_mean': np.mean(log(x + (x==0)), axis=0),
+    }[en_type]
