@@ -1,7 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import time
-
+from scipy.stats.mstats import gmean
 import numpy as np
 import tensorflow as tf
 from tefla.da import tta
@@ -115,6 +115,6 @@ class EnsemblePredictor(object):
 def _ensemble(en_type, x):
     return {
         'mean': np.mean(x, axis=0),
-        'gmean': np.gmean(x, axis=0),
+        'gmean': gmean(x, axis=0),
         'log_mean': np.mean(log(x + (x==0)), axis=0),
     }[en_type]

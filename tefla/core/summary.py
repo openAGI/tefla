@@ -21,9 +21,9 @@ def summary_metric(tensor, name=None, collections=None):
         name = _formatted_name(tensor)
     ndims = tensor.get_shape().ndims
     with tf.name_scope('summary/metric'):
-        tf.scalar_summary(name + '/mean', tf.reduce_mean(tensor), collections=collections)
+        tf.summary.scalar(name + '/mean', tf.reduce_mean(tensor), collections=collections)
         if ndims >= 2:
-            tf.histogram_summary(name, tensor, collections=collections)
+            tf.summary.histogram(name, tensor, collections=collections)
 
 
 def summary_activation(tensor, name=None, collections=None):
@@ -32,9 +32,9 @@ def summary_activation(tensor, name=None, collections=None):
     ndims = tensor.get_shape().ndims
     with tf.name_scope('summary/activation'):
         if ndims >= 2:
-            tf.histogram_summary(name, tensor)
-        tf.scalar_summary(name + '/sparsity', tf.nn.zero_fraction(tensor), collections=collections)
-        tf.scalar_summary(name + '/rms', rms(tensor), collections=collections)
+            tf.summary.histogram(name, tensor)
+        tf.summary.scalar(name + '/sparsity', tf.nn.zero_fraction(tensor), collections=collections)
+        tf.summary.scalar(name + '/rms', rms(tensor), collections=collections)
 
 
 def create_summary_writer(summary_dir, sess):
@@ -44,22 +44,22 @@ def create_summary_writer(summary_dir, sess):
         os.mkdir(summary_dir + '/train')
     if not os.path.exists(summary_dir + '/test'):
         os.mkdir(summary_dir + '/test')
-    train_writer = tf.train.SummaryWriter(summary_dir + '/train', graph=sess.graph)
-    val_writer = tf.train.SummaryWriter(summary_dir + '/test', graph=sess.graph)
+    train_writer = tf.summary.FileWriter(summary_dir + '/train', graph=sess.graph)
+    val_writer = tf.summary.FileWriter(summary_dir + '/test', graph=sess.graph)
     return train_writer, val_writer
 
 
 def summary_param(op, tensor, ndims, name, collections=None):
     return {
-        'scalar': tf.scalar_summary(name, tensor, collections=collections) if ndims == 0 else tf.scalar_summary(name + '/mean', tf.reduce_mean(tensor), collections=collections),
-        'histogram': tf.histogram_summary(name, tensor, collections=collections) if ndims >= 2 else None,
-        'sparsity': tf.scalar_summary(name + '/sparsity', tf.nn.zero_fraction(tensor), collections=collections),
-        'mean': tf.scalar_summary(name + '/mean', tf.reduce_mean(tensor), collections=collections),
-        'rms': tf.scalar_sumamry(name + '/rms', rms(tensor), collections=collections),
-        'stddev': tf.scalar_sumamry(name + '/stddev', tf.sqrt(tf.reduce_sum(tf.square(tensor - tf.reduce_mean(tensor, name='mean_op'))), name='stddev_op'), collections=collections),
-        'max': tf.scalar_summary(name + '/max', tf.reduce_max(tensor), collections=collections),
-        'min': tf.scalar_summary(name + '/min', tf.reduce_min(tensor), collections=collections),
-        'norm': tf.scalar_summary(name + '/norm', tf.srqt(tf.reduce_sum(tensor * tensor)), collections=collections),
+        'scalar': tf.summary.scalar(name, tensor, collections=collections) if ndims == 0 else tf.scalar_summary(name + '/mean', tf.reduce_mean(tensor), collections=collections),
+        'histogram': tf.summary.histogram(name, tensor, collections=collections) if ndims >= 2 else None,
+        'sparsity': tf.summary.scalar(name + '/sparsity', tf.nn.zero_fraction(tensor), collections=collections),
+        'mean': tf.summary.scalar(name + '/mean', tf.reduce_mean(tensor), collections=collections),
+        'rms': tf.summary.scalar(name + '/rms', rms(tensor), collections=collections),
+        'stddev': tf.summary.scalar(name + '/stddev', tf.sqrt(tf.reduce_sum(tf.square(tensor - tf.reduce_mean(tensor, name='mean_op'))), name='stddev_op'), collections=collections),
+        'max': tf.summary.scalar(name + '/max', tf.reduce_max(tensor), collections=collections),
+        'min': tf.summary.scalar(name + '/min', tf.reduce_min(tensor), collections=collections),
+        'norm': tf.summary.scalar(name + '/norm', tf.srqt(tf.reduce_sum(tensor * tensor)), collections=collections),
     }[op]
 
 
@@ -80,7 +80,7 @@ def summary_gradients(grad_vars, summary_types, collections=None):
             for s_type in summary_types:
                 summary_param(s_type, grad, ndims, var.op.name + '/grad', collections=None)
         try:
-            tf.scalar_summary('/global_norm', tf.global_norm(map(lambda grad_v: grad_v[0], grad_vars)), collections=collections)
+            tf.summary.scalar('/global_norm', tf.global_norm(map(lambda grad_v: grad_v[0], grad_vars)), collections=collections)
         except:
             return
 
@@ -89,4 +89,4 @@ def summary_image(tensor, name=None, max_images=10, collections=None):
     if name is None:
         name = name + _formatted_name(tensor)
     with tf.name_scope('summary/image'):
-        tf.image_summary(name, tensor, max_images=max_images, collections=collections)
+        tf.summary.image(name, tensor, max_images=max_images, collections=collections)
