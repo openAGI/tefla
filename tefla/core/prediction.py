@@ -102,7 +102,7 @@ class EnsemblePredictor(object):
     def __init__(self, predictors):
         self.predictors = predictors
 
-    def predict(self, X, ensemble_typ='mean'):
+    def predict(self, X, ensemble_type='mean'):
         multiple_predictions = []
         for p in self.predictors:
             print('Ensembler - running predictions using: %s' % p)
