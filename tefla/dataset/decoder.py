@@ -7,13 +7,14 @@ import tensorflow as tf
 
 
 class Decoder(object):
+
     def __init__(self, feature_keys):
         self._feature_keys = feature_keys
-        self.feature_names = self._feature_keys.keys()
+        self._feature_names = self._feature_keys.keys()
 
     @property
     def feature_names(self):
-        return self.feature_names
+        return self._feature_names
 
     def decode(self, example_serialized):
         """Parses an Example proto containing a training example of an image.
@@ -28,14 +29,22 @@ class Decoder(object):
 
         features = tf.parse_single_example(example_serialized, self._feature_keys)
         outputs = dict()
-        for feature in self.feature_names:
+        for feature in self._feature_names:
             f_type = feature.split('/')[-1]
-            outputs.update({f_type: (self._decode_feature(f_type, features[feature]))})
+            if f_type == 'image':
+                out = self._decode_feature(f_type, features[feature])
+            elif f_type=='format':
+                out = tf.convert_to_tensor(features[feature], dtype=tf.string)
+            else:
+                out = tf.convert_to_tensor(features[feature], dtype=tf.int64)
+            outputs.update({f_type: out})
+            # outputs.update({f_type: self._decode_feature(f_type, features[feature])})
 
         return outputs
 
     def _decode_feature(self, f_type, feature):
         return {
+            'image': self._decode_jpeg(feature),
             'label': tf.cast(feature, dtype=tf.int64),
             'height': tf.cast(feature, dtype=tf.int64),
             'width': tf.cast(feature, dtype=tf.int64),
@@ -44,7 +53,6 @@ class Decoder(object):
             'colorspace': tf.cast(feature, dtype=tf.string),
             'format': tf.cast(feature, dtype=tf.string),
             'filename': tf.cast(feature, dtype=tf.string),
-            'image': self._decode_jpeg(feature),
         }[f_type]
 
     def _decode_jpeg(self, image_buffer, scope=None):
@@ -63,6 +71,7 @@ class Decoder(object):
 
 class ImageCoder(object):
     """Helper class that provides TensorFlow image coding utilities."""
+
     def __init__(self):
         # Create a single Session to run all image coding calls.
         self._sess = tf.Session()

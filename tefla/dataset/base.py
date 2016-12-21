@@ -18,23 +18,35 @@ class Dataset(object):
     """A simple class for handling data sets."""
     __metaclass__ = ABCMeta
 
-    def __init__(self, name, decoder, data_dir=None, items_to_descriptions=None, **kwargs):
+    def __init__(self, name, decoder, data_dir=None, num_classes=10, num_examples_per_epoch=1, items_to_descriptions=None, **kwargs):
         """Initialize dataset using a subset and the path to the data."""
         self.name = name
-        self.decoer = decoder
+        self._decoder = decoder
         self.data_dir = data_dir
+        self._num_classes = num_classes
+        self._num_examples_per_epoch = num_examples_per_epoch
         self.items_to_descriptions = items_to_descriptions
         self.__dict__.update(kwargs)
 
-    @abstractmethod
+    @property
     def num_classes(self):
         """Returns the number of classes in the data set."""
-        pass
+        return self._num_classes
 
-    @abstractmethod
+    @num_classes.setter
+    def num_classes(self, value):
+        """Set the number of classes in the data set."""
+        self._num_classes = value
+
+    @property
     def num_examples_per_epoch(self):
         """Returns the number of examples in the data subset."""
-        pass
+        return self._num_examples_per_epoch
+
+    @num_examples_per_epoch.setter
+    def num_examples_per_epoch(self, value):
+        """Set the number of examples in the data subset."""
+        self._num_examples_per_epoch = value
 
     def data_files(self):
         """Returns a python list of all (sharded) data subset files.
@@ -46,7 +58,8 @@ class Dataset(object):
         try:
             data_files = [f for f in os.listdir(self.data_dir)]
             data_files = [os.path.join(self.data_dir, f) for f in data_files]
-            return np.array(sorted(data_files))
+            # return np.array(sorted(data_files))
+            return data_files
         except Exception:
             raise ValueError('No files found for dataset %s at %s' % (self.name, self.data_dir))
 
@@ -56,7 +69,7 @@ class Dataset(object):
         Returns:
             Reader object that reads the data set.
         """
-        return tf.TFRecordReader()
+        return tf.TFRecordReader
 
     @property
     def decoder(self):
@@ -64,4 +77,10 @@ class Dataset(object):
         Returns:
             Decoder object that decodes the data samples.
         """
-        return self.decoder
+        return self._decoder
+
+    @decoder.setter
+    def decoder(self, decoder_object):
+        """Set a decoder object for a single entry from the data set.
+        """
+        self._decoder = decoder_object

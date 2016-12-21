@@ -7,6 +7,7 @@ from tefla.dataset.reader import Reader
 
 
 class Dataflow(object):
+
     def __init__(self, dataset, num_readers=1, shuffle=True, num_epochs=None, min_queue_examples=2024, capacity=1):
         self.min_queue_examples = min_queue_examples
         self.num_readers = num_readers

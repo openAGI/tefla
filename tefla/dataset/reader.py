@@ -7,6 +7,7 @@ import tensorflow as tf
 
 
 class Reader(object):
+
     def __init__(self, dataset, reader_kwargs=None, shuffle=True, num_readers=16, capacity=1, num_epochs=None,):
         reader_kwargs = reader_kwargs or {}
         self.dataset = dataset
@@ -38,7 +39,7 @@ class Reader(object):
 
             enqueue_ops = []
             for _reader in self._readers:
-                _, value = self._reader.read(filename_queue)
+                _, value = _reader.read(filename_queue)
                 enqueue_ops.append(examples_queue.enqueue([value]))
             tf.train.queue_runner.add_queue_runner(tf.train.queue_runner.QueueRunner(examples_queue, enqueue_ops))
             return examples_queue.dequeue()
