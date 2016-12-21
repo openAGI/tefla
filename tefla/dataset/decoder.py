@@ -16,7 +16,7 @@ class Decoder(object):
     def feature_names(self):
         return self._feature_names
 
-    def decode(self, example_serialized):
+    def decode(self, example_serialized, image_size, resize_size=None):
         """Parses an Example proto containing a training example of an image.
         Args:
             example_serialized: scalar Tensor tf.string containing a serialized
@@ -33,7 +33,8 @@ class Decoder(object):
             f_type = feature.split('/')[-1]
             if f_type == 'image':
                 out = self._decode_feature(f_type, features[feature])
-            elif f_type=='format':
+                out = self._process_raw_image(out, image_size, resize_size=resize_size)
+            elif f_type in ['format', 'text', 'colorspace', 'filename']:
                 out = tf.convert_to_tensor(features[feature], dtype=tf.string)
             else:
                 out = tf.convert_to_tensor(features[feature], dtype=tf.int64)
@@ -66,6 +67,53 @@ class Decoder(object):
         with tf.name_scope(scope, 'decode_jpeg', [image_buffer]):
             image = tf.image.decode_jpeg(image_buffer, channels=3)
             image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+            return image
+
+    def distort_image(self, image, distort_op, height, width, thread_id=0, scope=None):
+        """Distort one image for training a network.
+        Args:
+            image: 3-D float Tensor of image
+            height: integer
+            width: integer
+            thread_id: integer indicating the preprocessing thread.
+            scope: Optional scope for name_scope.
+        Returns:
+            3-D float Tensor of distorted image used for training.
+        """
+        with tf.name_scope(scope, 'distort_image', [image, height, width]):
+            # Crop the image to the specified bounding box.
+            # Resize image as per memroy constarints
+            image = tf.image.resize_images(image, cfg.TRAIN.im_height, cfg.TRAIN.im_width, 3)
+            distorted_image = distort_op(image)
+
+            return distorted_image
+
+    def eval_image(self, image, height, width, scope=None):
+        """Prepare one image for evaluation.
+        Args:
+            image: 3-D float Tensor
+            height: integer
+            width: integer
+            scope: Optional scope for name_scope.
+        Returns:
+            3-D float Tensor of prepared image.
+        """
+        with tf.name_scope(scope, 'eval_image', [image, height, width]):
+            # Crop the central region of the image with an area containing 87.5% of
+            # the original image.
+            image = tf.image.central_crop(image, central_fraction=0.875)
+
+            # Resize the image to the original height and width.
+            image = tf.expand_dims(image, 0)
+            image = tf.image.resize_bilinear(image, [height, width], align_corners=False)
+            image = tf.squeeze(image, [0])
+            return image
+
+    def _process_raw_image(self, image, im_size, resize_size=None):
+        with tf.name_scope('process_raw_image'):
+            image = tf.reshape(image, shape=im_size)
+            if resize_size is not None:
+                image = tf.image.resize_bilinear(image, resize_size, align_corners=False)
             return image
 
 
