@@ -13,6 +13,7 @@ from tefla.da import data
 
 
 class BatchIterator(object):
+
     def __init__(self, batch_size, shuffle):
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -50,6 +51,7 @@ class BatchIterator(object):
 
 
 class QueuedMixin(object):
+
     def __iter__(self):
         queue = Queue.Queue(maxsize=20)
         end_marker = object()
@@ -75,6 +77,7 @@ class QueuedIterator(QueuedMixin, BatchIterator):
 
 
 class DAIterator(BatchIterator):
+
     def __call__(self, X, y=None, crop_bbox=None, xform=None):
         self.crop_bbox = crop_bbox
         self.xform = xform
@@ -136,6 +139,7 @@ def load_shared(args):
 
 
 class ParallelDAIterator(QueuedDAIterator):
+
     def __init__(self, batch_size, shuffle, preprocessor, crop_size, is_training,
                  aug_params=data.no_augmentation_params, fill_mode='constant', fill_mode_cval=0, standardizer=None,
                  save_to_dir=None):
@@ -168,6 +172,7 @@ class ParallelDAIterator(QueuedDAIterator):
 
 
 class BalancingDAIterator(ParallelDAIterator):
+
     def __init__(
             self, batch_size, shuffle, preprocessor, crop_size, is_training,
             balance_weights, final_balance_weights, balance_ratio, balance_epoch_count=0,
@@ -193,6 +198,7 @@ class BalancingDAIterator(ParallelDAIterator):
 
 # Todo remove code duplication with BalancingDAIterator (call method)
 class BalancingQueuedDAIterator(QueuedDAIterator):
+
     def __init__(
             self, batch_size, shuffle, preprocessor, crop_size, is_training,
             balance_weights, final_balance_weights, balance_ratio, balance_epoch_count=0,

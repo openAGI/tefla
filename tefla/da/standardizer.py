@@ -8,6 +8,7 @@ import numpy as np
 # A post-processor can be a standardizer, of course.
 
 class NoDAMixin(object):
+
     def da_processing_params(self):
         return {}
 
@@ -16,11 +17,13 @@ class NoDAMixin(object):
 
 
 class NoOpStandardizer(NoDAMixin):
+
     def __call__(self, img, is_training):
         return img
 
 
 class SamplewiseStandardizer(NoDAMixin):
+
     def __init__(self, clip, channel_wise=False):
         self.clip = clip
         self.channel_wise = channel_wise
@@ -42,6 +45,7 @@ class SamplewiseStandardizer(NoDAMixin):
 
 
 class AggregateStandardizer(object):
+
     def __init__(self, mean, std, u, ev, sigma=0.0, color_vec=None):
         self.mean = mean
         self.std = std
