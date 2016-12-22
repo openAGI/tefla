@@ -57,7 +57,8 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
             if isinstance(batch_norm, bool):
                 batch_norm = batch_norm_tf
             batch_norm_args = batch_norm_args or {}
-            output = batch_norm(output, is_training=is_training, reuse=reuse, trainable=trainable, **batch_norm_args)
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -110,7 +111,8 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
             if isinstance(batch_norm, bool):
                 batch_norm = batch_norm_tf
             batch_norm_args = batch_norm_args or {}
-            output = batch_norm(output, is_training=is_training, reuse=reuse, trainable=trainable, **batch_norm_args)
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -129,13 +131,17 @@ def upsample2d(input_, output_shape, is_training, reuse, filter_size=(5, 5), str
         # filter : [height, width, output_channels, in_channels]
         w = tf.get_variable(name='W', shape=shape, initializer=init)
 
-        output = tf.nn.conv2d_transpose(input_, w, output_shape=output_shape, strides=[1, stride[0], stride[1], 1])
+        output = tf.nn.conv2d_transpose(input_, w, output_shape=output_shape, strides=[
+                                        1, stride[0], stride[1], 1])
         if use_bias:
-            biases = tf.get_variable('biases', [output_shape[-1]], initializer=tf.constant_initializer(0.0))
-            output = tf.reshape(tf.nn.bias_add(output, biases), output.get_shape())
+            biases = tf.get_variable(
+                'biases', [output_shape[-1]], initializer=tf.constant_initializer(0.0))
+            output = tf.reshape(tf.nn.bias_add(
+                output, biases), output.get_shape())
 
         if batch_norm:
-            output = batch_norm(output, is_training=is_training, reuse=reuse, name='bn_upsample')
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, name='bn_upsample')
 
         if activation:
             output = activation(output, reuse=reuse)
@@ -173,19 +179,22 @@ def subpixel2d(input_, r, color=False, name=None, outputs_collections=None, **un
 
 
 def highway_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
-            padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss,
-            name='highway_conv2d', activation=None, use_bias=True, outputs_collections=None):
+                   padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss,
+                   name='highway_conv2d', activation=None, use_bias=True, outputs_collections=None):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
-        w_shape = [filter_size[0], filter_size[1], x.get_shape()[-1], n_output_channels] if hasattr(w_init, '__call__') else None
+        w_shape = [filter_size[0], filter_size[1], x.get_shape(
+        )[-1], n_output_channels] if hasattr(w_init, '__call__') else None
 
         w_t_shape = [n_output_channels]
         b_shape = [n_output_channels]
         with tf.name_scope('main_gate'):
-            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init,
+                                      b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
         with tf.name_scope('transform_gate'):
-            W_t, b_t = helper.weight_bias(w_t_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+            W_t, b_t = helper.weight_bias(
+                w_t_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
         output = tf.nn.conv2d(
             input=x,
             filter=W,
@@ -206,7 +215,7 @@ def highway_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
 
 
 def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
-           w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, name='highway_fc2d', activation=None, use_bias=True, outputs_collections=None):
+                 w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, name='highway_fc2d', activation=None, use_bias=True, outputs_collections=None):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     if len(x.get_shape()) != 2:
@@ -217,9 +226,11 @@ def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3
     b_shape = [n_output]
     with tf.variable_scope(name, reuse=reuse):
         with tf.name_scope('main_gate'):
-            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init,
+                                      b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
         with tf.name_scope('transform_gate'):
-            W_t, b_t = helper.weight_bias(w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+            W_t, b_t = helper.weight_bias(
+                w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
         H = activation(tf.matmul(x, W) + b, name='activation')
         T = tf.sigmoid(tf.matmul(x, W_t) + b_t, name='transform_gate')
         C = tf.sub(1.0, T, name="carry_gate")
@@ -330,7 +341,8 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
             trainable=False)
 
         def mean_inv_std_with_update():
-            mean, variance = tf.nn.moments(x, [0, 1, 2], shift=moving_mean, name='bn-moments')
+            mean, variance = tf.nn.moments(
+                x, [0, 1, 2], shift=moving_mean, name='bn-moments')
             inv_std = math_ops.rsqrt(variance + epsilon)
             update_moving_mean = moving_averages.assign_moving_average(
                 moving_mean, mean, decay)
@@ -342,7 +354,8 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
                 return m, v
 
         def mean_inv_std_with_pending_update():
-            mean, variance = tf.nn.moments(x, [0, 1, 2], shift=moving_mean, name='bn-moments')
+            mean, variance = tf.nn.moments(
+                x, [0, 1, 2], shift=moving_mean, name='bn-moments')
             inv_std = math_ops.rsqrt(variance + epsilon)
             update_moving_mean = moving_averages.assign_moving_average(
                 moving_mean, mean, decay)
@@ -355,7 +368,8 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
         mean_inv_std_with_relevant_update = \
             mean_inv_std_with_pending_update if updates_collections is not None else mean_inv_std_with_update
 
-        (mean, inv_std) = mean_inv_std_with_relevant_update() if is_training else (moving_mean, moving_inv_std)
+        (mean, inv_std) = mean_inv_std_with_relevant_update(
+        ) if is_training else (moving_mean, moving_inv_std)
 
         def _batch_normalization(x, mean, inv, offset, scale):
             with tf.name_scope(name, "batchnorm", [x, mean, inv, scale, offset]):
@@ -463,15 +477,53 @@ def repeat(inputs, repetitions, layer, name='repeat', outputs_collections=None, 
             if hasattr(layer, '__name__'):
                 name = layer.__name__
             elif hasattr(layer, 'func') and hasattr(layer.func, '__name__'):
-                name = layer.func.__name__  # In case layer is a functools.partial.
+                # In case layer is a functools.partial.
+                name = layer.func.__name__
             else:
                 name = 'repeat'
         outputs = inputs
         for i in range(repetitions):
             new_name = name + '_' + str(i + 1)
             outputs = layer(outputs, name=new_name, *args, **kwargs)
-            tf.add_to_collection(outputs_collections, NamedOutputs(new_name, outputs))
+            tf.add_to_collection(outputs_collections,
+                                 NamedOutputs(new_name, outputs))
         return outputs
+
+
+def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **kwargs):
+    assert len(tensors_list) > 1, "Merge required 2 or more tensors."
+
+    with tf.name_scope(name):
+        tensors = [l for l in tensors_list]
+        if mode == 'concat':
+            output = tf.concat(axis, tensors)
+        elif mode == 'elemwise_sum':
+            output = tensors[0]
+            for i in range(1, len(tensors)):
+                output = tf.add(output, tensors[i])
+        elif mode == 'elemwise_mul':
+            output = tensors[0]
+            for i in range(1, len(tensors)):
+                output = tf.mul(output, tensors[i])
+        elif mode == 'sum':
+            output = tf.reduce_sum(tf.concat(axis, tensors), axis=axis)
+        elif mode == 'mean':
+            output = tf.reduce_mean(tf.concat(axis, tensors), axis=axis)
+        elif mode == 'prod':
+            output = tf.reduce_prod(tf.concat(axis, tensors), axis=axis)
+        elif mode == 'max':
+            output = tf.reduce_max(tf.concat(axis, tensors), axis=axis)
+        elif mode == 'min':
+            output = tf.reduce_min(tf.concat(axis, tensors), axis=axis)
+        elif mode == 'and':
+            output = tf.reduce_all(tf.concat(axis, tensors), axis=axis)
+        elif mode == 'or':
+            output = tf.reduce_any(tf.concat(axis, tensors), axis=axis)
+        else:
+            raise Exception("Unknown merge mode", str(mode))
+        return _collect_named_outputs(outputs_collections, name, output)
+
+    return output
 
 
 def _collect_named_outputs(outputs_collections, name, output):
@@ -482,4 +534,5 @@ def _collect_named_outputs(outputs_collections, name, output):
 
 def _check_unused(unused, name):
     allowed_keys = ['is_training', 'reuse', 'outputs_collections', 'trainable']
-    helper.veryify_args(unused, allowed_keys, 'Layer "%s" got unexpected argument(s):' % name)
+    helper.veryify_args(unused, allowed_keys,
+                        'Layer "%s" got unexpected argument(s):' % name)
