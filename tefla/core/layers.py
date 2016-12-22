@@ -258,6 +258,21 @@ def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', 
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def fractional_pool(x, pooling_ratio=[1.0, 1.44, 1.73, 1.0], pseudo_random=None, determinastic=None, overlapping=None, name='fractional_pool', seed=None,
+                    seed2=None, type='avg', outputs_collections=None, **unused):
+    _check_unused(unused, name)
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    with tf.name_scope(name):
+        if type == 'avg':
+            output = tf.nn.fractional_avg_pool(value, pooling_ratio, pseudo_random=pseudo_random,
+                                               overlapping=overlapping, deterministic=determinastic, seed=seed, seed2=seed2, name=name)
+        else:
+            output = tf.nn.fractional_max_pool(value, pooling_ratio, pseudo_random=pseudo_random,
+                                               overlapping=overlapping, deterministic=determinastic, seed=seed, seed2=seed2, name=name)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
 def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', epsilon=0.000000000001,
                 outputs_collections=None, **unused):
     _check_unused(unused, name)
@@ -398,6 +413,40 @@ def relu(x, name='relu', outputs_collections=None, **unused):
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.relu(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def relu6(x, name='relu6', outputs_collections=None, **unused):
+    _check_unused(unused, name)
+    with tf.name_scope(name):
+        output = tf.nn.relu6(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def softplus(x, name='softplus', outputs_collections=None, **unused):
+    _check_unused(unused, name)
+    with tf.name_scope(name):
+        output = tf.nn.softplus(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def crelu(x, name='crelu', outputs_collections=None, **unused):
+    """
+    Computes Concatenated ReLU.
+    Concatenates a ReLU which selects only the positive part of the activation with
+    a ReLU which selects only the negative part of the activation. Note that
+    at as a result this non-linearity doubles the depth of the activations. Source: https://arxiv.org/abs/1603.05201
+    """
+    _check_unused(unused, name)
+    with tf.name_scope(name):
+        output = tf.nn.crelu(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def elu(x, name='elu', outputs_collections=None, **unused):
+    _check_unused(unused, name)
+    with tf.name_scope(name):
+        output = tf.nn.elu(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
 
