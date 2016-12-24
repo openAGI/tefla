@@ -497,6 +497,16 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def local_response_normalization(x, depth_radius=5, bias=1, alpha=1, beta=0.5, name='local_response_normalization', outputs_collections=None, **unused):
+    _check_unused(unused, name)
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    with tf.name_scope(name):
+        output = tf.nn.local_response_normalization(
+            input=x, depth_radius=depth_radius, bias=bias, alpha=alpha, beta=beta)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
 def batch_norm_tf(x, name='bn', scale=False, updates_collections=None, **kwargs):
     return tf.contrib.layers.batch_norm(x, scope=name, scale=scale, updates_collections=updates_collections, **kwargs)
 
