@@ -3,6 +3,7 @@ from __future__ import division, print_function, absolute_import
 from collections import namedtuple
 
 import numpy as np
+import six
 import tensorflow as tf
 from tefla.core import initializers as initz
 from tefla.utils import util as helper
@@ -23,6 +24,46 @@ def input(shape, name='inputs', outputs_collections=None, **unused):
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
                     w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
                     outputs_collections=None, use_bias=True):
+    """Adds a fully connected layer.
+       `fully_connected` creates a variable called `weights`, representing a fully
+       connected weight matrix, which is multiplied by the `x` to produce a
+       `Tensor` of hidden units. If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank greater than 2, then `x` is flattened
+       prior to the initial matrix multiply by `weights`.
+    Args:
+       x: A tensor of with at least rank 2 and value for the last dimension,
+       i.e. `[batch_size, depth]`, `[None, None, None, channels]`.
+       is_training: Bool, training or testing
+       n_output: Integer or long, the number of output units in the layer.
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 2 or if its last dimension is not set.
+    """
+    if not (isinstance(n_output, six.integer_types)):
+        raise ValueError('n_output should be int or long, got %s.', n_output)
+
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     if len(x.get_shape()) != 2:
@@ -70,6 +111,49 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
            padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
            name='conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
            outputs_collections=None):
+    """Adds a 2D convolutional layer.
+       `convolutional layer` creates a variable called `weights`, representing a conv
+       weight matrix, which is multiplied by the `x` to produce a
+       `Tensor` of hidden units. If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank 4
+    Args:
+       x: A tensor of with at least rank 2 and value for the last dimension,
+       i.e. `[batch_size, in_height, in_width, depth]`,
+       is_training: Bool, training or testing
+       n_output: Integer or long, the number of output units in the layer.
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+
+       filter_size: a list or tuple of 2 positive integers specifying the spatial
+       dimensions of of the filters.
+       stride: a tuple or list of 2 positive integers specifying the stride at which to
+       compute output.
+       padding: one of `"VALID"` or `"SAME"`.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       untie_biases: spatial dimensions wise baises
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
@@ -124,6 +208,54 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                    name='dilated_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                    outputs_collections=None):
+    """Adds a 2D dilated convolutional layer, also known as convolution with holes or atrous convolution.
+       If the rate parameter is equal to one, it performs regular 2-D convolution. If the rate parameter
+       is greater than one, it performs convolution with holes, sampling the input
+       values every rate pixels in the height and width dimensions.
+       `convolutional layer` creates a variable called `weights`, representing a conv
+       weight matrix, which is multiplied by the `x` to produce a
+       `Tensor` of hidden units. If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank 4
+    Args:
+       x: A tensor of with rank 4 and value for the last dimension,
+       i.e. `[batch_size, in_height, in_width, depth]`,
+       is_training: Bool, training or testing
+       n_output: Integer or long, the number of output units in the layer.
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+
+       filter_size: a list or tuple of 2 positive integers specifying the spatial
+       dimensions of of the filters.
+       dilation:  A positive int32. The stride with which we sample input values across
+       the height and width dimensions. Equivalently, the rate by which we upsample the
+       filter values by inserting zeros across the height and width dimensions. In the literature,
+       the same parameter is sometimes called input stride/rate or dilation.
+       padding: one of `"VALID"` or `"SAME"`.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       untie_biases: spatial dimensions wise baises
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
@@ -174,7 +306,7 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1), dilation=1, depth_multiplier=8,
+def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1), depth_multiplier=8,
                      padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                      name='separable_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                      outputs_collections=None):
