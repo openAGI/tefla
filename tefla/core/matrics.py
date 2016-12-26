@@ -53,11 +53,24 @@ class MetricMixin(object):
 
 
 class Top_k(Metric):
+    """
+    Class to compute Top_k accuracy metric for predictions and labels
+    """
     def __init__(self, name='Top_K'):
         super(Top_k, self).__init__(name)
         self.name = name
 
     def metric(self, predictions, targets, top_k=1):
+        """
+        Computes top k metric
+
+        Args:
+            predictions: 2D tensor/array, predictions of the network
+            targets: 2D tensor/array, ground truth labels of the network
+            top_k: int, returns the top_k accuracy; {1,2,3 max_classes}
+        Returns:
+            top_k accuracy
+        """
         return self._top_k_op(predictions, targets, top_k=top_k)
 
     def _top_k_op(self, predictions, targets, top_k=1, dtype=tf.int32):
@@ -73,6 +86,15 @@ class Kappa(Metric, MetricMixin):
         super(Kappa, self).__init__(name)
 
     def metric(self, predictions, targets):
+        """
+        Computes Kappa metric
+
+        Args:
+            predictions: 2D tensor/array, predictions of the network
+            targets: 2D tensor/array, ground truth labels of the network
+        Returns:
+            Kappa score
+        """
         targets = np.array(targets)
         predictions = np.array(predictions)
         if len(targets.shape) > 1 and targets.shape[1] > 1:
@@ -145,6 +167,17 @@ class KappaV2(Metric, MetricMixin):
         super(KappaV2, self).__init__(name)
 
     def metric(self, predictions, targets, num_classes=5, batch_size=32, **kwargs):
+        """
+        Computes Kappa metric
+
+        Args:
+            predictions: 2D tensor/array, predictions of the network
+            targets: 2D tensor/array, ground truth labels of the network
+            num_classes: int, num_classes of the network
+            batch_size: batch_size for predictions of the network
+        Returns:
+            Kappa score
+        """
         targets = np.array(targets)
         predictions = np.array(predictions)
         if targets.ndim == 1:
@@ -187,6 +220,16 @@ class Auroc(Metric):
         self.name = name
 
     def metric(self, predictions, targets, num_classes=5):
+        """
+        Computes auroc metric
+
+        Args:
+            predictions: 2D tensor/array, predictions of the network
+            targets: 2D tensor/array, ground truth labels of the network
+            num_classes: int, num_classes of the network
+        Returns:
+            auroc score
+        """
         if targets.ndim == 2:
             targets = np.argmax(targets, axis=1)
         if predictions.ndim == 1:
@@ -207,6 +250,16 @@ class F1score(Metric):
         self.name = name
 
     def metric(self, predictions, targets, num_classes=5):
+        """
+        Computes F1 metric
+
+        Args:
+            predictions: 2D tensor/array, predictions of the network
+            targets: 2D tensor/array, ground truth labels of the network
+            num_classes: int, num_classes of the network
+        Returns:
+            F1 score
+        """
         if targets.ndim == 2:
             targets = np.argmax(targets, axis=1)
         if predictions.ndim == 1:
@@ -220,6 +273,16 @@ class F1score(Metric):
 
 
 def accuracy_op(predictions, targets, num_classes=5):
+    """
+    Computes accuracy metric
+
+    Args:
+        predictions: 2D tensor/array, predictions of the network
+        targets: 2D tensor/array, ground truth labels of the network
+        num_classes: int, num_classes of the network
+    Returns:
+        accuracy
+    """
     with tf.name_scope('Accuracy'):
         if targets.ndim == 2:
             targets = np.argmax(targets, axis=1)
@@ -230,6 +293,13 @@ def accuracy_op(predictions, targets, num_classes=5):
 
 
 def one_hot(vec, m=None):
+    """
+    Retruns one hot vector
+
+    Args:
+        vec: a vector
+        m: num_classes
+    """
     if m is None:
         m = int(np.max(vec)) + 1
     return np.eye(m)[vec].astype('int32')
