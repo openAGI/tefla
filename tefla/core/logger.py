@@ -25,6 +25,15 @@ _logger.addHandler(_handler)
 
 
 def setFileHandler(filename, mode='a'):
+    """
+    Set the log file name, using append mode
+
+    Args:
+        filename: log file name
+        e.g. tefla.log
+        mode: file writing mode, append/over write if exists else start new file
+        e.g. a string, 'a' or 'w'
+    """
     global _logger
     _f_handler = _logging.FileHandler(filename, mode=mode)
     _f_handler.setFormatter(_logging.Formatter(_logging.BASIC_FORMAT, None))
@@ -68,28 +77,82 @@ def vlog(level, msg, *args, **kwargs):
 
 
 def setVerbosity(verbosity=0):
-    _logger.setLevel(verbosity)
+    """
+    set the verbosity level of logging
 
+    Args:
+        verbosity: set the verbosity level using an integer {0, 1, 2, 3, 4} 
+        e.g. verbosity=0, imply DEBUG logging, it logs all level of logs
+             verbosity=1, imply INFO logging
+             verbosity=2, imply WARN logging
+             verbosity=3, imply ERROR logging
+             verbosity=4, imply FATAL logging, it logs only the lowest FATAL level
+
+    """
+    _logger.setLevel(_verbosity(str(verbosity)))
+
+
+def _verbosity(verbosity):
+    return{
+        '0': DEBUG,
+        '1': INFO,
+        '2': WARN,
+        '3': ERROR,
+        '4': FATAL,
+    }[verbosity]
 
 def getVerbosity():
+    """
+    Get the current verbosity level of the logger
+    """
     return _logger.getEffectiveLevel()
 
 
 def debug(msg, *args, **kwargs):
+    """
+    Logs the Highest level DEBUG logging, it logs all level
+
+    Args: 
+        msg: the message to log
+    """
     _logger.debug(_log_prefix() + msg, *args, **kwargs)
 
 
 def info(msg, *args, **kwargs):
+    """
+    Logs the level INFO logging, it logs all LEVEL BELOW INFO
+
+    Args: 
+        msg: the message to log
+    """
     _logger.info(_log_prefix() + msg, *args, **kwargs)
 
 
 def warn(msg, *args, **kwargs):
+    """
+    Logs the WARN logging, it logs all level BELOW WARN
+
+    Args: 
+        msg: the message to log
+    """
     _logger.warn(_log_prefix() + msg, *args, **kwargs)
 
 
 def error(msg, *args, **kwargs):
+    """
+    Logs the level ERROR logging, it logs level ERROR  and FATAL
+
+    Args: 
+        msg: the message to log
+    """
     _logger.error(_log_prefix() + msg, *args, **kwargs)
 
 
 def fatal(msg, *args, **kwargs):
+    """
+    Logs thE level FATAL logging, it logs only FATAL
+
+    Args: 
+        msg: the message to log
+    """
     _logger.fatal(_log_prefix() + msg, *args, **kwargs)
