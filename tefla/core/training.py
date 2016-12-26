@@ -23,25 +23,25 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 class SupervisedTrainer(object):
     """
     Supervised Trainer class
+
+    Args:
+        model: model definition 
+        cnf: dict, training configs
+        training_iterator: iterator to use for training data access, processing and augmentations
+        validation_iterator: iterator to use for validation data access, processing and augmentations
+        start_epoch: int, training start epoch; for resuming training provide the last 
+        epoch number to resume training from, its a required parameter for training data balancing
+        resume_lr: float, learning rate to use for new training
+        classification: bool, classificattion or regression
+        clip_norm: bool, to clip gradient using gradient norm, stabilizes the training
+        n_iters_per_epoch: int,  number of iteratiosn for each epoch; 
+            e.g: total_training_samples/batch_size
+        gpu_memory_fraction: amount of gpu memory to use
+        is_summary: bool, to write summary or not
     """
+
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
                  validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False):
-        """
-        Args:
-            model: model definition 
-            cnf: dict, training configs
-            training_iterator: iterator to use for training data access, processing and augmentations
-            validation_iterator: iterator to use for validation data access, processing and augmentations
-            start_epoch: int, training start epoch; for resuming training provide the last 
-            epoch number to resume training from, its a required parameter for training data balancing
-            resume_lr: float, learning rate to use for new training
-            classification: bool, classificattion or regression
-            clip_norm: bool, to clip gradient using gradient norm, stabilizes the training
-            n_iters_per_epoch: int,  number of iteratiosn for each epoch; 
-                e.g: total_training_samples/batch_size
-            gpu_memory_fraction: amount of gpu memory to use
-            is_summary: bool, to write summary or not
-        """
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -61,7 +61,7 @@ class SupervisedTrainer(object):
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
         """
-        Train the model on th specified dataset
+        Train the model on the specified dataset
 
         Args:
             data_set: dataset instance to use to access data for training/validation
