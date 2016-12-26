@@ -1,6 +1,6 @@
 # Adds a fully connected layer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.fully_connected</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7fedc77e7a28>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  name='fc',  batch_norm=None,  batch_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.fully_connected</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f7926293a28>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  name='fc',  batch_norm=None,  batch_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
    `fully_connected` creates a variable called `weights`, representing a fully
    connected weight matrix, which is multiplied by the `x` to produce a
    `Tensor` of hidden units. If a `batch_norm` is provided (such as
@@ -58,7 +58,7 @@ ValueError: if x has rank less than 2 or if its last dimension is not set.
 
 # Adds a 2D convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7fedc77e7b18>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  untie_biases=False,  name='conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f7926293b18>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  untie_biases=False,  name='conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
    `convolutional layer` creates a variable called `weights`, representing a conv
    weight matrix, which is multiplied by the `x` to produce a
    `Tensor` of hidden units. If a `batch_norm` is provided (such as
@@ -92,7 +92,7 @@ ValueError: if x has rank less than 4 or if its last dimension is not set.
 
 # Adds a 2D dilated convolutional layer, also known as convolution with holes or atrous convolution
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.dilated_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  dilation=1,  padding='SAME',  w_init=<function  _initializer  at  0x7fedc77e7c08>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  untie_biases=False,  name='dilated_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.dilated_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  dilation=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f7926293c08>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  untie_biases=False,  name='dilated_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
    If the rate parameter is equal to one, it performs regular 2-D convolution. If the rate parameter
    is greater than one, it performs convolution with holes, sampling the input
    values every rate pixels in the height and width dimensions.
@@ -129,7 +129,7 @@ ValueError: if x has rank less than 4 or if its last dimension is not set.
 
 # Adds a 2D seperable convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.separable_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7fedc77e7cf8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  untie_biases=False,  name='separable_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.separable_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f7926293cf8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  untie_biases=False,  name='separable_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
    Performs a depthwise convolution that acts separately on channels followed by 
    a pointwise convolution that mixes channels. Note that this is separability between 
    dimensions [1, 2] and 3, not spatial separability between dimensions 1 and 2.
@@ -167,7 +167,7 @@ ValueError: if x has rank less than 4 or if its last dimension is not set.
 
 # Adds a 2D sdepthwise convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.depthwise_conv2d</b></span>  (x,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7fedc77e7de8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  untie_biases=False,  name='depthwise_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.depthwise_conv2d</b></span>  (x,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f7926293de8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  untie_biases=False,  name='depthwise_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
    Given an input tensor of shape [batch, in_height, in_width, in_channels] and a filter 
    tensor of shape [filter_height, filter_width, in_channels, channel_multiplier] containing 
    in_channels convolutional filters of depth 1, depthwise_conv2d applies a different filter 
@@ -203,7 +203,7 @@ ValueError: if x has rank less than 4 or if its last dimension is not set.
 
 # Adds a 2D upsampling or deconvolutional layer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.upsample2d</b></span>  (input_,  output_shape,  is_training,  reuse,  filter_size=  (5,  5),  stride=  (2,  2),  w_init=<function  _initializer  at  0x7fedc77e7ed8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  batch_norm=None,  activation=None,  name='deconv2d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.upsample2d</b></span>  (input_,  output_shape,  is_training,  reuse,  filter_size=  (5,  5),  stride=  (2,  2),  w_init=<function  _initializer  at  0x7f7926293ed8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  batch_norm=None,  activation=None,  name='deconv2d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
    his operation is sometimes called "deconvolution" after Deconvolutional Networks, 
    but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
    If a `batch_norm` is provided (such as
@@ -237,7 +237,7 @@ ValueError: if x has rank less than 4 or if its last dimension is not set.
 
 # Adds a 2D highway convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_conv2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7fedc7785140>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  name='highway_conv2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_conv2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f7926232140>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  name='highway_conv2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
    https://arxiv.org/abs/1505.00387
    If a `batch_norm` is provided (such as
    `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
@@ -270,7 +270,7 @@ ValueError: if x has rank less than 4 or if its last dimension is not set.
 
 # Adds a fully connected highway layer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_fc2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  w_init=<function  _initializer  at  0x7fedc7785230>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fedf6b316e0>,  name='highway_fc2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_fc2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  w_init=<function  _initializer  at  0x7f7926232230>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f795561a6e0>,  name='highway_fc2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
    https://arxiv.org/abs/1505.00387
    If a `batch_norm` is provided (such as
    `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
