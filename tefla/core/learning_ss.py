@@ -14,7 +14,7 @@ from tensorflow.python.ops import control_flow_ops
 
 from tefla.core import logger as log
 from tefla.core import summary as summary
-from tefl.acore.base import Base
+from tefla.core.base import Base
 from tefla.utils import util
 
 
