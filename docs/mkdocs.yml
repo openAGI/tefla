@@ -8,11 +8,7 @@ docs_dir: templates
 
 pages:
 - Home: index.md
-- Index: doc_index.md
-- Installation: installation.md
-- Getting Started: getting_started.md
-- Tutorials: tutorials.md
-- Examples: examples.md
+- Index: index.md
 - Layers:
   - Layers: core/layers.md
 - Built-in Ops:
