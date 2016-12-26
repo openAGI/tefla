@@ -6,7 +6,7 @@
 import tensorflow as tf
 import os
 
-from utils.utils import rms
+from utils.util import rms
 
 
 __all__ =['summary_metric', 'summary_activation', 'create_summary_writer', 'summary_param', 'summary_trainable_params', 'summary_gradients', 'summary_image']
