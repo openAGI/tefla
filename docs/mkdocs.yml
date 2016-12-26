@@ -1,0 +1,29 @@
+site_name: Tefla
+repo_url: https://github.com/n3011/tefla
+site_description: Documentation for Tefla, a deep learning library featuring a higher-level API for TensorFlow.
+site_author: Mrinal(Ishant) Haloi
+
+theme: readthedocs
+docs_dir: templates
+
+pages:
+- Home: index.md
+- Index: doc_index.md
+- Installation: installation.md
+- Getting Started: getting_started.md
+- Tutorials: tutorials.md
+- Examples: examples.md
+- Layers:
+  - Layers: core/layers.md
+- Built-in Ops:
+  - Metrics: core/metrics.md
+  - Initializations: core/initializers.md
+  - Losses: core/losses.md
+  - Summaries: core/summary.md
+- Data Management:
+  - Data Augmentation: da/data_augmentation.md
+  - TfRecords: dataset/tfrecords.md
+- Extending Tensorflow:
+  - Trainer: core/trainer.md
+- Contributions: contributions.md
+- License: license.md
