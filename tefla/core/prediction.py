@@ -9,11 +9,16 @@ from tefla.utils import util
 
 
 class PredictSessionMixin(object):
-
+    """
+    base mixin class for prediction
+    """
     def __init__(self, weights_from):
         self.weights_from = weights_from
 
     def predict(self, X):
+        """
+        Returns the network predcitions for a single or batch of inputs
+        """
         saver = tf.train.Saver()
         with tf.Session() as sess:
             saver.restore(sess, self.weights_from)
@@ -24,8 +29,18 @@ class PredictSessionMixin(object):
 
 
 class OneCropPredictor(PredictSessionMixin):
+    """
+    One crop Predictor, it predict network out put from a single crop of an input image
+    """
 
     def __init__(self, model, cnf, weights_from, prediction_iterator):
+        """
+        Args:
+            model: model definition file
+            cnf: prediction configs
+            weights_from: location of the model weights file
+            prediction_iterator: iterator to access and augment the data for prediction
+        """
         self.model = model
         self.cnf = cnf
         self.prediction_iterator = prediction_iterator
@@ -50,6 +65,15 @@ class OneCropPredictor(PredictSessionMixin):
 class QuasiPredictor(PredictSessionMixin):
 
     def __init__(self, model, cnf, weights_from, prediction_iterator, number_of_transforms):
+        """
+        Args:
+            model: model definition file
+            cnf: prediction configs
+            weights_from: location of the model weights file
+            prediction_iterator: iterator to access and augment the data for prediction
+            number_of_transform: number of determinastic augmentaions to be performed on the input data
+                resulted predictions are averaged over the augmentated transformation prediction outputs
+        """
         self.number_of_transforms = number_of_transforms
         self.cnf = cnf
         self.prediction_iterator = prediction_iterator
@@ -75,6 +99,16 @@ class QuasiPredictor(PredictSessionMixin):
 class CropPredictor(PredictSessionMixin):
 
     def __init__(self, model, cnf, weights_from, prediction_iterator, crop_size, im_size, number_of_crops=10):
+        """
+        Args:
+            model: model definition file
+            cnf: prediction configs
+            weights_from: location of the model weights file
+            prediction_iterator: iterator to access and augment the data for prediction
+            crop_size: crop size for network input
+            im_size: original image size
+            number_of_crops: total number of crops to extract from the input image
+        """
         self.number_of_crops = number_of_crops
         self.cnf = cnf
         self.prediction_iterator = prediction_iterator
@@ -98,11 +132,22 @@ class CropPredictor(PredictSessionMixin):
 
 
 class EnsemblePredictor(object):
-
+    """
+    Returns predcitions from multiples models; ensembled predictions from 
+    multiples models using ensemble type
+    """
     def __init__(self, predictors):
         self.predictors = predictors
 
     def predict(self, X, ensemble_type='mean'):
+        """
+        Returns ensembled predictions for an input or batch of inputs
+
+        Args:
+            X: 4D tensor, inputs
+            ensemble_type: operation to combine models probabilities
+                    available type: ['mean', 'gmean', 'log_mean']
+        """
         multiple_predictions = []
         for p in self.predictors:
             print('Ensembler - running predictions using: %s' % p)
