@@ -1,8 +1,8 @@
 from distutils.core import setup
 
 
-with open('requirements.txt') as requirements:
-    REQUIREMENTS = requirements.readlines()
+#with open('requirements.txt') as requirements:
+#    REQUIREMENTS = requirements.readlines()
 
 setup(
     name='tefla',
