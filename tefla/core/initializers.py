@@ -8,11 +8,33 @@ from tensorflow.contrib.layers import xavier_initializer
 
 
 def he_normal(seed=None, scale=1.0, dtype=tf.float32):
+    """
+    He Normal initializer
+    Kaiming He et al. (2015): Delving deep into rectifiers: Surpassing human-level 
+    performance on imagenet classification. arXiv preprint arXiv:1502.01852.
+
+    Args:
+        scale: float
+               Scaling factor for the weights. Set this to ``1.0`` for linear and
+               sigmoid units, to ``sqrt(2)`` for rectified linear units, and
+               to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
+               leakiness ``alpha``. Other transfer functions may need different factors.
+    """
     return variance_scaling_initializer(factor=2.0 * scale, mode='FAN_IN',
                                         uniform=False, seed=seed, dtype=dtype)
 
 
 def he_uniform(seed=None, scale=1.0, dtype=tf.float32):
+    """
+    He Uniform initializer
+
+    Args:
+        scale: float
+               Scaling factor for the weights. Set this to ``1.0`` for linear and
+               sigmoid units, to ``sqrt(2)`` for rectified linear units, and
+               to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
+               leakiness ``alpha``. Other transfer functions may need different factors.
+    """
     return variance_scaling_initializer(factor=2.0 * scale, mode='FAN_IN',
                                         uniform=True, seed=seed, dtype=dtype)
 

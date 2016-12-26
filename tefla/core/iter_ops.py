@@ -10,6 +10,17 @@ logger = logging.getLogger('tefla')
 
 
 def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True):
+    """
+    Creates training iterator to access and augment the dataset
+
+    Args:
+        cnf: configs dict with all training and augmentation params
+        data_set: an instance of the dataset class
+        standardizer: data samples standardization; either samplewise or aggregate
+        crop_size: training time crop_size of the data samples
+        epoch: the current epoch number; used for data balancing
+        parallel: iterator type; either parallel or queued
+    """
     if parallel:
         training_iterator_maker = iterator.BalancingDAIterator
         validation_iterator_maker = iterator.ParallelDAIterator
@@ -55,6 +66,16 @@ def convert_preprocessor(im_size):
 
 
 def create_prediction_iter(cnf, standardizer, crop_size, preprocessor=None, sync=False):
+    """
+    Creates prediction iterator to access and augment the dataset
+
+    Args:
+        cnf: configs dict with all training and augmentation params
+        standardizer: data samples standardization; either samplewise or aggregate
+        crop_size: training time crop_size of the data samples
+        preprocessor: data processing or cropping function
+        sync: a bool, if False, used parallel iterator
+    """
     if sync:
         prediction_iterator_maker = iterator.DAIterator
     else:

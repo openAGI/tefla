@@ -17,6 +17,14 @@ def _formatted_name(tensor):
 
 
 def summary_metric(tensor, name=None, collections=None):
+    """
+    Add summary to a tensor, scalar summary if the tensor is 1D, else scalar and histogram summary
+
+    Args:
+        tensor: a tensor to add summary
+        name: name of the tensor
+        collections: training or validation collections
+    """
     if name is None:
         name = _formatted_name(tensor)
     ndims = tensor.get_shape().ndims
@@ -27,6 +35,14 @@ def summary_metric(tensor, name=None, collections=None):
 
 
 def summary_activation(tensor, name=None, collections=None):
+    """
+    Add summary to a tensor, scalar summary if the tensor is 1D, else  scalar and histogram summary
+
+    Args:
+        tensor: a tensor to add summary
+        name: name of the tensor
+        collections: training or validation collections
+    """
     if name is None:
         name = _formatted_name(tensor)
     ndims = tensor.get_shape().ndims
@@ -38,6 +54,16 @@ def summary_activation(tensor, name=None, collections=None):
 
 
 def create_summary_writer(summary_dir, sess):
+    """
+    creates the summar writter for training and validation
+
+    Args:
+        summary_dir: the directory to write summary
+        sess: the session to sun the ops
+
+    Returns:
+        training and vaidation summary writter
+    """
     if not os.path.exists(summary_dir):
         os.mkdir(summary_dir)
     if not os.path.exists(summary_dir + '/train'):
@@ -50,6 +76,17 @@ def create_summary_writer(summary_dir, sess):
 
 
 def summary_param(op, tensor, ndims, name, collections=None):
+    """
+    Add summary as per the ops mentioned
+
+    Args:
+        op: name of the summary op; e.g. 'stddev'
+            available ops: ['scalar', 'histogram', 'sparsity', 'mean', 'rms', 'stddev', 'norm', 'max', 'min']
+        tensor: the tensor to add summary
+        ndims: dimension of the tensor
+        name: name of the op
+        collections: training or validation collections
+    """
     return {
         'scalar': tf.summary.scalar(name, tensor, collections=collections) if ndims == 0 else tf.scalar_summary(name + '/mean', tf.reduce_mean(tensor), collections=collections),
         'histogram': tf.summary.histogram(name, tensor, collections=collections) if ndims >= 2 else None,
@@ -64,6 +101,14 @@ def summary_param(op, tensor, ndims, name, collections=None):
 
 
 def summary_trainable_params(summary_types, collections=None):
+    """
+    Add summary to all trainable tensors
+
+    Args:
+        summary_type: a list of all sumary types to add
+            e.g.: ['scalar', 'histogram', 'sparsity', 'mean', 'rms', 'stddev', 'norm', 'max', 'min']
+        collections: training or validation collections
+    """
     params = tf.trainable_variables()
     with tf.name_scope('summary/trainable'):
         for tensor in params:
@@ -74,6 +119,15 @@ def summary_trainable_params(summary_types, collections=None):
 
 
 def summary_gradients(grad_vars, summary_types, collections=None):
+    """
+    Add summary to all gradient tensors
+
+    Args:
+        grads_vars: grads and vars list
+        summary_type: a list of all sumary types to add
+            e.g.: ['scalar', 'histogram', 'sparsity', 'mean', 'rms', 'stddev', 'norm', 'max', 'min']
+        collections: training or validation collections
+    """
     with tf.name_scope('summary/gradient'):
         for grad, var in grad_vars:
             ndims = grad.get_shape().ndims
@@ -86,6 +140,15 @@ def summary_gradients(grad_vars, summary_types, collections=None):
 
 
 def summary_image(tensor, name=None, max_images=10, collections=None):
+    """
+    Add image summary to a image tensor
+
+    Args:
+        tensor: a tensor to add summary
+        name: name of the tensor
+        max_images: num of images to add summary
+        collections: training or validation collections
+    """
     if name is None:
         name = name + _formatted_name(tensor)
     with tf.name_scope('summary/image'):
