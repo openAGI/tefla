@@ -953,10 +953,120 @@ def local_response_normalization(x, depth_radius=5, bias=1, alpha=1, beta=0.5, n
         return _collect_named_outputs(outputs_collections, name, output)
 
 def batch_norm_tf(x, name='bn', scale=False, updates_collections=None, **kwargs):
+    """
+    Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167.
+    "Batch Normalization: Accelerating Deep Network Training by Reducing
+    Internal Covariate Shift"
+    Sergey Ioffe, Christian Szegedy
+    Can be used as a normalizer function for conv2d and fully_connected.
+    Note: When is_training is True the moving_mean and moving_variance need to be
+    updated, by default the update_ops are placed in `tf.GraphKeys.UPDATE_OPS` so
+    they need to be added as a dependency to the `train_op`, example:
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    if update_ops:
+      updates = tf.group(*update_ops)
+      total_loss = control_flow_ops.with_dependencies([updates], total_loss)
+    One can set updates_collections=None to force the updates in place, but that
+    can have speed penalty, specially in distributed settings.
+    Args:
+      x: a tensor with 2 or more dimensions, where the first dimension has
+          `batch_size`. The normalization is over all but the last dimension if
+         `data_format` is `NHWC` and the second dimension if `data_format` is
+         `NCHW`.
+      decay: decay for the moving average. Reasonable values for `decay` are close
+        to 1.0, typically in the multiple-nines range: 0.999, 0.99, 0.9, etc.
+        Lower `decay` value (recommend trying `decay`=0.9) if model experiences
+        reasonably good training performance but poor validation and/or test
+        performance. Try zero_debias_moving_mean=True for improved stability.
+      center: If True, subtract `beta`. If False, `beta` is ignored.
+      scale: If True, multiply by `gamma`. If False, `gamma` is
+        not used. When the next layer is linear (also e.g. `nn.relu`), this can be
+        disabled since the scaling can be done by the next layer.
+      epsilon: small float added to variance to avoid dividing by zero.
+      activation_fn: activation function, default set to None to skip it and
+         maintain a linear activation.
+      param_initializers: optional initializers for beta, gamma, moving mean and
+         moving variance.
+      updates_collections: collections to collect the update ops for computation.
+        The updates_ops need to be executed with the train_op.
+        If None, a control dependency would be added to make sure the updates are
+        computed in place.
+      is_training: whether or not the layer is in training mode. In training mode
+        it would accumulate the statistics of the moments into `moving_mean` and
+        `moving_variance` using an exponential moving average with the given
+        `decay`. When it is not in training mode then it would use the values of
+        the `moving_mean` and the `moving_variance`.
+      reuse: whether or not the layer and its variables should be reused. To be
+      able to reuse the layer scope must be given.
+        outputs_collections: collections to add the outputs.
+        trainable: If `True` also add variables to the graph collection
+          `GraphKeys.TRAINABLE_VARIABLES` (see `tf.Variable`).
+        batch_weights: An optional tensor of shape `[batch_size]`,
+         containing a frequency weight for each batch item. If present,
+         then the batch normalization uses weighted mean and
+         variance. (This can be used to correct for bias in training
+         example selection.)
+        fused:  Use nn.fused_batch_norm if True, nn.batch_normalization otherwise.
+        name: Optional scope/name for `variable_scope`.
+    Returns:
+        A `Tensor` representing the output of the operation.
+    Raises:
+        ValueError: if `batch_weights` is not None and `fused` is True.
+        ValueError: if the rank of `inputs` is undefined.
+        ValueError: if rank or channels dimension of `inputs` is undefined.
+    """
     return tf.contrib.layers.batch_norm(x, scope=name, scale=scale, updates_collections=updates_collections, **kwargs)
 
 def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='bn',
                        updates_collections=tf.GraphKeys.UPDATE_OPS, outputs_collections=None):
+    """
+    Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167.
+    Instead of storing and updating moving variance, this layer store and update moving inverse standard deviation
+    "Batch Normalization: Accelerating Deep Network Training by Reducing
+    Internal Covariate Shift"
+    Sergey Ioffe, Christian Szegedy
+    Can be used as a normalizer function for conv2d and fully_connected.
+    Note: When is_training is True the moving_mean and moving_variance need to be
+    updated, by default the update_ops are placed in `tf.GraphKeys.UPDATE_OPS` so
+    they need to be added as a dependency to the `train_op`, example:
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    if update_ops:
+      updates = tf.group(*update_ops)
+      total_loss = control_flow_ops.with_dependencies([updates], total_loss)
+    One can set updates_collections=None to force the updates in place, but that
+    can have speed penalty, specially in distributed settings.
+    Args:
+      x: a tensor with 2 or more dimensions, where the first dimension has
+          `batch_size`. The normalization is over all but the last dimension if
+         `data_format` is `NHWC` and the second dimension if `data_format` is
+         `NCHW`.
+       decay: decay for the moving average. Reasonable values for `decay` are close
+         to 1.0, typically in the multiple-nines range: 0.999, 0.99, 0.9, etc.
+         Lower `decay` value (recommend trying `decay`=0.9) if model experiences
+         reasonably good training performance but poor validation and/or test
+         performance. Try zero_debias_moving_mean=True for improved stability.
+       epsilon: small float added to variance to avoid dividing by zero.
+       updates_collections: collections to collect the update ops for computation.
+         The updates_ops need to be executed with the train_op.
+         If None, a control dependency would be added to make sure the updates are
+         computed in place.
+       is_training: whether or not the layer is in training mode. In training mode
+          it would accumulate the statistics of the moments into `moving_mean` and
+          `moving_variance` using an exponential moving average with the given
+          `decay`. When it is not in training mode then it would use the values of
+          the `moving_mean` and the `moving_variance`.
+        reuse: whether or not the layer and its variables should be reused. To be
+          able to reuse the layer scope must be given.
+        outputs_collections: collections to add the outputs.
+        trainable: If `True` also add variables to the graph collection
+          `GraphKeys.TRAINABLE_VARIABLES` (see `tf.Variable`).
+        name: Optional scope/name for `variable_scope`.
+    Returns:
+        A `Tensor` representing the output of the operation.
+    Raises:
+        ValueError: if the rank of `x` is undefined.
+        ValueError: if rank or channels dimension of `inputs` is undefined.
+    """
     with tf.variable_scope(name, reuse=reuse):
         beta = tf.get_variable(
             name='beta',
@@ -1231,7 +1341,7 @@ def dropout(x, is_training, drop_p=0.5, name='dropout', outputs_collections=None
     Args:
 	x: a Tensor
 	is_training: a bool, training or validation
-	prop_p: probability of droping unit
+	drop_p: probability of droping unit
 	name: a optional scope/name of the layer
         outputs_collections: The collections to which the outputs are added.
     Returns:
@@ -1254,7 +1364,18 @@ def _flatten(x, name='flatten'):
         flattened = tf.reshape(x, [-1, dims])
         return flattened
 
-def repeat(inputs, repetitions, layer, name='repeat', outputs_collections=None, *args, **kwargs):
+def repeat(x, repetitions, layer, name='repeat', outputs_collections=None, *args, **kwargs):
+    """
+    Repeat op 
+    Args:
+	x: a Tensor
+	repetitions: a int, number of times to apply the same operation
+	layer: the layer function with arguments to repeat
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the repetition operation.
+    """
     with tf.variable_scope(name, 'Repeat'):
         inputs = tf.convert_to_tensor(inputs)
         if name is None:
@@ -1274,6 +1395,19 @@ def repeat(inputs, repetitions, layer, name='repeat', outputs_collections=None, 
         return outputs
 
 def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **kwargs):
+    """
+    Merge op   
+
+    Args:
+	tensor_list: A list Tensors to merge
+	mode: str, available modes are  ['concat', 'elemwise_sum', 'elemwise_mul', 'sum', 'mean', 'prod', 'max', 'min', 'and', 'or']
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the repetition operation.
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
     assert len(tensors_list) > 1, "Merge required 2 or more tensors."
 
     with tf.name_scope(name):
