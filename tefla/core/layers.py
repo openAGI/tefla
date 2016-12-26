@@ -13,13 +13,11 @@ from tensorflow.python.training import moving_averages
 rng = np.random.RandomState([2016, 6, 1])
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 
-
 def input(shape, name='inputs', outputs_collections=None, **unused):
     _check_unused(unused, name)
     with tf.name_scope(name):
         inputs = tf.placeholder(tf.float32, shape=shape, name="input")
     return _collect_named_outputs(outputs_collections, name, inputs)
-
 
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
                     w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
@@ -105,7 +103,6 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
             output = activation(output, reuse=reuse, trainable=trainable)
 
         return _collect_named_outputs(outputs_collections, name, output)
-
 
 def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
            padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
@@ -202,7 +199,6 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
             output = activation(output, reuse=reuse, trainable=trainable)
 
         return _collect_named_outputs(outputs_collections, name, output)
-
 
 def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), dilation=1,
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
@@ -305,11 +301,58 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
 
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1), depth_multiplier=8,
                      padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                      name='separable_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                      outputs_collections=None):
+    """Adds a 2D seperable convolutional layer.
+       Performs a depthwise convolution that acts separately on channels followed by 
+       a pointwise convolution that mixes channels. Note that this is separability between 
+       dimensions [1, 2] and 3, not spatial separability between dimensions 1 and 2.
+       `convolutional layer` creates two variable called `depthwise_W` and `pointwise_W`, 
+       `depthwise_W` is multiplied by `x` to produce depthwise conolution, which is multiplied by 
+        the `pointwise_W` to produce a output `Tensor`
+       . If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank 4
+    Args:
+       x: A tensor of with rank 4 and value for the last dimension,
+       i.e. `[batch_size, in_height, in_width, depth]`,
+       is_training: Bool, training or testing
+       n_output: Integer or long, the number of output units in the layer.
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+
+       filter_size: a list or tuple of 2 positive integers specifying the spatial
+       dimensions of of the filters.
+       depth_multiplier:  A positive int32. the number of depthwise convolution output channels for
+            each input channel. The total number of depthwise convolution output
+            channels will be equal to `num_filters_in * depth_multiplier
+       padding: one of `"VALID"` or `"SAME"`.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       untie_biases: spatial dimensions wise baises
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
@@ -369,11 +412,56 @@ def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, f
 
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1), depth_multiplier=8,
                      padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                      name='depthwise_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                      outputs_collections=None):
+    """Adds a 2D sdepthwise convolutional layer.
+       Given an input tensor of shape [batch, in_height, in_width, in_channels] and a filter 
+       tensor of shape [filter_height, filter_width, in_channels, channel_multiplier] containing 
+       in_channels convolutional filters of depth 1, depthwise_conv2d applies a different filter 
+       to each input channel (expanding from 1 channel to channel_multiplier channels for each), 
+       then concatenates the results together. The output has in_channels * channel_multiplier channels.
+       . If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank 4
+    Args:
+       x: A tensor of with rank 4 and value for the last dimension,
+       i.e. `[batch_size, in_height, in_width, depth]`,
+       is_training: Bool, training or testing
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+
+       filter_size: a list or tuple of 2 positive integers specifying the spatial
+       dimensions of of the filters.
+       depth_multiplier:  A positive int32. the number of depthwise convolution output channels for
+            each input channel. The total number of depthwise convolution output
+            channels will be equal to `num_filters_in * depth_multiplier
+       padding: one of `"VALID"` or `"SAME"`.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       untie_biases: spatial dimensions wise baises
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
@@ -423,9 +511,50 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
 
         return _collect_named_outputs(outputs_collections, name, output)
 
+def upsample2d(input_, output_shape, is_training, reuse, filter_size=(5, 5), stride=(2, 2), w_init=initz.he_normal(seed=None), b_init=0.0,
+               w_regularizer=tf.nn.l2_loss, batch_norm=None, activation=None, name="deconv2d", use_bias=True, with_w=False, outputs_collections=None, **unused):
+    """Adds a 2D upsampling or deconvolutional layer.
+       his operation is sometimes called "deconvolution" after Deconvolutional Networks, 
+       but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
+       If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank 4
+    Args:
+       x: A tensor of with at least rank 2 and value for the last dimension,
+       i.e. `[batch_size, in_height, in_width, depth]`,
+       is_training: Bool, training or testing
+       output_shape: 4D tensor, the output shape
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
 
-def upsample2d(input_, output_shape, is_training, reuse, filter_size=(5, 5), stride=(2, 2), init=initz.he_normal(seed=None),
-               batch_norm=None, activation=None, name="deconv2d", use_bias=True, with_w=False, outputs_collections=None, **unused):
+       filter_size: a list or tuple of 2 positive integers specifying the spatial
+       dimensions of of the filters.
+       stride: a tuple or list of 2 positive integers specifying the stride at which to
+       compute output.
+       padding: one of `"VALID"` or `"SAME"`.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
     input_shape = helper.get_input_shape(input_)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name or 'upsample2d', reuse=reuse):
@@ -433,13 +562,23 @@ def upsample2d(input_, output_shape, is_training, reuse, filter_size=(5, 5), str
                                                                                                       '__call__') else None
 
         # filter : [height, width, output_channels, in_channels]
-        w = tf.get_variable(name='W', shape=shape, initializer=init)
+        w = tf.get_variable(
+            name='W',
+            shape=shape,
+            initializer=w_init,
+            regularizer=w_regularizer,
+            trainable=trainable
+        )
 
         output = tf.nn.conv2d_transpose(input_, w, output_shape=output_shape, strides=[
                                         1, stride[0], stride[1], 1])
         if use_bias:
             biases = tf.get_variable(
-                'biases', [output_shape[-1]], initializer=tf.constant_initializer(0.0))
+                name='biases',
+                shape=[output_shape[-1]],
+                initializer=tf.constant_initializer(b_init),
+                trainable=trainable
+            )
             output = tf.reshape(tf.nn.bias_add(
                 output, biases), output.get_shape())
 
@@ -457,7 +596,6 @@ def upsample2d(input_, output_shape, is_training, reuse, filter_size=(5, 5), str
         else:
             return _collect_named_outputs(outputs_collections, name, output)
 
-
 def _phase_shift(input_, r):
     bsize, a, b, c = helper.get_input_shape(input_)
     X = tf.reshape(input_, (bsize, a, b, r, r))
@@ -468,7 +606,6 @@ def _phase_shift(input_, r):
     X = tf.concat(2, [tf.squeeze(x) for x in X])
     output = tf.reshape(X, (bsize, a * r, b * r, 1))
     return output
-
 
 def subpixel2d(input_, r, color=False, name=None, outputs_collections=None, **unused):
     input_shape = helper.get_input_shape(input_)
@@ -481,18 +618,59 @@ def subpixel2d(input_, r, color=False, name=None, outputs_collections=None, **un
             output = _phase_shift(input_, r)
     return _collect_named_outputs(outputs_collections, name, output)
 
-
-def highway_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
+def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss,
                    name='highway_conv2d', activation=None, use_bias=True, outputs_collections=None):
+    """Adds a 2D highway convolutional layer.
+       https://arxiv.org/abs/1505.00387
+       If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank 4
+    Args:
+       x: A tensor of with at least rank 2 and value for the last dimension,
+       i.e. `[batch_size, in_height, in_width, depth]`,
+       is_training: Bool, training or testing
+       n_output: Integer or long, the number of output units in the layer.
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+
+       filter_size: a list or tuple of 2 positive integers specifying the spatial
+       dimensions of of the filters.
+       stride: a tuple or list of 2 positive integers specifying the stride at which to
+       compute output.
+       padding: one of `"VALID"` or `"SAME"`.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       untie_biases: spatial dimensions wise baises
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
         w_shape = [filter_size[0], filter_size[1], x.get_shape(
         )[-1], n_output_channels] if hasattr(w_init, '__call__') else None
 
-        w_t_shape = [n_output_channels]
-        b_shape = [n_output_channels]
+        w_t_shape = [n_output]
+        b_shape = [n_output]
         with tf.name_scope('main_gate'):
             W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init,
                                       b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
@@ -517,9 +695,44 @@ def highway_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
 
     return output
 
-
-def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
+def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3),
                  w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, name='highway_fc2d', activation=None, use_bias=True, outputs_collections=None):
+    """Adds a fully connected highway layer.
+       https://arxiv.org/abs/1505.00387
+       If a `batch_norm` is provided (such as
+       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+       created and added the hidden units. Finally, if `activation` is not `None`,
+       it is applied to the hidden units as well.
+       Note: that if `x` have a rank greater than 2, then `x` is flattened
+       prior to the initial matrix multiply by `weights`.
+    Args:
+       x: A tensor of with at least rank 2 and value for the last dimension,
+       i.e. `[batch_size, depth]`, `[None, None, None, channels]`.
+       is_training: Bool, training or testing
+       n_output: Integer or long, the number of output units in the layer.
+       reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+       activation: activation function, set to None to skip it and maintain
+          a linear activation.
+       batch_norm: normalization function to use. If
+           `batch_norm` is `True` then google original implementation is used and
+           if another function is provided then it is applied.
+           default set to None for no normalizer function
+       batch_norm_args: normalization function parameters.
+       w_init: An initializer for the weights.
+       w_regularizer: Optional regularizer for the weights.
+       b_init: An initializer for the biases. If None skip biases.
+       outputs_collections: collection to add the outputs.
+       trainable: If `True` also add variables to the graph collection
+           `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+       name: Optional name or scope for variable_scope/name_scope.
+       use_bias: Whether to add bias or not
+    Returns:
+        The tensor variable representing the result of the series of operations.
+    Raises:
+        ValueError: if x has rank less than 2 or if its last dimension is not set.
+    """
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     if len(x.get_shape()) != 2:
@@ -547,8 +760,24 @@ def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3
 
     return output
 
-
 def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', outputs_collections=None, **unused):
+    """
+    Max pooling layer
+
+    Args:
+       x: A 4-D tensor of shape `[batch_size, height, width, channels]` 
+       filter_size: A list of length 2: [kernel_height, kernel_width] of the
+            pooling kernel over which the op is computed. Can be an int if both
+            values are the same.
+        stride: A list of length 2: [stride_height, stride_width].
+        padding: The padding method, either 'VALID' or 'SAME'.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
@@ -561,9 +790,39 @@ def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', 
         )
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def fractional_pool(x, pooling_ratio=[1.0, 1.44, 1.73, 1.0], pseudo_random=None, determinastic=None, overlapping=None, name='fractional_pool', seed=None,
                     seed2=None, type='avg', outputs_collections=None, **unused):
+    """
+    Fractional pooling layer
+
+    Args:
+        x: A 4-D tensor of shape `[batch_size, height, width, channels]` 
+	pooling_ratio: A list of floats that has length >= 4. Pooling ratio for each 
+          dimension of value, currently only supports row and col dimension and should 
+          be >= 1.0. For example, a valid pooling ratio looks like [1.0, 1.44, 1.73, 1.0].
+          The first and last elements must be 1.0 because we don't allow pooling on batch and 
+          channels dimensions. 1.44 and 1.73 are pooling ratio on height and width dimensions respectively.
+        pseudo_random: An optional bool. Defaults to False. When set to True, generates
+          the pooling sequence in a pseudorandom fashion, otherwise, in a random fashion.
+          Check paper Benjamin Graham, Fractional Max-Pooling for difference between pseudorandom and random.
+        overlapping: An optional bool. Defaults to False. When set to True, it means when pooling, 
+          the values at the boundary of adjacent pooling cells are used by both cells. For example: index 0 1 2 3 4
+          value 20 5 16 3 7; If the pooling sequence is [0, 2, 4], then 16, at index 2 will be used 
+          twice. The result would be [41/3, 26/3] for fractional avg pooling.
+        deterministic: An optional bool. Defaults to False. When set to True, a fixed pooling
+           region will be used when iterating over a FractionalAvgPool node in the computation
+           graph. Mainly used in unit test to make FractionalAvgPool deterministic.
+        seed: An optional int. Defaults to 0. If either seed or seed2 are set to be non-zero,
+           the random number generator is seeded by the given seed. Otherwise, it is seeded by a random seed.
+        seed2: An optional int. Defaults to 0. An second seed to avoid seed collision.
+        outputs_collections: The collections to which the outputs are added.
+	type: avg or max pool
+        name: Optional scope/name for name_scope.
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
@@ -576,9 +835,26 @@ def fractional_pool(x, pooling_ratio=[1.0, 1.44, 1.73, 1.0], pseudo_random=None,
                                                overlapping=overlapping, deterministic=determinastic, seed=seed, seed2=seed2, name=name)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', epsilon=0.000000000001,
                 outputs_collections=None, **unused):
+    """
+    RMS pooling layer
+
+    Args:
+       x: A 4-D tensor of shape `[batch_size, height, width, channels]` 
+       filter_size: A list of length 2: [kernel_height, kernel_width] of the
+            pooling kernel over which the op is computed. Can be an int if both
+            values are the same.
+        stride: A list of length 2: [stride_height, stride_width].
+        padding: The padding method, either 'VALID' or 'SAME'.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+	epsilon: prevents divide by zero
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
@@ -592,8 +868,24 @@ def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool
         output = tf.sqrt(output + epsilon)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None, outputs_collections=None, **unused):
+    """
+    Avg pooling layer
+
+    Args:
+       x: A 4-D tensor of shape `[batch_size, height, width, channels]` 
+       filter_size: A list of length 2: [kernel_height, kernel_width] of the
+            pooling kernel over which the op is computed. Can be an int if both
+            values are the same.
+        stride: A list of length 2: [stride_height, stride_width].
+        padding: The padding method, either 'VALID' or 'SAME'.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
@@ -606,8 +898,19 @@ def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None,
             name="avg_pool")
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def global_avg_pool(x, name="global_avg_pool", outputs_collections=None, **unused):
+    """
+    Gloabl pooling layer
+
+    Args:
+        x: A 4-D tensor of shape `[batch_size, height, width, channels]` 
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
@@ -615,8 +918,20 @@ def global_avg_pool(x, name="global_avg_pool", outputs_collections=None, **unuse
         output = tf.reduce_mean(x, [1, 2])
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **unused):
+    """
+    Feature max pooling layer
+
+    Args:
+        x: A 2-D tensor of shape `[batch_size, channels]` 
+        stride: A int.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 2, "Input Tensor shape must be 2-D"
@@ -628,7 +943,6 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
         )
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def local_response_normalization(x, depth_radius=5, bias=1, alpha=1, beta=0.5, name='local_response_normalization', outputs_collections=None, **unused):
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
@@ -638,10 +952,8 @@ def local_response_normalization(x, depth_radius=5, bias=1, alpha=1, beta=0.5, n
             input=x, depth_radius=depth_radius, bias=bias, alpha=alpha, beta=beta)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def batch_norm_tf(x, name='bn', scale=False, updates_collections=None, **kwargs):
     return tf.contrib.layers.batch_norm(x, scope=name, scale=scale, updates_collections=updates_collections, **kwargs)
-
 
 def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='bn',
                        updates_collections=tf.GraphKeys.UPDATE_OPS, outputs_collections=None):
@@ -710,39 +1022,79 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
         output = _batch_normalization(x, mean, inv_std, beta, gamma)
         return _collect_named_outputs(outputs_collections, name, output)
 
+def prelu(x, reuse, alpha_init=0.2, trainable=True, name='prelu', outputs_collections=None):
+    """
+    Prametric rectifier linear layer
 
-def prelu(x, reuse, trainable=True, name='prelu', outputs_collections=None):
+    Args:
+	x: a Tensor
+        reuse: whether or not the layer and its variables should be reused. To be
+         able to reuse the layer scope must be given.
+	alpha_init: initalization value for alpha
+	trainable: a bool, training or fixed value
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the prelu activation operation.
+    """
     with tf.variable_scope(name, reuse=reuse):
         alphas = tf.get_variable(
             name='alpha',
-            initializer=tf.constant(0.2, shape=[x.get_shape()[-1]]),
+            initializer=tf.constant(alpha_init, shape=[x.get_shape()[-1]]),
             trainable=trainable
         )
 
         output = tf.nn.relu(x) + tf.mul(alphas, (x - tf.abs(x))) * 0.5
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def relu(x, name='relu', outputs_collections=None, **unused):
+    """
+    Rectifier linear layer
+
+    Args:
+	x: a Tensor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the relu activation operation.
+    """
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.relu(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def relu6(x, name='relu6', outputs_collections=None, **unused):
+    """
+    Rectifier linear relu6 layer
+
+    Args:
+	x: a Tensor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the relu6 activation operation.
+    """
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.relu6(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def softplus(x, name='softplus', outputs_collections=None, **unused):
+    """
+    Softpluas layer
+    Computes softplus: log(exp(features) + 1).
+
+    Args:
+	x: a Tensor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.softplus(x)
         return _collect_named_outputs(outputs_collections, name, output)
-
 
 def crelu(x, name='crelu', outputs_collections=None, **unused):
     """
@@ -750,36 +1102,80 @@ def crelu(x, name='crelu', outputs_collections=None, **unused):
     Concatenates a ReLU which selects only the positive part of the activation with
     a ReLU which selects only the negative part of the activation. Note that
     at as a result this non-linearity doubles the depth of the activations. Source: https://arxiv.org/abs/1603.05201
+
+    Args:
+	x: a Tensor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
     """
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.crelu(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def elu(x, name='elu', outputs_collections=None, **unused):
+    """
+    Computes exponential linear: exp(features) - 1 if < 0, features otherwise.
+    See "Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)"
+
+    Args:
+	x: a Tensor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.elu(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unused):
+    """
+    Computes reaky relu 
+    Args:
+	x: a Tensor
+	aplha: the conatant fro scalling the activation
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.relu(x) + tf.mul(alpha, (x - tf.abs(x))) * 0.5
         return _collect_named_outputs(outputs_collections, name, output)
 
-
-def lrelu(x, leak=0.2, phase=0, name="lrelu", outputs_collections=None, **unused):
+def lrelu(x, leak=0.2, name="lrelu", outputs_collections=None, **unused):
+    """
+    Computes reaky relu lasagne style 
+    Args:
+	x: a Tensor
+	leak: the conatant fro scalling the activation
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
     with tf.variable_scope(name):
         f1 = 0.5 * (1 + leak)
         f2 = 0.5 * (1 - leak)
         output = f1 * x + f2 * abs(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
-def maxout(x, k=2, phase=0, name='maxout', outputs_collections=None, **unused):
+def maxout(x, k=2, name='maxout', outputs_collections=None, **unused):
+    """
+    Computes maxout activation  
+    Args:
+	x: a Tensor
+	k: output channel splitting factor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
     with tf.name_scope(name):
         shape = [int(e) for e in x.get_shape()]
         ax = len(shape)
@@ -791,8 +1187,17 @@ def maxout(x, k=2, phase=0, name='maxout', outputs_collections=None, **unused):
         output = tf.reduce_max(x, ax)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
-def offset_maxout(x, k=2, phase=0, name='maxout', outputs_collections=None, **unused):
+def offset_maxout(x, k=2, name='maxout', outputs_collections=None, **unused):
+    """
+    Computes maxout activation  
+    Args:
+	x: a Tensor
+	k: output channel splitting factor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
     with tf.name_scope(name):
         shape = [int(e) for e in x.get_shape()]
         ax = len(shape)
@@ -805,15 +1210,33 @@ def offset_maxout(x, k=2, phase=0, name='maxout', outputs_collections=None, **un
         output = tf.reduce_max(x, ax) - ofs
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def softmax(x, name='softmax', outputs_collections=None, **unused):
+    """
+    Computes softmax activation  
+    Args:
+	x: a Tensor
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.softmax(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
-
 def dropout(x, is_training, drop_p=0.5, name='dropout', outputs_collections=None, **unused):
+    """
+    Dropout layer   
+    Args:
+	x: a Tensor
+	is_training: a bool, training or validation
+	prop_p: probability of droping unit
+	name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+    Returns:
+        A `Tensor` representing the results of the dropout operation.
+    """
     _check_unused(unused, name)
     with tf.name_scope(name):
         keep_p = 1. - drop_p
@@ -823,7 +1246,6 @@ def dropout(x, is_training, drop_p=0.5, name='dropout', outputs_collections=None
         else:
             return _collect_named_outputs(outputs_collections, name, x)
 
-
 def _flatten(x, name='flatten'):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
@@ -831,7 +1253,6 @@ def _flatten(x, name='flatten'):
         dims = int(np.prod(input_shape[1:]))
         flattened = tf.reshape(x, [-1, dims])
         return flattened
-
 
 def repeat(inputs, repetitions, layer, name='repeat', outputs_collections=None, *args, **kwargs):
     with tf.variable_scope(name, 'Repeat'):
@@ -851,7 +1272,6 @@ def repeat(inputs, repetitions, layer, name='repeat', outputs_collections=None, 
             tf.add_to_collection(outputs_collections,
                                  NamedOutputs(new_name, outputs))
         return outputs
-
 
 def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **kwargs):
     assert len(tensors_list) > 1, "Merge required 2 or more tensors."
@@ -888,12 +1308,10 @@ def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **
 
     return output
 
-
 def _collect_named_outputs(outputs_collections, name, output):
     if outputs_collections is not None:
         tf.add_to_collection(outputs_collections, NamedOutputs(name, output))
     return output
-
 
 def _check_unused(unused, name):
     allowed_keys = ['is_training', 'reuse', 'outputs_collections', 'trainable']
