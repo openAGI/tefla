@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Mrinal(Ishant) Haloi">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Layers - Tefla</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Layers";
+    var mkdocs_page_input_path = "core/layers.md";
+    var mkdocs_page_url = "/core/layers/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Tefla</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Index</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Layers</span></li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Layers</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#define-input-layer">Define input layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-fully-connected-layer">Adds a fully connected layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-2d-convolutional-layer">Adds a 2D convolutional layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-2d-dilated-convolutional-layer-also-known-as-convolution-with-holes-or-atrous-convolution">Adds a 2D dilated convolutional layer, also known as convolution with holes or atrous convolution</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-2d-seperable-convolutional-layer">Adds a 2D seperable convolutional layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-2d-sdepthwise-convolutional-layer">Adds a 2D sdepthwise convolutional layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-2d-upsampling-or-deconvolutional-layer">Adds a 2D upsampling or deconvolutional layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-2d-highway-convolutional-layer">Adds a 2D highway convolutional layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-fully-connected-highway-layer">Adds a fully connected highway layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#max-pooling-layer">Max pooling layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#fractional-pooling-layer">Fractional pooling layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#rms-pooling-layer">RMS pooling layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#avg-pooling-layer">Avg pooling layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#gloabl-pooling-layer">Gloabl pooling layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#feature-max-pooling-layer">Feature max pooling layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-batch-normalization-layer-from-httparxivorgabs150203167">Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#adds-a-batch-normalization-layer-from-httparxivorgabs150203167_1">Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#prametric-rectifier-linear-layer">Prametric rectifier linear layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#rectifier-linear-layer">Rectifier linear layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#rectifier-linear-relu6-layer">Rectifier linear relu6 layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#softpluas-layer">Softpluas layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-concatenated-relu">Computes Concatenated ReLU</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-exponential-linear-expfeatures-1-if-0-features-otherwise">Computes exponential linear: exp(features) - 1 if &lt; 0, features otherwise</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-reaky-relu">Computes reaky relu</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-reaky-relu-lasagne-style">Computes reaky relu lasagne style</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-maxout-activation">Computes maxout activation</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-maxout-activation_1">Computes maxout activation</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-softmax-activation">Computes softmax activation</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#dropout-layer">Dropout layer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#repeat-op">Repeat op</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#merge-op">Merge op</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Built-in Ops</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../metrics/">Metrics</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../initializers/">Initializations</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../losses/">Losses</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../summary/">Summaries</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Data Management</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../da/data/">Data Augmentation</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/image_to_tfrecords/">TfRecords</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Extending Tensorflow</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../training/">Trainer</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Tefla</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Layers &raquo;</li>
+        
+      
+    
+    <li>Layers</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/layers.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="define-input-layer">Define input layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.input</b></span>  (shape,  name='inputs',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>shape</strong>: A <code>Tensor</code>, define the input shape
+e.g. for image input [batch_size, height, width, depth]</li>
+<li><strong>name</strong>: A optional score/name for this op</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A placeholder for the input</p>
+<hr />
+<h1 id="adds-a-fully-connected-layer">Adds a fully connected layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.fully_connected</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f9243cf7668>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  name='fc',  batch_norm=None,  batch_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
+<code>fully_connected</code> creates a variable called <code>weights</code>, representing a fully
+connected weight matrix, which is multiplied by the <code>x</code> to produce a
+<code>Tensor</code> of hidden units. If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank greater than 2, then <code>x</code> is flattened
+prior to the initial matrix multiply by <code>weights</code>.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A <code>Tensor</code> of with at least rank 2 and value for the last dimension,
+i.e. <code>[batch_size, depth]</code>, <code>[None, None, None, channels]</code>.</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>n_output</strong>: Integer or long, the number of output units in the layer.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>activation</strong>: activation function, set to None to skip it and maintain
+a linear activation.</li>
+<li><strong>batch_norm</strong>: normalization function to use. If
+ -<code>batch_norm</code> is <code>True</code> then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function</li>
+<li><strong>batch_norm_args</strong>: normalization function parameters.</li>
+<li><strong>w_init</strong>: An initializer for the weights.</li>
+<li><strong>w_regularizer</strong>: Optional regularizer for the weights.</li>
+<li><strong>b_init</strong>: An initializer for the biases. If None skip biases.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
+<li><strong>name</strong>: Optional name or scope for variable_scope/name_scope.</li>
+<li><strong>use_bias</strong>: Whether to add bias or not</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The 2-D <code>Tensor</code> variable representing the result of the series of operations.
+e.g: 2-D <code>Tensor</code> [batch, n_output].</p>
+<hr />
+<h1 id="adds-a-2d-convolutional-layer">Adds a 2D convolutional layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7758>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<code>convolutional layer</code> creates a variable called <code>weights</code>, representing a conv
+weight matrix, which is multiplied by the <code>x</code> to produce a
+<code>Tensor</code> of hidden units. If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank 4</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of with at least rank 2 and value for the last dimension,
+i.e. <code>[batch_size, in_height, in_width, depth]</code>,</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>n_output</strong>: Integer or long, the number of output units in the layer.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The 4-D <code>Tensor</code> variable representing the result of the series of operations.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
+<hr />
+<h1 id="adds-a-2d-dilated-convolutional-layer-also-known-as-convolution-with-holes-or-atrous-convolution">Adds a 2D dilated convolutional layer, also known as convolution with holes or atrous convolution</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.dilated_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  dilation=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7848>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='dilated_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+If the rate parameter is equal to one, it performs regular 2-D convolution. If the rate parameter
+is greater than one, it performs convolution with holes, sampling the input
+values every rate pixels in the height and width dimensions.
+<code>convolutional layer</code> creates a variable called <code>weights</code>, representing a conv
+weight matrix, which is multiplied by the <code>x</code> to produce a
+<code>Tensor</code> of hidden units. If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank 4</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of with rank 4 and value for the last dimension,
+i.e. <code>[batch_size, in_height, in_width, depth]</code>,</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>n_output</strong>: Integer or long, the number of output units in the layer.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The 4-D <code>Tensor</code> variable representing the result of the series of operations.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
+<hr />
+<h1 id="adds-a-2d-seperable-convolutional-layer">Adds a 2D seperable convolutional layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.separable_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7938>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='separable_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+Performs a depthwise convolution that acts separately on channels followed by
+a pointwise convolution that mixes channels. Note that this is separability between
+dimensions [1, 2] and 3, not spatial separability between dimensions 1 and 2.
+<code>convolutional layer</code> creates two variable called <code>depthwise_W</code> and <code>pointwise_W</code>,
+<code>depthwise_W</code> is multiplied by <code>x</code> to produce depthwise conolution, which is multiplied by
+the <code>pointwise_W</code> to produce a output <code>Tensor</code>
+If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank 4</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of with rank 4 and value for the last dimension,
+i.e. <code>[batch_size, in_height, in_width, depth]</code>,</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>n_output</strong>: Integer or long, the number of output units in the layer.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>filter_size</strong>: a list or tuple of 2 positive integers specifying the spatial</li>
+<li>dimensions of of the filters.</li>
+<li><strong>depth_multiplier</strong>:  A positive int32. the number of depthwise convolution output channels for
+each input channel. The total number of depthwise convolution output
+channels will be equal to `num_filters_in * depth_multiplier</li>
+<li><strong>padding</strong>: one of <code>"VALID"</code> or <code>"SAME"</code>.</li>
+<li><strong>activation</strong>: activation function, set to None to skip it and maintain
+a linear activation.</li>
+<li><strong>batch_norm</strong>: normalization function to use. If
+<code>batch_norm</code> is <code>True</code> then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function</li>
+<li><strong>batch_norm_args</strong>: normalization function parameters.</li>
+<li><strong>w_init</strong>: An initializer for the weights.</li>
+<li><strong>w_regularizer</strong>: Optional regularizer for the weights.</li>
+<li><strong>untie_biases</strong>: spatial dimensions wise baises</li>
+<li><strong>b_init</strong>: An initializer for the biases. If None skip biases.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
+<li><strong>name</strong>: Optional name or scope for variable_scope/name_scope.</li>
+<li><strong>use_bias</strong>: Whether to add bias or not</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The 4-D <code>Tensor</code> variable representing the result of the series of operations.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
+<hr />
+<h1 id="adds-a-2d-sdepthwise-convolutional-layer">Adds a 2D sdepthwise convolutional layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.depthwise_conv2d</b></span>  (x,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7a28>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='depthwise_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+Given an input tensor of shape [batch, in_height, in_width, in_channels] and a filter
+tensor of shape [filter_height, filter_width, in_channels, channel_multiplier] containing
+in_channels convolutional filters of depth 1, depthwise_conv2d applies a different filter
+to each input channel (expanding from 1 channel to channel_multiplier channels for each),
+then concatenates the results together. The output has in_channels * channel_multiplier channels.
+If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank 4</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of with rank 4 and value for the last dimension,
+i.e. <code>[batch_size, in_height, in_width, depth]</code>,</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>filter_size</strong>: a list or tuple of 2 positive integers specifying the spatial
+dimensions of of the filters.</li>
+<li><strong>depth_multiplier</strong>:  A positive int32. the number of depthwise convolution output channels for
+each input channel. The total number of depthwise convolution output
+channels will be equal to `num_filters_in * depth_multiplier</li>
+<li><strong>padding</strong>: one of <code>"VALID"</code> or <code>"SAME"</code>.</li>
+<li><strong>activation</strong>: activation function, set to None to skip it and maintain
+a linear activation.</li>
+<li><strong>batch_norm</strong>: normalization function to use. If
+<code>batch_norm</code> is <code>True</code> then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function</li>
+<li><strong>batch_norm_args</strong>: normalization function parameters.</li>
+<li><strong>w_init</strong>: An initializer for the weights.</li>
+<li><strong>w_regularizer</strong>: Optional regularizer for the weights.</li>
+<li><strong>untie_biases</strong>: spatial dimensions wise baises</li>
+<li><strong>b_init</strong>: An initializer for the biases. If None skip biases.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
+<li><strong>name</strong>: Optional name or scope for variable_scope/name_scope.</li>
+<li><strong>use_bias</strong>: Whether to add bias or not</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The tensor variable representing the result of the series of operations.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
+<hr />
+<h1 id="adds-a-2d-upsampling-or-deconvolutional-layer">Adds a 2D upsampling or deconvolutional layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.upsample2d</b></span>  (input_,  output_shape,  is_training,  reuse,  trainable=True,  filter_size=  (5,  5),  stride=  (2,  2),  w_init=<function  _initializer  at  0x7f9243cf7b18>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  batch_norm=None,  activation=None,  name='deconv2d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
+his operation is sometimes called "deconvolution" after Deconvolutional Networks,
+but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
+If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank 4</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of with at least rank 2 and value for the last dimension,
+i.e. <code>[batch_size, in_height, in_width, depth]</code>,</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>output_shape</strong>: 4D tensor, the output shape</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>filter_size</strong>: a list or tuple of 2 positive integers specifying the spatial
+dimensions of of the filters.</li>
+<li><strong>stride</strong>: a tuple or list of 2 positive integers specifying the stride at which to
+compute output.</li>
+<li><strong>padding</strong>: one of <code>"VALID"</code> or <code>"SAME"</code>.</li>
+<li><strong>activation</strong>: activation function, set to None to skip it and maintain
+a linear activation.</li>
+<li><strong>batch_norm</strong>: normalization function to use. If
+<code>batch_norm</code> is <code>True</code> then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function</li>
+<li><strong>batch_norm_args</strong>: normalization function parameters.</li>
+<li><strong>w_init</strong>: An initializer for the weights.</li>
+<li><strong>w_regularizer</strong>: Optional regularizer for the weights.</li>
+<li><strong>b_init</strong>: An initializer for the biases. If None skip biases.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
+<li><strong>name</strong>: Optional name or scope for variable_scope/name_scope.</li>
+<li><strong>use_bias</strong>: Whether to add bias or not</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The tensor variable representing the result of the series of operations.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
+<hr />
+<h1 id="adds-a-2d-highway-convolutional-layer">Adds a 2D highway convolutional layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_conv2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7cf8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  name='highway_conv2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
+https://arxiv.org/abs/1505.00387
+If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank 4</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of with at least rank 2 and value for the last dimension,
+i.e. <code>[batch_size, in_height, in_width, depth]</code>,</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>n_output</strong>: Integer or long, the number of output units in the layer.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>filter_size</strong>: a list or tuple of 2 positive integers specifying the spatial
+dimensions of of the filters.</li>
+<li><strong>stride</strong>: a tuple or list of 2 positive integers specifying the stride at which to
+compute output.</li>
+<li><strong>padding</strong>: one of <code>"VALID"</code> or <code>"SAME"</code>.</li>
+<li><strong>activation</strong>: activation function, set to None to skip it and maintain
+a linear activation.</li>
+<li><strong>batch_norm</strong>: normalization function to use. If
+<code>batch_norm</code> is <code>True</code> then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function</li>
+<li><strong>batch_norm_args</strong>: normalization function parameters.</li>
+<li><strong>w_init</strong>: An initializer for the weights.</li>
+<li><strong>w_regularizer</strong>: Optional regularizer for the weights.</li>
+<li><strong>untie_biases</strong>: spatial dimensions wise baises</li>
+<li><strong>b_init</strong>: An initializer for the biases. If None skip biases.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
+<li><strong>name</strong>: Optional name or scope for variable_scope/name_scope.</li>
+<li><strong>use_bias</strong>: Whether to add bias or not</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The <code>Tensor</code> variable representing the result of the series of operations.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
+<hr />
+<h1 id="adds-a-fully-connected-highway-layer">Adds a fully connected highway layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_fc2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  w_init=<function  _initializer  at  0x7f9243cf7de8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  name='highway_fc2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
+https://arxiv.org/abs/1505.00387
+If a <code>batch_norm</code> is provided (such as
+<code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
+None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
+created and added the hidden units. Finally, if <code>activation</code> is not <code>None</code>,
+it is applied to the hidden units as well.
+Note: that if <code>x</code> have a rank greater than 2, then <code>x</code> is flattened
+prior to the initial matrix multiply by <code>weights</code>.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 2-D/4-D <code>Tensor</code> of with at least rank 2 and value for the last dimension,
+i.e. <code>[batch_size, depth]</code>, <code>[None, None, None, channels]</code>.</li>
+<li><strong>is_training</strong>: Bool, training or testing</li>
+<li><strong>n_output</strong>: Integer or long, the number of output units in the layer.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>activation</strong>: activation function, set to None to skip it and maintain
+a linear activation.</li>
+<li><strong>batch_norm</strong>: normalization function to use. If
+<code>batch_norm</code> is <code>True</code> then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function</li>
+<li><strong>batch_norm_args</strong>: normalization function parameters.</li>
+<li><strong>w_init</strong>: An initializer for the weights.</li>
+<li><strong>w_regularizer</strong>: Optional regularizer for the weights.</li>
+<li><strong>b_init</strong>: An initializer for the biases. If None skip biases.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
+<li><strong>name</strong>: Optional name or scope for variable_scope/name_scope.</li>
+<li><strong>use_bias</strong>: Whether to add bias or not</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The 2-D <code>Tensor</code> variable representing the result of the series of operations.
+e.g.: 2-D <code>Tensor</code> [batch_size, n_output]</p>
+<hr />
+<h1 id="max-pooling-layer">Max pooling layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.max_pool</b></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name='pool',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D 'Tensor<code>of shape</code>[batch_size, height, width, channels]`</li>
+<li><strong>filter_size</strong>: A list of length 2: [kernel_height, kernel_width] of the
+pooling kernel over which the op is computed. Can be an int if both
+values are the same.</li>
+<li><strong>stride</strong>: A list of length 2: [stride_height, stride_width].</li>
+<li><strong>padding</strong>: The padding method, either 'VALID' or 'SAME'.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>name</strong>: Optional scope/name for name_scope.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the pooling operation.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, channels].</p>
+<hr />
+<h1 id="fractional-pooling-layer">Fractional pooling layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.fractional_pool</b></span>  (x,  pooling_ratio=[1.0,  1.44,  1.73,  1.0],  pseudo_random=None,  determinastic=None,  overlapping=None,  name='fractional_pool',  seed=None,  seed2=None,  type='avg',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of shape <code>[batch_size, height, width, channels]</code></li>
+<li><strong>pooling_ratio</strong>: A list of floats that has length &gt;= 4. Pooling ratio for each
+dimension of value, currently only supports row and col dimension and should
+be &gt;= 1.0. For example, a valid pooling ratio looks like [1.0, 1.44, 1.73, 1.0].
+The first and last elements must be 1.0 because we don't allow pooling on batch and
+channels dimensions. 1.44 and 1.73 are pooling ratio on height and width
+dimensions respectively.</li>
+<li><strong>pseudo_random</strong>: An optional bool. Defaults to False. When set to True, generates
+the pooling sequence in a pseudorandom fashion, otherwise, in a random fashion.
+Check paper Benjamin Graham, Fractional Max-Pooling for difference between
+pseudorandom and random.</li>
+<li><strong>overlapping</strong>: An optional bool. Defaults to False. When set to True, it means when pooling,
+the values at the boundary of adjacent pooling cells are used by both cells.
+For example: index 0 1 2 3 4
+value 20 5 16 3 7; If the pooling sequence is [0, 2, 4], then 16, at index 2 will be used
+twice. The result would be [41/3, 26/3] for fractional avg pooling.</li>
+<li><strong>deterministic</strong>: An optional bool. Defaults to False. When set to True, a fixed pooling
+region will be used when iterating over a FractionalAvgPool node in the computation
+graph. Mainly used in unit test to make FractionalAvgPool deterministic.</li>
+<li><strong>seed</strong>: An optional int. Defaults to 0. If either seed or seed2 are set to be non-zero,
+the random number generator is seeded by the given seed. Otherwise,
+it is seeded by a random seed.</li>
+<li><strong>seed2</strong>: An optional int. Defaults to 0. An second seed to avoid seed collision.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>type</strong>: avg or max pool</li>
+<li><strong>name</strong>: Optional scope/name for name_scope.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A 4-D <code>Tensor</code> representing the results of the pooling operation.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, channels].</p>
+<hr />
+<h1 id="rms-pooling-layer">RMS pooling layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.rms_pool_2d</b></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name='pool',  epsilon=1e-12,  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of shape <code>[batch_size, height, width, channels]</code></li>
+<li><strong>filter_size</strong>: A list of length 2: [kernel_height, kernel_width] of the
+pooling kernel over which the op is computed. Can be an int if both
+values are the same.</li>
+<li><strong>stride</strong>: A list of length 2: [stride_height, stride_width].</li>
+<li><strong>padding</strong>: The padding method, either 'VALID' or 'SAME'.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>name</strong>: Optional scope/name for name_scope.</li>
+<li><strong>epsilon</strong>: prevents divide by zero</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A 4-D <code>Tensor</code> representing the results of the pooling operation.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, channels].</p>
+<hr />
+<h1 id="avg-pooling-layer">Avg pooling layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.avg_pool_2d</b></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name=None,  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of shape <code>[batch_size, height, width, channels]</code></li>
+<li><strong>filter_size</strong>: A list of length 2: [kernel_height, kernel_width] of the
+pooling kernel over which the op is computed. Can be an int if both
+values are the same.</li>
+<li><strong>stride</strong>: A list of length 2: [stride_height, stride_width].</li>
+<li><strong>padding</strong>: The padding method, either 'VALID' or 'SAME'.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>name</strong>: Optional scope/name for name_scope.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A 4-D <code>Tensor</code> representing the results of the pooling operation.
+e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, channels].</p>
+<hr />
+<h1 id="gloabl-pooling-layer">Gloabl pooling layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.global_avg_pool</b></span>  (x,  name='global_avg_pool',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 4-D <code>Tensor</code> of shape <code>[batch_size, height, width, channels]</code></li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>name</strong>: Optional scope/name for name_scope.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A 4-D <code>Tensor</code> representing the results of the pooling operation.
+e.g.: 4-D <code>Tensor</code> [batch, 1, 1, channels].</p>
+<hr />
+<h1 id="feature-max-pooling-layer">Feature max pooling layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.feature_max_pool_1d</b></span>  (x,  stride=2,  name='pool',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: A 2-D tensor of shape <code>[batch_size, channels]</code></li>
+<li><strong>stride</strong>: A int.</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+<li><strong>name</strong>: Optional scope/name for name_scope.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A 2-D <code>Tensor</code> representing the results of the pooling operation.
+e.g.: 2-D <code>Tensor</code> [batch_size, new_channels]</p>
+<hr />
+<h1 id="adds-a-batch-normalization-layer-from-httparxivorgabs150203167">Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.batch_norm_tf</b></span>  (x,  name='bn',  scale=False,  updates_collections=None,  **kwargs)</span>
+"Batch Normalization: Accelerating Deep Network Training by Reducing
+Internal Covariate Shift", Sergey Ioffe, Christian Szegedy
+Can be used as a normalizer function for conv2d and fully_connected.
+Note: When is_training is True the moving_mean and moving_variance need to be
+updated, by default the update_ops are placed in <code>tf.GraphKeys.UPDATE_OPS</code> so
+they need to be added as a dependency to the <code>train_op</code>, example:
+<code>update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)</code>
+<code>if update_ops:</code>
+<code>updates = tf.group(*update_ops)</code>
+<code>total_loss = control_flow_ops.with_dependencies([updates], total_loss)</code>
+One can set updates_collections=None to force the updates in place, but that
+can have speed penalty, specially in distributed settings.
+<h3>Args</h3></p>
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with 2 or more dimensions, where the first dimension has
+<code>batch_size</code>. The normalization is over all but the last dimension if
+<code>data_format</code> is <code>NHWC</code> and the second dimension if <code>data_format</code> is
+<code>NCHW</code>.</li>
+<li><strong>decay</strong>: decay for the moving average. Reasonable values for <code>decay</code> are close
+to 1.0, typically in the multiple-nines range: 0.999, 0.99, 0.9, etc.
+Lower <code>decay</code> value (recommend trying <code>decay</code>=0.9) if model experiences
+reasonably good training performance but poor validation and/or test
+performance. Try zero_debias_moving_mean=True for improved stability.</li>
+<li><strong>center</strong>: If True, subtract <code>beta</code>. If False, <code>beta</code> is ignored.</li>
+<li><strong>scale</strong>: If True, multiply by <code>gamma</code>. If False, <code>gamma</code> is
+not used. When the next layer is linear (also e.g. <code>nn.relu</code>), this can be
+disabled since the scaling can be done by the next layer.</li>
+<li><strong>epsilon</strong>: small float added to variance to avoid dividing by zero.</li>
+<li><strong>activation_fn</strong>: activation function, default set to None to skip it and
+maintain a linear activation.</li>
+<li><strong>param_initializers</strong>: optional initializers for beta, gamma, moving mean and
+moving variance.</li>
+<li><strong>updates_collections</strong>: collections to collect the update ops for computation.
+The updates_ops need to be executed with the train_op.
+If None, a control dependency would be added to make sure the updates are
+computed in place.</li>
+<li><strong>is_training</strong>: whether or not the layer is in training mode. In training mode
+it would accumulate the statistics of the moments into <code>moving_mean</code> and
+<code>moving_variance</code> using an exponential moving average with the given
+<code>decay</code>. When it is not in training mode then it would use the values of
+the <code>moving_mean</code> and the <code>moving_variance</code>.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.
+outputs_collections: collections to add the outputs.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see <code>tf.Variable</code>).</li>
+<li><strong>batch_weights</strong>: An optional tensor of shape <code>[batch_size]</code>,
+containing a frequency weight for each batch item. If present,
+then the batch normalization uses weighted mean and
+variance. (This can be used to correct for bias in training
+example selection.)</li>
+<li><strong>fused</strong>:  Use nn.fused_batch_norm if True, nn.batch_normalization otherwise.</li>
+<li><strong>name</strong>: Optional scope/name for <code>variable_scope</code>.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the output of the operation.</p>
+<hr />
+<h1 id="adds-a-batch-normalization-layer-from-httparxivorgabs150203167_1">Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.batch_norm_lasagne</b></span>  (x,  is_training,  reuse,  trainable=True,  decay=0.9,  epsilon=0.0001,  name='bn',  updates_collections='update_ops',  outputs_collections=None)</span>
+Instead of storing and updating moving variance, this layer store and
+update moving inverse standard deviation
+"Batch Normalization: Accelerating Deep Network Training by Reducin Internal Covariate Shift"
+Sergey Ioffe, Christian Szegedy
+Can be used as a normalizer function for conv2d and fully_connected.
+Note: When is_training is True the moving_mean and moving_variance need to be
+updated, by default the update_ops are placed in <code>tf.GraphKeys.UPDATE_OPS</code> so
+they need to be added as a dependency to the <code>train_op</code>, example:
+<code>update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)</code>
+<code>if update_ops:</code>
+<code>updates = tf.group(*update_ops)</code>
+<code>total_loss = control_flow_ops.with_dependencies([updates], total_loss)</code>
+One can set updates_collections=None to force the updates in place, but that
+can have speed penalty, specially in distributed settings.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a tensor with 2 or more dimensions, where the first dimension has
+<code>batch_size</code>. The normalization is over all but the last dimension if
+<code>data_format</code> is <code>NHWC</code> and the second dimension if <code>data_format</code> is
+<code>NCHW</code>.</li>
+<li><strong>decay</strong>: decay for the moving average. Reasonable values for <code>decay</code> are close
+to 1.0, typically in the multiple-nines range: 0.999, 0.99, 0.9, etc.
+Lower <code>decay</code> value (recommend trying <code>decay</code>=0.9) if model experiences
+reasonably good training performance but poor validation and/or test
+performance. Try zero_debias_moving_mean=True for improved stability.</li>
+<li><strong>epsilon</strong>: small float added to variance to avoid dividing by zero.</li>
+<li><strong>updates_collections</strong>: collections to collect the update ops for computation.
+The updates_ops need to be executed with the train_op.
+If None, a control dependency would be added to make sure the updates are
+computed in place.</li>
+<li><strong>is_training</strong>: whether or not the layer is in training mode. In training mode
+it would accumulate the statistics of the moments into <code>moving_mean</code> and
+<code>moving_variance</code> using an exponential moving average with the given
+<code>decay</code>. When it is not in training mode then it would use the values of
+the <code>moving_mean</code> and the <code>moving_variance</code>.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>outputs_collections</strong>: collections to add the outputs.</li>
+<li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
+<code>GraphKeys.TRAINABLE_VARIABLES</code> (see <code>tf.Variable</code>).</li>
+<li><strong>name</strong>: Optional scope/name for <code>variable_scope</code>.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the output of the operation.</p>
+<hr />
+<h1 id="prametric-rectifier-linear-layer">Prametric rectifier linear layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.prelu</b></span>  (x,  reuse,  alpha_init=0.2,  trainable=True,  name='prelu',  outputs_collections=None)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>reuse</strong>: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.</li>
+<li><strong>alpha_init</strong>: initalization value for alpha</li>
+<li><strong>trainable</strong>: a bool, training or fixed value</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the prelu activation operation.</p>
+<hr />
+<h1 id="rectifier-linear-layer">Rectifier linear layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.relu</b></span>  (x,  name='relu',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the relu activation operation.</p>
+<hr />
+<h1 id="rectifier-linear-relu6-layer">Rectifier linear relu6 layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.relu6</b></span>  (x,  name='relu6',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the relu6 activation operation.</p>
+<hr />
+<h1 id="softpluas-layer">Softpluas layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.softplus</b></span>  (x,  name='softplus',  outputs_collections=None,  **unused)</span>
+Computes softplus: log(exp(features) + 1).</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="computes-concatenated-relu">Computes Concatenated ReLU</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.crelu</b></span>  (x,  name='crelu',  outputs_collections=None,  **unused)</span>
+Concatenates a ReLU which selects only the positive part of the activation with
+a ReLU which selects only the negative part of the activation. Note that
+at as a result this non-linearity doubles the depth of the activations.
+Source: https://arxiv.org/abs/1603.05201</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="computes-exponential-linear-expfeatures-1-if-0-features-otherwise">Computes exponential linear: exp(features) - 1 if &lt; 0, features otherwise</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.elu</b></span>  (x,  name='elu',  outputs_collections=None,  **unused)</span>
+See "Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)"</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="computes-reaky-relu">Computes reaky relu</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.leaky_relu</b></span>  (x,  alpha=0.01,  name='leaky_relu',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>aplha</strong>: the conatant fro scalling the activation</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="computes-reaky-relu-lasagne-style">Computes reaky relu lasagne style</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.lrelu</b></span>  (x,  leak=0.2,  name='lrelu',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>leak</strong>: the conatant fro scalling the activation</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="computes-maxout-activation">Computes maxout activation</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.maxout</b></span>  (x,  k=2,  name='maxout',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>k</strong>: output channel splitting factor</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="computes-maxout-activation_1">Computes maxout activation</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.offset_maxout</b></span>  (x,  k=2,  name='maxout',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>k</strong>: output channel splitting factor</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="computes-softmax-activation">Computes softmax activation</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.softmax</b></span>  (x,  name='softmax',  outputs_collections=None,  **unused)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code> with type <code>float</code>, <code>double</code>, <code>int32</code>, <code>int64</code>, <code>uint8</code>, int16<code>, or</code>int8`.</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the activation operation.</p>
+<hr />
+<h1 id="dropout-layer">Dropout layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.dropout</b></span>  (x,  is_training,  drop_p=0.5,  name='dropout',  outputs_collections=None,  **unused)</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code>.</li>
+<li><strong>is_training</strong>: a bool, training or validation</li>
+<li><strong>drop_p</strong>: probability of droping unit</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the dropout operation.</p>
+<hr />
+<h1 id="repeat-op">Repeat op</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.repeat</b></span>  (x,  repetitions,  layer,  name='repeat',  outputs_collections=None,  <em>args,  </em>*kwargs)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a <code>Tensor</code>.</li>
+<li><strong>repetitions</strong>: a int, number of times to apply the same operation</li>
+<li><strong>layer</strong>: the layer function with arguments to repeat</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the repetition operation.</p>
+<hr />
+<h1 id="merge-op">Merge op</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.merge</b></span>  (tensors_list,  mode,  axis=1,  name='merge',  outputs_collections=None,  **kwargs)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>tensor_list</strong>: A list <code>Tensors</code> to merge</li>
+<li><strong>mode</strong>: str, available modes are
+['concat', 'elemwise_sum', 'elemwise_mul', 'sum', 'mean', 'prod', 'max', 'min', 'and', 'or']</li>
+<li><strong>name</strong>: a optional scope/name of the layer</li>
+<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A <code>Tensor</code> representing the results of the repetition operation.</p>
+<hr />
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../metrics/" class="btn btn-neutral float-right" title="Metrics">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../.." class="btn btn-neutral" title="Index"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../.." style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../metrics/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>
