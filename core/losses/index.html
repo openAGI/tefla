@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Mrinal(Ishant) Haloi">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Losses - Tefla</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Losses";
+    var mkdocs_page_input_path = "core/losses.md";
+    var mkdocs_page_url = "/core/losses/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Tefla</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Index</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Layers</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../layers/">Layers</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Built-in Ops</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../metrics/">Metrics</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../initializers/">Initializations</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Losses</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#define-a-log-loss">Define a log loss</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#define-a-kappa-loss-its-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a kappa loss, Its a continuous differentiable approximation of discrete kappa loss</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#define-a-joint-kappa-and-log-loss-kappa-is-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a joint kappa and log loss, Kappa is a continuous differentiable approximation of discrete kappa loss</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#define-a-joint-kappa-and-log-loss-log-loss-is-clipped-by-a-defined-min-value-kappa-is-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a joint kappa and log loss; log loss is clipped by a defined min value; Kappa is a continuous differentiable approximation of discrete kappa loss</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#define-a-cross-entropy-loss-with-label-smoothing">Define a cross entropy loss with label smoothing</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#define-a-l2loss-useful-for-regularize-ie-weight-decay">Define a L2Loss, useful for regularize, i.e. weight decay</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../summary/">Summaries</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Data Management</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../da/data/">Data Augmentation</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/image_to_tfrecords/">TfRecords</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Extending Tensorflow</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../training/">Trainer</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Tefla</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Built-in Ops &raquo;</li>
+        
+      
+    
+    <li>Losses</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/losses.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="define-a-log-loss">Define a log loss</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.log_loss_custom</b></span>  (predictions,  labels,  eps=1e-07,  name='log')</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>predictions</strong>: 2D tensor or array, [batch_size, num_classes] predictions of the network .</li>
+<li><strong>labels</strong>: 2D or array tensor, [batch_size, num_classes]  ground truth labels or target labels.</li>
+<li><strong>eps</strong>: a constant to set upper or lower limit for labels, smoothening factor</li>
+<li>
+<p><strong>name</strong>: Optional scope/name for op_scope.
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>A tensor with the log loss.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A tensor with the log loss.</p>
+<hr />
+<h1 id="define-a-kappa-loss-its-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a kappa loss, Its a continuous differentiable approximation of discrete kappa loss</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.kappa_loss</b></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>predictions</strong>: 2D tensor or array, [batch_size, num_classes] predictions of the network .</li>
+<li><strong>labels</strong>: 2D tensor or array,[batch_size, num_classes]  ground truth labels or target labels.</li>
+<li><strong>y_pow</strong>: int, to whcih the labels should be raised; useful if model diverge. e.g. y_pow=2</li>
+<li><strong>num_ratings</strong>: numbers of rater to used, typically num_classes of the model</li>
+<li><strong>batch_size</strong>: batch_size of the training or validation ops</li>
+<li><strong>eps</strong>: a float, prevents divide by zero </li>
+<li>
+<p><strong>name</strong>: Optional scope/name for op_scope.
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>A tensor with the kappa loss.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A tensor with the kappa loss.</p>
+<hr />
+<h1 id="define-a-joint-kappa-and-log-loss-kappa-is-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a joint kappa and log loss, Kappa is a continuous differentiable approximation of discrete kappa loss</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.kappa_log_loss</b></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>predictions</strong>: 2D tensor or array, [batch_size, num_classes] predictions of the network .</li>
+<li><strong>labels</strong>: 2D tensor or array,[batch_size, num_classes]  ground truth labels or target labels.</li>
+<li><strong>label_smoothing</strong>: a float, used to smooth the labels for better generalization if greater than 0 then smooth the labels.</li>
+<li><strong>y_pow</strong>: int, to whcih the labels should be raised; useful if model diverge. e.g. y_pow=2</li>
+<li><strong>num_ratings</strong>: numbers of rater to used, typically num_classes of the model</li>
+<li><strong>batch_size</strong>: batch_size of the training or validation ops</li>
+<li><strong>log_scale</strong>: a float, used to multiply the clipped log loss, e.g: 0.5</li>
+<li><strong>log_offset</strong>:a float minimum log loss offset to substract from original log loss; e.g. 0.50</li>
+<li>
+<p><strong>name</strong>: Optional scope/name for op_scope.
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>A tensor with the kappa log loss.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A tensor with the kappa log loss.</p>
+<hr />
+<h1 id="define-a-joint-kappa-and-log-loss-log-loss-is-clipped-by-a-defined-min-value-kappa-is-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a joint kappa and log loss; log loss is clipped by a defined min value; Kappa is a continuous differentiable approximation of discrete kappa loss</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.kappa_log_loss_clipped</b></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  name='kappa_log_clipped')</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>predictions</strong>: 2D tensor or array, [batch_size, num_classes] predictions of the network .</li>
+<li><strong>labels</strong>: 2D tensor or array,[batch_size, num_classes]  ground truth labels or target labels.</li>
+<li><strong>label_smoothing</strong>: a float, used to smooth the labels for better generalization if greater than 0 then smooth the labels.</li>
+<li><strong>y_pow</strong>: int, to whcih the labels should be raised; useful if model diverge. e.g. y_pow=2</li>
+<li><strong>num_ratings</strong>: numbers of rater to used, typically num_classes of the model</li>
+<li><strong>batch_size</strong>: batch_size of the training or validation ops</li>
+<li><strong>log_scale</strong>: a float, used to multiply the clipped log loss, e.g: 0.5</li>
+<li><strong>log_cutoff</strong>:a float, minimum log loss value; e.g. 0.50</li>
+<li>
+<p><strong>name</strong>: Optional scope/name for op_scope.
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>A tensor with the clipped kappa log loss.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A tensor with the clipped kappa log loss.</p>
+<hr />
+<h1 id="define-a-cross-entropy-loss-with-label-smoothing">Define a cross entropy loss with label smoothing</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.cross_entropy_loss</b></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>predictions</strong>: 2D tensor or array, [batch_size, num_classes] predictions of the network .</li>
+<li><strong>labels</strong>: 2D tensor or array,[batch_size, num_classes]  ground truth labels or target labels.</li>
+<li><strong>label_smoothing</strong>: a float, used to smooth the labels for better generalizationif greater than 0 then smooth the labels.</li>
+<li><strong>weight</strong>: scale the loss by this factor.</li>
+<li>
+<p><strong>name</strong>: Optional scope/name for op_scope.
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>A tensor with the cross entropy loss.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A tensor with the cross entropy loss.</p>
+<hr />
+<h1 id="define-a-l2loss-useful-for-regularize-ie-weight-decay">Define a L2Loss, useful for regularize, i.e. weight decay</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.l1_l2_regularizer</b></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>var</strong>: tensor to regularize.</li>
+<li><strong>weight_l1</strong>: an optional weight to modulate the l1 loss.</li>
+<li><strong>weight_l2</strong>: an optional weight to modulate the l2 loss.</li>
+<li>
+<p><strong>name</strong>: Optional scope/name for op_scope.
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>the l1+L2 loss op.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>the l1+L2 loss op.</p>
+<hr />
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../summary/" class="btn btn-neutral float-right" title="Summaries">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../initializers/" class="btn btn-neutral" title="Initializations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../initializers/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../summary/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>
