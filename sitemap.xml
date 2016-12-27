@@ -18,6 +18,14 @@
     
 
     
+    <url>
+     <loc>/installation/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
         
     <url>
      <loc>/core/layers/</loc>
@@ -138,6 +146,12 @@
     </url>
         
     <url>
+     <loc>/dataset/dataflow/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
      <loc>/dataset/decoder/</loc>
      <lastmod>2016-12-27</lastmod>
      <changefreq>daily</changefreq>
@@ -159,6 +173,22 @@
      <changefreq>daily</changefreq>
     </url>
         
+    
+
+    
+    <url>
+     <loc>/contributions/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
+     <loc>/license/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
     
 
 </urlset>

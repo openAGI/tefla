@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Iter Ops - Tefla</title>
+  <title>Dataflow - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -18,9 +18,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Iter Ops";
-    var mkdocs_page_input_path = "core/iter_ops.md";
-    var mkdocs_page_url = "/core/iter_ops/";
+    var mkdocs_page_name = "Dataflow";
+    var mkdocs_page_input_path = "dataset/dataflow.md";
+    var mkdocs_page_url = "/dataset/dataflow/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -75,14 +75,14 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../layers/">Layers</a>
+        <a class="" href="../../core/layers/">Layers</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../layer_arg_ops/">Layer Args</a>
+        <a class="" href="../../core/layer_arg_ops/">Layer Args</a>
         
     </li>
 
@@ -97,21 +97,21 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../training/">Trainer</a>
+        <a class="" href="../../core/training/">Trainer</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../learning/">Trainer Multi GPU</a>
+        <a class="" href="../../core/learning/">Trainer Multi GPU</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../learning_ss/">Trainer Semi Supervised</a>
+        <a class="" href="../../core/learning_ss/">Trainer Semi Supervised</a>
         
     </li>
 
@@ -126,7 +126,7 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../prediction/">Predictor</a>
+        <a class="" href="../../core/prediction/">Predictor</a>
         
     </li>
 
@@ -141,59 +141,49 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../lr_policy/">Lr_Policy</a>
+        <a class="" href="../../core/lr_policy/">Lr_Policy</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../metrics/">Metrics</a>
+        <a class="" href="../../core/metrics/">Metrics</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../initializers/">Initializations</a>
+        <a class="" href="../../core/initializers/">Initializations</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../losses/">Losses</a>
+        <a class="" href="../../core/losses/">Losses</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../summary/">Summaries</a>
+        <a class="" href="../../core/summary/">Summaries</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../logger/">Logger</a>
+        <a class="" href="../../core/logger/">Logger</a>
         
     </li>
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Iter Ops</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#creates-training-iterator-to-access-and-augment-the-dataset">Creates training iterator to access and augment the dataset</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#creates-prediction-iterator-to-access-and-augment-the-dataset">Creates prediction iterator to access and augment the dataset</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/iter_ops/">Iter Ops</a>
         
     </li>
 
@@ -222,35 +212,42 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/image_to_tfrecords/">TfRecords</a>
+        <a class="" href="../image_to_tfrecords/">TfRecords</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/base/">Dataset</a>
+        <a class="" href="../base/">Dataset</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Dataflow</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#dataflow-handling-class">Dataflow handling class</a></li>
+                
+            
+            </ul>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/dataflow/">Dataflow</a>
+        <a class="" href="../decoder/">Decoder</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/decoder/">Decoder</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 ">
-        <a class="" href="../../dataset/reader/">Reader</a>
+        <a class="" href="../reader/">Reader</a>
         
     </li>
 
@@ -309,14 +306,14 @@
     
       
         
-          <li>Built-in Ops &raquo;</li>
+          <li>Data Management &raquo;</li>
         
       
     
-    <li>Iter Ops</li>
+    <li>Dataflow</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/iter_ops.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/dataflow.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -326,29 +323,52 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="creates-training-iterator-to-access-and-augment-the-dataset">Creates training iterator to access and augment the dataset</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.iter_ops.create_training_iters</b></span>  (cnf,  data_set,  standardizer,  crop_size,  epoch,  parallel=True)</span></p>
+                <h1 id="dataflow-handling-class">Dataflow handling class</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.dataset.dataflow.Dataflow</b></span>  (dataset,  num_readers=1,  shuffle=True,  num_epochs=None,  min_queue_examples=1024,  capacity=2048)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>cnf</strong>: configs dict with all training and augmentation params</li>
-<li><strong>data_set</strong>: an instance of the dataset class</li>
-<li><strong>standardizer</strong>: data samples standardization; either samplewise or aggregate</li>
-<li><strong>crop_size</strong>: training time crop_size of the data samples</li>
-<li><strong>epoch</strong>: the current epoch number; used for data balancing</li>
-<li><strong>parallel</strong>: iterator type; either parallel or queued</li>
+<li><strong>dataset</strong>: an instance of the dataset class</li>
+<li><strong>num_readers</strong>: num of readers to  read the dataset</li>
+<li><strong>shuffle</strong>: a bool, shuffle the dataset</li>
+<li><strong>num_epochs</strong>: total number of epoch for training or validation</li>
+<li><strong>min_queue_examples</strong>: minimum number of items after dequeue</li>
+<li><strong>capacity</strong>: total queue capacity</li>
 </ul>
-<hr />
-<h1 id="creates-prediction-iterator-to-access-and-augment-the-dataset">Creates prediction iterator to access and augment the dataset</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.iter_ops.create_prediction_iter</b></span>  (cnf,  standardizer,  crop_size,  preprocessor=None,  sync=False)</span></p>
-<h3>Args</h3>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>get</b></span>  (items,  image_size,  resize_size=None)</span></p>
+<h5>Args</h5>
 
 <ul>
-<li><strong>cnf</strong>: configs dict with all training and augmentation params</li>
-<li><strong>standardizer</strong>: data samples standardization; either samplewise or aggregate</li>
-<li><strong>crop_size</strong>: training time crop_size of the data samples</li>
-<li><strong>preprocessor</strong>: data processing or cropping function</li>
-<li><strong>sync</strong>: a bool, if False, used parallel iterator</li>
+<li><strong>items</strong>: a list, with items to get from the dataset
+e.g.: ['image', 'label']</li>
+<li><strong>image_size</strong>: a list with original image size
+e.g.: [width, height, channel]</li>
+<li><strong>resize_size</strong>: if image resize required, provide a list of width and height
+e.g.: [width, height]</li>
+</ul>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>get_batch</b></span>  (batch_size,  target_probs,  image_size,  resize_size=None,  init_probs=None,  enqueue_many=False,  queue_capacity=2048,  threads_per_queue=1,  name='balancing_op')</span></p>
+<p>Stochastically creates batches based on per-class probabilities.
+This method discards examples. Internally, it creates one queue to
+amortize the cost of disk reads, and one queue to hold the properly-proportioned batch.</p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>batch_size</strong>: a int, batch_size</li>
+<li><strong>target_probs</strong>: probabilities of class samples to be present in the batch</li>
+<li><strong>image_size</strong>: a list with original image size
+e.g.: [width, height, channel]</li>
+<li><strong>resize_size</strong>: if image resize required, provide a list of width and height
+e.g.: [width, height]</li>
+<li><strong>init_probs</strong>: initial probs of data sample in the first batch</li>
+<li><strong>enqueue_many</strong>: bool, if true, interpret input tensors as having a batch dimension.</li>
+<li><strong>queue_capacity</strong>: Capacity of the large queue that holds input examples.</li>
+<li><strong>threads_per_queue</strong>: Number of threads for the large queue that holds
+input examples and for the final queue with the proper class proportions.</li>
+<li><strong>name</strong>: a optional scope/name of the op</li>
 </ul>
 <hr />
               
@@ -358,10 +378,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../da/data/" class="btn btn-neutral float-right" title="Data Augmentation">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../decoder/" class="btn btn-neutral float-right" title="Decoder">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../logger/" class="btn btn-neutral" title="Logger"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../base/" class="btn btn-neutral" title="Dataset"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -389,10 +409,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../logger/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../base/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../../da/data/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../decoder/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
