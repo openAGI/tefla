@@ -39,8 +39,8 @@ def fast_warp(img, tf, output_shape, mode='constant', mode_cval=0, order=0):
             e.g. skimage.transform.SimilarityTransform, or its inverse.
         output_shape: tuple, (rows, cols)
         mode: mode for transformation
-            available modes: {‘constant’, ‘edge’, ‘symmetric’, ‘reflect’, ‘wrap’}
-        mode_cval: float, Used in conjunction with mode ‘constant’, the value outside the image boundaries
+            available modes: {`constant`, `edge`, `symmetric`, `reflect`, `wrap`}
+        mode_cval: float, Used in conjunction with mode `constant`, the value outside the image boundaries
         order: int, The order of interpolation. The order has to be in the range 0-5:
             0: Nearest-neighbor
             1: Bi-linear (default)
@@ -305,8 +305,8 @@ def perturb(img, augmentation_params, target_shape, rng=np.random, mode='constan
         target_shape: a tuple(rows, cols), output image shape
         rng: an instance for random number generation
         mode: mode for transformation
-            available modes: {‘constant’, ‘edge’, ‘symmetric’, ‘reflect’, ‘wrap’}
-        mode_cval: float, Used in conjunction with mode ‘constant’,
+            available modes: {`constant`, `edge`, `symmetric`, `reflect`, `wrap`}
+        mode_cval: float, Used in conjunction with mode `constant`,
             the value outside the image boundaries
 
     Returns:
@@ -335,8 +335,8 @@ def perturb_rescaled(img, scale, augmentation_params, target_shape=(224, 224), r
         target_shape: a tuple(rows, cols), output image shape
         rng: an instance for random number generation
         mode: mode for transformation
-            available modes: {‘constant’, ‘edge’, ‘symmetric’, ‘reflect’, ‘wrap’}
-        mode_cval: float, Used in conjunction with mode ‘constant’,
+            available modes: {`constant`, `edge`, `symmetric`, `reflect`, `wrap`}
+        mode_cval: float, Used in conjunction with mode `constant`,
             the value outside the image boundaries
 
     Returns:
@@ -361,8 +361,8 @@ def perturb_fixed(img, tform_augment, target_shape=(50, 50), mode='constant', mo
         augmentation_paras: a dict, with augmentation name as keys and values as params
         target_shape: a tuple(rows, cols), output image shape
         mode: mode for transformation
-            available modes: {‘constant’, ‘edge’, ‘symmetric’, ‘reflect’, ‘wrap’}
-        mode_cval: float, Used in conjunction with mode ‘constant’,
+            available modes: {`constant`, `edge`, `symmetric`, `reflect`, `wrap`}
+        mode_cval: float, Used in conjunction with mode `constant`,
             the value outside the image boundaries
 
     Returns:
@@ -408,8 +408,8 @@ def load_augment(fname, preprocessor, w, h, is_training, aug_params=no_augmentat
         transform: transform instance
         bbox: object bounding box
         fll_mode: mode for transformation
-            available modes: {‘constant’, ‘edge’, ‘symmetric’, ‘reflect’, ‘wrap’}
-        fill_mode_cval: float, Used in conjunction with mode ‘constant’,
+            available modes: {`constant`, `edge`, `symmetric`, `reflect`, `wrap`}
+        fill_mode_cval: float, Used in conjunction with mode `constant`,
             the value outside the image boundaries
         standardizer: image standardizer, zero mean, unit variance image
              e.g.: samplewise standardized each image based on its own value

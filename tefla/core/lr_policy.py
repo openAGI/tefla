@@ -33,11 +33,17 @@ class InitialLrMixin(object):
 
 class NoBatchUpdateMixin(object):
 
+    def __init__(self):
+        super(NoBatchUpdateMixin, self).__init__()
+
     def batch_update(self, learning_rate, iter_idx):
         return learning_rate
 
 
 class NoEpochUpdateMixin(object):
+
+    def __init__(self):
+        super(NoEpochUpdateMixin, self).__init__()
 
     def epoch_update(self, learning_rate, training_history):
         return learning_rate
@@ -219,7 +225,7 @@ class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
     the effective learning rate follows a polynomial decay, to be
     zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)
 
-    args:
+    Args:
         base_lr: a float, starting learning rate
         power: a float, decay factor
         max_epoch: a int, max training epoch
