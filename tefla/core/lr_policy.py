@@ -8,6 +8,7 @@ logger = logging.getLogger('tefla')
 
 
 class InitialLrMixin(object):
+
     def __init__(self, initial_lr):
         self._base_lr = initial_lr
         self._start_epoch = 1
@@ -31,11 +32,13 @@ class InitialLrMixin(object):
 
 
 class NoBatchUpdateMixin(object):
+
     def batch_update(self, learning_rate, iter_idx):
         return learning_rate
 
 
 class NoEpochUpdateMixin(object):
+
     def epoch_update(self, learning_rate, training_history):
         return learning_rate
 
@@ -49,9 +52,9 @@ class NoEpochUpdateMixin(object):
 
 
 class NoDecayPolicy(InitialLrMixin, NoBatchUpdateMixin, NoEpochUpdateMixin):
+    """Returns learning rate without any decay. Learning rate stays constant over the training
     """
-    Returns learning rate without any decay. Learning rate stays constant over the training
-    """
+
     def __str__(self):
         return 'NoDecayPolicy(rate=%s)' % str(self.initial_lr)
 
@@ -68,9 +71,13 @@ class NoDecayPolicy(InitialLrMixin, NoBatchUpdateMixin, NoEpochUpdateMixin):
 
 
 class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
+    """Training learning rate schedule based on  inputs dict with epoch number as keys
+
+    Args:
+        schedule: a dict, epoch number as keys and learning rate as values
+        start_epoch: training start epoch number
     """
-    Training learning rate schedule based on  inputs dict with epoch number as keys
-    """
+
     def __init__(self, schedule, start_epoch=1):
         self.schedule = schedule
         super(StepDecayPolicy, self).__init__(schedule[0])
@@ -81,7 +88,8 @@ class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
 
         Args:
             learning_rate: previous epoch learning rate
-            training_histoty: a dict with epoch, training loss, validation loss as keys 
+            training_histoty: a dict with epoch, training loss, validation loss as keys
+
         Returns:
             updated learning rate
         """
@@ -113,18 +121,19 @@ class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
 
 
 class AdaptiveDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
-    """
-    Adaptive training learning rate policy based on validation losses
+    """Adaptive training learning rate policy based on validation losses
+
     If validation loss doesnt decreases over last 5 epoch then decay the learning rate by a
     multiplication factor 0.9; e.g. current_lr*0.9
     """
+
     def epoch_update(self, learning_rate, training_history, verbose=-1):
         """
         Update the learning rate as per schedule based on training epoch number
 
         Args:
             learning_rate: previous epoch learning rate
-            training_histoty: a dict with epoch, training loss, validation loss as keys 
+            training_histoty: a dict with epoch, training loss, validation loss as keys
         Returns:
             updated learning rate
         """
@@ -134,7 +143,7 @@ class AdaptiveDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
         if len(epochs_info) > 1:
             last_val_loss = epochs_info[0]['validation_loss']
             if last_val_loss > min(map(lambda vl: vl['validation_loss'], epochs_info[1:])):
-                updated_lr = learning_rate* 0.9
+                updated_lr = learning_rate * 0.9
                 if verbose > -1:
                     logger.info("Learning rate changed to: %f " % updated_lr)
         return updated_lr
@@ -156,20 +165,21 @@ class AdaptiveDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
 
 
 class AdaptiveUpDownDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
-    """
-    Adaptive training learning rate policy based on validation losses
+    """Adaptive training learning rate policy based on validation losses
+
     If validation loss doesnt decreases over last 10 epoch then decay the learning rate by a
     multiplication factor 0.9; e.g. current_lr*0.9
-    Here we will count the number of upward and downward movements of validation loss, 
+    Here we will count the number of upward and downward movements of validation loss,
     if validation losses increases for 6 times (for 10 epoch) then decay the current learning rate
     """
+
     def epoch_update(self, learning_rate, training_history, sess, verbose=-1):
         """
         Update the learning rate as per schedule based on training epoch number
 
         Args:
             learning_rate: previous epoch learning rate
-            training_histoty: a dict with epoch, training loss, validation loss as keys 
+            training_histoty: a dict with epoch, training loss, validation loss as keys
         Returns:
             updated learning rate
         """
@@ -182,7 +192,7 @@ class AdaptiveUpDownDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
             up_downs = map(lambda pair: pair[0] < pair[1], pair_losses)
             ups = len(filter(lambda up_down: up_down < 0, up_downs))
             if ups > 6:
-                updated_lr = learning_rate* 0.9
+                updated_lr = learning_rate * 0.9
                 if verbose > -1:
                     logger.info("Learning rate changed to: %f " % updated_lr)
         return updated_lr
@@ -204,33 +214,34 @@ class AdaptiveUpDownDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
 
 
 class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
-    """
-    Polynomial learning rate decay policy
+    """Polynomial learning rate decay policy
+
     the effective learning rate follows a polynomial decay, to be
     zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)
+
+    args:
+        base_lr: a float, starting learning rate
+        power: a float, decay factor
+        max_epoch: a int, max training epoch
+        n_iters_per_epoch: number of interations per epoch, e.g. total_training_samples/batch_size
     """
+
     def __init__(self, base_lr, power=10.0, max_epoch=500, n_iters_per_epoch=1094):
-        """
-        args:
-            base_lr: a float, starting learning rate
-            power: a float, decay factor
-            max_epoch: a int, max training epoch
-            n_iters_per_epoch: number of interations per epoch, e.g. total_training_samples/batch_size
-        """
         self.power = power
         self.max_epoch = max_epoch
         self._n_iters_per_epoch = n_iters_per_epoch
         super(PolyDecayPolicy, self).__init__(base_lr)
 
     def batch_update(self, learning_rate, iter_idx):
-        """
-        Update learning rate after every training batch
+        """Update learning rate after every training batch
+
         it follows a polynomial decay policy
 
         Args:
             learning_rate: current batch learning rate
-            iter_idx: iteration number, 
+            iter_idx: iteration number,
                 e.g. number_of_iterations_per_batch*epoch+current_batch_iteration_number
+
         Returns:
             updated_lr
         """
@@ -254,18 +265,18 @@ class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
 
 
 class InvDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
-    """
-    Inverse learning rate decay policy
+    """Inverse learning rate decay policy
+
     return base_lr * (1 + gamma * iter) ^ (- power)
+
+    args:
+        base_lr: a float, starting learning rate
+        gamma: a float, decay factor
+        max_epoch: a int, max training epoch
+        n_iters_per_epoch: number of interations per epoch, e.g. total_training_samples/batch_size
     """
+
     def __init__(self, base_lr, gamma=0.96, power=10.0, max_epoch=500, n_iters_per_epoch=1094):
-        """
-        args:
-            base_lr: a float, starting learning rate
-            gamma: a float, decay factor
-            max_epoch: a int, max training epoch
-            n_iters_per_epoch: number of interations per epoch, e.g. total_training_samples/batch_size
-        """
         self.gamma = gamma
         self.power = power
         self.max_epoch = max_epoch
@@ -279,8 +290,9 @@ class InvDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
 
         Args:
             learning_rate: current batch learning rate
-            iter_idx: iteration number, 
+            iter_idx: iteration number,
                 e.g. number_of_iterations_per_batch*epoch+current_batch_iteration_number
+
         Returns:
             updated_lr
         """
