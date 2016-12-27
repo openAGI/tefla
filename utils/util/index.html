@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>TfRecords - Tefla</title>
+  <title>Utils - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "TfRecords";
-    var mkdocs_page_input_path = "dataset/image_to_tfrecords.md";
-    var mkdocs_page_url = "/dataset/image_to_tfrecords/";
+    var mkdocs_page_name = "Utils";
+    var mkdocs_page_input_path = "utils/util.md";
+    var mkdocs_page_url = "/utils/util/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -203,33 +203,29 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">TfRecords</a>
-        
-            <ul>
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/image_to_tfrecords/">TfRecords</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../base/">Datset</a>
+        <a class="" href="../../dataset/base/">Datset</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../decoder/">Decoder</a>
+        <a class="" href="../../dataset/decoder/">Decoder</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../reader/">Reader</a>
+        <a class="" href="../../dataset/reader/">Reader</a>
         
     </li>
 
@@ -243,8 +239,30 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../../utils/util/">Utils</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Utils</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#valid-types-for-loss-variables-and-gradients">Valid types for loss, variables and gradients</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#asserts-tensors-are-all-valid-types-see-_valid_dtypes">Asserts tensors are all valid types (see _valid_dtypes)</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#returns-value-if-value_or_tensor_or_var-has-a-constant-value">Returns value if value_or_tensor_or_var has a constant value</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#return-either-fn1-or-fn2-based-on-the-boolean-value-of-pred">Return either fn1() or fn2() based on the boolean value of pred</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#return-either-fn1-or-fn2-based-on-the-boolean-predicatevalue-pred">Return either fn1() or fn2() based on the boolean predicate/value pred</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#transform-numeric-labels-into-onehot_labels">Transform numeric labels into onehot_labels</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -274,14 +292,14 @@
     
       
         
-          <li>Data Management &raquo;</li>
+          <li>Utils &raquo;</li>
         
       
     
-    <li>TfRecords</li>
+    <li>Utils</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/image_to_tfrecords.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/utils/util.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -291,7 +309,92 @@
           <div role="main">
             <div class="section">
               
-                
+                <h1 id="valid-types-for-loss-variables-and-gradients">Valid types for loss, variables and gradients</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.valid_dtypes</b></span>  ()</span>
+Subclasses should override to allow other float types.
+<h3>Returns</h3></p>
+<p>Valid types for loss, variables and gradients.</p>
+<hr />
+<h1 id="asserts-tensors-are-all-valid-types-see-_valid_dtypes">Asserts tensors are all valid types (see <code>_valid_dtypes</code>)</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.assert_valid_dtypes</b></span>  (tensors)</span>
+<h3>Args</h3></p>
+<ul>
+<li>
+<p><strong>tensors</strong>: Tensors to check.
+<h3>Raises</h3></p>
+</li>
+<li>
+<p><strong>ValueError</strong>: If any tensor is not a valid type.</p>
+</li>
+</ul>
+<hr />
+<h1 id="returns-value-if-value_or_tensor_or_var-has-a-constant-value">Returns value if value_or_tensor_or_var has a constant value</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.constant_value</b></span>  (value_or_tensor_or_var,  dtype=None)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>value_or_tensor_or_var</strong>: A value, a <code>Tensor</code> or a <code>Variable</code>.</li>
+<li><strong>dtype</strong>: Optional <code>tf.dtype</code>, if set it would check it has the right</li>
+<li>dtype.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The constant value or None if it not constant.</p>
+<hr />
+<h1 id="return-either-fn1-or-fn2-based-on-the-boolean-value-of-pred">Return either fn1() or fn2() based on the boolean value of <code>pred</code></h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.static_cond</b></span>  (pred,  fn1,  fn2)</span></p>
+<p>Same signature as <code>control_flow_ops.cond()</code> but requires pred to be a bool.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>pred</strong>: A value determining whether to return the result of <code>fn1</code> or <code>fn2</code>.</li>
+<li><strong>fn1</strong>: The callable to be performed if pred is true.</li>
+<li><strong>fn2</strong>: The callable to be performed if pred is false.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>Tensors returned by the call to either <code>fn1</code> or <code>fn2</code>.</p>
+<hr />
+<h1 id="return-either-fn1-or-fn2-based-on-the-boolean-predicatevalue-pred">Return either fn1() or fn2() based on the boolean predicate/value <code>pred</code></h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.smart_cond</b></span>  (pred,  fn1,  fn2,  name=None)</span></p>
+<p>If <code>pred</code> is bool or has a constant value it would use <code>static_cond</code>,
+ otherwise it would use <code>tf.cond</code>.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>pred</strong>: A scalar determining whether to return the result of <code>fn1</code> or <code>fn2</code>.</li>
+<li><strong>fn1</strong>: The callable to be performed if pred is true.</li>
+<li><strong>fn2</strong>: The callable to be performed if pred is false.</li>
+<li>
+<p><strong>name</strong>: Optional name prefix when using tf.cond
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>Tensors returned by the call to either <code>fn1</code> or <code>fn2</code>.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>Tensors returned by the call to either <code>fn1</code> or <code>fn2</code>.</p>
+<hr />
+<h1 id="transform-numeric-labels-into-onehot_labels">Transform numeric labels into onehot_labels</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.one_hot_encoding</b></span>  (labels,  num_classes,  name='one_hot_encoding')</span>
+<h3>Args</h3></p>
+<ul>
+<li><strong>labels</strong>: [batch_size] target labels.</li>
+<li><strong>num_classes</strong>: total number of classes.</li>
+<li>
+<p><strong>scope</strong>: Optional scope for op_scope.
+<h3>Returns</h3></p>
+</li>
+<li>
+<p>one hot encoding of the labels.</p>
+</li>
+</ul>
+<h3>Returns</h3>
+
+<p>one hot encoding of the labels.</p>
+<hr />
               
             </div>
           </div>
@@ -299,10 +402,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../base/" class="btn btn-neutral float-right" title="Datset">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-      
-        <a href="../../da/standardizer/" class="btn btn-neutral" title="Standardizer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../dataset/reader/" class="btn btn-neutral" title="Reader"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -330,10 +431,8 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../../da/standardizer/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../../dataset/reader/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
-      
-        <span style="margin-left: 15px"><a href="../base/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

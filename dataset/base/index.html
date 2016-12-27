@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>TfRecords - Tefla</title>
+  <title>Datset - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "TfRecords";
-    var mkdocs_page_input_path = "dataset/image_to_tfrecords.md";
-    var mkdocs_page_url = "/dataset/image_to_tfrecords/";
+    var mkdocs_page_name = "Datset";
+    var mkdocs_page_input_path = "dataset/base.md";
+    var mkdocs_page_url = "/dataset/base/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -203,19 +203,22 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">TfRecords</a>
-        
-            <ul>
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../image_to_tfrecords/">TfRecords</a>
         
     </li>
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../base/">Datset</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Datset</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#a-simple-class-for-handling-data-sets">A simple class for handling data sets,</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -278,10 +281,10 @@
         
       
     
-    <li>TfRecords</li>
+    <li>Datset</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/image_to_tfrecords.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/base.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -291,7 +294,26 @@
           <div role="main">
             <div class="section">
               
-                
+                <h1 id="a-simple-class-for-handling-data-sets">A simple class for handling data sets,</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.dataset.base.Dataset</b></span>  (name,  decoder,  data_dir=None,  num_classes=10,  num_examples_per_epoch=1,  items_to_descriptions=None,  **kwargs)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>name</strong>: a string, Name of the class instance</li>
+<li><strong>decoder</strong>: object instance, tfrecords object decoding and image encoding and decoding</li>
+<li><strong>data_dir</strong>: a string, path to the data folder</li>
+<li><strong>num_classes</strong>: num of classes of the dataset</li>
+<li><strong>num_examples_per_epoch</strong>: total number of examples per epoch</li>
+<li><strong>items_to_description</strong>: a string descriving the items of the dataset</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>data_files</b></span>  (self)</span></p>
+<h5>Returns</h5>
+
+<p>python list of all (sharded) data set files.</p>
+<hr />
               
             </div>
           </div>
@@ -299,10 +321,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../base/" class="btn btn-neutral float-right" title="Datset">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../decoder/" class="btn btn-neutral float-right" title="Decoder">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../../da/standardizer/" class="btn btn-neutral" title="Standardizer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../image_to_tfrecords/" class="btn btn-neutral" title="TfRecords"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -330,10 +352,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../../da/standardizer/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../image_to_tfrecords/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../base/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../decoder/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

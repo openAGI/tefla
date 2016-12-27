@@ -72,12 +72,70 @@
     </li>
 
         
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/layer_arg_ops/">Layer Args</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Trainer</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/training/">Trainer</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/learning/">Trainer Multi GPU</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/learning_ss/">Trainer Semi Supervised</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Predictor</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/prediction/">Predictor</a>
+        
+    </li>
+
+        
     </ul>
 <li>
           
             <li>
     <ul class="subnav">
     <li><span>Built-in Ops</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/lr_policy/">Lr_Policy</a>
+        
+    </li>
 
         
             
@@ -108,6 +166,20 @@
     </li>
 
         
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/logger/">Logger</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/iter_ops/">Iter Ops</a>
+        
+    </li>
+
+        
     </ul>
 <li>
           
@@ -122,7 +194,71 @@
         
             <ul>
             
+                <li class="toctree-l3"><a href="#warp-an-image-according-to-a-given-coordinate-transformation">Warp an image according to a given coordinate transformation</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#transform-input-image-contrast">Transform input image contrast</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#transform-input-image-brightness">Transform input image brightness</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#rescale-transform">Rescale Transform</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#rescale-transform_1">Rescale Transform</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#image-cetering-transform">Image cetering transform</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#center-unceter-transform">Center Unceter transform</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#augmentation-transform">Augmentation transform</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#random-perturbation">Random perturbation</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#crop-an-image">crop an image</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#perturb-image">Perturb image</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#perturb-image-rescaled">Perturb image rescaled</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#perturb-image-determinastic">Perturb image Determinastic</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#load-augmented-image-with-output-shape-w-h">Load augmented image with output shape (w, h)</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#open-image">Open Image</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#load-batch-of-images">Load batch of images</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#load-image">Load image</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#save-image">Save image</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#data-balancing-utility">Data balancing utility</a></li>
+                
+            
             </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../standardizer/">Standardizer</a>
         
     </li>
 
@@ -134,17 +270,38 @@
     </li>
 
         
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/base/">Datset</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/decoder/">Decoder</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/reader/">Reader</a>
+        
+    </li>
+
+        
     </ul>
 <li>
           
             <li>
     <ul class="subnav">
-    <li><span>Extending Tensorflow</span></li>
+    <li><span>Utils</span></li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../core/training/">Trainer</a>
+        <a class="" href="../../utils/util/">Utils</a>
         
     </li>
 
@@ -191,7 +348,312 @@
           <div role="main">
             <div class="section">
               
-                
+                <h1 id="warp-an-image-according-to-a-given-coordinate-transformation">Warp an image according to a given coordinate transformation</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.fast_warp</b></span>  (img,  tf,  output_shape,  mode='constant',  mode_cval=0,  order=0)</span></p>
+<p>This wrapper function is faster than skimage.transform.warp
+<h3>Args</h3></p>
+<ul>
+<li><strong>img</strong>: <code>ndarray</code>, input image</li>
+<li><strong>tf</strong>: For 2-D images, you can directly pass a transformation object
+e.g. skimage.transform.SimilarityTransform, or its inverse.</li>
+<li><strong>output_shape</strong>: tuple, (rows, cols)</li>
+<li><strong>mode</strong>: mode for transformation
+available modes: {<code>constant</code>, <code>edge</code>, <code>symmetric</code>, <code>reflect</code>, <code>wrap</code>}</li>
+<li><strong>mode_cval</strong>: float, Used in conjunction with mode <code>constant</code>, the value outside the image boundaries</li>
+<li><strong>order</strong>: int, The order of interpolation. The order has to be in the range 0-5:
+0: Nearest-neighbor
+1: Bi-linear (default)
+2: Bi-quadratic
+3: Bi-cubic
+4: Bi-quartic
+5: Bi-quintic</li>
+</ul>
+<h3>Returns</h3>
+
+<p>warped, double <code>ndarray</code></p>
+<hr />
+<h1 id="transform-input-image-contrast">Transform input image contrast</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.contrast_transform</b></span>  (img,  contrast_min=0.8,  contrast_max=1.2)</span></p>
+<p>Transform the input image contrast by a factor returned by a unifrom
+distribution with <code>contarst_min</code> and <code>contarst_max</code> as params</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>img</strong>: <code>ndarray</code>, input image</li>
+<li><strong>contrast_min</strong>: float, minimum contrast for transformation</li>
+<li><strong>contrast_max</strong>: float, maximum contrast for transformation</li>
+</ul>
+<h3>Returns</h3>
+
+<p><code>ndarray</code>, contrast enhanced image</p>
+<hr />
+<h1 id="transform-input-image-brightness">Transform input image brightness</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.brightness_transform</b></span>  (img,  brightness_min=0.93,  brightness_max=1.4)</span></p>
+<p>Transform the input image brightness by a factor returned by a unifrom
+distribution with <code>brightness_min</code> and <code>brightness_max</code> as params</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>img</strong>: <code>ndarray</code>, input image</li>
+<li><strong>brightness_min</strong>: float, minimum contrast for transformation</li>
+<li><strong>brightness_max</strong>: float, maximum contrast for transformation</li>
+</ul>
+<h3>Returns</h3>
+
+<p><code>ndarray</code>, brightness transformed image</p>
+<hr />
+<h1 id="rescale-transform">Rescale Transform</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.build_rescale_transform_slow</b></span>  (downscale_factor,  image_shape,  target_shape)</span></p>
+<p>This mimics the skimage.transform.resize function.
+The resulting image is centered.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>downscale_factor</strong>: float, &gt;1</li>
+<li><strong>image_shape</strong>: tuple(rows, cols), input image shape</li>
+<li><strong>target_shape</strong>: tuple(rows, cols), output image shape</li>
+</ul>
+<h3>Returns</h3>
+
+<p>rescaled centered image transform instance</p>
+<hr />
+<h1 id="rescale-transform_1">Rescale Transform</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.build_rescale_transform_fast</b></span>  (downscale_factor,  image_shape,  target_shape)</span></p>
+<p>estimating the correct rescaling transform is slow, so just use the
+downscale_factor to define a transform directly. This probably isn't
+100% correct, but it shouldn't matter much in practice.
+The resulting image is centered.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>downscale_factor</strong>: float, &gt;1</li>
+<li><strong>image_shape</strong>: tuple(rows, cols), input image shape</li>
+<li><strong>target_shape</strong>: tuple(rows, cols), output image shape</li>
+</ul>
+<h3>Returns</h3>
+
+<p>rescaled and centering transform instance</p>
+<hr />
+<h1 id="image-cetering-transform">Image cetering transform</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.build_centering_transform</b></span>  (image_shape,  target_shape)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>image_shape</strong>: tuple(rows, cols), input image shape</li>
+<li><strong>target_shape</strong>: tuple(rows, cols), output image shape</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a centering transform instance</p>
+<hr />
+<h1 id="center-unceter-transform">Center Unceter transform</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.build_center_uncenter_transforms</b></span>  (image_shape)</span></p>
+<p>These are used to ensure that zooming and rotation happens around the center of the image.
+Use these transforms to center and uncenter the image around such a transform.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>image_shape</strong>: tuple(rows, cols), input image shape</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a center and an uncenter transform instance</p>
+<hr />
+<h1 id="augmentation-transform">Augmentation transform</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.build_augmentation_transform</b></span>  (zoom=  (1.0,  1.0),  rotation=0,  shear=0,  translation=  (0,  0),  flip=False)</span></p>
+<p>It performs zooming, rotation, shear, translation and flip operation
+Affine Transformation on the input image</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>zoom</strong>: a tuple(zoom_rows, zoom_cols)</li>
+<li><strong>rotation</strong>: float, Rotation angle in counter-clockwise direction as radians.</li>
+<li><strong>shear</strong>: float, shear angle in counter-clockwise direction as radians</li>
+<li><strong>translation</strong>: tuple(trans_rows, trans_cols)</li>
+<li><strong>flip</strong>: bool, flip an image</li>
+</ul>
+<h3>Returns</h3>
+
+<p>augment tranform instance</p>
+<hr />
+<h1 id="random-perturbation">Random perturbation</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.random_perturbation_transform</b></span>  (zoom_range,  rotation_range,  shear_range,  translation_range,  do_flip=True,  allow_stretch=False,  rng=<module  'numpy.random'  from  '/home/ishant/.local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>)</span></p>
+<p>It perturbs the image randomly</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>zoom_range</strong>: a tuple(min_zoom, max_zoom)
+e.g.: (1/1.15, 1.15)</li>
+<li><strong>rotation_range</strong>: a tuple(min_angle, max_angle)
+e.g.: (0. 360)</li>
+<li><strong>shear_range</strong>: a tuple(min_shear, max_shear)
+e.g.: (0, 15)</li>
+<li><strong>translation_range</strong>: a tuple(min_shift, max_shift)
+e.g.: (-15, 15)</li>
+<li><strong>do_flip</strong>: bool, flip an image</li>
+<li><strong>allow_stretch</strong>: bool, stretch an image</li>
+<li><strong>rng</strong>: an instance</li>
+</ul>
+<h3>Returns</h3>
+
+<p>augment transform instance</p>
+<hr />
+<h1 id="crop-an-image">crop an image</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.definite_crop</b></span>  (img,  bbox)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>img</strong>: <code>ndarray</code>, input image</li>
+<li><strong>bbox</strong>: list, with crop co-ordinates and width and height
+e.g.: [x, y, width, height]</li>
+</ul>
+<h3>Returns</h3>
+
+<p>returns cropped image</p>
+<hr />
+<h1 id="perturb-image">Perturb image</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.perturb</b></span>  (img,  augmentation_params,  target_shape,  rng=<module  'numpy.random'  from  '/home/ishant/.local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>,  mode='constant',  mode_cval=0)</span></p>
+<p>It perturbs an image with augmentation transform</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>img</strong>: a <code>ndarray</code>, input image</li>
+<li><strong>augmentation_paras</strong>: a dict, with augmentation name as keys and values as params</li>
+<li><strong>target_shape</strong>: a tuple(rows, cols), output image shape</li>
+<li><strong>rng</strong>: an instance for random number generation</li>
+<li><strong>mode</strong>: mode for transformation
+available modes: {<code>constant</code>, <code>edge</code>, <code>symmetric</code>, <code>reflect</code>, <code>wrap</code>}</li>
+<li><strong>mode_cval</strong>: float, Used in conjunction with mode <code>constant</code>,
+the value outside the image boundaries</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a <code>ndarray</code> of transformed image</p>
+<hr />
+<h1 id="perturb-image-rescaled">Perturb image rescaled</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.perturb_rescaled</b></span>  (img,  scale,  augmentation_params,  target_shape=  (224,  224),  rng=<module  'numpy.random'  from  '/home/ishant/.local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>,  mode='constant',  mode_cval=0)</span></p>
+<p>It perturbs an image with augmentation transform</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>img</strong>: a <code>ndarray</code>, input image</li>
+<li><strong>scale</strong>: float, &gt;1, downscaling factor.</li>
+<li><strong>augmentation_paras</strong>: a dict, with augmentation name as keys and values as params</li>
+<li><strong>target_shape</strong>: a tuple(rows, cols), output image shape</li>
+<li><strong>rng</strong>: an instance for random number generation</li>
+<li><strong>mode</strong>: mode for transformation
+available modes: {<code>constant</code>, <code>edge</code>, <code>symmetric</code>, <code>reflect</code>, <code>wrap</code>}</li>
+<li><strong>mode_cval</strong>: float, Used in conjunction with mode <code>constant</code>,
+the value outside the image boundaries</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a <code>ndarray</code> of transformed image</p>
+<hr />
+<h1 id="perturb-image-determinastic">Perturb image Determinastic</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.perturb_fixed</b></span>  (img,  tform_augment,  target_shape=  (50,  50),  mode='constant',  mode_cval=0)</span></p>
+<p>It perturbs an image with augmentation transform with determinastic params
+used for validation/testing data</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>img</strong>: a <code>ndarray</code>, input image</li>
+<li><strong>augmentation_paras</strong>: a dict, with augmentation name as keys and values as params</li>
+<li><strong>target_shape</strong>: a tuple(rows, cols), output image shape</li>
+<li><strong>mode</strong>: mode for transformation
+available modes: {<code>constant</code>, <code>edge</code>, <code>symmetric</code>, <code>reflect</code>, <code>wrap</code>}</li>
+<li><strong>mode_cval</strong>: float, Used in conjunction with mode <code>constant</code>,
+the value outside the image boundaries</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a <code>ndarray</code> of transformed image</p>
+<hr />
+<h1 id="load-augmented-image-with-output-shape-w-h">Load augmented image with output shape (w, h)</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.load_augment</b></span>  (fname,  preprocessor,  w,  h,  is_training,  aug_params={'zoom_range':(1.0,  1.0),  'translation_range':(0,  0),  'shear_range':(0,  0),  'do_flip':  False,  'allow_stretch':  False,  'rotation_range':(0,  0)},  transform=None,  bbox=None,  fill_mode='constant',  fill_mode_cval=0,  standardizer=None,  save_to_dir=None)</span></p>
+<p>Default arguments return non augmented image of shape (w, h).
+To apply a fixed transform (color augmentation) specify transform
+(color_vec).
+To generate a random augmentation specify aug_params and sigma.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>fname</strong>: string, image filename</li>
+<li><strong>preprocessor</strong>: real-time image processing/crop</li>
+<li><strong>w</strong>: int, width of target image</li>
+<li><strong>h</strong>: int, height of target image</li>
+<li><strong>is_training</strong>: bool, if True then training else validation</li>
+<li><strong>aug_params</strong>: a dict, augmentation params</li>
+<li><strong>transform</strong>: transform instance</li>
+<li><strong>bbox</strong>: object bounding box</li>
+<li><strong>fll_mode</strong>: mode for transformation
+available modes: {<code>constant</code>, <code>edge</code>, <code>symmetric</code>, <code>reflect</code>, <code>wrap</code>}</li>
+<li><strong>fill_mode_cval</strong>: float, Used in conjunction with mode <code>constant</code>,
+the value outside the image boundaries</li>
+<li><strong>standardizer</strong>: image standardizer, zero mean, unit variance image
+ e.g.: samplewise standardized each image based on its own value</li>
+<li><strong>save_to_dir</strong>: a string, path to save image, save output image to a dir</li>
+</ul>
+<h3>Returns</h3>
+
+<p>augmented image</p>
+<hr />
+<h1 id="open-image">Open Image</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.image_no_preprocessing</b></span>  (fname)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>fname</strong>: Image filename</li>
+</ul>
+<h3>Returns</h3>
+
+<p>PIL formatted image</p>
+<hr />
+<h1 id="load-batch-of-images">Load batch of images</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.load_images</b></span>  (imgs,  preprocessor=<function  image_no_preprocessing  at  0x7f02f34c6f50>)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>imgs</strong>: a list of image filenames</li>
+<li><strong>preprocessor</strong>: image processing function</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a <code>ndarray</code> with a batch of images</p>
+<hr />
+<h1 id="load-image">Load image</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.load_image</b></span>  (img,  preprocessor=<function  image_no_preprocessing  at  0x7f02f34c6f50>)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>img</strong>: a image filename</li>
+<li><strong>preprocessor</strong>: image processing function</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a processed image</p>
+<hr />
+<h1 id="save-image">Save image</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.save_image</b></span>  (x,  fname)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: input array</li>
+<li><strong>fname</strong>: filename of the output image</li>
+</ul>
+<hr />
+<h1 id="data-balancing-utility">Data balancing utility</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.data.balance_per_class_indices</b></span>  (y,  weights)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>y</strong>: class labels</li>
+<li><strong>weights</strong>: sampling weights per class</li>
+</ul>
+<h3>Returns</h3>
+
+<p>balanced batch as per weights</p>
+<hr />
               
             </div>
           </div>
@@ -199,10 +661,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../dataset/image_to_tfrecords/" class="btn btn-neutral float-right" title="TfRecords">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../standardizer/" class="btn btn-neutral float-right" title="Standardizer">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../../core/summary/" class="btn btn-neutral" title="Summaries"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../core/iter_ops/" class="btn btn-neutral" title="Iter Ops"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -230,10 +692,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../../core/summary/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../../core/iter_ops/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../../dataset/image_to_tfrecords/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../standardizer/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

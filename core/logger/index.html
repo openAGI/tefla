@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Trainer - Tefla</title>
+  <title>Logger - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Trainer";
-    var mkdocs_page_input_path = "core/training.md";
-    var mkdocs_page_url = "/core/training/";
+    var mkdocs_page_name = "Logger";
+    var mkdocs_page_input_path = "core/logger.md";
+    var mkdocs_page_url = "/core/logger/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -88,24 +88,8 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Trainer</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#supervised-trainer-class">Supervised Trainer class</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#clips-the-gradients-by-the-given-value">Clips the gradients by the given value</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#multiply-specified-gradients">Multiply specified gradients</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#adds-scaled-noise-from-a-0-mean-normal-distribution-to-gradients">Adds scaled noise from a 0-mean normal distribution to gradients</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../training/">Trainer</a>
         
     </li>
 
@@ -183,8 +167,33 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../logger/">Logger</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Logger</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#set-the-log-file-name-using-append-mode">Set the log file name, using append mode</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#set-the-verbosity-level-of-logging">set the verbosity level of logging</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#logs-the-highest-level-debug-logging-it-logs-all-level">Logs the Highest level DEBUG logging, it logs all level</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#logs-the-level-info-logging-it-logs-all-level-below-info">Logs the level INFO logging, it logs all LEVEL BELOW INFO</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#logs-the-warn-logging-it-logs-all-level-below-warn">Logs the WARN logging, it logs all level BELOW WARN</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#logs-the-level-error-logging-it-logs-level-error-and-fatal">Logs the level ERROR logging, it logs level ERROR  and FATAL</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#logs-the-level-fatal-logging-it-logs-only-fatal">Logs thE level FATAL logging, it logs only FATAL</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -286,14 +295,14 @@
     
       
         
-          <li>Trainer &raquo;</li>
+          <li>Built-in Ops &raquo;</li>
         
       
     
-    <li>Trainer</li>
+    <li>Logger</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/training.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/logger.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -303,79 +312,69 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="supervised-trainer-class">Supervised Trainer class</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.training.SupervisedTrainer</b></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f02ec57bd10>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f02ec57bd50>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False)</span></p>
+                <h1 id="set-the-log-file-name-using-append-mode">Set the log file name, using append mode</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.setFileHandler</b></span>  (filename,  mode='a')</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>model</strong>: model definition </li>
-<li><strong>cnf</strong>: dict, training configs</li>
-<li><strong>training_iterator</strong>: iterator to use for training data access, processing and augmentations</li>
-<li><strong>validation_iterator</strong>: iterator to use for validation data access, processing and augmentations</li>
-<li><strong>start_epoch</strong>: int, training start epoch; for resuming training provide the last </li>
-<li>epoch number to resume training from, its a required parameter for training data balancing</li>
-<li><strong>resume_lr</strong>: float, learning rate to use for new training</li>
-<li><strong>classification</strong>: bool, classificattion or regression</li>
-<li><strong>clip_norm</strong>: bool, to clip gradient using gradient norm, stabilizes the training</li>
-<li><strong>n_iters_per_epoch</strong>: int,  number of iteratiosn for each epoch; 
-e.g: total_training_samples/batch_size</li>
-<li><strong>gpu_memory_fraction</strong>: amount of gpu memory to use</li>
-<li><strong>is_summary</strong>: bool, to write summary or not</li>
-</ul>
-<h2>Methods</h2>
-
-<p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black"><b>fit</b></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=10,  verbose=0)</span></p>
-<h5>Args</h5>
-
-<ul>
-<li><strong>data_set</strong>: dataset instance to use to access data for training/validation</li>
-<li><strong>weights_from</strong>: str, if not None, initializes model from exisiting weights</li>
-<li><strong>start_epoch</strong>: int,  epoch number to start training from
-e.g. for retarining set the epoch number you want to resume training from</li>
-<li><strong>summary_every</strong>: int, epoch interval to write summary; higher value means lower frequency
-of summary writing</li>
-<li><strong>verbose</strong>: log level</li>
+<li><strong>filename</strong>: log file name</li>
+<li>e.g. tefla.log</li>
+<li><strong>mode</strong>: file writing mode, append/over write if exists else start new file</li>
+<li>e.g. a string, 'a' or 'w'</li>
 </ul>
 <hr />
-<h1 id="clips-the-gradients-by-the-given-value">Clips the gradients by the given value</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.training.clip_grad_global_norms</b></span>  (tvars,  loss,  opt,  global_norm=1,  gate_gradients=1,  gradient_noise_scale=4.0,  GATE_GRAPH=2,  grad_loss=None,  agre_method=None,  col_grad_ops=False)</span></p>
+<h1 id="set-the-verbosity-level-of-logging">set the verbosity level of logging</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.setVerbosity</b></span>  (verbosity=0)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>tvars</strong>: trainable variables used for gradint updates</li>
-<li><strong>loss</strong>: total loss of the network</li>
-<li><strong>opt</strong>: optimizer</li>
-<li><strong>global_norm</strong>: the maximum global norm</li>
+<li><strong>verbosity</strong>: set the verbosity level using an integer {0, 1, 2, 3, 4} </li>
+<li>e.g. verbosity=0, imply DEBUG logging, it logs all level of logs
+ verbosity=1, imply INFO logging
+ verbosity=2, imply WARN logging
+ verbosity=3, imply ERROR logging
+ verbosity=4, imply FATAL logging, it logs only the lowest FATAL level</li>
 </ul>
-<h3>Returns</h3>
-
-<p>A list of clipped gradient to variable pairs.</p>
 <hr />
-<h1 id="multiply-specified-gradients">Multiply specified gradients</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.training.multiply_gradients</b></span>  (grads_and_vars,  gradient_multipliers)</span></p>
+<h1 id="logs-the-highest-level-debug-logging-it-logs-all-level">Logs the Highest level DEBUG logging, it logs all level</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.debug</b></span>  (msg,  <em>args,  </em>*kwargs)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>grads_and_vars</strong>: A list of gradient to variable pairs (tuples).</li>
-<li><strong>gradient_multipliers</strong>: A map from either <code>Variables</code> or <code>Variable</code> op names</li>
-<li>to the coefficient by which the associated gradient should be scaled.</li>
+<li><strong>msg</strong>: the message to log</li>
 </ul>
-<h3>Returns</h3>
-
-<p>The updated list of gradient to variable pairs.</p>
 <hr />
-<h1 id="adds-scaled-noise-from-a-0-mean-normal-distribution-to-gradients">Adds scaled noise from a 0-mean normal distribution to gradients</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.training.add_scaled_noise_to_gradients</b></span>  (grads_and_vars,  gradient_noise_scale=10.0)</span></p>
+<h1 id="logs-the-level-info-logging-it-logs-all-level-below-info">Logs the level INFO logging, it logs all LEVEL BELOW INFO</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.info</b></span>  (msg,  <em>args,  </em>*kwargs)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>grads_and_vars</strong>: list of gradient and variables</li>
-<li><strong>gardient_noise_scale</strong>: value of noise factor</li>
+<li><strong>msg</strong>: the message to log</li>
 </ul>
-<h3>Returns</h3>
+<hr />
+<h1 id="logs-the-warn-logging-it-logs-all-level-below-warn">Logs the WARN logging, it logs all level BELOW WARN</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.warn</b></span>  (msg,  <em>args,  </em>*kwargs)</span></p>
+<h3>Args</h3>
 
-<p>noise added gradients</p>
+<ul>
+<li><strong>msg</strong>: the message to log</li>
+</ul>
+<hr />
+<h1 id="logs-the-level-error-logging-it-logs-level-error-and-fatal">Logs the level ERROR logging, it logs level ERROR  and FATAL</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.error</b></span>  (msg,  <em>args,  </em>*kwargs)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>msg</strong>: the message to log</li>
+</ul>
+<hr />
+<h1 id="logs-the-level-fatal-logging-it-logs-only-fatal">Logs thE level FATAL logging, it logs only FATAL</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.fatal</b></span>  (msg,  <em>args,  </em>*kwargs)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>msg</strong>: the message to log</li>
+</ul>
 <hr />
               
             </div>
@@ -384,10 +383,10 @@ of summary writing</li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../learning/" class="btn btn-neutral float-right" title="Trainer Multi GPU">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../iter_ops/" class="btn btn-neutral float-right" title="Iter Ops">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../layer_arg_ops/" class="btn btn-neutral" title="Layer Args"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../summary/" class="btn btn-neutral" title="Summaries"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -415,10 +414,10 @@ of summary writing</li>
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../layer_arg_ops/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../summary/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../learning/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../iter_ops/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

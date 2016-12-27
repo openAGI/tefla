@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>TfRecords - Tefla</title>
+  <title>Reader - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,9 +17,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "TfRecords";
-    var mkdocs_page_input_path = "dataset/image_to_tfrecords.md";
-    var mkdocs_page_url = "/dataset/image_to_tfrecords/";
+    var mkdocs_page_name = "Reader";
+    var mkdocs_page_input_path = "dataset/reader.md";
+    var mkdocs_page_url = "/dataset/reader/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -203,12 +203,8 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">TfRecords</a>
-        
-            <ul>
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../image_to_tfrecords/">TfRecords</a>
         
     </li>
 
@@ -228,8 +224,15 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../reader/">Reader</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Reader</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#tfrecords-reader-class">TFrecords reader class</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -278,10 +281,10 @@
         
       
     
-    <li>TfRecords</li>
+    <li>Reader</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/image_to_tfrecords.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/reader.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -291,7 +294,42 @@
           <div role="main">
             <div class="section">
               
-                
+                <h1 id="tfrecords-reader-class">TFrecords reader class</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.dataset.reader.Reader</b></span>  (dataset,  reader_kwargs=None,  shuffle=True,  num_readers=16,  capacity=1,  num_epochs=None)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>dataset</strong>: an instance of the dataset class</li>
+<li><strong>reader_kwargs</strong>: extra arguments to be passed to the TFRecordReader</li>
+<li><strong>shuffle</strong>: whether to shuffle the dataset</li>
+<li><strong>num_readers</strong>:a int, num of readers to launch</li>
+<li><strong>capacity</strong>: a int, capacity of the queue used</li>
+<li><strong>num_epochs</strong>: a int, num of epochs for training or validation</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>parallel_reader</b></span>  (min_queue_examples=1024)</span></p>
+<p>Primarily used for Training ops</p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>min_queue_examples</strong>: min number of queue examples after dequeue</li>
+</ul>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>single_reader</b></span>  (num_epochs=1,  shuffle=False,  capacity=1)</span></p>
+<p>Data will be read using single TFRecordReader, primarily used for validation</p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>num_epochs</strong>: number of epoch</li>
+<li><strong>shuffle</strong>: shuffle the dataset. False for validation</li>
+<li><strong>capacity</strong>: queue capacity</li>
+</ul>
+<h5>Returns</h5>
+
+<p>a single item from the tfrecord files</p>
+<hr />
               
             </div>
           </div>
@@ -299,10 +337,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../base/" class="btn btn-neutral float-right" title="Datset">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../utils/util/" class="btn btn-neutral float-right" title="Utils">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../../da/standardizer/" class="btn btn-neutral" title="Standardizer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../decoder/" class="btn btn-neutral" title="Decoder"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -330,10 +368,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../../da/standardizer/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../decoder/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../base/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../utils/util/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -25,9 +25,53 @@
      <changefreq>daily</changefreq>
     </url>
         
+    <url>
+     <loc>/core/layer_arg_ops/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
     
 
     
+        
+    <url>
+     <loc>/core/training/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/core/learning/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/core/learning_ss/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+        
+    <url>
+     <loc>/core/prediction/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+        
+    <url>
+     <loc>/core/lr_policy/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
         
     <url>
      <loc>/core/metrics/</loc>
@@ -53,6 +97,18 @@
      <changefreq>daily</changefreq>
     </url>
         
+    <url>
+     <loc>/core/logger/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/core/iter_ops/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
     
 
     
@@ -64,7 +120,31 @@
     </url>
         
     <url>
+     <loc>/da/standardizer/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
      <loc>/dataset/image_to_tfrecords/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/dataset/base/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/dataset/decoder/</loc>
+     <lastmod>2016-12-27</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/dataset/reader/</loc>
      <lastmod>2016-12-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -74,7 +154,7 @@
     
         
     <url>
-     <loc>/core/training/</loc>
+     <loc>/utils/util/</loc>
      <lastmod>2016-12-27</lastmod>
      <changefreq>daily</changefreq>
     </url>
