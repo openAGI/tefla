@@ -23,6 +23,14 @@ class NoOpStandardizer(NoDAMixin):
 
 
 class SamplewiseStandardizer(NoDAMixin):
+    """Samplewise Standardizer
+
+    Args:
+        clip: max/min allowed value in the output image
+            e.g.: 6
+        channel_wise: perform standarization separately accross channels
+
+    """
 
     def __init__(self, clip, channel_wise=False):
         self.clip = clip
@@ -45,6 +53,20 @@ class SamplewiseStandardizer(NoDAMixin):
 
 
 class AggregateStandardizer(object):
+    """Aggregate Standardizer
+
+    Creates a standardizer based on whole training dataset
+
+    Args:
+        mean: 1-D array, aggregate mean array
+            e.g.: mean is calculated for each color channel, R, G, B
+        std: 1-D array, aggregate standard deviation array
+            e.g.: std is calculated for each color channel, R, G, B
+        u: 2-D array, eigenvector for the color channel variation
+        ev: 1-D array, eigenvalues
+        sigma: float, noise factor
+        color_vec: an optional color vector
+    """
 
     def __init__(self, mean, std, u, ev, sigma=0.0, color_vec=None):
         self.mean = mean
@@ -71,6 +93,14 @@ class AggregateStandardizer(object):
         return img
 
     def augment_color(self, img, sigma=0.0, color_vec=None):
+        """Augment color
+
+        Args:
+            img: input image
+            sigma: a float, noise factor
+            color_vec: an optional color vec
+
+        """
         if color_vec is None:
             if not sigma > 0.0:
                 color_vec = np.zeros(3, dtype=np.float32)

@@ -25,6 +25,22 @@ def build_quasirandom_transforms(num_transforms, color_sigma, zoom_range,
                                  rotation_range, shear_range,
                                  translation_range, do_flip=True,
                                  allow_stretch=False, skip=0):
+    """Quasi Random transform for test images
+
+    Args:
+        num_transforms: a int, total numbers of transform
+        color_sigma: a float, color noise
+        zoom_range: a tuple (min_zoom, max_zoom)
+        rotation_range: a tuple(min_angle, max_angle)
+        shear_range: a tuple(min_shear, max_shear)
+        translation_range: a tuple(min_shift, max_shift)
+        do_flip: a bool, flip an image
+        allow_stretch: a bool, allow stretching
+
+    Returns:
+        transform instance and color vecs
+
+    """
     gen = ghalton.Halton(10)
     uniform_samples = np.array(gen.get(num_transforms + skip))[skip:]
 
