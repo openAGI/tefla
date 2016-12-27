@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Metrics - Tefla</title>
+  <title>Standardizer - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -18,9 +18,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Metrics";
-    var mkdocs_page_input_path = "core/metrics.md";
-    var mkdocs_page_url = "/core/metrics/";
+    var mkdocs_page_name = "Standardizer";
+    var mkdocs_page_input_path = "da/standardizer.md";
+    var mkdocs_page_url = "/da/standardizer/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -75,14 +75,14 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../layers/">Layers</a>
+        <a class="" href="../../core/layers/">Layers</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../layer_arg_ops/">Layer Args</a>
+        <a class="" href="../../core/layer_arg_ops/">Layer Args</a>
         
     </li>
 
@@ -97,21 +97,21 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../training/">Trainer</a>
+        <a class="" href="../../core/training/">Trainer</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../learning/">Trainer Multi GPU</a>
+        <a class="" href="../../core/learning/">Trainer Multi GPU</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../learning_ss/">Trainer Semi Supervised</a>
+        <a class="" href="../../core/learning_ss/">Trainer Semi Supervised</a>
         
     </li>
 
@@ -126,7 +126,7 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../prediction/">Predictor</a>
+        <a class="" href="../../core/prediction/">Predictor</a>
         
     </li>
 
@@ -141,59 +141,49 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../lr_policy/">Lr_Policy</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Metrics</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#computes-accuracy-metric">Computes accuracy metric</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#retruns-one-hot-vector">Retruns one hot vector</a></li>
-                
-            
-            </ul>
+        <a class="" href="../../core/lr_policy/">Lr_Policy</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../initializers/">Initializations</a>
+        <a class="" href="../../core/metrics/">Metrics</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../losses/">Losses</a>
+        <a class="" href="../../core/initializers/">Initializations</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../summary/">Summaries</a>
+        <a class="" href="../../core/losses/">Losses</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../logger/">Logger</a>
+        <a class="" href="../../core/summary/">Summaries</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../iter_ops/">Iter Ops</a>
+        <a class="" href="../../core/logger/">Logger</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/iter_ops/">Iter Ops</a>
         
     </li>
 
@@ -208,14 +198,24 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../da/data/">Data Augmentation</a>
+        <a class="" href="../data/">Data Augmentation</a>
         
     </li>
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../../da/standardizer/">Standardizer</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Standardizer</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#samplewise-standardizer">Samplewise Standardizer</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#aggregate-standardizer">Aggregate Standardizer</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -309,14 +309,14 @@
     
       
         
-          <li>Built-in Ops &raquo;</li>
+          <li>Data Management &raquo;</li>
         
       
     
-    <li>Metrics</li>
+    <li>Standardizer</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/metrics.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/da/standardizer.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -326,32 +326,41 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="computes-accuracy-metric">Computes accuracy metric</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.accuracy_op</b></span>  (predictions,  targets,  num_classes=5)</span></p>
+                <h1 id="samplewise-standardizer">Samplewise Standardizer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.standardizer.SamplewiseStandardizer</b></span>  (clip,  channel_wise=False)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>predictions</strong>: 2D tensor/array, predictions of the network</li>
-<li><strong>targets</strong>: 2D tensor/array, ground truth labels of the network</li>
-<li>
-<p><strong>num_classes</strong>: int, num_classes of the network
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>accuracy</p>
-</li>
+<li><strong>clip</strong>: max/min allowed value in the output image
+e.g.: 6</li>
+<li><strong>channel_wise</strong>: perform standarization separately accross channels</li>
 </ul>
-<h3>Returns</h3>
-
-<p>accuracy</p>
 <hr />
-<h1 id="retruns-one-hot-vector">Retruns one hot vector</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.one_hot</b></span>  (vec,  m=None)</span></p>
+<h1 id="aggregate-standardizer">Aggregate Standardizer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.da.standardizer.AggregateStandardizer</b></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span></p>
+<p>Creates a standardizer based on whole training dataset</p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>vec</strong>: a vector</li>
-<li><strong>m</strong>: num_classes</li>
+<li><strong>mean</strong>: 1-D array, aggregate mean array
+e.g.: mean is calculated for each color channel, R, G, B</li>
+<li><strong>std</strong>: 1-D array, aggregate standard deviation array
+e.g.: std is calculated for each color channel, R, G, B</li>
+<li><strong>u</strong>: 2-D array, eigenvector for the color channel variation</li>
+<li><strong>ev</strong>: 1-D array, eigenvalues</li>
+<li><strong>sigma</strong>: float, noise factor</li>
+<li><strong>color_vec</strong>: an optional color vector</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>augment_color</b></span>  (img,  sigma=0.0,  color_vec=None)</span></p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>img</strong>: input image</li>
+<li><strong>sigma</strong>: a float, noise factor</li>
+<li><strong>color_vec</strong>: an optional color vec</li>
 </ul>
 <hr />
               
@@ -361,10 +370,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../initializers/" class="btn btn-neutral float-right" title="Initializations">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../dataset/image_to_tfrecords/" class="btn btn-neutral float-right" title="TfRecords">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../lr_policy/" class="btn btn-neutral" title="Lr_Policy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../data/" class="btn btn-neutral" title="Data Augmentation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -392,10 +401,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../lr_policy/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../data/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../initializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../dataset/image_to_tfrecords/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../css/extra.css" rel="stylesheet">
   
   <script>
     // Current page data
@@ -61,6 +62,13 @@
 <li>
           
             <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../installation/">Installation</a>
+        
+    </li>
+<li>
+          
+            <li>
     <ul class="subnav">
     <li><span>Layers</span></li>
 
@@ -80,7 +88,7 @@
                 <li class="toctree-l3"><a href="#adds-a-2d-convolutional-layer">Adds a 2D convolutional layer</a></li>
                 
             
-                <li class="toctree-l3"><a href="#adds-a-2d-dilated-convolutional-layer-also-known-as-convolution-with-holes-or-atrous-convolution">Adds a 2D dilated convolutional layer, also known as convolution with holes or atrous convolution</a></li>
+                <li class="toctree-l3"><a href="#adds-a-2d-dilated-convolutional-layer">Adds a 2D dilated convolutional layer</a></li>
                 
             
                 <li class="toctree-l3"><a href="#adds-a-2d-seperable-convolutional-layer">Adds a 2D seperable convolutional layer</a></li>
@@ -169,12 +177,70 @@
     </li>
 
         
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../layer_arg_ops/">Layer Args</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Trainer</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../training/">Trainer</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../learning/">Trainer Multi GPU</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../learning_ss/">Trainer Semi Supervised</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Predictor</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../prediction/">Predictor</a>
+        
+    </li>
+
+        
     </ul>
 <li>
           
             <li>
     <ul class="subnav">
     <li><span>Built-in Ops</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../lr_policy/">Lr_Policy</a>
+        
+    </li>
 
         
             
@@ -205,6 +271,20 @@
     </li>
 
         
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../logger/">Logger</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../iter_ops/">Iter Ops</a>
+        
+    </li>
+
+        
     </ul>
 <li>
           
@@ -222,7 +302,42 @@
         
             
     <li class="toctree-l1 ">
+        <a class="" href="../../da/standardizer/">Standardizer</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
         <a class="" href="../../dataset/image_to_tfrecords/">TfRecords</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/base/">Dataset</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/dataflow/">Dataflow</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/decoder/">Decoder</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/reader/">Reader</a>
         
     </li>
 
@@ -232,17 +347,31 @@
           
             <li>
     <ul class="subnav">
-    <li><span>Extending Tensorflow</span></li>
+    <li><span>Utils</span></li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../training/">Trainer</a>
+        <a class="" href="../../utils/util/">Utils</a>
         
     </li>
 
         
     </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../contributions/">Contributions</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../license/">License</a>
+        
+    </li>
 <li>
           
         </ul>
@@ -299,8 +428,8 @@ e.g. for image input [batch_size, height, width, depth]</li>
 <p>A placeholder for the input</p>
 <hr />
 <h1 id="adds-a-fully-connected-layer">Adds a fully connected layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.fully_connected</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f9243cf7668>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  name='fc',  batch_norm=None,  batch_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
-<code>fully_connected</code> creates a variable called <code>weights</code>, representing a fully
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.fully_connected</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f54798b2578>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  name='fc',  batch_norm=None,  batch_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span></p>
+<p><code>fully_connected</code> creates a variable called <code>weights</code>, representing a fully
 connected weight matrix, which is multiplied by the <code>x</code> to produce a
 <code>Tensor</code> of hidden units. If a <code>batch_norm</code> is provided (such as
 <code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
@@ -340,8 +469,8 @@ default set to None for no normalizer function</li>
 e.g: 2-D <code>Tensor</code> [batch, n_output].</p>
 <hr />
 <h1 id="adds-a-2d-convolutional-layer">Adds a 2D convolutional layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7758>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
-<code>convolutional layer</code> creates a variable called <code>weights</code>, representing a conv
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f54798b2668>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  untie_biases=False,  name='conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span></p>
+<p><code>convolutional layer</code> creates a variable called <code>weights</code>, representing a conv
 weight matrix, which is multiplied by the <code>x</code> to produce a
 <code>Tensor</code> of hidden units. If a <code>batch_norm</code> is provided (such as
 <code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
@@ -364,9 +493,11 @@ able to reuse the layer scope must be given.</li>
 <p>The 4-D <code>Tensor</code> variable representing the result of the series of operations.
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
-<h1 id="adds-a-2d-dilated-convolutional-layer-also-known-as-convolution-with-holes-or-atrous-convolution">Adds a 2D dilated convolutional layer, also known as convolution with holes or atrous convolution</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.dilated_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  dilation=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7848>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='dilated_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
-If the rate parameter is equal to one, it performs regular 2-D convolution. If the rate parameter
+<h1 id="adds-a-2d-dilated-convolutional-layer">Adds a 2D dilated convolutional layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.dilated_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  dilation=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f54798b2758>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  untie_biases=False,  name='dilated_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span></p>
+<p>also known as convolution with holes or atrous convolution.
+If the rate parameter is equal to one, it performs regular 2-D convolution.
+If the rate parameter
 is greater than one, it performs convolution with holes, sampling the input
 values every rate pixels in the height and width dimensions.
 <code>convolutional layer</code> creates a variable called <code>weights</code>, representing a conv
@@ -393,8 +524,8 @@ able to reuse the layer scope must be given.</li>
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
 <h1 id="adds-a-2d-seperable-convolutional-layer">Adds a 2D seperable convolutional layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.separable_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7938>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='separable_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
-Performs a depthwise convolution that acts separately on channels followed by
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.separable_conv2d</b></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f54798b2848>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  untie_biases=False,  name='separable_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span></p>
+<p>Performs a depthwise convolution that acts separately on channels followed by
 a pointwise convolution that mixes channels. Note that this is separability between
 dimensions [1, 2] and 3, not spatial separability between dimensions 1 and 2.
 <code>convolutional layer</code> creates two variable called <code>depthwise_W</code> and <code>pointwise_W</code>,
@@ -444,8 +575,8 @@ default set to None for no normalizer function</li>
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
 <h1 id="adds-a-2d-sdepthwise-convolutional-layer">Adds a 2D sdepthwise convolutional layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.depthwise_conv2d</b></span>  (x,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7a28>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  untie_biases=False,  name='depthwise_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
-Given an input tensor of shape [batch, in_height, in_width, in_channels] and a filter
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.depthwise_conv2d</b></span>  (x,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=8,  padding='SAME',  w_init=<function  _initializer  at  0x7f54798b2938>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  untie_biases=False,  name='depthwise_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span></p>
+<p>Given an input tensor of shape [batch, in_height, in_width, in_channels] and a filter
 tensor of shape [filter_height, filter_width, in_channels, channel_multiplier] containing
 in_channels convolutional filters of depth 1, depthwise_conv2d applies a different filter
 to each input channel (expanding from 1 channel to channel_multiplier channels for each),
@@ -493,8 +624,8 @@ default set to None for no normalizer function</li>
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
 <h1 id="adds-a-2d-upsampling-or-deconvolutional-layer">Adds a 2D upsampling or deconvolutional layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.upsample2d</b></span>  (input_,  output_shape,  is_training,  reuse,  trainable=True,  filter_size=  (5,  5),  stride=  (2,  2),  w_init=<function  _initializer  at  0x7f9243cf7b18>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  batch_norm=None,  activation=None,  name='deconv2d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
-his operation is sometimes called "deconvolution" after Deconvolutional Networks,
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.upsample2d</b></span>  (input_,  output_shape,  is_training,  reuse,  trainable=True,  filter_size=  (5,  5),  stride=  (2,  2),  w_init=<function  _initializer  at  0x7f54798b2a28>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  batch_norm=None,  activation=None,  name='deconv2d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span></p>
+<p>his operation is sometimes called "deconvolution" after Deconvolutional Networks,
 but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
 If a <code>batch_norm</code> is provided (such as
 <code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
@@ -538,8 +669,8 @@ default set to None for no normalizer function</li>
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
 <h1 id="adds-a-2d-highway-convolutional-layer">Adds a 2D highway convolutional layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_conv2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f9243cf7cf8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  name='highway_conv2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
-https://arxiv.org/abs/1505.00387
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_conv2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f54798b2c08>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  name='highway_conv2d',  activation=None,  use_bias=True,  outputs_collections=None)</span></p>
+<p>https://arxiv.org/abs/1505.00387
 If a <code>batch_norm</code> is provided (such as
 <code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
 None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
@@ -583,8 +714,8 @@ default set to None for no normalizer function</li>
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
 <h1 id="adds-a-fully-connected-highway-layer">Adds a fully connected highway layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_fc2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  w_init=<function  _initializer  at  0x7f9243cf7de8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f9273e362a8>,  name='highway_fc2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
-https://arxiv.org/abs/1505.00387
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.layers.highway_fc2d</b></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  w_init=<function  _initializer  at  0x7f54798b2cf8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f549b03c050>,  name='highway_fc2d',  activation=None,  use_bias=True,  outputs_collections=None)</span></p>
+<p>https://arxiv.org/abs/1505.00387
 If a <code>batch_norm</code> is provided (such as
 <code>batch_norm</code>), it is then applied. Otherwise, if <code>batch_norm</code> is
 None and a <code>b_init</code> and <code>use_bias</code> is provided then a <code>biases</code> variable would be
@@ -1063,10 +1194,10 @@ See "Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)"
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../metrics/" class="btn btn-neutral float-right" title="Metrics">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../layer_arg_ops/" class="btn btn-neutral float-right" title="Layer Args">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../.." class="btn btn-neutral" title="Index"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../installation/" class="btn btn-neutral" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -1094,10 +1225,10 @@ See "Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)"
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../.." style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../../installation/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../metrics/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../layer_arg_ops/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

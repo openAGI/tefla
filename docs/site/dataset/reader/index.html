@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Metrics - Tefla</title>
+  <title>Reader - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -18,9 +18,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Metrics";
-    var mkdocs_page_input_path = "core/metrics.md";
-    var mkdocs_page_url = "/core/metrics/";
+    var mkdocs_page_name = "Reader";
+    var mkdocs_page_input_path = "dataset/reader.md";
+    var mkdocs_page_url = "/dataset/reader/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -75,14 +75,14 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../layers/">Layers</a>
+        <a class="" href="../../core/layers/">Layers</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../layer_arg_ops/">Layer Args</a>
+        <a class="" href="../../core/layer_arg_ops/">Layer Args</a>
         
     </li>
 
@@ -97,21 +97,21 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../training/">Trainer</a>
+        <a class="" href="../../core/training/">Trainer</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../learning/">Trainer Multi GPU</a>
+        <a class="" href="../../core/learning/">Trainer Multi GPU</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../learning_ss/">Trainer Semi Supervised</a>
+        <a class="" href="../../core/learning_ss/">Trainer Semi Supervised</a>
         
     </li>
 
@@ -126,7 +126,7 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../prediction/">Predictor</a>
+        <a class="" href="../../core/prediction/">Predictor</a>
         
     </li>
 
@@ -141,59 +141,49 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../lr_policy/">Lr_Policy</a>
-        
-    </li>
-
-        
-            
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Metrics</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#computes-accuracy-metric">Computes accuracy metric</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#retruns-one-hot-vector">Retruns one hot vector</a></li>
-                
-            
-            </ul>
+        <a class="" href="../../core/lr_policy/">Lr_Policy</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../initializers/">Initializations</a>
+        <a class="" href="../../core/metrics/">Metrics</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../losses/">Losses</a>
+        <a class="" href="../../core/initializers/">Initializations</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../summary/">Summaries</a>
+        <a class="" href="../../core/losses/">Losses</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../logger/">Logger</a>
+        <a class="" href="../../core/summary/">Summaries</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../iter_ops/">Iter Ops</a>
+        <a class="" href="../../core/logger/">Logger</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/iter_ops/">Iter Ops</a>
         
     </li>
 
@@ -222,35 +212,42 @@
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/image_to_tfrecords/">TfRecords</a>
+        <a class="" href="../image_to_tfrecords/">TfRecords</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/base/">Dataset</a>
+        <a class="" href="../base/">Dataset</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/dataflow/">Dataflow</a>
+        <a class="" href="../dataflow/">Dataflow</a>
         
     </li>
 
         
             
     <li class="toctree-l1 ">
-        <a class="" href="../../dataset/decoder/">Decoder</a>
+        <a class="" href="../decoder/">Decoder</a>
         
     </li>
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../../dataset/reader/">Reader</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Reader</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#tfrecords-reader-class">TFrecords reader class</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -309,14 +306,14 @@
     
       
         
-          <li>Built-in Ops &raquo;</li>
+          <li>Data Management &raquo;</li>
         
       
     
-    <li>Metrics</li>
+    <li>Reader</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/metrics.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/reader.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -326,33 +323,41 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="computes-accuracy-metric">Computes accuracy metric</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.accuracy_op</b></span>  (predictions,  targets,  num_classes=5)</span></p>
+                <h1 id="tfrecords-reader-class">TFrecords reader class</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.dataset.reader.Reader</b></span>  (dataset,  reader_kwargs=None,  shuffle=True,  num_readers=16,  capacity=1,  num_epochs=None)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>predictions</strong>: 2D tensor/array, predictions of the network</li>
-<li><strong>targets</strong>: 2D tensor/array, ground truth labels of the network</li>
-<li>
-<p><strong>num_classes</strong>: int, num_classes of the network
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>accuracy</p>
-</li>
+<li><strong>dataset</strong>: an instance of the dataset class</li>
+<li><strong>reader_kwargs</strong>: extra arguments to be passed to the TFRecordReader</li>
+<li><strong>shuffle</strong>: whether to shuffle the dataset</li>
+<li><strong>num_readers</strong>:a int, num of readers to launch</li>
+<li><strong>capacity</strong>: a int, capacity of the queue used</li>
+<li><strong>num_epochs</strong>: a int, num of epochs for training or validation</li>
 </ul>
-<h3>Returns</h3>
+<h2>Methods</h2>
 
-<p>accuracy</p>
-<hr />
-<h1 id="retruns-one-hot-vector">Retruns one hot vector</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.one_hot</b></span>  (vec,  m=None)</span></p>
-<h3>Args</h3>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>parallel_reader</b></span>  (min_queue_examples=1024)</span></p>
+<p>Primarily used for Training ops</p>
+<h5>Args</h5>
 
 <ul>
-<li><strong>vec</strong>: a vector</li>
-<li><strong>m</strong>: num_classes</li>
+<li><strong>min_queue_examples</strong>: min number of queue examples after dequeue</li>
 </ul>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>single_reader</b></span>  (num_epochs=1,  shuffle=False,  capacity=1)</span></p>
+<p>Data will be read using single TFRecordReader, primarily used for validation</p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>num_epochs</strong>: number of epoch</li>
+<li><strong>shuffle</strong>: shuffle the dataset. False for validation</li>
+<li><strong>capacity</strong>: queue capacity</li>
+</ul>
+<h5>Returns</h5>
+
+<p>a single item from the tfrecord files</p>
 <hr />
               
             </div>
@@ -361,10 +366,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../initializers/" class="btn btn-neutral float-right" title="Initializations">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../utils/util/" class="btn btn-neutral float-right" title="Utils">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../lr_policy/" class="btn btn-neutral" title="Lr_Policy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../decoder/" class="btn btn-neutral" title="Decoder"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -392,10 +397,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../lr_policy/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../decoder/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../initializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../utils/util/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

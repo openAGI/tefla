@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Metrics - Tefla</title>
+  <title>Predictor - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -18,9 +18,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Metrics";
-    var mkdocs_page_input_path = "core/metrics.md";
-    var mkdocs_page_url = "/core/metrics/";
+    var mkdocs_page_name = "Predictor";
+    var mkdocs_page_input_path = "core/prediction.md";
+    var mkdocs_page_url = "/core/prediction/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -125,8 +125,24 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../prediction/">Predictor</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Predictor</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#one-crop-predictor-it-predict-network-out-put-from-a-single-crop-of-an-input-image">One crop Predictor, it predict network out put from a single crop of an input image</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#quasi-transform-predictor">Quasi transform predictor</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#multiples-non-data-augmented-crops-predictor">Multiples non Data augmented crops predictor</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#returns-predcitions-from-multiples-models">Returns predcitions from multiples models</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -147,18 +163,8 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Metrics</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#computes-accuracy-metric">Computes accuracy metric</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#retruns-one-hot-vector">Retruns one hot vector</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../metrics/">Metrics</a>
         
     </li>
 
@@ -309,14 +315,14 @@
     
       
         
-          <li>Built-in Ops &raquo;</li>
+          <li>Predictor &raquo;</li>
         
       
     
-    <li>Metrics</li>
+    <li>Predictor</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/metrics.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/prediction.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -326,32 +332,62 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="computes-accuracy-metric">Computes accuracy metric</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.accuracy_op</b></span>  (predictions,  targets,  num_classes=5)</span></p>
+                <h1 id="one-crop-predictor-it-predict-network-out-put-from-a-single-crop-of-an-input-image">One crop Predictor, it predict network out put from a single crop of an input image</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.prediction.OneCropPredictor</b></span>  (model,  cnf,  weights_from,  prediction_iterator)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>predictions</strong>: 2D tensor/array, predictions of the network</li>
-<li><strong>targets</strong>: 2D tensor/array, ground truth labels of the network</li>
-<li>
-<p><strong>num_classes</strong>: int, num_classes of the network
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>accuracy</p>
-</li>
+<li><strong>model</strong>: model definition file</li>
+<li><strong>cnf</strong>: prediction configs</li>
+<li><strong>weights_from</strong>: location of the model weights file</li>
+<li><strong>prediction_iterator</strong>: iterator to access and augment the data for prediction</li>
 </ul>
-<h3>Returns</h3>
-
-<p>accuracy</p>
 <hr />
-<h1 id="retruns-one-hot-vector">Retruns one hot vector</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.one_hot</b></span>  (vec,  m=None)</span></p>
+<h1 id="quasi-transform-predictor">Quasi transform predictor</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.prediction.QuasiPredictor</b></span>  (model,  cnf,  weights_from,  prediction_iterator,  number_of_transforms)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>vec</strong>: a vector</li>
-<li><strong>m</strong>: num_classes</li>
+<li><strong>model</strong>: model definition file</li>
+<li><strong>cnf</strong>: prediction configs</li>
+<li><strong>weights_from</strong>: location of the model weights file</li>
+<li><strong>prediction_iterator</strong>: iterator to access and augment the data for prediction</li>
+<li><strong>number_of_transform</strong>: number of determinastic augmentaions to be performed on the input data
+resulted predictions are averaged over the augmentated transformation prediction outputs</li>
+</ul>
+<hr />
+<h1 id="multiples-non-data-augmented-crops-predictor">Multiples non Data augmented crops predictor</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.prediction.CropPredictor</b></span>  (model,  cnf,  weights_from,  prediction_iterator,  crop_size,  im_size,  number_of_crops=10)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>model</strong>: model definition file</li>
+<li><strong>cnf</strong>: prediction configs</li>
+<li><strong>weights_from</strong>: location of the model weights file</li>
+<li><strong>prediction_iterator</strong>: iterator to access and augment the data for prediction</li>
+<li><strong>crop_size</strong>: crop size for network input</li>
+<li><strong>im_size</strong>: original image size</li>
+<li><strong>number_of_crops</strong>: total number of crops to extract from the input image</li>
+<li></li>
+</ul>
+<hr />
+<h1 id="returns-predcitions-from-multiples-models">Returns predcitions from multiples models</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.prediction.EnsemblePredictor</b></span>  (predictors)</span></p>
+<p>Ensembled predictions from multiples models using ensemble type</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>predictors</strong>: predictor instances</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>predict</b></span>  (X,  ensemble_type='mean')</span></p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>X</strong>: 4D tensor, inputs</li>
+<li><strong>ensemble_type</strong>: operation to combine models probabilitiesavailable type: ['mean', 'gmean', 'log_mean']</li>
 </ul>
 <hr />
               
@@ -361,10 +397,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../initializers/" class="btn btn-neutral float-right" title="Initializations">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../lr_policy/" class="btn btn-neutral float-right" title="Lr_Policy">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../lr_policy/" class="btn btn-neutral" title="Lr_Policy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../learning_ss/" class="btn btn-neutral" title="Trainer Semi Supervised"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -392,10 +428,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../lr_policy/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../learning_ss/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../initializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../lr_policy/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

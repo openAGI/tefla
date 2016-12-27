@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Metrics - Tefla</title>
+  <title>Lr_Policy - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -18,9 +18,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Metrics";
-    var mkdocs_page_input_path = "core/metrics.md";
-    var mkdocs_page_url = "/core/metrics/";
+    var mkdocs_page_name = "Lr_Policy";
+    var mkdocs_page_input_path = "core/lr_policy.md";
+    var mkdocs_page_url = "/core/lr_policy/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -140,25 +140,25 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../lr_policy/">Lr_Policy</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Lr_Policy</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#training-learning-rate-schedule-based-on-inputs-dict-with-epoch-number-as-keys">Training learning rate schedule based on  inputs dict with epoch number as keys</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#polynomial-learning-rate-decay-policy">Polynomial learning rate decay policy</a></li>
+                
+            
+            </ul>
         
     </li>
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Metrics</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#computes-accuracy-metric">Computes accuracy metric</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#retruns-one-hot-vector">Retruns one hot vector</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../metrics/">Metrics</a>
         
     </li>
 
@@ -313,10 +313,10 @@
         
       
     
-    <li>Metrics</li>
+    <li>Lr_Policy</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/metrics.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/lr_policy.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -326,33 +326,55 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="computes-accuracy-metric">Computes accuracy metric</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.accuracy_op</b></span>  (predictions,  targets,  num_classes=5)</span></p>
+                <h1 id="training-learning-rate-schedule-based-on-inputs-dict-with-epoch-number-as-keys">Training learning rate schedule based on  inputs dict with epoch number as keys</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.lr_policy.StepDecayPolicy</b></span>  (schedule,  start_epoch=1)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>predictions</strong>: 2D tensor/array, predictions of the network</li>
-<li><strong>targets</strong>: 2D tensor/array, ground truth labels of the network</li>
-<li>
-<p><strong>num_classes</strong>: int, num_classes of the network
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>accuracy</p>
-</li>
+<li><strong>schedule</strong>: a dict, epoch number as keys and learning rate as values</li>
+<li><strong>start_epoch</strong>: training start epoch number</li>
 </ul>
-<h3>Returns</h3>
+<h2>Methods</h2>
 
-<p>accuracy</p>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>epoch_update</b></span>  (learning_rate,  training_history)</span></p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>learning_rate</strong>: previous epoch learning rate</li>
+<li><strong>training_histoty</strong>: a dict with epoch, training loss, validation loss as keys</li>
+</ul>
+<h5>Returns</h5>
+
+<p>updated learning rate</p>
 <hr />
-<h1 id="retruns-one-hot-vector">Retruns one hot vector</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.one_hot</b></span>  (vec,  m=None)</span></p>
+<h1 id="polynomial-learning-rate-decay-policy">Polynomial learning rate decay policy</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.lr_policy.PolyDecayPolicy</b></span>  (base_lr,  power=10.0,  max_epoch=500,  n_iters_per_epoch=1094)</span></p>
+<p>the effective learning rate follows a polynomial decay, to be
+zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)</p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>vec</strong>: a vector</li>
-<li><strong>m</strong>: num_classes</li>
+<li><strong>base_lr</strong>: a float, starting learning rate</li>
+<li><strong>power</strong>: a float, decay factor</li>
+<li><strong>max_epoch</strong>: a int, max training epoch</li>
+<li><strong>n_iters_per_epoch</strong>: number of interations per epoch, e.g. total_training_samples/batch_size</li>
 </ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black"><b>batch_update</b></span>  (learning_rate,  iter_idx)</span></p>
+<p>it follows a polynomial decay policy</p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>learning_rate</strong>: current batch learning rate</li>
+<li><strong>iter_idx</strong>: iteration number,
+e.g. number_of_iterations_per_batch*epoch+current_batch_iteration_number</li>
+</ul>
+<h5>Returns</h5>
+
+<p>updated_lr</p>
 <hr />
               
             </div>
@@ -361,10 +383,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../initializers/" class="btn btn-neutral float-right" title="Initializations">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../metrics/" class="btn btn-neutral float-right" title="Metrics">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../lr_policy/" class="btn btn-neutral" title="Lr_Policy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../prediction/" class="btn btn-neutral" title="Predictor"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -392,10 +414,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../lr_policy/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../prediction/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../initializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../metrics/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

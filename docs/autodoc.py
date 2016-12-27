@@ -4,6 +4,7 @@ import inspect
 import os
 import os.path
 from inspect import getmembers, isfunction
+from inspect import getdoc, getargspec, getsourcefile, getsourcelines, getmembers
 import re
 import ast
 
@@ -27,9 +28,9 @@ from tefla.da import iterator
 from tefla.da import standardizer
 from tefla.da import tta
 from tefla.dataset import base as base_data
-#from tefla.dataset import dataflow
+from tefla.dataset import dataflow
 from tefla.dataset import decoder
-from tefla.dataset import image_to_tfrecords as tfrecords
+from tefla.dataset import image_to_tfrecords
 from tefla.dataset import reader
 from tefla.utils import util as utils
 
@@ -41,16 +42,16 @@ MODULES = [
            (logger, 'tefla.core.logger'),
            (layer_args, 'tefla.core.layer_arg_ops'),
            (iter_ops, 'tefla.core.iter_ops'),
-           #(lr_policy, 'tefla.core.lr_policy'),
+           (lr_policy, 'tefla.core.lr_policy'),
            (summary, 'tefla.core.summary'),
            (utils, 'tefla.utils.util'),
-           #(dataflow, 'tefla.dataset.dataflow'),
+           (dataflow, 'tefla.dataset.dataflow'),
            (base_data, 'tefla.dataset.base'),
            (decoder, 'tefla.dataset.decoder'),
            (reader, 'tefla.dataset.reader'),
-           (tfrecords, 'tefla.dataset.image_to_tfrecords'),
+           (image_to_tfrecords, 'tefla.dataset.image_to_tfrecords'),
            (data_augmentation, 'tefla.da.data'),
-           # (standardizer, 'tefla.da.standardizer'),
+           (standardizer, 'tefla.da.standardizer'),
            # (iterator, 'tefla.da.iterator'),
            (prediction, 'tefla.core.prediction'),
            (trainer, 'tefla.core.training'),
@@ -74,6 +75,39 @@ def top_level_classes(body):
 def parse_ast(filename):
     with open(filename, "rt") as file:
         return ast.parse(file.read(), filename=filename)
+
+
+def get_line_no(obj):
+    """Gets the source line number of this object. None if `obj` code cannot be found.
+    """
+    try:
+	lineno = getsourcelines(obj)[1]
+    except:
+	# no code found
+	lineno = None
+    return lineno
+
+def get_src_path(obj, src_root='tefla', append_base=True):
+    """Creates a src path string with line info for use as markdown link.
+    """
+    path = getsourcefile(obj)
+    if not src_root in path:
+	# this can happen with e.g.
+	# inlinefunc-wrapped functions
+	if hasattr(obj, "__module__"):
+	    path = "%s.%s" % (obj.__module__, obj.__name__)
+	else:
+	    path = obj.__name__
+	path = path.replace(".", "/")
+    pre, post = path.rsplit(src_root + "/", 1)
+
+    lineno = get_line_no(obj)
+    lineno = "" if lineno is None else "#L{}".format(lineno)
+
+    path = src_root + "/" + post + lineno
+    if append_base:
+	path = os.path.join('https://github.com/n3011/tefla/blob/master', path)
+    return path
 
 
 def format_func_doc(docstring, header):
@@ -223,8 +257,11 @@ def get_func_doc(name, func):
         return ''
     classes_and_functions.add(func)
     header = name + inspect.formatargspec(*inspect.getargspec(func))
+    path = get_src_path(func)
+    print(path)
     docstring = format_func_doc(inspect.getdoc(func), module_name + '.' +
                                 header)
+    print(docstring)
 
     if docstring != '':
         doc_source += docstring
@@ -307,3 +344,7 @@ for module, module_name in MODULES:
     if not os.path.exists(subdir):
         os.makedirs(subdir)
     open(path, 'w').write(md_source)
+
+
+
+

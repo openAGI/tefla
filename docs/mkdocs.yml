@@ -9,15 +9,33 @@ docs_dir: templates
 pages:
 - Home: index.md
 - Index: index.md
+- Installation: installation.md
 - Layers:
   - Layers: core/layers.md
+  - Layer Args: core/layer_arg_ops.md
+- Trainer:
+  - Trainer: core/training.md
+  - Trainer Multi GPU: core/learning.md
+  - Trainer Semi Supervised: core/learning_ss.md
+- Predictor:
+  - Predictor: core/prediction.md
 - Built-in Ops:
+  - Lr_Policy: core/lr_policy.md
   - Metrics: core/metrics.md
   - Initializations: core/initializers.md
   - Losses: core/losses.md
   - Summaries: core/summary.md
+  - Logger: core/logger.md
+  - Iter Ops: core/iter_ops.md
 - Data Management:
   - Data Augmentation: da/data.md
+  - Standardizer: da/standardizer.md
   - TfRecords: dataset/image_to_tfrecords.md
-- Extending Tensorflow:
-  - Trainer: core/training.md
+  - Dataset: dataset/base.md
+  - Dataflow: dataset/dataflow.md
+  - Decoder: dataset/decoder.md
+  - Reader: dataset/reader.md
+- Utils:
+  - Utils: utils/util.md
+- Contributions: contributions.md
+- License: license.md

@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Metrics - Tefla</title>
+  <title>Iter Ops - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -18,9 +18,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Metrics";
-    var mkdocs_page_input_path = "core/metrics.md";
-    var mkdocs_page_url = "/core/metrics/";
+    var mkdocs_page_name = "Iter Ops";
+    var mkdocs_page_input_path = "core/iter_ops.md";
+    var mkdocs_page_url = "/core/iter_ops/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -147,18 +147,8 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Metrics</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#computes-accuracy-metric">Computes accuracy metric</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#retruns-one-hot-vector">Retruns one hot vector</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../metrics/">Metrics</a>
         
     </li>
 
@@ -192,8 +182,18 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../iter_ops/">Iter Ops</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Iter Ops</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#creates-training-iterator-to-access-and-augment-the-dataset">Creates training iterator to access and augment the dataset</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#creates-prediction-iterator-to-access-and-augment-the-dataset">Creates prediction iterator to access and augment the dataset</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -313,10 +313,10 @@
         
       
     
-    <li>Metrics</li>
+    <li>Iter Ops</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/metrics.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/iter_ops.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -326,32 +326,29 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="computes-accuracy-metric">Computes accuracy metric</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.accuracy_op</b></span>  (predictions,  targets,  num_classes=5)</span></p>
+                <h1 id="creates-training-iterator-to-access-and-augment-the-dataset">Creates training iterator to access and augment the dataset</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.iter_ops.create_training_iters</b></span>  (cnf,  data_set,  standardizer,  crop_size,  epoch,  parallel=True)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>predictions</strong>: 2D tensor/array, predictions of the network</li>
-<li><strong>targets</strong>: 2D tensor/array, ground truth labels of the network</li>
-<li>
-<p><strong>num_classes</strong>: int, num_classes of the network
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>accuracy</p>
-</li>
+<li><strong>cnf</strong>: configs dict with all training and augmentation params</li>
+<li><strong>data_set</strong>: an instance of the dataset class</li>
+<li><strong>standardizer</strong>: data samples standardization; either samplewise or aggregate</li>
+<li><strong>crop_size</strong>: training time crop_size of the data samples</li>
+<li><strong>epoch</strong>: the current epoch number; used for data balancing</li>
+<li><strong>parallel</strong>: iterator type; either parallel or queued</li>
 </ul>
-<h3>Returns</h3>
-
-<p>accuracy</p>
 <hr />
-<h1 id="retruns-one-hot-vector">Retruns one hot vector</h1>
-<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.metrics.one_hot</b></span>  (vec,  m=None)</span></p>
+<h1 id="creates-prediction-iterator-to-access-and-augment-the-dataset">Creates prediction iterator to access and augment the dataset</h1>
+<p><span class="extra_h1"><span style="color:black;"><b>tefla.core.iter_ops.create_prediction_iter</b></span>  (cnf,  standardizer,  crop_size,  preprocessor=None,  sync=False)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>vec</strong>: a vector</li>
-<li><strong>m</strong>: num_classes</li>
+<li><strong>cnf</strong>: configs dict with all training and augmentation params</li>
+<li><strong>standardizer</strong>: data samples standardization; either samplewise or aggregate</li>
+<li><strong>crop_size</strong>: training time crop_size of the data samples</li>
+<li><strong>preprocessor</strong>: data processing or cropping function</li>
+<li><strong>sync</strong>: a bool, if False, used parallel iterator</li>
 </ul>
 <hr />
               
@@ -361,10 +358,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../initializers/" class="btn btn-neutral float-right" title="Initializations">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../da/data/" class="btn btn-neutral float-right" title="Data Augmentation">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../lr_policy/" class="btn btn-neutral" title="Lr_Policy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../logger/" class="btn btn-neutral" title="Logger"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -392,10 +389,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../lr_policy/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../logger/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../initializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../da/data/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

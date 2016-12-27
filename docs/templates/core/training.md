@@ -1,6 +1,6 @@
 # Supervised Trainer class
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.training.SupervisedTrainer</b></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f97aceec290>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f97aceec2d0>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False)</span>
+<span class="extra_h1"><span style="color:black;"><b>tefla.core.training.SupervisedTrainer</b></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f97bccd0e50>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f97bccd0e90>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False)</span>
 
 <h3>Args</h3>
 
