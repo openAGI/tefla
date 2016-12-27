@@ -20,4 +20,4 @@ pages:
   - Data Augmentation: da/data.md
   - TfRecords: dataset/image_to_tfrecords.md
 - Extending Tensorflow:
-  - Trainer: core/trainer.md
+  - Trainer: core/training.md
