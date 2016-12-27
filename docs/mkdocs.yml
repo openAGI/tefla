@@ -17,9 +17,7 @@ pages:
   - Losses: core/losses.md
   - Summaries: core/summary.md
 - Data Management:
-  - Data Augmentation: da/data_augmentation.md
-  - TfRecords: dataset/tfrecords.md
+  - Data Augmentation: da/data.md
+  - TfRecords: dataset/image_to_tfrecords.md
 - Extending Tensorflow:
   - Trainer: core/trainer.md
-- Contributions: contributions.md
-- License: license.md
