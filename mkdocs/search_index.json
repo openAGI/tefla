@@ -677,7 +677,7 @@
         }, 
         {
             "location": "/contributions/", 
-            "text": "Principal contributors\n\n Lalit Pant\n\n Mrinal Haloi\n* Anurag Sahay\n\n\nTefla is supported by Artelus, Inc (www.artelus.com)\n\n\nTefla is inspired by ideas from the following projects, and also borrows\nsmall chuncks of code from them:\n\n Tensorflow (https://github.com/tensorflow/tensorflow/blob/master/LICENSE)\n\n TFLearn (https://github.com/tflearn/tflearn/blob/master/LICENSE)\n\n TF-Slim (https://github.com/tensorflow/tensorflow/blob/master/LICENSE)\n\n Lasagne (https://github.com/Lasagne/Lasagne/blob/master/LICENSE)\n* Nolearn (https://github.com/dnouri/nolearn/blob/master/LICENSE.txt)\n\n\nTefla iterators and data-augmentation borrows heavily from:\n* https://github.com/sveitser/kaggle_diabetic (https://github.com/sveitser/kaggle_diabetic/blob/master/LICENSE)", 
+            "text": "-Principal contributors\n - Mrinal Haloi\n - Lalit Pant\n - Anurag Sahay\n\n\n-Tefla is supported by Artelus, Inc (www.artelus.com)\n\n\n-Tefla is inspired by ideas from the following projects, and also borrows\n-small chuncks of code from them:\n   -Tensorflow (https://github.com/tensorflow/tensorflow/blob/master/LICENSE)\n   -TFLearn (https://github.com/tflearn/tflearn/blob/master/LICENSE)\n   -TF-Slim (https://github.com/tensorflow/tensorflow/blob/master/LICENSE)\n   -Lasagne (https://github.com/Lasagne/Lasagne/blob/master/LICENSE)\n   -Nolearn (https://github.com/dnouri/nolearn/blob/master/LICENSE.txt)\n   -Tefla iterators and data-augmentation borrows heavily from:\n   -https://github.com/sveitser/kaggle_diabetic (https://github.com/sveitser/kaggle_diabetic/blob/master/LICENSE)", 
             "title": "Contributions"
         }, 
         {
