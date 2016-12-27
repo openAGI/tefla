@@ -8,6 +8,7 @@ logger = logging.getLogger('tefla')
 
 
 class InitialLrMixin(object):
+    """Initial Lr Mixin class"""
 
     def __init__(self, initial_lr):
         self._base_lr = initial_lr
@@ -16,22 +17,27 @@ class InitialLrMixin(object):
 
     @property
     def base_lr(self):
+        """Returns Base/start learning rate"""
         return self._base_lr
 
     @base_lr.setter
     def base_lr(self, base_lr):
+        """Set Base/start learning rate"""
         self._base_lr = base_lr
 
     @property
     def start_epoch(self):
+        """Returns start_epoch"""
         return self._start_epoch
 
     @start_epoch.setter
     def start_epoch(self, start_epoch):
+        """Set start epoch"""
         self._start_epoch = start_epoch
 
 
 class NoBatchUpdateMixin(object):
+    """No Batch update Mixin class"""
 
     def __init__(self):
         super(NoBatchUpdateMixin, self).__init__()
@@ -41,6 +47,7 @@ class NoBatchUpdateMixin(object):
 
 
 class NoEpochUpdateMixin(object):
+    """No Epoch update Mixin class"""
 
     def __init__(self):
         super(NoEpochUpdateMixin, self).__init__()
