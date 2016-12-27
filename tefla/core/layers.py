@@ -37,6 +37,7 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
                     w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
                     outputs_collections=None, use_bias=True):
     """Adds a fully connected layer.
+
         `fully_connected` creates a variable called `weights`, representing a fully
         connected weight matrix, which is multiplied by the `x` to produce a
         `Tensor` of hidden units. If a `batch_norm` is provided (such as
@@ -128,6 +129,7 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
            name='conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
            outputs_collections=None):
     """Adds a 2D convolutional layer.
+
         `convolutional layer` creates a variable called `weights`, representing a conv
         weight matrix, which is multiplied by the `x` to produce a
         `Tensor` of hidden units. If a `batch_norm` is provided (such as
@@ -228,8 +230,11 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                    name='dilated_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                    outputs_collections=None):
-    """Adds a 2D dilated convolutional layer, also known as convolution with holes or atrous convolution.
-        If the rate parameter is equal to one, it performs regular 2-D convolution. If the rate parameter
+    """Adds a 2D dilated convolutional layer
+
+        also known as convolution with holes or atrous convolution.
+        If the rate parameter is equal to one, it performs regular 2-D convolution.
+        If the rate parameter
         is greater than one, it performs convolution with holes, sampling the input
         values every rate pixels in the height and width dimensions.
         `convolutional layer` creates a variable called `weights`, representing a conv
@@ -335,6 +340,7 @@ def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, f
                      name='separable_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                      outputs_collections=None):
     """Adds a 2D seperable convolutional layer.
+
         Performs a depthwise convolution that acts separately on channels followed by
         a pointwise convolution that mixes channels. Note that this is separability between
         dimensions [1, 2] and 3, not spatial separability between dimensions 1 and 2.
@@ -450,6 +456,7 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
                      name='depthwise_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                      outputs_collections=None):
     """Adds a 2D sdepthwise convolutional layer.
+
         Given an input tensor of shape [batch, in_height, in_width, in_channels] and a filter
         tensor of shape [filter_height, filter_width, in_channels, channel_multiplier] containing
         in_channels convolutional filters of depth 1, depthwise_conv2d applies a different filter
@@ -551,6 +558,7 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
 def upsample2d(input_, output_shape, is_training, reuse, trainable=True, filter_size=(5, 5), stride=(2, 2), w_init=initz.he_normal(seed=None), b_init=0.0,
                w_regularizer=tf.nn.l2_loss, batch_norm=None, activation=None, name="deconv2d", use_bias=True, with_w=False, outputs_collections=None, **unused):
     """Adds a 2D upsampling or deconvolutional layer.
+
         his operation is sometimes called "deconvolution" after Deconvolutional Networks,
         but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
         If a `batch_norm` is provided (such as
@@ -665,6 +673,7 @@ def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss,
                    name='highway_conv2d', activation=None, use_bias=True, outputs_collections=None):
     """Adds a 2D highway convolutional layer.
+
         https://arxiv.org/abs/1505.00387
         If a `batch_norm` is provided (such as
         `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
@@ -745,6 +754,7 @@ def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=
 def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3),
                  w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, name='highway_fc2d', activation=None, use_bias=True, outputs_collections=None):
     """Adds a fully connected highway layer.
+
         https://arxiv.org/abs/1505.00387
         If a `batch_norm` is provided (such as
         `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
