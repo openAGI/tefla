@@ -7,6 +7,19 @@ import tensorflow as tf
 
 
 class Decoder(object):
+    """A Decoder class to decode examples
+
+    Args:
+        feature_keys: a dict, with features name and data types
+        e.g.:
+            features_keys = {
+                'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),
+                'image/format': tf.FixedLenFeature((), tf.string, default_value='jpg'),
+                'image/class/label': tf.FixedLenFeature([], tf.int64,
+                    default_value=tf.zeros([], dtype=tf.int64)),
+            }
+
+    """
 
     def __init__(self, feature_keys):
         self._feature_keys = feature_keys
@@ -20,11 +33,11 @@ class Decoder(object):
         """Parses an Example proto containing a training example of an image.
         Args:
             example_serialized: scalar Tensor tf.string containing a serialized
-            Example protocol buffer.
-        Returns:
-            image_buffer: Tensor tf.string containing the contents of a JPEG file.
-            label: Tensor tf.int32 containing the label.
-            text: Tensor tf.string containing the human-readable label.
+                Example protocol buffer.
+            Returns:
+                image_buffer: Tensor tf.string containing the contents of a JPEG file.
+                label: Tensor tf.int32 containing the label.
+                text: Tensor tf.string containing the human-readable label.
         """
 
         features = tf.parse_single_example(example_serialized, self._feature_keys)
@@ -83,7 +96,7 @@ class Decoder(object):
         with tf.name_scope(scope, 'distort_image', [image, height, width]):
             # Crop the image to the specified bounding box.
             # Resize image as per memroy constarints
-            image = tf.image.resize_images(image, cfg.TRAIN.im_height, cfg.TRAIN.im_width, 3)
+            image = tf.image.resize_images(image, height, width, 3)
             distorted_image = distort_op(image)
 
             return distorted_image
@@ -140,8 +153,10 @@ class ImageCoder(object):
 
     def png_to_jpeg(self, image_data):
         """Convert png image to jpeg images
+
         Args:
             image_data: image is a 3-D uint8 Tensor of shape [height, width, channels].
+
         Returns:
              jpeg formated image
         """
@@ -149,8 +164,10 @@ class ImageCoder(object):
 
     def cmyk_to_rgb(self, image_data):
         """Convert cmyk image to rgg images
+
         Args:
             image_data: image is a 3-D uint8 Tensor of shape [height, width, channels].
+
         Returns:
             rgb formated image
         """
@@ -158,8 +175,10 @@ class ImageCoder(object):
 
     def decode_jpeg(self, image_data):
         """ Decode jpeg images
+
         Args:
             image_data: image is a 3-D uint8 Tensor of shape [height, width, channels].
+
         Returns:
             decoded image
         """

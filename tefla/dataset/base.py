@@ -15,11 +15,21 @@ import tensorflow as tf
 
 
 class Dataset(object):
-    """A simple class for handling data sets."""
+    """A simple class for handling data sets,
+
+    Args:
+        name: a string, Name of the class instance
+        decoder: object instance, tfrecords object decoding and image encoding and decoding
+        data_dir: a string, path to the data folder
+        num_classes: num of classes of the dataset
+        num_examples_per_epoch: total number of examples per epoch
+        items_to_description: a string descriving the items of the dataset
+
+    """
+
     __metaclass__ = ABCMeta
 
     def __init__(self, name, decoder, data_dir=None, num_classes=10, num_examples_per_epoch=1, items_to_descriptions=None, **kwargs):
-        """Initialize dataset using a subset and the path to the data."""
         self.name = name
         self._decoder = decoder
         self.data_dir = data_dir
@@ -50,8 +60,10 @@ class Dataset(object):
 
     def data_files(self):
         """Returns a python list of all (sharded) data subset files.
+
         Returns:
             python list of all (sharded) data set files.
+
         Raises:
             ValueError: if there are not data_files matching the subset.
         """
@@ -66,6 +78,7 @@ class Dataset(object):
     @property
     def reader_class(self):
         """Return a reader for a single entry from the data set.
+
         Returns:
             Reader object that reads the data set.
         """
@@ -74,6 +87,7 @@ class Dataset(object):
     @property
     def decoder(self):
         """Return a decoder for a single entry from the data set.
+
         Returns:
             Decoder object that decodes the data samples.
         """

@@ -19,8 +19,14 @@ from tefla.dataset.decoder import ImageCoder
 
 
 class TFRecords(object):
+    """TFRecords
+
+    Converts image data to tfrecords file.
+
+    """
+
     def __init__(self, batch_size=128):
-        self.batch_size=batch_size
+        self.batch_size = batch_size
 
     def _int64_feature(self, value):
         return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -28,13 +34,18 @@ class TFRecords(object):
     def _bytes_feature(self, value):
         return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
-    def _is_jpg(self, filename):
+    def is_jpg(self, filename):
         """Determine if a file contains a JPG format image.
+
         Args:
             filename: string, path of the image file.
+
         Returns:
             boolean indicating if the image is a JPG.
         """
+        return self._is_jpg(filename)
+
+    def _is_jpg(self, filename):
         data = open(filename, 'rb').read(11)
         if data[:4] != '\xff\xd8\xff\xe0':
             return False
@@ -42,13 +53,18 @@ class TFRecords(object):
             return False
         return True
 
-    def _is_png(self, filename):
+    def is_png(self, filename):
         """Determine if a file contains a PNG format image.
+
         Args:
             filename: string, path of the image file.
+
         Returns:
             boolean indicating if the image is a PNG.
         """
+        return self._is_png(filename)
+
+    def _is_png(self, filename):
         return '.png' in filename
 
     def label_to_string(self, label):
@@ -62,9 +78,11 @@ class TFRecords(object):
 
     def process_image(self, filename, coder):
         """Process a single image file.
+
         Args:
             filename: string, path to an image file e.g., '/path/to/example.JPG'.
             coder: instance of ImageCoder to provide TensorFlow image coding utils.
+
         Returns:
             image_buffer: string, JPEG encoding of RGB image.
             height: integer, image height in pixels.
@@ -92,6 +110,7 @@ class TFRecords(object):
 
     def convert_to_example(self, filename, image_buffer, label, text, height, width, image_format='jpg', colorspace='RGB', channels=3):
         """Build an Example proto for an example.
+
         Args:
             filename: string, path to an image file, e.g., '/path/to/example.JPG'
             image_buffer: string, JPEG encoding of RGB image
@@ -99,6 +118,10 @@ class TFRecords(object):
             text: string, unique human-readable, e.g. 'mild'
             height: integer, image height in pixels
             width: integer, image width in pixels
+            image_format: string, image format, e.g.: '.jpg'
+            colorspace: image colorspace
+            channels: number of channels in the image, e.g. 3 for RGB
+
         Returns:
             Example proto
         """
@@ -117,6 +140,7 @@ class TFRecords(object):
 
     def process_image_files_batch(self, coder, thread_index, ranges, name, filenames, texts, labels, num_shards, train_dir):
         """Processes and saves list of images as TFRecord in 1 thread.
+
         Args:
             coder: instance of ImageCoder to provide TensorFlow image coding utils.
             thread_index: integer, unique batch to run index is within [0, len(ranges)).
@@ -138,7 +162,7 @@ class TFRecords(object):
         shard_ranges = np.linspace(ranges[thread_index][0], ranges[thread_index][1], num_shards_per_batch + 1).astype(int)
         num_files_in_thread = ranges[thread_index][1] - ranges[thread_index][0]
         counter = 0
-        for s in xrange(num_shards_per_batch):
+        for s in range(num_shards_per_batch):
             # Generate a sharded version of the file name, e.g. 'train-00002-of-00010'
             shard = thread_index * num_shards_per_batch + s
             output_filename = '%s-%.5d-of-%.5d' % (name, shard, num_shards)
@@ -156,19 +180,20 @@ class TFRecords(object):
                 writer.write(example.SerializeToString())
                 shard_counter += 1
                 counter += 1
-                print('Num of files %d' %(counter))
+                print('Num of files %d' % (counter))
                 if not counter % 1000:
                     print('%s [thread %d]: Processed %d of %d images in thread batch.' % (datetime.now(), thread_index, counter, num_files_in_thread))
                     sys.stdout.flush()
 
-            print('%s [thread %d]: Wrote %d images to %s' %(datetime.now(), thread_index, shard_counter, output_file))
+            print('%s [thread %d]: Wrote %d images to %s' % (datetime.now(), thread_index, shard_counter, output_file))
             sys.stdout.flush()
             shard_counter = 0
-        print('%s [thread %d]: Wrote %d images to %d shards.' %(datetime.now(), thread_index, counter, num_files_in_thread))
+        print('%s [thread %d]: Wrote %d images to %d shards.' % (datetime.now(), thread_index, counter, num_files_in_thread))
         sys.stdout.flush()
 
     def process_image_files(self, name, filenames, texts, labels, num_shards, num_threads=4):
         """Process and save list of images as TFRecord of Example protos.
+
         Args:
             name: string, unique identifier specifying the data set
             filenames: list of strings; each string is a path to an image file
@@ -183,7 +208,7 @@ class TFRecords(object):
         spacing = np.linspace(0, len(filenames), num_threads + 1).astype(np.int)
         ranges = []
         threads = []
-        for i in xrange(len(spacing) - 1):
+        for i in range(len(spacing) - 1):
             ranges.append([spacing[i], spacing[i + 1]])
 
         # Launch a thread for each batch.
@@ -194,7 +219,7 @@ class TFRecords(object):
         # Create a generic TensorFlow-based utility for converting all image codings.
         coder = ImageCoder()
         threads = []
-        for thread_index in xrange(len(ranges)):
+        for thread_index in range(len(ranges)):
             args = (coder, thread_index, ranges, name, filenames, texts, labels, num_shards)
             t = threading.Thread(target=self.process_image_files_batch, args=args)
             t.start()
@@ -202,31 +227,33 @@ class TFRecords(object):
 
         # Wait for all the threads to terminate.
         coord.join(threads)
-        print('%s: Finished writing all %d images in data set.' %(datetime.now(), len(filenames)))
+        print('%s: Finished writing all %d images in data set.' % (datetime.now(), len(filenames)))
         sys.stdout.flush()
 
     def find_image_files(self, data_dir, labels_file):
         """Build a list of all images files and labels in the data set.
-            Args:
-                data_dir: string, path to the root directory of images.
-                    Assumes that the image data set resides in JPEG files located in
-                    the following directory structure.
-                    data_dir/No DR/another-image.JPEG
-                    data_dir/No DR/my-image.jpg
-                    where 'No DR' is the label associated with these images.
-                labels_file: string, path to the labels file.
-                    The list of valid labels are held in this file. Assumes that the file
-                    contains entries as such:
-                    No DR
-                    Mild
-                    Severe
-                    where each line corresponds to a label. We map each label contained in
-                    the file to an integer starting with the integer 0 corresponding to the
-                    label contained in the first line.
-            Returns:
-                filenames: list of strings; each string is a path to an image file.
-                texts: list of strings; each string is the class, e.g. 'dog'
-                labels: list of integer; each integer identifies the ground truth.
+
+        Args:
+            data_dir: string, path to the root directory of images.
+                Assumes that the image data set resides in JPEG files located in
+                the following directory structure.
+                data_dir/No DR/another-image.JPEG
+                data_dir/No DR/my-image.jpg
+                where 'No DR' is the label associated with these images.
+            labels_file: string, path to the labels file.
+                The list of valid labels are held in this file. Assumes that the file
+                contains entries as such:
+                No DR
+                Mild
+                Severe
+                where each line corresponds to a label. We map each label contained in
+                the file to an integer starting with the integer 0 corresponding to the
+                label contained in the first line.
+
+        Returns:
+            filenames: list of strings; each string is a path to an image file.
+            texts: list of strings; each string is the class, e.g. 'dog'
+            labels: list of integer; each integer identifies the ground truth.
         """
         print('Determining list of input files and labels from %s.' % data_dir)
         unique_labels = [l.strip() for l in tf.gfile.FastGFile(labels_file, 'r').readlines()]
@@ -243,7 +270,7 @@ class TFRecords(object):
             labels.append(int(file_label[1]))
             texts.append(self.label_to_string(int(file_label[1])))
 
-        print('text len %d' %(len(texts)))
+        print('text len %d' % (len(texts)))
         # Shuffle the ordering of all image files in order to guarantee
         # random ordering of the images with respect to label in the
         # saved TFRecord files. Make the randomization repeatable.
@@ -255,11 +282,12 @@ class TFRecords(object):
         texts = [texts[i] for i in shuffled_index]
         labels = [labels[i] for i in shuffled_index]
 
-        print('Found %d JPEG files across %d labels inside %s.' %(len(filenames), len(unique_labels), data_dir))
+        print('Found %d JPEG files across %d labels inside %s.' % (len(filenames), len(unique_labels), data_dir))
         return filenames, texts, labels
 
     def process_dataset(self, name, directory, num_shards, labels_file):
         """Process a complete data set and save it as a TFRecord.
+
         Args:
             name: string, unique identifier specifying the data set.
             directory: string, root path to the data set.
@@ -288,4 +316,4 @@ class TFRecords(object):
 if __name__ == '__main__':
     # Convert Images to tfRecords files
     im2r = TFRecords()
-    im2r.process_dataset('retina_dr_train_256', '/home/haloi/Data/train', 16, '/home/haloi/Data/retinal_all_label.txt')
+    im2r.process_dataset('retina_dr_train_256', '/path/to/Data/train', 16, '/path/to/Data/label.txt')
