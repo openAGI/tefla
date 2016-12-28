@@ -322,8 +322,8 @@ class SemiSupervisedTrainer(Base):
         self.learning_rate_d = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
         self.learning_rate_g = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
 
-        d_optimizer = self._optimizer(self.learning_rate_d, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
-        g_optimizer = self._optimizer(self.learning_rate_g, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
+        d_optimizer = self._optimizer(self.learning_rate_d, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
+        g_optimizer = self._optimizer(self.learning_rate_g, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
         # Get images and labels for ImageNet and split the batch across GPUs.
         assert self.cnf['batch_size_train'] % self.cnf['num_gpus'] == 0, ('Batch size must be divisible by number of GPUs')
 

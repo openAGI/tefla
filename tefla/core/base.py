@@ -21,8 +21,9 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 
 class Base(object):
+
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=0):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=0, loss_type='softmax_cross_entropy'):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -37,6 +38,7 @@ class Base(object):
         self.norm_threshold = norm_threshold
         self.gpu_memory_fraction = gpu_memory_fraction
         self.is_summary = is_summary
+        self.loss_type = loss_type
         log.setFIleHandler(log_file_name)
         log.setVerbosity(self._verbosity(str(verbosity), log))
 

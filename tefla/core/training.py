@@ -41,7 +41,7 @@ class SupervisedTrainer(object):
     """
 
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, loss_type='softmax_cross_entropy'):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -55,7 +55,7 @@ class SupervisedTrainer(object):
         self.clip_norm = clip_norm
         self.gpu_memory_fraction = gpu_memory_fraction
         self.is_summary = is_summary
-        self.loss_type='kappa_log'
+        self.loss_type=loss_type
         self.num_classes=5
         self.label_smoothing=0.009
 
@@ -322,7 +322,7 @@ class SupervisedTrainer(object):
         self.learning_rate = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
         # Keep old variable around to load old params, till we need this
         self.obsolete_learning_rate = tf.Variable(1.0, trainable=False, name="learning_rate")
-        optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs'))
+        optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay':0.9}))
         self.grads_and_vars = optimizer.compute_gradients(self.regularized_training_loss, tf.trainable_variables())
         if self.clip_norm:
             self.grads_and_vars = _clip_grad_norms(self.grads_and_vars)
