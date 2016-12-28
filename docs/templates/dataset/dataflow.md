@@ -1,6 +1,6 @@
 # Dataflow handling class
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.dataset.dataflow.Dataflow</b></span>  (dataset,  num_readers=1,  shuffle=True,  num_epochs=None,  min_queue_examples=1024,  capacity=2048)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L12 target="_blank"><b>tefla.dataset.dataflow.Dataflow</b></a></span>  (dataset,  num_readers=1,  shuffle=True,  num_epochs=None,  min_queue_examples=1024,  capacity=2048)</span>
 
 <h3>Args</h3>
 
@@ -18,7 +18,7 @@
 
 
 
-<span class="extra_h2"><span style="color:black"><b>get</b></span>  (items,  image_size,  resize_size=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L31 target="_blank"><b>get</b></a></span>  (items,  image_size,  resize_size=None)</span>
 
 <h5>Args</h5>
 
@@ -34,7 +34,7 @@ e.g.: [width, height]
 
 
 
-<span class="extra_h2"><span style="color:black"><b>get_batch</b></span>  (batch_size,  target_probs,  image_size,  resize_size=None,  init_probs=None,  enqueue_many=False,  queue_capacity=2048,  threads_per_queue=1,  name='balancing_op')</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L52 target="_blank"><b>get_batch</b></a></span>  (batch_size,  target_probs,  image_size,  resize_size=None,  init_probs=None,  enqueue_many=False,  queue_capacity=2048,  threads_per_queue=1,  name='balancing_op')</span>
 
 Stochastically creates batches based on per-class probabilities.
 This method discards examples. Internally, it creates one queue to

@@ -1,6 +1,6 @@
 # Semi Supervised Trainer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.learning_ss.SemiSupervisedTrainer</b></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L27 target="_blank"><b>tefla.core.learning_ss.SemiSupervisedTrainer</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span>
 
 
 <h3>Args</h3>
@@ -26,7 +26,7 @@ e.g: total_training_samples/batch_size
 
 
 
-<span class="extra_h2"><span style="color:black"><b>fit</b></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=199,  model_name='multiclass_ss',  weights_dir='weights')</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L51 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=199,  model_name='multiclass_ss',  weights_dir='weights')</span>
 
 <h5>Args</h5>
 
@@ -42,7 +42,7 @@ of summary writing
 
 
 
-<span class="extra_h2"><span style="color:black"><b>sigmoid_kl_with_logits</b></span>  (logits,  targets)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L304 target="_blank"><b>sigmoid_kl_with_logits</b></a></span>  (logits,  targets)</span>
 <h5>Args</h5>
 
 

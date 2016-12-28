@@ -1,6 +1,6 @@
 # Training learning rate schedule based on  inputs dict with epoch number as keys
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.lr_policy.StepDecayPolicy</b></span>  (schedule,  start_epoch=1)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L86 target="_blank"><b>tefla.core.lr_policy.StepDecayPolicy</b></a></span>  (schedule,  start_epoch=1)</span>
 
 <h3>Args</h3>
 
@@ -14,7 +14,7 @@
 
 
 
-<span class="extra_h2"><span style="color:black"><b>epoch_update</b></span>  (learning_rate,  training_history)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L98 target="_blank"><b>epoch_update</b></a></span>  (learning_rate,  training_history)</span>
 
 <h5>Args</h5>
 
@@ -31,7 +31,7 @@ updated learning rate
 
 # Polynomial learning rate decay policy
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.lr_policy.PolyDecayPolicy</b></span>  (base_lr,  power=10.0,  max_epoch=500,  n_iters_per_epoch=1094)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L229 target="_blank"><b>tefla.core.lr_policy.PolyDecayPolicy</b></a></span>  (base_lr,  power=10.0,  max_epoch=500,  n_iters_per_epoch=1094)</span>
 
 the effective learning rate follows a polynomial decay, to be
 zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)
@@ -50,7 +50,7 @@ zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)
 
 
 
-<span class="extra_h2"><span style="color:black"><b>batch_update</b></span>  (learning_rate,  iter_idx)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L248 target="_blank"><b>batch_update</b></a></span>  (learning_rate,  iter_idx)</span>
 
 it follows a polynomial decay policy
 

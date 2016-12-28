@@ -1,6 +1,6 @@
 # Valid types for loss, variables and gradients
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.valid_dtypes</b></span>  ()</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L194 target="_blank"><b>tefla.utils.util.valid_dtypes</b></a></span>  ()</span>
 Subclasses should override to allow other float types.
 <h3>Returns</h3>
 
@@ -11,7 +11,7 @@ Valid types for loss, variables and gradients.
 
 # Asserts tensors are all valid types (see `_valid_dtypes`)
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.assert_valid_dtypes</b></span>  (tensors)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L203 target="_blank"><b>tefla.utils.util.assert_valid_dtypes</b></a></span>  (tensors)</span>
 <h3>Args</h3>
 
 
@@ -25,7 +25,7 @@ Valid types for loss, variables and gradients.
 
 # Returns value if value_or_tensor_or_var has a constant value
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.constant_value</b></span>  (value_or_tensor_or_var,  dtype=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L217 target="_blank"><b>tefla.utils.util.constant_value</b></a></span>  (value_or_tensor_or_var,  dtype=None)</span>
 
 <h3>Args</h3>
 
@@ -43,7 +43,7 @@ The constant value or None if it not constant.
 
 # Return either fn1() or fn2() based on the boolean value of `pred`
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.static_cond</b></span>  (pred,  fn1,  fn2)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L245 target="_blank"><b>tefla.utils.util.static_cond</b></a></span>  (pred,  fn1,  fn2)</span>
 
 Same signature as `control_flow_ops.cond()` but requires pred to be a bool.
 
@@ -63,7 +63,7 @@ Tensors returned by the call to either `fn1` or `fn2`.
 
 # Return either fn1() or fn2() based on the boolean predicate/value `pred`
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.smart_cond</b></span>  (pred,  fn1,  fn2,  name=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L271 target="_blank"><b>tefla.utils.util.smart_cond</b></a></span>  (pred,  fn1,  fn2,  name=None)</span>
 
 If `pred` is bool or has a constant value it would use `static_cond`,
  otherwise it would use `tf.cond`.
@@ -89,7 +89,7 @@ Tensors returned by the call to either `fn1` or `fn2`.
 
 # Transform numeric labels into onehot_labels
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.utils.util.one_hot_encoding</b></span>  (labels,  num_classes,  name='one_hot_encoding')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L321 target="_blank"><b>tefla.utils.util.one_hot_encoding</b></a></span>  (labels,  num_classes,  name='one_hot_encoding')</span>
 <h3>Args</h3>
 
 

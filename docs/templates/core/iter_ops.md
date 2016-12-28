@@ -1,6 +1,6 @@
 # Creates training iterator to access and augment the dataset
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.iter_ops.create_training_iters</b></span>  (cnf,  data_set,  standardizer,  crop_size,  epoch,  parallel=True)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/iter_ops.py#L12 target="_blank"><b>tefla.core.iter_ops.create_training_iters</b></a></span>  (cnf,  data_set,  standardizer,  crop_size,  epoch,  parallel=True)</span>
 
 <h3>Args</h3>
 
@@ -16,7 +16,7 @@
 
 # Creates prediction iterator to access and augment the dataset
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.iter_ops.create_prediction_iter</b></span>  (cnf,  standardizer,  crop_size,  preprocessor=None,  sync=False)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/iter_ops.py#L68 target="_blank"><b>tefla.core.iter_ops.create_prediction_iter</b></a></span>  (cnf,  standardizer,  crop_size,  preprocessor=None,  sync=False)</span>
 
 <h3>Args</h3>
 

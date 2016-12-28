@@ -1,6 +1,6 @@
 # Define a log loss
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.log_loss_custom</b></span>  (predictions,  labels,  eps=1e-07,  name='log')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L11 target="_blank"><b>tefla.core.losses.log_loss_custom</b></a></span>  (predictions,  labels,  eps=1e-07,  name='log')</span>
 <h3>Args</h3>
 
 
@@ -22,7 +22,7 @@ A tensor with the log loss.
 
 # Define a kappa loss, Its a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.kappa_loss</b></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L30 target="_blank"><b>tefla.core.losses.kappa_loss</b></a></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span>
 <h3>Args</h3>
 
 
@@ -47,7 +47,7 @@ A tensor with the kappa loss.
 
 # Define a joint kappa and log loss, Kappa is a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.kappa_log_loss</b></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L69 target="_blank"><b>tefla.core.losses.kappa_log_loss</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span>
 <h3>Args</h3>
 
 
@@ -74,7 +74,7 @@ A tensor with the kappa log loss.
 
 # Define a joint kappa and log loss; log loss is clipped by a defined min value; Kappa is a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.kappa_log_loss_clipped</b></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  name='kappa_log_clipped')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L97 target="_blank"><b>tefla.core.losses.kappa_log_loss_clipped</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  name='kappa_log_clipped')</span>
 <h3>Args</h3>
 
 
@@ -101,7 +101,7 @@ A tensor with the clipped kappa log loss.
 
 # Define a cross entropy loss with label smoothing
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.cross_entropy_loss</b></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L125 target="_blank"><b>tefla.core.losses.cross_entropy_loss</b></a></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
 <h3>Args</h3>
 
 
@@ -124,7 +124,7 @@ A tensor with the cross entropy loss.
 
 # Define a L2Loss, useful for regularize, i.e. weight decay
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.losses.l1_l2_regularizer</b></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L151 target="_blank"><b>tefla.core.losses.l1_l2_regularizer</b></a></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
 <h3>Args</h3>
 
 

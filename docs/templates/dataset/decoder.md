@@ -1,6 +1,6 @@
 # A Decoder class to decode examples
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.dataset.decoder.Decoder</b></span>  (feature_keys)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L9 target="_blank"><b>tefla.dataset.decoder.Decoder</b></a></span>  (feature_keys)</span>
 
 <h3>Args</h3>
 
@@ -16,7 +16,7 @@ features_keys = {'image/encoded/image': tf.FixedLenFeature((), tf.string, defaul
 
 
 
-<span class="extra_h2"><span style="color:black"><b>decode</b></span>  (example_serialized,  image_size,  resize_size=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L32 target="_blank"><b>decode</b></a></span>  (example_serialized,  image_size,  resize_size=None)</span>
 <h5>Args</h5>
 
 
@@ -38,7 +38,7 @@ text: Tensor tf.string containing the human-readable label.
 
 
 
-<span class="extra_h2"><span style="color:black"><b>distort_image</b></span>  (image,  distort_op,  height,  width,  thread_id=0,  scope=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L85 target="_blank"><b>distort_image</b></a></span>  (image,  distort_op,  height,  width,  thread_id=0,  scope=None)</span>
 <h5>Args</h5>
 
 
@@ -61,7 +61,7 @@ text: Tensor tf.string containing the human-readable label.
 
 
 
-<span class="extra_h2"><span style="color:black"><b>eval_image</b></span>  (image,  height,  width,  scope=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L104 target="_blank"><b>eval_image</b></a></span>  (image,  height,  width,  scope=None)</span>
 <h5>Args</h5>
 
 

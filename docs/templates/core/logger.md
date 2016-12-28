@@ -1,6 +1,6 @@
 # Set the log file name, using append mode
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.setFileHandler</b></span>  (filename,  mode='a')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/logger.py#L27 target="_blank"><b>tefla.core.logger.setFileHandler</b></a></span>  (filename,  mode='a')</span>
 
 <h3>Args</h3>
 
@@ -14,7 +14,7 @@
 
 # set the verbosity level of logging
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.setVerbosity</b></span>  (verbosity=0)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/logger.py#L79 target="_blank"><b>tefla.core.logger.setVerbosity</b></a></span>  (verbosity=0)</span>
 
 <h3>Args</h3>
 
@@ -30,7 +30,7 @@
 
 # Logs the Highest level DEBUG logging, it logs all level
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.debug</b></span>  (msg,  *args,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/logger.py#L111 target="_blank"><b>tefla.core.logger.debug</b></a></span>  (msg,  *args,  **kwargs)</span>
 
 <h3>Args</h3>
 
@@ -41,7 +41,7 @@
 
 # Logs the level INFO logging, it logs all LEVEL BELOW INFO
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.info</b></span>  (msg,  *args,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/logger.py#L121 target="_blank"><b>tefla.core.logger.info</b></a></span>  (msg,  *args,  **kwargs)</span>
 
 <h3>Args</h3>
 
@@ -52,7 +52,7 @@
 
 # Logs the WARN logging, it logs all level BELOW WARN
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.warn</b></span>  (msg,  *args,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/logger.py#L131 target="_blank"><b>tefla.core.logger.warn</b></a></span>  (msg,  *args,  **kwargs)</span>
 
 <h3>Args</h3>
 
@@ -63,7 +63,7 @@
 
 # Logs the level ERROR logging, it logs level ERROR  and FATAL
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.error</b></span>  (msg,  *args,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/logger.py#L141 target="_blank"><b>tefla.core.logger.error</b></a></span>  (msg,  *args,  **kwargs)</span>
 
 <h3>Args</h3>
 
@@ -74,7 +74,7 @@
 
 # Logs thE level FATAL logging, it logs only FATAL
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.logger.fatal</b></span>  (msg,  *args,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/logger.py#L151 target="_blank"><b>tefla.core.logger.fatal</b></a></span>  (msg,  *args,  **kwargs)</span>
 
 <h3>Args</h3>
 

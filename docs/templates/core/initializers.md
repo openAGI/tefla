@@ -1,6 +1,6 @@
 # He Normal initializer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.initializers.he_normal</b></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L10 target="_blank"><b>tefla.core.initializers.he_normal</b></a></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
 Kaiming He et al. (2015): Delving deep into rectifiers: Surpassing human-level 
 performance on imagenet classification. arXiv preprint arXiv:1502.01852.
 
@@ -17,7 +17,7 @@ performance on imagenet classification. arXiv preprint arXiv:1502.01852.
 
 # He Uniform initializer
 
-<span class="extra_h1"><span style="color:black;"><b>tefla.core.initializers.he_uniform</b></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L27 target="_blank"><b>tefla.core.initializers.he_uniform</b></a></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
 
 <h3>Args</h3>
 
