@@ -70,3 +70,5 @@ util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=lo
 trainer = SupervisedTrainer(model, training_cnf, classification=training_cnf['classification'])
 trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)
 ```
+
+Note: This project is advance version of our previous project (www.github.com/litan/tefla)
