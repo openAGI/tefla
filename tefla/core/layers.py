@@ -1456,7 +1456,7 @@ def softmax(x, name='softmax', outputs_collections=None, **unused):
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def dropout(x, is_training, drop_p=0.5, name='dropout', outputs_collections=None, **unused):
+def dropout(x, is_training, drop_p=0.5, seed=None, name='dropout', outputs_collections=None, **unused):
     """
     Dropout layer
     Args:
@@ -1473,7 +1473,7 @@ def dropout(x, is_training, drop_p=0.5, name='dropout', outputs_collections=None
     with tf.name_scope(name):
         keep_p = 1. - drop_p
         if is_training:
-            output = tf.nn.dropout(x, keep_p, seed=None)
+            output = tf.nn.dropout(x, keep_p, seed=seed)
             return _collect_named_outputs(outputs_collections, name, output)
         else:
             return _collect_named_outputs(outputs_collections, name, x)
