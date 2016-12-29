@@ -1,5 +1,7 @@
 import importlib
 import logging
+import collections
+import six
 import os
 import subprocess
 import time
@@ -335,3 +337,38 @@ def one_hot_encoding(labels, num_classes, name='one_hot_encoding'):
         onehot_labels = tf.sparse_to_dense(concated, tf.pack([batch_size, num_classes]), 1.0, 0.0)
         onehot_labels.set_shape([batch_size, num_classes])
         return onehot_labels
+
+
+def is_sequence(seq):
+    """Returns a true if its input is a collections.Sequence (except strings).
+
+    Args:
+        seq: an input sequence.
+
+    Returns:
+        True if the sequence is a not a string and is a collections.Sequence.
+    """
+    return (isinstance(seq, collections.Sequence) and not isinstance(seq, six.string_types))
+
+
+def flatten_sq(nest_sq):
+    """Returns a flat sequence from a given nested structure.
+    If `nest` is not a sequence, this returns a single-element list: `[nest]`.
+
+    Args:
+        nest: an arbitrarily nested structure or a scalar object.
+            Note, numpy arrays are considered scalars.
+
+    Returns:
+        A Python list, the flattened version of the input.
+    """
+    return list(_yield_flat_nest(nest_sq)) if is_sequence(nest_sq) else [nest_sq]
+
+
+def _yield_flat_nest(nest_sq):
+    for n in nest_sq:
+        if is_sequence(n):
+            for ni in _yield_flat_nest(n):
+                yield ni
+        else:
+            yield n
