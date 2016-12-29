@@ -71,4 +71,4 @@ trainer = SupervisedTrainer(model, training_cnf, classification=training_cnf['cl
 trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)
 ```
 
-#Note: This project was originally forked from: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.
+Note: This project was originally forked from: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.
