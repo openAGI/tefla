@@ -82,6 +82,20 @@
         
             
     <li class="toctree-l1 ">
+        <a class="" href="../rnn_cell/">RNN</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../special_layers/">Special Layers</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
         <a class="" href="../layer_arg_ops/">Layer Args</a>
         
     </li>
@@ -105,6 +119,9 @@
                 
             
                 <li class="toctree-l3"><a href="#clips-the-gradients-by-the-given-value">Clips the gradients by the given value</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#clips-the-gradients-by-the-given-value_1">Clips the gradients by the given value</a></li>
                 
             
                 <li class="toctree-l3"><a href="#multiply-specified-gradients">Multiply specified gradients</a></li>
@@ -333,7 +350,7 @@
             <div class="section">
               
                 <h1 id="supervised-trainer-class">Supervised Trainer class</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L23 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fd6bc153f10>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fd6bc153f50>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L23 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f24a02d6410>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f24a02d6450>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False,  loss_type='softmax_cross_entropy')</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -368,6 +385,18 @@ of summary writing</li>
 </ul>
 <hr />
 <h1 id="clips-the-gradients-by-the-given-value">Clips the gradients by the given value</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L471 target="_blank"><b>tefla.core.training._clip_grad_norms</b></a></span>  (gradients_to_variables,  max_norm=10)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>gradients_to_variables</strong>: A list of gradient to variable pairs (tuples).</li>
+<li><strong>max_norm</strong>: the maximum norm value.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A list of clipped gradient to variable pairs.</p>
+<hr />
+<h1 id="clips-the-gradients-by-the-given-value_1">Clips the gradients by the given value</h1>
 <p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L493 target="_blank"><b>tefla.core.training.clip_grad_global_norms</b></a></span>  (tvars,  loss,  opt,  global_norm=1,  gate_gradients=1,  gradient_noise_scale=4.0,  GATE_GRAPH=2,  grad_loss=None,  agre_method=None,  col_grad_ops=False)</span></p>
 <h3>Args</h3>
 

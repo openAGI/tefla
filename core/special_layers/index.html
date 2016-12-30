@@ -8,7 +8,7 @@
   
   <meta name="author" content="Mrinal(Ishant) Haloi">
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Metrics - Tefla</title>
+  <title>Special Layers - Tefla</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -18,9 +18,9 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Metrics";
-    var mkdocs_page_input_path = "core/metrics.md";
-    var mkdocs_page_url = "/core/metrics/";
+    var mkdocs_page_name = "Special Layers";
+    var mkdocs_page_input_path = "core/special_layers.md";
+    var mkdocs_page_url = "/core/special_layers/";
   </script>
   
   <script src="../../js/jquery-2.1.1.min.js"></script>
@@ -88,8 +88,15 @@
 
         
             
-    <li class="toctree-l1 ">
-        <a class="" href="../special_layers/">Special Layers</a>
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Special Layers</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#spatial-transformer-layer">Spatial Transformer Layer</a></li>
+                
+            
+            </ul>
         
     </li>
 
@@ -161,18 +168,8 @@
 
         
             
-    <li class="toctree-l1 current">
-        <a class="current" href="./">Metrics</a>
-        
-            <ul>
-            
-                <li class="toctree-l3"><a href="#computes-accuracy-metric">Computes accuracy metric</a></li>
-                
-            
-                <li class="toctree-l3"><a href="#retruns-one-hot-vector">Retruns one hot vector</a></li>
-                
-            
-            </ul>
+    <li class="toctree-l1 ">
+        <a class="" href="../metrics/">Metrics</a>
         
     </li>
 
@@ -323,14 +320,14 @@
     
       
         
-          <li>Built-in Ops &raquo;</li>
+          <li>Layers &raquo;</li>
         
       
     
-    <li>Metrics</li>
+    <li>Special Layers</li>
     <li class="wy-breadcrumbs-aside">
       
-        <a href="https://github.com/n3011/tefla/edit/master/docs/core/metrics.md"
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/special_layers.md"
           class="icon icon-github"> Edit on GitHub</a>
       
     </li>
@@ -340,33 +337,24 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="computes-accuracy-metric">Computes accuracy metric</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L275 target="_blank"><b>tefla.core.metrics.accuracy_op</b></a></span>  (predictions,  targets,  num_classes=5)</span></p>
+                <h1 id="spatial-transformer-layer">Spatial Transformer Layer</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L4 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span></p>
+<p>Implements a spatial transformer layer as described in [1]<em>.
+It's based on lasagne implementation in [2]</em>, modified by Mrinal Haloi</p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>predictions</strong>: 2D tensor/array, predictions of the network</li>
-<li><strong>targets</strong>: 2D tensor/array, ground truth labels of the network</li>
-<li>
-<p><strong>num_classes</strong>: int, num_classes of the network
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>accuracy</p>
-</li>
+<li><strong>U</strong>: float
+The output of a convolutional net should have the
+shape [batch_size, height, width, num_channels].</li>
+<li><strong>theta</strong>: float
+The output of the localisation network should be [batch_size, num_transform, 6] or [batch_size, 6] if num_transform=1
+<code>python`theta`` to : - identity = np.array([[1., 0., 0.], -  [0., 1., 0.]]) - identity = identity.flatten() - theta = tf.Variable(initial_value=identity)</code></li>
+<li><strong>downsample_factor</strong>: a float, determines output shape, downsample input shape by downsample_factor</li>
 </ul>
 <h3>Returns</h3>
 
-<p>accuracy</p>
-<hr />
-<h1 id="retruns-one-hot-vector">Retruns one hot vector</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L295 target="_blank"><b>tefla.core.metrics.one_hot</b></a></span>  (vec,  m=None)</span></p>
-<h3>Args</h3>
-
-<ul>
-<li><strong>vec</strong>: a vector</li>
-<li><strong>m</strong>: num_classes</li>
-</ul>
+<p>spatial transformed output of the network</p>
 <hr />
               
             </div>
@@ -375,10 +363,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../initializers/" class="btn btn-neutral float-right" title="Initializations">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../layer_arg_ops/" class="btn btn-neutral float-right" title="Layer Args">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../lr_policy/" class="btn btn-neutral" title="Lr_Policy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../rnn_cell/" class="btn btn-neutral" title="RNN"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -406,10 +394,10 @@
           <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
-        <span><a href="../lr_policy/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../rnn_cell/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../initializers/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../layer_arg_ops/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
