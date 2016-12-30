@@ -339,6 +339,56 @@ class MultiRNNCell(core_rnn_cell.RNNCell):
             return cur_inp, new_states
 
 
+class DropoutWrapper(core_rnn_cell.RNNCell):
+    """Operator adding dropout to inputs and outputs of the given cell
+
+    Create a cell with added input and/or output dropout.
+    Dropout is never used on the state.
+
+    Args:
+        cell: an RNNCell, a projection to output_size is added to it.
+        is_training: a bool, training if true else validation/testing
+        input_keep_prob: unit Tensor or float between 0 and 1, input keep
+            probability; if it is float and 1, no input dropout will be added.
+        output_keep_prob: unit Tensor or float between 0 and 1, output keep
+            probability; if it is float and 1, no output dropout will be added.
+        seed: (optional) integer, the randomness seed.
+
+    Raises:
+        TypeError: if cell is not an RNNCell.
+        ValueError: if keep_prob is not between 0 and 1.
+    """
+
+    def __init__(self, cell, is_training, input_keep_prob=1.0, output_keep_prob=1.0, seed=None):
+        if not isinstance(cell, core_rnn_cell.RNNCell):
+            raise TypeError("The parameter cell is not a RNNCell.")
+        if not any(keep_prob >= 0.0 and keep_prob <= 1.0 for keep_prob in [input_keep_prob, output_keep_prob]):
+            raise ValueError("Parameter input/output_keep_prob must be float, between 0 and 1")
+        self._cell = cell
+        self._is_training = is_training
+        self._input_keep_prob = input_keep_prob
+        self._output_keep_prob = output_keep_prob
+        self._seed = seed
+
+    @property
+    def state_size(self):
+        return self._cell.state_size
+
+    @property
+    def output_size(self):
+        return self._cell.output_size
+
+    def __call__(self, inputs, state, scope=None):
+        """Run the cell with the declared dropouts."""
+
+        if (not isinstance(self._input_keep_prob, float) or self._input_keep_prob < 1):
+            inputs = _dropout(inputs, self._is_training, keep_prob=self._input_keep_prob, seed=self._seed)
+        output, new_state = self._cell(inputs, state)
+        if (not isinstance(self._output_keep_prob, float) or self._output_keep_prob < 1):
+            output = _dropout(output, self._is_training, keep_prob=self._output_keep_prob, seed=self._seed)
+        return output, new_state
+
+
 def _linear(x, n_output, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, name='fc', layer_norm=None, layer_norm_args=None, activation=None, outputs_collections=None, use_bias=True):
     """Adds a fully connected layer.
 
@@ -495,6 +545,10 @@ def _attention(query, attn_states, is_training, reuse, attn_size, attn_vec_size,
         new_attns = tf.reshape(d, [-1, attn_size])
         new_attn_states = tf.slice(attn_states, [0, 1, 0], [-1, -1, -1])
         return new_attns, new_attn_states
+
+
+def _dropout(x, is_training, keep_prob=0.5, seed=None):
+    return tf.cond(is_training, lambda: tf.nn.dropout(x, tf.cast(keep_prob, tf.float32), seed=seed), lambda: x)
 
 
 def _flatten(x, name='flatten'):
