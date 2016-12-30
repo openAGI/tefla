@@ -14,6 +14,8 @@ from tefla.core import initializers
 from tefla.core import iter_ops
 from tefla.core import layer_arg_ops as layer_args
 from tefla.core import layers
+from tefla.core import special_layers
+from tefla.core import rnn_cell
 from tefla.core import metrics
 from tefla.core import logger
 from tefla.core import losses
@@ -36,6 +38,8 @@ from tefla.utils import util as utils
 
 MODULES = [
            (layers, 'tefla.core.layers'),
+           (special_layers, 'tefla.core.special_layers'),
+           (rnn_cell, 'tefla.core.rnn_cell'),
            (initializers, 'tefla.core.initializers'),
            (metrics, 'tefla.core.metrics'),
            (losses, 'tefla.core.losses'),
@@ -69,6 +73,7 @@ def top_level_functions(body):
 
 
 def top_level_classes(body):
+    #return (node for node in ast.walk(body) if isinstance(node, ast.ClassDef))
     return (f for f in body if isinstance(f, ast.ClassDef))
 
 
@@ -99,7 +104,10 @@ def get_src_path(obj, src_root='tefla', append_base=True):
 	else:
 	    path = obj.__name__
 	path = path.replace(".", "/")
-    pre, post = path.rsplit(src_root + "/", 1)
+    try:
+        pre, post = path.rsplit(src_root + "/", 1)
+    except:
+        pre, post = '', ''
 
     lineno = get_line_no(obj)
     lineno = "" if lineno is None else "#L{}".format(lineno)
@@ -252,8 +260,8 @@ def get_func_doc(name, func):
     doc_source = ''
     if name in SKIP:
         return ''
-    if name[0] == '_':
-        return ''
+    #if name[0] == '_':
+    #    return ''
     if func in classes_and_functions:
         return ''
     classes_and_functions.add(func)

@@ -1,6 +1,6 @@
 # Supervised Trainer class
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L23 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fd6bc153f10>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fd6bc153f50>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L23 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f24a02d6410>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f24a02d6450>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False,  loss_type='softmax_cross_entropy')</span>
 
 <h3>Args</h3>
 
@@ -39,6 +39,24 @@ of summary writing
  - **verbose**: log level
 
  --------- 
+
+# Clips the gradients by the given value
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L471 target="_blank"><b>tefla.core.training._clip_grad_norms</b></a></span>  (gradients_to_variables,  max_norm=10)</span>
+
+<h3>Args</h3>
+
+
+ - **gradients_to_variables**: A list of gradient to variable pairs (tuples).
+ - **max_norm**: the maximum norm value.
+
+<h3>Returns</h3>
+
+
+A list of clipped gradient to variable pairs.
+ 
+
+ ---------- 
 
 # Clips the gradients by the given value
 

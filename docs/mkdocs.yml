@@ -12,6 +12,8 @@ pages:
 - Installation: installation.md
 - Layers:
   - Layers: core/layers.md
+  - RNN: core/rnn_cell.md
+  - Special Layers: core/special_layers.md
   - Layer Args: core/layer_arg_ops.md
 - Trainer:
   - Trainer: core/training.md

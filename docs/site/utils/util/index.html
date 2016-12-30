@@ -82,6 +82,20 @@
         
             
     <li class="toctree-l1 ">
+        <a class="" href="../../core/rnn_cell/">RNN</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/special_layers/">Special Layers</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
         <a class="" href="../../core/layer_arg_ops/">Layer Args</a>
         
     </li>
@@ -277,6 +291,12 @@
                 <li class="toctree-l3"><a href="#transform-numeric-labels-into-onehot_labels">Transform numeric labels into onehot_labels</a></li>
                 
             
+                <li class="toctree-l3"><a href="#returns-a-true-if-its-input-is-a-collectionssequence-except-strings">Returns a true if its input is a collections.Sequence (except strings)</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#returns-a-flat-sequence-from-a-given-nested-structure">Returns a flat sequence from a given nested structure</a></li>
+                
+            
             </ul>
         
     </li>
@@ -339,13 +359,13 @@
             <div class="section">
               
                 <h1 id="valid-types-for-loss-variables-and-gradients">Valid types for loss, variables and gradients</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L194 target="_blank"><b>tefla.utils.util.valid_dtypes</b></a></span>  ()</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L196 target="_blank"><b>tefla.utils.util.valid_dtypes</b></a></span>  ()</span>
 Subclasses should override to allow other float types.
 <h3>Returns</h3></p>
 <p>Valid types for loss, variables and gradients.</p>
 <hr />
 <h1 id="asserts-tensors-are-all-valid-types-see-_valid_dtypes">Asserts tensors are all valid types (see <code>_valid_dtypes</code>)</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L203 target="_blank"><b>tefla.utils.util.assert_valid_dtypes</b></a></span>  (tensors)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L205 target="_blank"><b>tefla.utils.util.assert_valid_dtypes</b></a></span>  (tensors)</span>
 <h3>Args</h3></p>
 <ul>
 <li>
@@ -358,7 +378,7 @@ Subclasses should override to allow other float types.
 </ul>
 <hr />
 <h1 id="returns-value-if-value_or_tensor_or_var-has-a-constant-value">Returns value if value_or_tensor_or_var has a constant value</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L217 target="_blank"><b>tefla.utils.util.constant_value</b></a></span>  (value_or_tensor_or_var,  dtype=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L219 target="_blank"><b>tefla.utils.util.constant_value</b></a></span>  (value_or_tensor_or_var,  dtype=None)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -371,7 +391,7 @@ Subclasses should override to allow other float types.
 <p>The constant value or None if it not constant.</p>
 <hr />
 <h1 id="return-either-fn1-or-fn2-based-on-the-boolean-value-of-pred">Return either fn1() or fn2() based on the boolean value of <code>pred</code></h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L245 target="_blank"><b>tefla.utils.util.static_cond</b></a></span>  (pred,  fn1,  fn2)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L247 target="_blank"><b>tefla.utils.util.static_cond</b></a></span>  (pred,  fn1,  fn2)</span></p>
 <p>Same signature as <code>control_flow_ops.cond()</code> but requires pred to be a bool.</p>
 <h3>Args</h3>
 
@@ -385,7 +405,7 @@ Subclasses should override to allow other float types.
 <p>Tensors returned by the call to either <code>fn1</code> or <code>fn2</code>.</p>
 <hr />
 <h1 id="return-either-fn1-or-fn2-based-on-the-boolean-predicatevalue-pred">Return either fn1() or fn2() based on the boolean predicate/value <code>pred</code></h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L271 target="_blank"><b>tefla.utils.util.smart_cond</b></a></span>  (pred,  fn1,  fn2,  name=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L273 target="_blank"><b>tefla.utils.util.smart_cond</b></a></span>  (pred,  fn1,  fn2,  name=None)</span></p>
 <p>If <code>pred</code> is bool or has a constant value it would use <code>static_cond</code>,
  otherwise it would use <code>tf.cond</code>.</p>
 <h3>Args</h3>
@@ -407,7 +427,7 @@ Subclasses should override to allow other float types.
 <p>Tensors returned by the call to either <code>fn1</code> or <code>fn2</code>.</p>
 <hr />
 <h1 id="transform-numeric-labels-into-onehot_labels">Transform numeric labels into onehot_labels</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L321 target="_blank"><b>tefla.utils.util.one_hot_encoding</b></a></span>  (labels,  num_classes,  name='one_hot_encoding')</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L323 target="_blank"><b>tefla.utils.util.one_hot_encoding</b></a></span>  (labels,  num_classes,  name='one_hot_encoding')</span>
 <h3>Args</h3></p>
 <ul>
 <li><strong>labels</strong>: [batch_size] target labels.</li>
@@ -423,6 +443,30 @@ Subclasses should override to allow other float types.
 <h3>Returns</h3>
 
 <p>one hot encoding of the labels.</p>
+<hr />
+<h1 id="returns-a-true-if-its-input-is-a-collectionssequence-except-strings">Returns a true if its input is a collections.Sequence (except strings)</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L342 target="_blank"><b>tefla.utils.util.is_sequence</b></a></span>  (seq)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>seq</strong>: an input sequence.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>True if the sequence is a not a string and is a collections.Sequence.</p>
+<hr />
+<h1 id="returns-a-flat-sequence-from-a-given-nested-structure">Returns a flat sequence from a given nested structure</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L354 target="_blank"><b>tefla.utils.util.flatten_sq</b></a></span>  (nest_sq)</span>
+If <code>nest</code> is not a sequence, this returns a single-element list: <code>[nest]</code>.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>nest</strong>: an arbitrarily nested structure or a scalar object.
+Note, numpy arrays are considered scalars.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A Python list, the flattened version of the input.</p>
 <hr />
               
             </div>
