@@ -87,4 +87,4 @@ Improvements and requests for new features are more than welcome! Do not hesitat
 
 [MIT License](https://n3011.github.io/tefla/license/)
 
-Note: This project was originally forked from: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.
+Note: This project BASE was originally forked from: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.
