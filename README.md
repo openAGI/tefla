@@ -71,4 +71,20 @@ trainer = SupervisedTrainer(model, training_cnf, classification=training_cnf['cl
 trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)
 ```
 
+## Documentation
+
+[Tefla Docs](https://n3011.github.io/tefla/)
+
+
+## Contributions
+
+Welcome to the first release of Tefla, if you find any bug, please report it in the GitHub issues section.
+
+Improvements and requests for new features are more than welcome! Do not hesitate to twist and tweak Tefla, and send pull-requests.
+
+
+## License
+
+[MIT License](https://n3011.github.io/tefla/license/)
+
 Note: This project was originally forked from: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.
