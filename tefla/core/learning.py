@@ -256,14 +256,12 @@ class SupervisedTrainer(Base):
 
                 training_history.append(epoch_info)
 
-                learning_rate_value = self.lr_policy.epoch_update(learning_rate_value, training_history)
-                log.info("Learning rate: %f " % learning_rate_value)
                 log.debug('10. Epoch done. [%d]' % epoch)
             if self.is_summary:
                 train_writer.close()
                 validation_writer.close()
 
-    def _loss_softmax(self, logits, labels, is_training):
+    def _loss_regression(self, logits, labels, is_training):
         labels = tf.cast(labels, tf.int64)
         sq_loss = tf.square(tf.sub(logits, labels), name='regression loss')
         sq_loss_mean = tf.reduce_mean(sq_loss, name='regression')
@@ -278,7 +276,7 @@ class SupervisedTrainer(Base):
         else:
             return sq_loss_mean
 
-    def _loss_regression(self, logits, labels, is_training):
+    def _loss_softmax(self, logits, labels, is_training):
         labels = tf.cast(labels, tf.int64)
         ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels, name='cross_entropy_loss')
         ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
@@ -293,9 +291,9 @@ class SupervisedTrainer(Base):
         else:
             return ce_loss_mean
 
-    def _tower_loss(self, scope, model, images, labels, is_training, resue, is_classification=True):
+    def _tower_loss(self, scope, model, images, labels, is_training, reuse, is_classification=True):
         if is_training:
-            self.training_end_points = model(images, is_training=is_training, reuse=resue)
+            self.training_end_points = model(images, is_training=is_training, reuse=reuse)
             if is_classification:
                 _, = self._loss_softmax(self.training_end_points['logits'], labels, is_training)
             else:
@@ -306,7 +304,7 @@ class SupervisedTrainer(Base):
                 loss_name = re.sub('%s_[0-9]*/' % self.cnf['TOWER_NAME'], '', l.op.name)
                 tf.scalar_summary(loss_name, l)
         else:
-            self.validation_end_points = model(images, is_training=is_training, reuse=resue)
+            self.validation_end_points = model(images, is_training=is_training, reuse=reuse)
             if is_classification:
                 total_loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
             else:
