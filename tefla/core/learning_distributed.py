@@ -63,8 +63,8 @@ class DistSupervisedTrainer(Base):
             with tf.device(tf.replica_device_setter(cluster=cluster_spec)):
                 # with tf.device(tf.replica_device_setter(ps_device='/job:ps/task:%d' % task_id)):
                 global_step = tf.get_variable('global_step', shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
-
-                total_loss, opt = self._setup_model_loss(self, dataset, is_chief, task_id, num_workers, is_training, scope, reuse=None, global_step=None, num_replicas_to_aggregate=-1)
+                initial_lr = self.lr_policy.initial_lr
+                total_loss, opt = self._setup_model_loss(self, dataset, is_chief, task_id, num_workers, is_training, scope, initial_lr=initial_lr, reuse=None, global_step=None, num_replicas_to_aggregate=-1)
 
                 chief_queue_runners = [opt.get_chief_queue_runner()]
                 init_tokens_op = opt.get_init_tokens_op()
@@ -182,7 +182,7 @@ class DistSupervisedTrainer(Base):
 
         return losses, total_loss
 
-    def _setup_model_loss(self, dataset, is_chief, task_id, num_workers, is_training, scope, reuse=None, global_step=None, num_replicas_to_aggregate=-1):
+    def _setup_model_loss(self, dataset, is_chief, task_id, num_workers, is_training, scope, initial_lr=0.1, reuse=None, global_step=None, num_replicas_to_aggregate=-1):
         # TODO define image_processing
         from tefla.da.future import image_processing
         images, labels = image_processing.distorted_inputs(dataset, batch_size=self.cnf.get('batch_size', 32), num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8))
@@ -201,7 +201,7 @@ class DistSupervisedTrainer(Base):
         variables_to_average = (tf.trainable_variables() + tf.moving_average_variables())
 
         # Create synchronous replica optimizer.
-        learning_rate = self.lr_policy.initial_lr
+        learning_rate = self.lr_policy.batch_update(initial_lr, global_step)
         opt = self._optimizer(learning_rate, optname=self.cnf.get('optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
         opt = tf.train.SyncReplicasOptimizer(opt, replicas_to_aggregate=num_replicas_to_aggregate, replica_id=task_id, total_num_replicas=num_workers, variable_averages=exp_moving_averager, variables_to_average=variables_to_average)
         return total_loss, opt

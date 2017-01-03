@@ -170,7 +170,7 @@ class Base(object):
             grads_and_vars.append((grad, var))
         return grads_and_vars
 
-    def _clip_grad_global_norms(self, tvars, loss, opt, global_norm=8, gate_gradients=1, gradient_noise_scale=4.0, GATE_GRAPH=2, grad_loss=None, agre_method=None, col_grad_ops=False):
+    def _clip_grad_global_norms(self, tvars, loss, opt, global_norm=8, gate_gradients=1, gradient_noise_scale=None, GATE_GRAPH=2, grad_loss=None, agre_method=None, col_grad_ops=False):
         """Clips the gradients by the given value.
 
         Args:
@@ -184,7 +184,7 @@ class Base(object):
          """
         var_refs = [v.ref() for v in tvars]
         grads = tf.gradients(loss, var_refs, grad_ys=grad_loss, gate_gradients=(gate_gradients == 1), aggregation_method=agre_method, colocate_gradients_with_ops=col_grad_ops)
-        if gradient_noise_scale > 1:
+        if gradient_noise_scale is not None:
             grads = self._add_scaled_noise_to_gradients(list(zip(grads, tvars)), gradient_noise_scale=gradient_noise_scale)
         if gate_gradients == GATE_GRAPH:
             grads = tf.tuple(grads)
