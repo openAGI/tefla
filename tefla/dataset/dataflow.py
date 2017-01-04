@@ -75,6 +75,53 @@ class Dataflow(object):
         [data_batch], label_batch = balanced_sample([image], label, target_probs, batch_size, init_probs=init_probs, enqueue_many=enqueue_many, queue_capacity=queue_capacity, threads_per_queue=threads_per_queue, name=name)
         return data_batch, label_batch
 
+    # TODO need refinements
+    def batch_inputs(self, batch_size, train, tfrecords_image_size, crop_size, im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=None, input_queue_memory_factor=1):
+        """Contruct batches of training or evaluation examples from the image dataset.
+
+        Args:
+            dataset: instance of Dataset class specifying the dataset.
+            See dataset.py for details.
+            batch_size: integer
+            train: boolean
+            crop_size: training time image size. a int or tuple
+            tfrecords_image_size: a list with original image size used to encode image in tfrecords
+                e.g.: [width, height, channel]
+            image_processing: a function to process image
+            num_preprocess_threads: integer, total number of preprocessing threads
+
+        Returns:
+            images: 4-D float Tensor of a batch of images
+            labels: 1-D integer Tensor of [batch_size].
+
+        Raises:
+            ValueError: if data is not found
+        """
+        with tf.name_scope('batch_processing'):
+            if num_preprocess_threads % 4:
+                raise ValueError('Please make num_preprocess_threads a multiple '
+                                 'of 4 (%d % 4 != 0).', num_preprocess_threads)
+            images_and_labels = []
+            for thread_id in range(num_preprocess_threads):
+                image, label = self.get(['image', 'label'], tfrecords_image_size, im_size)
+                if image_preprocessing is not None:
+                    image = image_preprocessing(
+                        image, train, crop_size, im_size, thread_id, bbox)
+                images_and_labels.append([image, label])
+            images, label_index_batch = tf.train.batch_join(images_and_labels, batch_size=batch_size,
+                                                            capacity=2 * num_preprocess_threads * batch_size)
+
+            # Reshape images into these desired dimensions.
+            depth = 3
+            if isinstance(crop_size, int):
+                crop_size = (crop_size, crop_size)
+
+            images = tf.cast(images, tf.float32)
+            images = tf.reshape(
+                images, shape=[batch_size, crop_size[0], crop_size[1], depth])
+
+            return images, tf.reshape(label_index_batch, [batch_size])
+
     def _validate_items(self, items, valid_items):
         if not isinstance(items, (list, tuple)):
             raise ValueError('items must be a list or tuple')
