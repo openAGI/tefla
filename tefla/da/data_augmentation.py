@@ -31,7 +31,7 @@ import random
 import scipy.ndimage
 
 
-def inputs(dataflow, batch_size=None, num_preprocess_threads=None, num_readers=1):
+def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=None, num_readers=1):
     """Generate batches of ImageNet images for evaluation.
 
     Args:
@@ -45,13 +45,13 @@ def inputs(dataflow, batch_size=None, num_preprocess_threads=None, num_readers=1
         labels: 1-D integer Tensor of [cfg.TRAIN.batch_size].
     """
     with tf.device('/cpu:0'):
-        images, labels = dataflow.batch_inputs(
-            dataflow, batch_size, train=False, num_preprocess_threads=num_preprocess_threads, num_readers=num_readers)
+        images, labels = dataflow.batch_inputs(batch_size, False, tfrecords_image_size, crop_size,
+                                               im_size=im_size, num_preprocess_threads=num_preprocess_threads, num_readers=num_readers)
 
     return images, labels
 
 
-def distorted_inputs(dataflow, batch_size=None, num_preprocess_threads=None, num_readers=1):
+def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=None, num_readers=1):
     """Generate batches of distorted versions of Training images.
 
     Args:
@@ -65,8 +65,8 @@ def distorted_inputs(dataflow, batch_size=None, num_preprocess_threads=None, num
         labels: 1-D integer Tensor of [cfg.TRAIN.batch_size].
     """
     with tf.device('/cpu:0'):
-        images, labels = dataflow.batch_inputs(
-            dataflow, batch_size, train=True, num_preprocess_threads=num_preprocess_threads, num_readers=num_readers)
+        images, labels = dataflow.batch_inputs(batch_size, True, tfrecords_image_size, crop_size,
+                                               im_size=im_size, num_preprocess_threads=num_preprocess_threads, num_readers=num_readers)
     return images, labels
 
 
