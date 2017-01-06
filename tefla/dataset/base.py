@@ -8,9 +8,8 @@ from __future__ import division
 from __future__ import print_function
 
 from abc import ABCMeta
-from abc import abstractmethod
 import os
-import numpy as np
+import math
 import tensorflow as tf
 
 
@@ -29,12 +28,13 @@ class Dataset(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, name, decoder, data_dir=None, num_classes=10, num_examples_per_epoch=1, items_to_descriptions=None, **kwargs):
+    def __init__(self, name, decoder, data_dir=None, num_classes=10, num_examples_per_epoch=1, batch_size=1, items_to_descriptions=None, **kwargs):
         self.name = name
         self._decoder = decoder
         self.data_dir = data_dir
         self._num_classes = num_classes
         self._num_examples_per_epoch = num_examples_per_epoch
+        self._batch_size = batch_size
         self.items_to_descriptions = items_to_descriptions
         self.__dict__.update(kwargs)
 
@@ -52,6 +52,10 @@ class Dataset(object):
     def num_examples_per_epoch(self):
         """Returns the number of examples in the data subset."""
         return self._num_examples_per_epoch
+
+    @property
+    def n_iters_per_epoch(self):
+        return int(math.ceil(self._num_examples_per_epoch / float(self._batch_size)))
 
     @num_examples_per_epoch.setter
     def num_examples_per_epoch(self, value):
