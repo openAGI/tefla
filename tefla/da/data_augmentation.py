@@ -213,8 +213,6 @@ def distort_image(image, crop_size, im_size=None, thread_id=0, scope=None):
     Args:
         image: 3-D float `Tensor` of image
         im_size: 1-D int `Tensor` of 2 elements, image height and width, for real time resizing
-        crop_size: 1-D int `Tensor` of 2 elemnts,  image crop height and width, for training crops
-        thread_id: integer indicating the preprocessing thread.
         scope: Optional scope for name_scope.
 
     Returns:
