@@ -82,7 +82,8 @@ class DistSupervisedTrainer(Base):
             self._setup_summaries()
         self._setup_misc()
         self._print_info(dataset)
-        self.train(task_id, target, dataset, dataflow, cluster_spec, is_training, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None)
+        self.train(task_id, target, dataset, dataflow, cluster_spec, is_training,
+                   start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None)
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
@@ -106,7 +107,8 @@ class DistSupervisedTrainer(Base):
             log.info('%s %s' % (n, s))
 
         log.info("\n---Non Trainable vars in model:")
-        name_shapes = map(lambda v: (v.name, v.get_shape()), non_trainable_vars)
+        name_shapes = map(lambda v: (v.name, v.get_shape()),
+                          non_trainable_vars)
         for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
             log.info('%s %s' % (n, s))
 
@@ -146,7 +148,8 @@ class DistSupervisedTrainer(Base):
 
                 total_loss, opt, val_total_loss = self._setup_model_loss(
                     is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=None, num_replicas_to_aggregate=-1)
-                train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_grad_global_norm=self.clip_grad_global_norm, gradient_noise_scale=self.gradient_noise_scale, gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
+                train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_grad_global_norm=self.clip_grad_global_norm, gradient_noise_scale=self.gradient_noise_scale,
+                                                gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
 
                 chief_queue_runners = [opt.get_chief_queue_runner()]
                 init_tokens_op = opt.get_init_tokens_op()
