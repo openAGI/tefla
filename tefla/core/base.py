@@ -40,7 +40,7 @@ class Base(object):
         self.is_summary = is_summary
         self.loss_type = loss_type
         self.weights_dir = weights_dir
-        log.setFIleHandler(log_file_name)
+        log.setFileHandler(log_file_name)
         log.setVerbosity(self._verbosity(str(verbosity), log))
 
     def _setup_summaries(self, d_grads_and_var, g_grads_and_var=None):
