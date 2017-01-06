@@ -1182,7 +1182,7 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
         moving_inv_std = tf.get_variable(
             name='moving_inv_std',
             shape=[x.get_shape()[-1]],
-            initializer=tf.ones_initializer,
+            initializer=tf.ones_initializer(dtype=tf.float32),
             trainable=False)
 
         def mean_inv_std_with_update():

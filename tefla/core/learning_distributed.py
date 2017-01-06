@@ -64,6 +64,8 @@ class DistSupervisedTrainer(Base):
                 # with tf.device(tf.replica_device_setter(ps_device='/job:ps/task:%d' % task_id)):
                 global_step = tf.get_variable('global_step', shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
                 initial_lr = self.lr_policy.initial_lr
+                n_iters_per_epoch = len(dataset.training_X) // self.training_iterator.batch_size
+                self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
                 total_loss, opt = self._setup_model_loss(self, dataset, is_chief, task_id, num_workers, is_training, scope, initial_lr=initial_lr, reuse=None, global_step=None, num_replicas_to_aggregate=-1)
 
                 chief_queue_runners = [opt.get_chief_queue_runner()]
