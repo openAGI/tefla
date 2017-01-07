@@ -13,6 +13,9 @@ from tefla.core.base import Base
 # import tefla.core.summary as summary
 import tefla.core.logger as log
 from tefla.utils import util
+from tefla.dataset.base import Dataset
+from tefla.dataset.decoder import Decoder
+from tefla.dataset.dataflow import Dataflow
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -54,10 +57,15 @@ class DistSupervisedTrainer(Base):
         self.gradient_multipliers = gradient_multipliers
         self.aggregation_method = aggregation_method
         self.colocate_gradients_with_ops = colocate_gradients_with_ops
+        self.dataset_name = self.cnf.get('dataset_name', 'imagenet')
+        self.num_readers = self.cnf.get('num_readers', 8)
+        self.min_queue_examples = self.cnf.get('min_queue_examples', 1000)
+        self.capacity = self.cnf.get('capacity', 2000)
+        self.feature_keys = self.cnf.get('feature_keys')
         super(DistSupervisedTrainer, self).__init__(
             self, util.load_module(model), cnf, **kwargs)
 
-    def fit(self, task_id, target, dataset, dataflow, cluster_spec, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+    def fit(self, task_id, target, dataset, datadir, cluster_spec, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
         """
         Train the model on the specified dataset
 
@@ -65,7 +73,7 @@ class DistSupervisedTrainer(Base):
             task_id: int, id of the task
             target: name of the TensorFlow target to use. See the tf.Session constructor for
                 how this is interpreted.
-            dataflow: dataflow instance to get data batches
+            datadir: datadir, training / val dataset
             dataset: dataset instance to use to access data for training/validation
             cluster_spec: cluster specifications
             reuse: whether to resue variables
@@ -80,10 +88,27 @@ class DistSupervisedTrainer(Base):
         """
         if self.is_summary:
             self._setup_summaries()
+        dataflow = self._setup_data_ops(datadir, dataset_name=self.dataset_name, feature_keys=self.feature_keys, num_readers=self.num_readers, min_queue_examples=self.min_queue_examples, capacity=self.capacity)
         self._setup_misc()
         self._print_info(dataset)
         self.train(task_id, target, dataset, dataflow, cluster_spec, is_training,
                    start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None)
+
+    def _setup_data_ops(self, datadir, dataset_name='imagenet', feature_keys=None, num_readers=8, min_queue_examples=1000, capacity=2000):
+        if feature_keys is None:
+            features_keys = {
+                'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),
+                'image/format': tf.FixedLenFeature((), tf.string, default_value='jpg'),
+                'image/class/label': tf.FixedLenFeature([], tf.int64, default_value=tf.zeros([], dtype=tf.int64)),
+            }
+
+        decoder = Decoder(features_keys)
+
+        dataset = Dataset(dataset_name, decoder, data_dir)
+
+        dataflow = Dataflow(dataset, num_readers=num_readers, shuffle=True,
+                            min_queue_examples=min_queue_examples, capacity=capacity)
+        return dataflow
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
