@@ -88,7 +88,8 @@ class DistSupervisedTrainer(Base):
         """
         if self.is_summary:
             self._setup_summaries()
-        dataflow = self._setup_data_ops(datadir, dataset_name=self.dataset_name, feature_keys=self.feature_keys, num_readers=self.num_readers, min_queue_examples=self.min_queue_examples, capacity=self.capacity)
+        dataflow = self._setup_data_ops(datadir, dataset_name=self.dataset_name, feature_keys=self.feature_keys,
+                                        num_readers=self.num_readers, min_queue_examples=self.min_queue_examples, capacity=self.capacity)
         self._setup_misc()
         self._print_info(dataset)
         self.train(task_id, target, dataset, dataflow, cluster_spec, is_training,
@@ -104,7 +105,7 @@ class DistSupervisedTrainer(Base):
 
         decoder = Decoder(features_keys)
 
-        dataset = Dataset(dataset_name, decoder, data_dir)
+        dataset = Dataset(dataset_name, decoder, datadir)
 
         dataflow = Dataflow(dataset, num_readers=num_readers, shuffle=True,
                             min_queue_examples=min_queue_examples, capacity=capacity)
@@ -219,8 +220,8 @@ class DistSupervisedTrainer(Base):
                         batch_train_sizes = []
                         epoch_start_time = time.time()
                         for iteration in range(n_iters_per_epoch):
-                            images, labels = dataflow.batch_inputs(dataset, batch_size=self.cnf.get(
-                                'batch_size', 32), num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8))
+                            images, labels = dataflow.batch_inputs(self.cnf.get('batch_size', 32), True, self.cnf.get('tfrecords_image_size'), self.cnf.get(
+                                'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
                             feed_dict_train = {self.inputs: images, self.labels: self._adjust_ground_truth(labels),
                                                self.learning_rate: learning_rate}
                             start_time = time.time()
@@ -267,8 +268,8 @@ class DistSupervisedTrainer(Base):
                         epoch_validation_metrics = []
                         batch_validation_sizes = []
                         for iteration in range(n_val_iters_per_epoch):
-                            val_images, val_labels = dataflow.batch_inputs(dataset, batch_size=self.cnf.get(
-                                'batch_size', 32), num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8))
+                            val_images, val_labels = dataflow.batch_inputs(self.cnf.get('batch_size_test', 32), False, self.cnf.get('tfrecords_image_size'), self.cnf.get(
+                                'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
                             feed_dict_val = {self.validation_inputs: val_images, self.validation_labels: self._adjust_ground_truth(val_labels),
                                              self.learning_rate: learning_rate}
                             log.debug(
