@@ -11,21 +11,31 @@ from tefla.utils import util
 class PredictSessionMixin(object):
     """
     base mixin class for prediction
+
+    Args:
+        weights_from: path to the weights file
+        gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
-    def __init__(self, weights_from):
+    def __init__(self, weights_from, gpu_memory_fraction=None):
         self.weights_from = weights_from
+        self.graph = tf.Graph()
+        if gpu_memory_fraction is not None:
+            gpu_options = tf.GPUOptions(
+                per_process_gpu_memory_fraction=gpu_memory_fraction)
+            self.sess = tf.Session(graph=self.graph,
+                                   config=tf.ConfigProto(gpu_options=gpu_options))
+        else:
+            self.sess = tf.Session(graph=self.graph, config=tf.ConfigProto())
 
     def predict(self, X):
-        """
-        Returns the network predcitions for a single or batch of inputs
-        """
-        saver = tf.train.Saver()
-        with tf.Session() as sess:
-            saver.restore(sess, self.weights_from)
-            return self._real_predict(X, sess)
+        with self.graph.as_default():
+            return self._real_predict(X)
 
-    def _real_predict(self, X, sess):
+    def _real_predict(self, X):
+        pass
+
+    def _build_model(self):
         pass
 
 
@@ -37,24 +47,32 @@ class OneCropPredictor(PredictSessionMixin):
         cnf: prediction configs
         weights_from: location of the model weights file
         prediction_iterator: iterator to access and augment the data for prediction
+        gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
     def __init__(self, model, cnf, weights_from, prediction_iterator):
         self.model = model
         self.cnf = cnf
         self.prediction_iterator = prediction_iterator
+        super(OneCropPredictor, self).__init__(weights_from)
+        with self.graph.as_default():
+            self._build_model()
+            saver = tf.train.Saver()
+            print('Loading weights from: %s' % self.weights_from)
+            saver.restore(self.sess, self.weights_from)
 
-        end_points_predict = model(is_training=False, reuse=None)
+    def _build_model(self):
+        end_points_predict = self.model(is_training=False, reuse=None)
         self.inputs = end_points_predict['inputs']
         self.predictions = end_points_predict['predictions']
-        super(OneCropPredictor, self).__init__(weights_from)
 
-    def _real_predict(self, X, sess, xform=None, crop_bbox=None):
+    def _real_predict(self, X, xform=None, crop_bbox=None):
         tic = time.time()
         print('Making %d predictions' % len(X))
         data_predictions = []
         for X, y in self.prediction_iterator(X, xform=xform, crop_bbox=crop_bbox):
-            predictions_e = sess.run(self.predictions, feed_dict={self.inputs: X})
+            predictions_e = self.sess.run(
+                self.predictions, feed_dict={self.inputs: X})
             data_predictions.append(predictions_e)
         data_predictions = np.vstack(data_predictions)
         print('took %6.1f seconds' % (time.time() - tic))
@@ -71,19 +89,22 @@ class QuasiPredictor(PredictSessionMixin):
         prediction_iterator: iterator to access and augment the data for prediction
         number_of_transform: number of determinastic augmentaions to be performed on the input data
             resulted predictions are averaged over the augmentated transformation prediction outputs
+        gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
     def __init__(self, model, cnf, weights_from, prediction_iterator, number_of_transforms):
         self.number_of_transforms = number_of_transforms
         self.cnf = cnf
         self.prediction_iterator = prediction_iterator
-        self.predictor = OneCropPredictor(model, cnf, weights_from, prediction_iterator)
+        self.predictor = OneCropPredictor(
+            model, cnf, weights_from, prediction_iterator)
         super(QuasiPredictor, self).__init__(weights_from)
 
-    def _real_predict(self, X, sess):
+    def _real_predict(self, X):
         standardizer = self.prediction_iterator.standardizer
         da_params = standardizer.da_processing_params()
-        util.veryify_args(da_params, ['sigma'], 'QuasiPredictor > standardizer does unknown da with param(s):')
+        util.veryify_args(da_params, [
+                          'sigma'], 'QuasiPredictor > standardizer does unknown da with param(s):')
         color_sigma = da_params.get('sigma', 0.0)
         tfs, color_vecs = tta.build_quasirandom_transforms(self.number_of_transforms, color_sigma=color_sigma,
                                                            **self.cnf['aug_params'])
@@ -91,7 +112,7 @@ class QuasiPredictor(PredictSessionMixin):
         for i, (xform, color_vec) in enumerate(zip(tfs, color_vecs), start=1):
             print('Quasi-random tta iteration: %d' % i)
             standardizer.set_tta_args(color_vec=color_vec)
-            predictions = self.predictor._real_predict(X, sess, xform=xform)
+            predictions = self.predictor._real_predict(X, xform=xform)
             multiple_predictions.append(predictions)
         return np.mean(multiple_predictions, axis=0)
 
@@ -107,29 +128,28 @@ class CropPredictor(PredictSessionMixin):
         crop_size: crop size for network input
         im_size: original image size
         number_of_crops: total number of crops to extract from the input image
+        gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
         """
 
-    def __init__(self, model, cnf, weights_from, prediction_iterator, crop_size, im_size, number_of_crops=10):
-        self.number_of_crops = number_of_crops
+    def __init__(self, model, cnf, weights_from, prediction_iterator, im_size, crop_size):
+        self.crop_size = crop_size
+        self.im_size = im_size
         self.cnf = cnf
         self.prediction_iterator = prediction_iterator
-        self.predictor = OneCropPredictor(model, cnf, weights_from, prediction_iterator)
-        self.crop_size = np.array((crop_size, crop_size))
-        self.im_size = np.array((im_size, im_size))
+        self.predictor = OneCropPredictor(
+            model, cnf, weights_from, prediction_iterator)
         super(CropPredictor, self).__init__(weights_from)
 
-    def _real_predict(self, X, sess):
-        if self.number_of_crops > 1:
-            bboxs = util.get_bbox_10crop(self.crop_size, self.im_size)
-            multiple_predictions = []
-            for i, bbox in enumerate(bboxs, start=1):
-                print('Crop-determinastic iteration: %d' % i)
-                predictions = self.predictor._real_predict(X, sess, crop_bbox=bbox)
-                multiple_predictions.append(predictions)
-            return np.mean(multiple_predictions, axis=0)
-        elif self.number_of_crops == 1:
-            predictions = self.predictor._real_predict(X, sess)
-            return predictions
+    def _real_predict(self, X):
+        crop_size = np.array(self.crop_size)
+        im_size = np.array(self.im_size)
+        bboxs = util.get_bbox_10crop(crop_size, im_size)
+        multiple_predictions = []
+        for i, bbox in enumerate(bboxs, start=1):
+            print('Crop-deterministic iteration: %d' % i)
+            predictions = self.predictor._real_predict(X, crop_bbox=bbox)
+            multiple_predictions.append(predictions)
+        return np.mean(multiple_predictions, axis=0)
 
 
 class EnsemblePredictor(object):
@@ -166,5 +186,5 @@ def _ensemble(en_type, x):
     return {
         'mean': np.mean(x, axis=0),
         'gmean': gmean(x, axis=0),
-        'log_mean': np.mean(np.log(x + (x==0)), axis=0),
+        'log_mean': np.mean(np.log(x + (x == 0)), axis=0),
     }[en_type]
