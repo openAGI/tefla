@@ -25,7 +25,7 @@ def build_quasirandom_transforms(num_transforms, color_sigma, zoom_range,
                                  rotation_range, shear_range,
                                  translation_range, do_flip=True,
                                  allow_stretch=False, skip=0):
-    """Quasi Random transform for test images
+    """Quasi Random transform for test images, determinastic random transform
 
     Args:
         num_transforms: a int, total numbers of transform

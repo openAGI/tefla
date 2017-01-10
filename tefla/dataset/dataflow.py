@@ -76,7 +76,7 @@ class Dataflow(object):
         return data_batch, label_batch
 
     # TODO need refinements
-    def batch_inputs(self, batch_size, train, tfrecords_image_size, crop_size, im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=None, input_queue_memory_factor=1):
+    def batch_inputs(self, batch_size, train, tfrecords_image_size, crop_size, im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=None):
         """Contruct batches of training or evaluation examples from the image dataset.
 
         Args:
