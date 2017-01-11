@@ -352,6 +352,25 @@
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L79 target="_blank"><b>batch_inputs</b></a></span>  (batch_size,  train,  tfrecords_image_size,  crop_size,  im_size=None,  bbox=None,  image_preprocessing=None,  num_preprocess_threads=None)</span></p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>dataset</strong>: instance of Dataset class specifying the dataset.</li>
+<li>See dataset.py for details.</li>
+<li><strong>batch_size</strong>: integer</li>
+<li><strong>train</strong>: boolean</li>
+<li><strong>crop_size</strong>: training time image size. a int or tuple</li>
+<li><strong>tfrecords_image_size</strong>: a list with original image size used to encode image in tfrecords
+e.g.: [width, height, channel]</li>
+<li><strong>image_processing</strong>: a function to process image</li>
+<li><strong>num_preprocess_threads</strong>: integer, total number of preprocessing threads</li>
+</ul>
+<h5>Returns</h5>
+
+<p>images: 4-D float Tensor of a batch of images
+labels: 1-D integer Tensor of [batch_size].</p>
+<p><span class="hr_large"></span> </p>
 <p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L31 target="_blank"><b>get</b></a></span>  (items,  image_size,  resize_size=None)</span></p>
 <h5>Args</h5>
 
