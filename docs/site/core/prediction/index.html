@@ -144,6 +144,9 @@
         
             <ul>
             
+                <li class="toctree-l3"><a href="#base-mixin-class-for-prediction">base mixin class for prediction</a></li>
+                
+            
                 <li class="toctree-l3"><a href="#one-crop-predictor-it-predict-network-out-put-from-a-single-crop-of-an-input-image">One crop Predictor, it predict network out put from a single crop of an input image</a></li>
                 
             
@@ -346,8 +349,17 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="one-crop-predictor-it-predict-network-out-put-from-a-single-crop-of-an-input-image">One crop Predictor, it predict network out put from a single crop of an input image</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L32 target="_blank"><b>tefla.core.prediction.OneCropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator)</span></p>
+                <h1 id="base-mixin-class-for-prediction">base mixin class for prediction</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L11 target="_blank"><b>tefla.core.prediction.PredictSessionMixin</b></a></span>  (weights_from,  gpu_memory_fraction=None)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>weights_from</strong>: path to the weights file</li>
+<li><strong>gpu_memory_fraction</strong>: fraction of gpu memory to use, if not cpu prediction</li>
+</ul>
+<hr />
+<h1 id="one-crop-predictor-it-predict-network-out-put-from-a-single-crop-of-an-input-image">One crop Predictor, it predict network out put from a single crop of an input image</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L42 target="_blank"><b>tefla.core.prediction.OneCropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -355,10 +367,11 @@
 <li><strong>cnf</strong>: prediction configs</li>
 <li><strong>weights_from</strong>: location of the model weights file</li>
 <li><strong>prediction_iterator</strong>: iterator to access and augment the data for prediction</li>
+<li><strong>gpu_memory_fraction</strong>: fraction of gpu memory to use, if not cpu prediction</li>
 </ul>
 <hr />
 <h1 id="quasi-transform-predictor">Quasi transform predictor</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L64 target="_blank"><b>tefla.core.prediction.QuasiPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  number_of_transforms)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L82 target="_blank"><b>tefla.core.prediction.QuasiPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  number_of_transforms)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -368,10 +381,11 @@
 <li><strong>prediction_iterator</strong>: iterator to access and augment the data for prediction</li>
 <li><strong>number_of_transform</strong>: number of determinastic augmentaions to be performed on the input data
 resulted predictions are averaged over the augmentated transformation prediction outputs</li>
+<li><strong>gpu_memory_fraction</strong>: fraction of gpu memory to use, if not cpu prediction</li>
 </ul>
 <hr />
 <h1 id="multiples-non-data-augmented-crops-predictor">Multiples non Data augmented crops predictor</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L99 target="_blank"><b>tefla.core.prediction.CropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  crop_size,  im_size,  number_of_crops=10)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L120 target="_blank"><b>tefla.core.prediction.CropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  im_size,  crop_size)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -382,11 +396,12 @@ resulted predictions are averaged over the augmentated transformation prediction
 <li><strong>crop_size</strong>: crop size for network input</li>
 <li><strong>im_size</strong>: original image size</li>
 <li><strong>number_of_crops</strong>: total number of crops to extract from the input image</li>
+<li><strong>gpu_memory_fraction</strong>: fraction of gpu memory to use, if not cpu prediction</li>
 <li></li>
 </ul>
 <hr />
 <h1 id="returns-predcitions-from-multiples-models">Returns predcitions from multiples models</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L135 target="_blank"><b>tefla.core.prediction.EnsemblePredictor</b></a></span>  (predictors)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L155 target="_blank"><b>tefla.core.prediction.EnsemblePredictor</b></a></span>  (predictors)</span></p>
 <p>Ensembled predictions from multiples models using ensemble type</p>
 <h3>Args</h3>
 
@@ -396,7 +411,7 @@ resulted predictions are averaged over the augmentated transformation prediction
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L147 target="_blank"><b>predict</b></a></span>  (X,  ensemble_type='mean')</span></p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L167 target="_blank"><b>predict</b></a></span>  (X,  ensemble_type='mean')</span></p>
 <h5>Args</h5>
 
 <ul>

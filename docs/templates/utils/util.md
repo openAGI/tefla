@@ -1,3 +1,20 @@
+# Device chooser for variables
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L377 target="_blank"><b>tefla.utils.util.VariableDeviceChooser</b></a></span>  (num_parameter_servers=0,  ps_device='/job:ps',  placement='CPU:0')</span>
+When using a parameter server it will assign them in a round-robin fashion.
+When not using a parameter server it allows GPU:0 placement otherwise CPU:0.
+Initialize VariableDeviceChooser.
+
+<h3>Args</h3>
+
+
+ - **num_parameter_servers**: number of parameter servers.
+ - **ps_device**: string representing the parameter server device.
+ - **placement**: string representing the placement of the variable either CPU:0
+or GPU:0. When using parameter servers forced to CPU:0.
+
+ --------- 
+
 # Valid types for loss, variables and gradients
 
 <span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L196 target="_blank"><b>tefla.utils.util.valid_dtypes</b></a></span>  ()</span>

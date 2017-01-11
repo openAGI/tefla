@@ -79,5 +79,51 @@ text: Tensor tf.string containing the human-readable label.
 
 3-D float Tensor of prepared image.
 
+ <span class="hr_large"></span> 
+
+
+
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L133 target="_blank"><b>parse_example_proto</b></a></span>  (example_serialized,  is_bbox=False)</span>
+The output of the build_image_data.py image preprocessing script is a dataset
+containing serialized Example protocol buffers. Each Example proto contains
+the following fields:
+image/height: 462
+image/width: 581
+image/colorspace: 'RGB'
+image/channels: 3
+image/class/label: 615
+image/class/synset: 'n03623198'
+image/class/text: 'knee pad'
+image/object/bbox/xmin: 0.1
+image/object/bbox/xma<h5>x</h5>
+
+ 0.9
+image/object/bbox/ymin: 0.2
+image/object/bbox/yma<h5>x</h5>
+
+ 0.6
+image/object/bbox/label: 615
+image/format: 'JPEG'
+image/filename: 'ILSVRC2012_val_00041207.JPEG'
+image/encoded: <JPEG encoded string>
+
+<h5>Args</h5>
+
+
+ - **example_serialized**: scalar Tensor tf.string containing a serialized
+ - Example protocol buffer.
+
+<h5>Returns</h5>
+
+
+image_buffer: Tensor tf.string containing the contents of a JPEG file.
+label: Tensor tf.int32 containing the label.
+bbo<h5>x</h5>
+
+ 3-D float Tensor of bounding boxes arranged [1, num_boxes, coords]
+where each coordinate is [0, 1) and the coordinates are arranged as
+[ymin, xmin, ymax, xmax].
+text: Tensor tf.string containing the human-readable label.
+
  --------- 
 

@@ -175,7 +175,7 @@ augment tranform instance
 
 # Random perturbation
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L230 target="_blank"><b>tefla.da.data.random_perturbation_transform</b></a></span>  (zoom_range,  rotation_range,  shear_range,  translation_range,  do_flip=True,  allow_stretch=False,  rng=<module  'numpy.random'  from  '/home/ishant/.local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L230 target="_blank"><b>tefla.da.data.random_perturbation_transform</b></a></span>  (zoom_range,  rotation_range,  shear_range,  translation_range,  do_flip=True,  allow_stretch=False,  rng=<module  'numpy.random'  from  '/home/ishant/venvs/tensorflow/local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>)</span>
 
 It perturbs the image randomly
 
@@ -221,7 +221,7 @@ returns cropped image
 
 # Perturb image
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L297 target="_blank"><b>tefla.da.data.perturb</b></a></span>  (img,  augmentation_params,  target_shape,  rng=<module  'numpy.random'  from  '/home/ishant/.local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>,  mode='constant',  mode_cval=0)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L297 target="_blank"><b>tefla.da.data.perturb</b></a></span>  (img,  augmentation_params,  target_shape,  rng=<module  'numpy.random'  from  '/home/ishant/venvs/tensorflow/local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>,  mode='constant',  mode_cval=0)</span>
 
 It perturbs an image with augmentation transform
 
@@ -246,7 +246,7 @@ a `ndarray` of transformed image
 
 # Perturb image rescaled
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L326 target="_blank"><b>tefla.da.data.perturb_rescaled</b></a></span>  (img,  scale,  augmentation_params,  target_shape=  (224,  224),  rng=<module  'numpy.random'  from  '/home/ishant/.local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>,  mode='constant',  mode_cval=0)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L326 target="_blank"><b>tefla.da.data.perturb_rescaled</b></a></span>  (img,  scale,  augmentation_params,  target_shape=  (224,  224),  rng=<module  'numpy.random'  from  '/home/ishant/venvs/tensorflow/local/lib/python2.7/site-packages/numpy/random/__init__.pyc'>,  mode='constant',  mode_cval=0)</span>
 
 It perturbs an image with augmentation transform
 
@@ -348,7 +348,7 @@ PIL formatted image
 
 # Load batch of images
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L466 target="_blank"><b>tefla.da.data.load_images</b></a></span>  (imgs,  preprocessor=<function  image_no_preprocessing  at  0x7f24a6ca2e60>)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L466 target="_blank"><b>tefla.da.data.load_images</b></a></span>  (imgs,  preprocessor=<function  image_no_preprocessing  at  0x7fc273f721b8>)</span>
 
 <h3>Args</h3>
 
@@ -365,7 +365,7 @@ a `ndarray` with a batch of images
 
 # Load image
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L480 target="_blank"><b>tefla.da.data.load_image</b></a></span>  (img,  preprocessor=<function  image_no_preprocessing  at  0x7f24a6ca2e60>)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L480 target="_blank"><b>tefla.da.data.load_image</b></a></span>  (img,  preprocessor=<function  image_no_preprocessing  at  0x7fc273f721b8>)</span>
 
 <h3>Args</h3>
 
