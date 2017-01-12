@@ -55,11 +55,11 @@ def model(input_data, target, num_hidden=34, is_training=True, reuse=None):
     last = tf.gather(val, int(val.get_shape()[0]) - 1)
     logit = fc(last, int(target.get_shape()[1]), is_training, reuse)
     prediction = tf.nn.softmax(logit)
-    cross_entropy = - \
+    loss = - \
         tf.reduce_sum(
             target * tf.log(tf.clip_by_value(prediction, 1e-10, 1.0)))
     optimizer = tf.train.AdamOptimizer()
-    train_op = optimizer.minimize(cross_entropy)
+    train_op = optimizer.minimize(loss)
     error = tf.not_equal(tf.argmax(target, 1), tf.argmax(prediction, 1))
     error = tf.reduce_mean(tf.cast(error, tf.float32))
     return prediction, error, train_op
