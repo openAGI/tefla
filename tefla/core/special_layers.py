@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 
-def spatialtransformer(U, theta, downsample_factor=1.0, num_transform=1, name='SpatialTransformer', **kwargs):
+def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_transform=1, name='SpatialTransformer', **kwargs):
     """Spatial Transformer Layer
 
     Implements a spatial transformer layer as described in [1]_.
@@ -33,21 +33,20 @@ def spatialtransformer(U, theta, downsample_factor=1.0, num_transform=1, name='S
     """
     with tf.variable_scope(name):
         if num_transform > 1 and len(theta.get_shape().as_list()) == 3:
-            batch_size, num_transforms = map(int, theta.get_shape().as_list()[:2])
+            _, num_transforms = map(int, theta.get_shape().as_list()[:2])
             indices = [[i] * num_transforms for i in range(batch_size)]
             U = tf.gather(U, tf.reshape(indices, [-1]))
 
         input_shape = U.get_shape().as_list()
-        batch_size = input_shape[0]
         num_channels = input_shape[3]
         theta = tf.reshape(theta, (-1, 2, 3))
         theta = tf.cast(theta, tf.float32)
-        if not isinstance(downsample_factor, tf.float32):
+        if not isinstance(downsample_factor, float):
             downsample_factor = tf.cast(downsample_factor, tf.float32)
 
         # grid of (x_t, y_t, 1), eq (1) in ref [1]
-        out_height = tf.cast(input_shape[1] / downsample_factor, tf.float32)
-        out_width = tf.cast(input_shape[2] / downsample_factor, tf.float32)
+        out_height = tf.cast(input_shape[1] / downsample_factor, tf.int32)
+        out_width = tf.cast(input_shape[2] / downsample_factor, tf.int32)
         grid = _meshgrid(out_height, out_width)
         grid = tf.expand_dims(grid, 0)
         grid = tf.reshape(grid, [-1])
@@ -61,7 +60,7 @@ def spatialtransformer(U, theta, downsample_factor=1.0, num_transform=1, name='S
         x_s_flat = tf.reshape(x_s, [-1])
         y_s_flat = tf.reshape(y_s, [-1])
 
-        input_transformed = _interpolate(U, x_s_flat, y_s_flat, downsample_factor)
+        input_transformed = _interpolate(U, x_s_flat, y_s_flat, batch_size, downsample_factor)
 
         output = tf.reshape(input_transformed, tf.pack([batch_size, out_height, out_width, num_channels]))
         return output
@@ -75,10 +74,9 @@ def _repeat(x, n_repeats):
         return tf.reshape(x, [-1])
 
 
-def _interpolate(im, x, y, downsample_factor):
+def _interpolate(im, x, y, batch_size, downsample_factor):
     with tf.variable_scope('_interpolate'):
         input_shape = im.get_shape().as_list()
-        batch_size = input_shape[0]
         height = input_shape[1]
         width = input_shape[2]
         channels = input_shape[3]
@@ -87,8 +85,8 @@ def _interpolate(im, x, y, downsample_factor):
         y = tf.cast(y, tf.float32)
         height_f = tf.cast(height, tf.float32)
         width_f = tf.cast(width, tf.float32)
-        out_height = tf.cast(height / downsample_factor, tf.float32)
-        out_width = tf.cast(width / downsample_factor, tf.float32)
+        out_height = tf.cast(height / downsample_factor, tf.int32)
+        out_width = tf.cast(width / downsample_factor, tf.int32)
         zero = tf.zeros([], dtype=tf.int32)
         max_y = tf.cast(height - 1, tf.int32)
         max_x = tf.cast(width - 1, tf.int32)
