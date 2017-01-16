@@ -74,9 +74,9 @@ def test_forced_update_moving_vars_and_output():
             mean, variance = sess.run([moving_mean, moving_variance])
             expected_mean = expected_mean * decay + images_mean * (1 - decay)
             expected_var = expected_var * decay + images_var * (1 - decay)
-            assert_array_almost_equal(output, expected_output)
-            assert_array_almost_equal(mean, expected_mean)
-            assert_array_almost_equal(variance, expected_var)
+            assert_array_almost_equal(output, expected_output, decimal=4)
+            assert_array_almost_equal(mean, expected_mean, decimal=4)
+            assert_array_almost_equal(variance, expected_var, decimal=4)
 
 
 def test_delayed_update_moving_vars_and_output():
@@ -116,9 +116,9 @@ def test_delayed_update_moving_vars_and_output():
             mean, variance = sess.run([moving_mean, moving_variance])
             expected_mean = expected_mean * decay + images_mean * (1 - decay)
             expected_var = expected_var * decay + images_var * (1 - decay)
-            assert_array_almost_equal(output, expected_output)
-            assert_array_almost_equal(mean, expected_mean)
-            assert_array_almost_equal(variance, expected_var)
+            assert_array_almost_equal(output, expected_output, decimal=4)
+            assert_array_almost_equal(mean, expected_mean, decimal=4)
+            assert_array_almost_equal(variance, expected_var, decimal=4)
 
 
 def test_delayed_update_moving_vars():
@@ -153,8 +153,8 @@ def test_delayed_update_moving_vars():
         variance = moving_variance.eval()
         # After 10 updates with decay 0.1 moving_mean == expected_mean and
         # moving_variance == expected_var.
-        assert_array_almost_equal(mean, expected_mean)
-        assert_array_almost_equal(variance, expected_var)
+        assert_array_almost_equal(mean, expected_mean, decimal=4)
+        assert_array_almost_equal(variance, expected_var, decimal=4)
 
 
 if __name__ == '__main__':
