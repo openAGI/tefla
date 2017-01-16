@@ -21,7 +21,7 @@ def test_eval_moving_vars():
         output = batch_norm(images, is_training=False, reuse=None, decay=0.1, name='BatchNorm')
         assert len(tf.get_collection(tf.GraphKeys.UPDATE_OPS)) == 0
         # Initialize all variables
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
         moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
         moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
         mean, variance = sess.run([moving_mean, moving_variance])
@@ -55,7 +55,7 @@ def test_forced_update_moving_vars_and_output():
         epsilon = 1e-5
         output_s = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon,
                               updates_collections=None, name='BatchNorm')
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
 
         moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
         moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
@@ -97,7 +97,7 @@ def test_delayed_update_moving_vars_and_output():
         with tf.control_dependencies(update_ops):
             barrier = tf.no_op(name='barrier')
         output_s = control_flow_ops.with_dependencies([barrier], output_s)
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
 
         moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
         moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
@@ -111,7 +111,7 @@ def test_delayed_update_moving_vars_and_output():
         expected_mean = np.array([0.] * 3)
         expected_var = np.array([1.] * 3)
         expected_output = (image_values - images_mean) / np.sqrt(images_var + epsilon)
-        for _ in xrange(n_times):
+        for _ in range(n_times):
             output = sess.run(output_s)
             mean, variance = sess.run([moving_mean, moving_variance])
             expected_mean = expected_mean * decay + images_mean * (1 - decay)
@@ -140,7 +140,7 @@ def test_delayed_update_moving_vars():
             barrier = tf.no_op(name='barrier')
         output = control_flow_ops.with_dependencies([barrier], output)
         # Initialize all variables
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
         moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
         moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
         mean, variance = sess.run([moving_mean, moving_variance])
