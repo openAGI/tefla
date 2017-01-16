@@ -11,7 +11,7 @@ test_args = [
     '--cov-report=term',
     '--cov-report=html',
     '--cov=tefla',
-    'tests'
+    'tefla/tests'
 ]
 
 
