@@ -11,7 +11,7 @@ test_args = [
     '--cov-report=term',
     '--cov-report=html',
     '--cov=tefla',
-    'tests'
+    'tefla.tests'
 ]
 
 
@@ -40,7 +40,7 @@ setup(
     keywords=['tensorflow', 'deeplearning', 'cnn', 'deepcnn'],
     classifiers=[],
     install_requires=REQUIREMENTS,
-    test_suite='tests',
+    test_suite='tefla.tests',
     cmdclass={'test': PyTest},
     license='MIT',
     platforms=['linux'],
