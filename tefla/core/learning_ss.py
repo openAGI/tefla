@@ -347,9 +347,6 @@ class SemiSupervisedTrainer(Base):
                 self.d_loss_real = control_flow_ops.with_dependencies([barrier], self.d_loss_real)
                 self.d_loss_fake = control_flow_ops.with_dependencies([barrier], self.d_loss_fake)
                 self.d_loss_class = control_flow_ops.with_dependencies([barrier], self.d_loss_class)
-        # grads = opt.compute_gradients(loss)
-        # capped_grads = [(tf.clip_by_value(grad, -10., 10.), var) for grad, var in grads]
-        # grads = add_scaled_noise_to_gradients(grads_and_vars, gradient_noise_scale=10.0):
         t_vars = self._get_vars_semi_supervised()
         if self.clip_by_global_norm:
             capped_d_grads = self._clip_grad_global_norms(t_vars['d_vars'], self.d_losses[-1], d_optimizer, gradient_noise_scale=0.0)
@@ -357,8 +354,6 @@ class SemiSupervisedTrainer(Base):
         else:
             capped_d_grads = d_optimizer.compute_gradients(self.d_losses[-1], t_vars['d_vars'])
             capped_g_grads = g_optimizer.compute_gradients(self.g_losses[-1], t_vars['g_vars'])
-        # capped_grads = clip_grad_norms(grads)
-        # Scale gradients.
         global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
         if self.gradient_multipliers is not None:
             with tf.name_scope('multiply_grads'):
