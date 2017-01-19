@@ -9,6 +9,7 @@ from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, accu
 
 
 class Metric(object):
+
     def __init__(self, name=None):
         self.name = name
 
@@ -17,6 +18,7 @@ class Metric(object):
 
 
 class MetricMixin(object):
+
     def __init__(self, name='metric_hist_confusion'):
         self.name = name
         super(MetricMixin, self).__init__(name)
@@ -56,6 +58,7 @@ class Top_k(Metric):
     """
     Class to compute Top_k accuracy metric for predictions and labels
     """
+
     def __init__(self, name='Top_K'):
         super(Top_k, self).__init__(name)
         self.name = name
@@ -68,6 +71,7 @@ class Top_k(Metric):
             predictions: 2D tensor/array, predictions of the network
             targets: 2D tensor/array, ground truth labels of the network
             top_k: int, returns the top_k accuracy; {1,2,3 max_classes}
+
         Returns:
             top_k accuracy
         """
@@ -76,12 +80,14 @@ class Top_k(Metric):
     def _top_k_op(self, predictions, targets, top_k=1, dtype=tf.int32):
         with tf.name_scope('Top_' + str(top_k)):
             targets = tf.cast(targets, dtype)
-            correct_pred = tf.nn.in_top_k(predictions, tf.argmax(targets, 1), top_k)
+            correct_pred = tf.nn.in_top_k(
+                predictions, tf.argmax(targets, 1), top_k)
             acc = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
         return acc
 
 
 class Kappa(Metric, MetricMixin):
+
     def __init__(self, name='kappa'):
         super(Kappa, self).__init__(name)
 
@@ -92,6 +98,7 @@ class Kappa(Metric, MetricMixin):
         Args:
             predictions: 2D tensor/array, predictions of the network
             targets: 2D tensor/array, ground truth labels of the network
+
         Returns:
             Kappa score
         """
@@ -140,7 +147,8 @@ class Kappa(Metric, MetricMixin):
             min_rating = min(min(rater_a), min(rater_b))
         if max_rating is None:
             max_rating = max(max(rater_a), max(rater_b))
-        conf_mat = self.confusion_matrix(rater_a, rater_b, min_rating, max_rating)
+        conf_mat = self.confusion_matrix(
+            rater_a, rater_b, min_rating, max_rating)
         num_ratings = len(conf_mat)
         num_scored_items = float(len(rater_a))
 
@@ -152,7 +160,8 @@ class Kappa(Metric, MetricMixin):
 
         for i in range(num_ratings):
             for j in range(num_ratings):
-                expected_count = (hist_rater_a[i] * hist_rater_b[j] / num_scored_items)
+                expected_count = (
+                    hist_rater_a[i] * hist_rater_b[j] / num_scored_items)
                 d = pow(i - j, 2.0) / pow(num_ratings - 1, 2.0)
                 numerator += d * conf_mat[i][j] / num_scored_items
                 denominator += d * expected_count / num_scored_items
@@ -163,6 +172,7 @@ class Kappa(Metric, MetricMixin):
 
 
 class KappaV2(Metric, MetricMixin):
+
     def __init__(self, name='kappa'):
         super(KappaV2, self).__init__(name)
 
@@ -175,6 +185,7 @@ class KappaV2(Metric, MetricMixin):
             targets: 2D tensor/array, ground truth labels of the network
             num_classes: int, num_classes of the network
             batch_size: batch_size for predictions of the network
+
         Returns:
             Kappa score
         """
@@ -190,15 +201,20 @@ class KappaV2(Metric, MetricMixin):
         with tf.name_scope(name):
             labels = tf.to_float(labels)
             predictions = tf.to_float(predictions)
-            repeat_op = tf.to_float(tf.tile(tf.reshape(tf.range(0, num_ratings), [num_ratings, 1]), [1, num_ratings]))
-            repeat_op_sq = tf.square((repeat_op -tf.transpose(repeat_op)))
-            weights= repeat_op_sq / tf.to_float((num_ratings - 1) ** 2)
+            repeat_op = tf.to_float(tf.tile(tf.reshape(
+                tf.range(0, num_ratings), [num_ratings, 1]), [1, num_ratings]))
+            repeat_op_sq = tf.square((repeat_op - tf.transpose(repeat_op)))
+            weights = repeat_op_sq / tf.to_float((num_ratings - 1) ** 2)
 
             pred_ = predictions ** y_pow
             try:
-                pred_norm = pred_ / (eps + tf.reshape(tf.reduce_sum(pred_, 1), [-1, 1]))
-            except:
-                pred_norm = pred_ / (eps + tf.reshape(tf.reduce_sum(pred_, 1), [batch_size, 1]))
+                pred_norm = pred_ / \
+                    (eps + tf.reshape(tf.reduce_sum(pred_, 1), [-1, 1]))
+            except Exception as e:
+                print(e.message)
+                pred_norm = pred_ / \
+                    (eps + tf.reshape(tf.reduce_sum(pred_, 1),
+                                      [batch_size, 1]))
 
             hist_rater_a = tf.reduce_sum(pred_norm, 0)
             hist_rater_b = tf.reduce_sum(labels, 0)
@@ -206,15 +222,18 @@ class KappaV2(Metric, MetricMixin):
             conf_mat = tf.matmul(tf.transpose(pred_norm), labels)
 
             nom = tf.reduce_sum(weights * conf_mat)
-            denom = tf.reduce_sum(weights * tf.matmul(tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) / tf.to_float(batch_size))
+            denom = tf.reduce_sum(weights * tf.matmul(tf.reshape(hist_rater_a, [
+                                  num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) / tf.to_float(batch_size))
 
             try:
                 return (1 - nom / denom)
-            except:
+            except Exception as e:
+                print(e.message)
                 return (1 - nom / (denom + eps))
 
 
 class Auroc(Metric):
+
     def __init__(self, name='auroc'):
         super(Auroc, self).__init__(name)
         self.name = name
@@ -227,6 +246,7 @@ class Auroc(Metric):
             predictions: 2D tensor/array, predictions of the network
             targets: 2D tensor/array, ground truth labels of the network
             num_classes: int, num_classes of the network
+
         Returns:
             auroc score
         """
@@ -240,11 +260,12 @@ class Auroc(Metric):
         try:
             return roc_auc_score(y_true, y_pred[:, 1])
         except ValueError as e:
-            print e
+            print(e)
             return accuracy_score(y_true, np.argmax(y_pred, axis=1))
 
 
 class F1score(Metric):
+
     def __init__(self, name='auroc'):
         super(F1score, self).__init__(name)
         self.name = name
@@ -257,6 +278,7 @@ class F1score(Metric):
             predictions: 2D tensor/array, predictions of the network
             targets: 2D tensor/array, ground truth labels of the network
             num_classes: int, num_classes of the network
+
         Returns:
             F1 score
         """
@@ -280,6 +302,7 @@ def accuracy_op(predictions, targets, num_classes=5):
         predictions: 2D tensor/array, predictions of the network
         targets: 2D tensor/array, ground truth labels of the network
         num_classes: int, num_classes of the network
+
     Returns:
         accuracy
     """
