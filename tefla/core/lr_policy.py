@@ -124,7 +124,8 @@ class StepDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
         # else:
         #    step_epochs = self.schedule.keys()
         #    step_epochs = bisect.insort(step_epochs, self._start_epoch)
-        #    return self.schedule[step_epochs[step_epochs.index(self._start_epoch - 1)]]
+        # return self.schedule[step_epochs[step_epochs.index(self._start_epoch
+        # - 1)]]
 
     def __str__(self):
         return 'StepDecayPolicy(schedule=%s)' % str(self.schedule)
@@ -150,7 +151,8 @@ class AdaptiveDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
         Returns:
             updated learning rate
         """
-        # training_history = dict(training_loss:t_loss_val, validation_loss:v_loss_val, epoch:epoch_val)
+        # training_history = dict(training_loss:t_loss_val,
+        # validation_loss:v_loss_val, epoch:epoch_val)
         epochs_info = training_history[-6:]
         updated_lr = learning_rate
         if len(epochs_info) > 1:
@@ -196,7 +198,8 @@ class AdaptiveUpDownDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
         Returns:
             updated learning rate
         """
-        # training_history = dict(training_loss:t_loss_val, validation_loss:v_loss_val, epoch:epoch_val)
+        # training_history = dict(training_loss:t_loss_val,
+        # validation_loss:v_loss_val, epoch:epoch_val)
         epochs_info = training_history[-10:]
         updated_lr = learning_rate
         if len(epochs_info) > 1:
@@ -258,7 +261,9 @@ class PolyDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
         Returns:
             updated_lr
         """
-        updated_lr = self._base_lr * math.pow(1 - iter_idx / float(self.max_epoch * self._n_iters_per_epoch), self.power)
+        updated_lr = self._base_lr * \
+            math.pow(1 - iter_idx / float(self.max_epoch *
+                                          self._n_iters_per_epoch), self.power)
         return updated_lr
 
     @property
@@ -309,7 +314,8 @@ class InvDecayPolicy(InitialLrMixin, NoEpochUpdateMixin):
         Returns:
             updated_lr
         """
-        updated_lr = self._base_lr * math.pow(1 + self.gamma * iter_idx, - self.power)
+        updated_lr = self._base_lr * \
+            math.pow(1 + self.gamma * iter_idx, - self.power)
         return updated_lr
 
     @property
