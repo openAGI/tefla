@@ -1190,9 +1190,9 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
                 x, [0, 1, 2], shift=moving_mean, name='bn-moments')
             inv_std = math_ops.rsqrt(variance + epsilon)
             update_moving_mean = moving_averages.assign_moving_average(
-                moving_mean, mean, decay)
+                moving_mean, mean, decay, zero_debias=False)
             update_moving_inv_std = moving_averages.assign_moving_average(
-                moving_inv_std, inv_std, decay)
+                moving_inv_std, inv_std, decay, zero_debias=False)
             with tf.control_dependencies(
                     [update_moving_mean, update_moving_inv_std]):
                 m, v = tf.identity(mean), tf.identity(inv_std)
@@ -1203,9 +1203,9 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
                 x, [0, 1, 2], shift=moving_mean, name='bn-moments')
             inv_std = math_ops.rsqrt(variance + epsilon)
             update_moving_mean = moving_averages.assign_moving_average(
-                moving_mean, mean, decay)
+                moving_mean, mean, decay, zero_debias=False)
             update_moving_inv_std = moving_averages.assign_moving_average(
-                moving_inv_std, inv_std, decay)
+                moving_inv_std, inv_std, decay, zero_debias=False)
             tf.add_to_collection(updates_collections, update_moving_mean)
             tf.add_to_collection(updates_collections, update_moving_inv_std)
             return mean, inv_std

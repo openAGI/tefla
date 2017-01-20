@@ -78,8 +78,8 @@ def test_forced_update_moving_vars_and_output():
             expected_mean = expected_mean * decay + images_mean * (1 - decay)
             expected_inv_std = expected_inv_std * decay + images_inv_std * (1 - decay)
             assert_array_almost_equal(output, expected_output, decimal=4)
-            # assert_array_almost_equal(mean, expected_mean, decimal=4)
-            # assert_array_almost_equal(inv_std, expected_inv_std, decimal=4)
+            assert_array_almost_equal(mean, expected_mean, decimal=4)
+            assert_array_almost_equal(inv_std, expected_inv_std, decimal=4)
 
 
 def test_delayed_update_moving_vars():
