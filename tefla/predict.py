@@ -35,10 +35,12 @@ def predict(model, training_cnf, predict_dir, weights_from, dataset_name, conver
     standardizer = cnf.get('standardizer', None)
 
     preprocessor = convert_preprocessor(image_size) if convert else None
-    prediction_iterator = create_prediction_iter(cnf, standardizer, model_def.crop_size, preprocessor, sync)
+    prediction_iterator = create_prediction_iter(
+        cnf, standardizer, model_def.crop_size, preprocessor, sync)
 
     if test_type == 'quasi':
-        predictor = QuasiPredictor(model, cnf, weights_from, prediction_iterator, 20)
+        predictor = QuasiPredictor(
+            model, cnf, weights_from, prediction_iterator, 20)
         predictions = predictor.predict(images)
 
     if not os.path.exists(os.path.join(predict_dir, '..', 'results')):
@@ -53,7 +55,8 @@ def predict(model, training_cnf, predict_dir, weights_from, dataset_name, conver
     image_prediction_prob = np.vstack([title, image_prediction_prob])
     labels_file_prob = os.path.abspath(
         os.path.join(predict_dir, '..', 'results', dataset_name, 'predictions.csv'))
-    np.savetxt(labels_file_prob, image_prediction_prob, delimiter=",", fmt="%s")
+    np.savetxt(labels_file_prob, image_prediction_prob,
+               delimiter=",", fmt="%s")
 
 
 if __name__ == '__main__':
