@@ -13,6 +13,7 @@ build/
 develop-eggs/
 dist/
 downloads/
+MNIST_data/
 eggs/
 .eggs/
 lib/
