@@ -84,11 +84,11 @@ def alexnet_v2(is_training, reuse,
         net = conv2d(net, 4096, filter_size=(1, 1), scope='fc7', **conv_args)
         net = dropout(net, drop_p=1 - dropout_keep_prob,
                       scope='dropout7', **common_args)
-        net = conv2d(net, num_classes, filter_size=(1, 1),
-                     activation=None,
-                     scope='logits', **logit_args)
+        logits = conv2d(net, num_classes, filter_size=(1, 1),
+                        activation=None,
+                        scope='logits', **logit_args)
 
         if spatial_squeeze:
-            net = tf.squeeze(net, [1, 2], name='fc8/squeezed')
+            logits = tf.squeeze(logits, [1, 2], name='fc8/squeezed')
         predictions = softmax(logits, name='predictions', **pred_args)
         return end_points(is_training)

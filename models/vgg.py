@@ -88,7 +88,7 @@ def vgg_a(is_training, reuse,
                         activation=None,
                         scope='logits', **logit_args)
         if spatial_squeeze:
-            logits = tf.squeeze(logits, [1, 2], name='fc8/squeezed')
+            logits = tf.squeeze(logits, [1, 2], name='logits/squeezed')
         predictions = softmax(logits, name='predictions', **pred_args)
         return end_points(is_training)
 
@@ -153,7 +153,7 @@ def vgg_16(is_training, reuse,
                         scope='logits', **logit_args)
         # Convert end_points_collection into a end_point dict.
         if spatial_squeeze:
-            logits = tf.squeeze(logits, [1, 2], name='fc8/squeezed')
+            logits = tf.squeeze(logits, [1, 2], name='logits/squeezed')
         predictions = softmax(logits, name='predictions', **pred_args)
         return end_points(is_training)
 
@@ -217,6 +217,6 @@ def vgg_19(is_training, reuse,
                         activation=None,
                         scope='logits', **logit_args)
         if spatial_squeeze:
-            logits = tf.squeeze(logits, [1, 2], name='fc8/squeezed')
+            logits = tf.squeeze(logits, [1, 2], name='logits/squeezed')
         predictions = softmax(logits, name='predictions', **pred_args)
         return end_points(is_training)
