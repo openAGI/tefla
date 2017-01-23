@@ -1,6 +1,6 @@
 # Supervised Trainer class
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L23 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fc260f41a10>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fc260f41a50>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False,  loss_type='softmax_cross_entropy')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L23 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f54615b9610>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f54615b9650>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False,  loss_type='softmax_cross_entropy')</span>
 
 <h3>Args</h3>
 

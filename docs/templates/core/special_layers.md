@@ -1,6 +1,6 @@
 # Spatial Transformer Layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L4 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L4 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span>
 
 Implements a spatial transformer layer as described in [1]_.
 It's based on lasagne implementation in [2]_, modified by Mrinal Haloi
