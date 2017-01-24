@@ -1456,6 +1456,43 @@ def softmax(x, name='softmax', outputs_collections=None, **unused):
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def sample_gumbel(shape, eps=1e-20):
+    """Sample from Gumbel(0, 1)"""
+    U = tf.random_uniform(shape, minval=0, maxval=1)
+    return -tf.log(-tf.log(U + eps) + eps)
+
+
+def gumbel_softmax_sample(logits, temperature):
+    """ Draw a sample from the Gumbel-Softmax distribution"""
+    y = logits + sample_gumbel(tf.shape(logits))
+    return tf.nn.softmax(y / temperature)
+
+
+def gumbel_softmax(logits, temperature, hard=False):
+    """Sample from the Gumbel-Softmax distribution and optionally discretize.
+    http://blog.evjang.com/2016/11/tutorial-categorical-variational.html
+    https://arxiv.org/abs/1611.01144
+
+    Args:
+        logits: [batch_size, n_class] unnormalized log-probs
+        temperature: non-negative scalar
+        hard: if True, take argmax, but differentiate w.r.t. soft sample y
+
+    Returns:
+        [batch_size, n_class] sample from the Gumbel-Softmax distribution.
+        If hard=True, then the returned sample will be one-hot, otherwise it will
+        be a probabilitiy distribution that sums to 1 across classes
+    """
+    y = gumbel_softmax_sample(logits, temperature)
+    if hard:
+        k = tf.shape(logits)[-1]
+        # y_hard = tf.cast(tf.one_hot(tf.argmax(y,1),k), y.dtype)
+        y_hard = tf.cast(
+            tf.equal(y, tf.reduce_max(y, 1, keep_dims=True)), y.dtype)
+        y = tf.stop_gradient(y_hard - y) + y
+    return y
+
+
 def dropout(x, is_training, drop_p=0.5, seed=None, name='dropout', outputs_collections=None, **unused):
     """
     Dropout layer
@@ -1571,6 +1608,59 @@ def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **
         return _collect_named_outputs(outputs_collections, name, output)
 
     return output
+
+
+def stack(inputs, layer, stack_args, is_training, reuse, outputs_collections=None, **kwargs):
+    """Builds a stack of layers by applying layer repeatedly using stack_args.
+    `stack` allows you to repeatedly apply the same operation with different
+    arguments `stack_args[i]`. For each application of the layer, `stack` creates
+    a new scope appended with an increasing number. For example:
+    ```python
+        y = stack(x, fully_connected, [32, 64, 128], scope='fc')
+       # It is equivalent to:
+       x = fully_connected(x, 32, scope='fc/fc_1')
+       x = fully_connected(x, 64, scope='fc/fc_2')
+       y = fully_connected(x, 128, scope='fc/fc_3')
+    ```
+    If the `scope` argument is not given in `kwargs`, it is set to
+    `layer.__name__`, or `layer.func.__name__` (for `functools.partial`
+    objects). If neither `__name__` nor `func.__name__` is available, the
+    layers are called with `scope='stack'`.
+
+    Args:
+        inputs: A `Tensor` suitable for layer.
+        layer: A layer with arguments `(inputs, *args, **kwargs)`
+        stack_args: A list/tuple of parameters for each call of layer.
+        outputs_collections: The collections to which the outputs are added.
+        **kwargs: Extra kwargs for the layer.
+
+    Returns:
+       a `Tensor` result of applying the stacked layers.
+
+    Raises:
+        ValueError: if the op is unknown or wrong.
+    """
+    name = kwargs.pop('name', None)
+    if not isinstance(stack_args, (list, tuple)):
+        raise ValueError('stack_args need to be a list or tuple')
+    with tf.variable_scope(name, 'Stack', [inputs]):
+        inputs = tf.convert_to_tensor(inputs)
+        if name is None:
+            if hasattr(layer, '__name__'):
+                name = layer.__name__
+            elif hasattr(layer, 'func') and hasattr(layer.func, '__name__'):
+                # In case layer is a functools.partial.
+                name = layer.func.__name__
+            else:
+                name = 'stack'
+        outputs = inputs
+        for i in range(len(stack_args)):
+            kwargs['name'] = name + '_' + str(i + 1)
+            layer_args = stack_args[i]
+            # if not isinstance(layer_args, (list, tuple)):
+            #    layer_args = [layer_args]
+            outputs = layer(outputs, layer_args, is_training, reuse, **kwargs)
+        return _collect_named_outputs(outputs_collections, name, outputs)
 
 
 def _collect_named_outputs(outputs_collections, name, output):
