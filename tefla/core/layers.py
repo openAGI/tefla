@@ -1663,6 +1663,41 @@ def stack(inputs, layer, stack_args, is_training, reuse, outputs_collections=Non
         return _collect_named_outputs(outputs_collections, name, outputs)
 
 
+def unit_norm(inputs, dim, epsilon=1e-7, scope=None):
+    """Normalizes the given input across the specified dimension to unit length.
+    Note that the rank of `input` must be known.
+
+    Args:
+        inputs: A `Tensor` of arbitrary size.
+        dim: The dimension along which the input is normalized.
+        epsilon: A small value to add to the inputs to avoid dividing by zero.
+        scope: Optional scope for variable_scope.
+
+    Returns:
+        The normalized `Tensor`.
+
+    Raises:
+        ValueError: If dim is larger than the number of dimensions in 'inputs'.
+    """
+    with tf.variable_scope(scope, 'UnitNorm', [inputs]):
+        if not inputs.get_shape():
+            raise ValueError('The input rank must be known.')
+        input_rank = len(inputs.get_shape().as_list())
+        if dim < 0 or dim >= input_rank:
+            raise ValueError(
+                'dim must be positive but smaller than the input rank.')
+
+        lengths = tf.sqrt(epsilon + tf.reduce_sum(tf.square(inputs), dim, True))
+        multiples = []
+        if dim > 0:
+            multiples.append(tf.ones([dim], tf.int32))
+        multiples.append(tf.strided_slice(tf.shape(inputs), [dim], [dim + 1], [1]))
+        if dim < (input_rank - 1):
+            multiples.append(tf.ones([input_rank - 1 - dim], tf.int32))
+        multiples = tf.concat(multiples, 0)
+        return tf.div(inputs, tf.tile(lengths, multiples))
+
+
 def _collect_named_outputs(outputs_collections, name, output):
     if outputs_collections is not None:
         tf.add_to_collection(outputs_collections, NamedOutputs(name, output))
