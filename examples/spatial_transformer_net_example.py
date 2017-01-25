@@ -28,22 +28,33 @@ class GetData(object):
     def next(self, batch_size, train=True):
         if self.batch_id == len(self.traindata):
             self.batch_id = 0
-        batch_data = (self.traindata[self.batch_id:min(self.batch_id +
-                                                       batch_size, len(self.traindata))])
-        batch_labels = (self.trainlabels[self.batch_id:min(self.batch_id +
+        if self.batch_id + batch_size <= len(self.traindata):
+            batch_data = (self.traindata[self.batch_id:min(self.batch_id +
                                                            batch_size, len(self.traindata))])
-        self.batch_id = min(self.batch_id + batch_size, len(self.traindata))
+            batch_labels = (self.trainlabels[self.batch_id:min(self.batch_id +
+                                                               batch_size, len(self.traindata))])
+            self.batch_id = min(self.batch_id + batch_size, len(self.traindata))
+        else:
+            batch_data = (self.traindata[-64:])
+            batch_labels = (self.trainlabels[-64:])
+            self.batch_id = min(self.batch_id + batch_size, len(self.traindata))
         return batch_data, batch_labels
 
     def next_test(self, batch_size, train=True):
         if self.batch_id_test == len(self.testdata):
             self.batch_id_test = 0
-        batch_data = (self.testdata[self.batch_id_test:min(self.batch_id_test +
-                                                           batch_size, len(self.testdata))])
-        batch_labels = (self.testlabels[self.batch_id_test:min(self.batch_id_test +
+        if self.batch_id + batch_size <= len(self.testdata):
+            batch_data = (self.testdata[self.batch_id_test:min(self.batch_id_test +
                                                                batch_size, len(self.testdata))])
-        self.batch_id_test = min(
-            self.batch_id_test + batch_size, len(self.testdata))
+            batch_labels = (self.testlabels[self.batch_id_test:min(self.batch_id_test +
+                                                                   batch_size, len(self.testdata))])
+            self.batch_id_test = min(self.batch_id_test +
+                                     batch_size, len(self.testdata))
+        else:
+            batch_data = (self.testdata[-64:])
+            batch_labels = (self.testlabels[-64:])
+            self.batch_id_test = min(self.batch_id_test +
+                                     batch_size, len(self.testdata))
         return batch_data, batch_labels
 
 
@@ -70,9 +81,11 @@ def model(x, y, batch_size, is_training=True, reuse=None):
                        activation=prelu, name='conv1')
         conv2 = conv2d(conv1, 16, is_training, reuse, stride=(
             2, 2), activation=prelu, name='conv2')
-        fcmain = fc(conv2, 1024, is_training, reuse, name='fc', activation=prelu)
+        fcmain = fc(conv2, 1024, is_training, reuse,
+                    name='fc', activation=prelu)
         fcmain = dropout(fcmain, is_training, drop_p=0.5)
-        logits = fc(fcmain, 10, is_training, reuse, name='logits', activation=None)
+        logits = fc(fcmain, 10, is_training, reuse,
+                    name='logits', activation=None)
         prediction = softmax(logits, 'prediction')
 
         loss = tf.reduce_mean(
@@ -93,13 +106,15 @@ def main():
     batch_size_test = 64
     x = tf.placeholder(tf.float32, [None, 784])
     y = tf.placeholder(tf.float32, [None, 10])
-    _, loss, optimizer = model(x, y, batch_size_train, is_training=True, reuse=None)
+    _, loss, optimizer = model(x, y, batch_size_train,
+                               is_training=True, reuse=None)
     accuracy, _, _ = model(x, y, batch_size_test, is_training=False, reuse=True)
     n_epochs = 500
     num_train_examples = data.traindata.shape[0]
     num_test_examples = data.testdata.shape[0]
     import math
-    n_iters_per_epoch_train = int(math.ceil(num_train_examples / batch_size_train))
+    n_iters_per_epoch_train = int(
+        math.ceil(num_train_examples / batch_size_train))
     n_iters_per_epoch_test = int(math.ceil(num_test_examples / batch_size_test))
 
     with tf.Session() as sess:
@@ -110,12 +125,11 @@ def main():
             for step in range(n_iters_per_epoch_train):
                 batch_x, batch_y = data.next(batch_size_train)
                 sess.run([loss, optimizer], feed_dict={x: batch_x, y: batch_y})
-                print('batch %s' % str(step))
             for step in range(n_iters_per_epoch_test):
                 batch_x_test, batch_y_test = data.next_test(batch_size_test)
-                print(batch_y_test.shape)
                 epoch_acc += sess.run(
                     accuracy, {x: batch_x_test, y: batch_y_test})
+            epoch_acc = epoch_acc / n_iters_per_epoch_test
             print('Epoch {:2d} Accuracy {:3.1f}%'.format(
                 epoch + 1, 100 * epoch_acc))
 
