@@ -401,3 +401,28 @@ class VariableDeviceChooser(object):
             device_string = '%s/task:%d' % (self._ps_device, task_id)
         device_string += '/%s' % self._placement
         return device_string
+
+
+def last_dimension(shape, min_rank=1):
+    """Returns the last dimension of shape while checking it has min_rank.
+
+    Args:
+        shape: A `TensorShape`.
+        min_rank: Integer, minimum rank of shape.
+
+    Returns:
+        The value of the last dimension.
+
+    Raises:
+        ValueError: if inputs don't have at least min_rank dimensions, or if the
+            last dimension value is not defined.
+    """
+    dims = shape.dims
+    if dims is None:
+        raise ValueError('dims of shape must be known but is None')
+    if len(dims) < min_rank:
+        raise ValueError('rank of shape must be at least %d not: %d' % (min_rank, len(dims)))
+    value = dims[-1].value
+    if value is None:
+        raise ValueError('last dimension shape must be known but is None')
+    return value
