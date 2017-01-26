@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------#
 # Tool to save tenorflow model def file as GraphDef prototxt file
 # Released under the MIT license (https://opensource.org/licenses/MIT)
-# Contact: mrinal.haloi11@gmail.com
-# Copyright 2016, Mrinal Haloi
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
 # -------------------------------------------------------------------#
 
 from __future__ import absolute_import
@@ -19,15 +19,18 @@ import sys
 def save_graph(model, output_dir, output_model):
     model_def = util.load_module(model)
     model = model_def.model
-    with tf.Graph().as_default():
-        sess = tf.Session()
+    try:
+        with tf.Graph().as_default():
+            sess = tf.Session()
 
-        end_points_predict = model(is_training=False, reuse=None)
-        inputs = end_points_predict['inputs']
-        predictions = end_points_predict['predictions']
-        init = tf.global_variables_initializer()
-        sess.run(init)
+            end_points_predict = model(is_training=False, reuse=None)
+            inputs = end_points_predict['inputs']
+            predictions = end_points_predict['predictions']
+            init = tf.global_variables_initializer()
+            sess.run(init)
         tf.train.write_graph(sess.graph_def, output_dir, output_model)
+    except Exception as e:
+        print(e.message)
 
 
 if __name__ == "__main__":
@@ -49,5 +52,4 @@ if __name__ == "__main__":
         default="output.pb",
         help="TensorFlow \'Model Def\' pb output file name.")
     args, unparsed = parser.parse_known_args()
-    print(args)
     save_graph(args.input_model, args.output_dir, args.output_model)
