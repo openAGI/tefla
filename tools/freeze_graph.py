@@ -41,6 +41,7 @@ import argparse
 import sys
 
 from google.protobuf import text_format
+import tensorflow as tf
 
 from tensorflow.core.framework import graph_pb2
 from tensorflow.core.protobuf import saver_pb2
@@ -125,6 +126,20 @@ def freeze_graph(input_graph,
                     # 'global_step' or a similar housekeeping element) so skip it.
                     continue
                 var_list[key] = tensor
+
+            """ Print ops name
+            def _node_name(n):
+                if n.startswith("^"):
+                    return n[1:]
+                else:
+                    return n.split(":")[0]
+            name_to_node_map = {}  # Keyed by node name.
+            for node in input_graph_def.node:
+                n = _node_name(node.name)
+                name_to_node_map[n] = node
+
+            print(name_to_node_map.keys())
+            """
             saver = saver_lib.Saver(var_list=var_list)
             saver.restore(sess, input_checkpoint)
             if initializer_nodes:
@@ -135,8 +150,8 @@ def freeze_graph(input_graph,
         output_graph_def = graph_util.convert_variables_to_constants(
             sess,
             input_graph_def,
-            output_node_names.split(","),
-            variable_names_blacklist=variable_names_blacklist)
+            output_node_names.split(","))
+        # variable_names_blacklist=variable_names_blacklist)
 
     with gfile.GFile(output_graph, "wb") as f:
         f.write(output_graph_def.SerializeToString())
