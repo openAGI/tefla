@@ -1292,8 +1292,8 @@ def relu6(x, name='relu6', outputs_collections=None, **unused):
 
 def softplus(x, name='softplus', outputs_collections=None, **unused):
     """
-    Softpluas layer
-    Computes softplus: log(exp(features) + 1).
+    Softplus layer
+    Computes softplus: log(exp(x) + 1).
 
     Args:
         x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
@@ -1306,6 +1306,25 @@ def softplus(x, name='softplus', outputs_collections=None, **unused):
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.softplus(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def softsign(x, name='softsign', outputs_collections=None, **unused):
+    """
+    Softsign layer
+    Computes softsign: x / (abs(x) + 1).
+
+    Args:
+        x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+        name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
+    _check_unused(unused, name)
+    with tf.name_scope(name):
+        output = tf.nn.softsign(x)
         return _collect_named_outputs(outputs_collections, name, output)
 
 
