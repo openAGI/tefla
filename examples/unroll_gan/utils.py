@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from scipy.misc import imsave
 import numbers
 
 
@@ -22,21 +23,13 @@ class SessionWrap(object):
             self.session.close()
 
 
-def dense(input, output_dim, name=None, stddev=1., reuse=False, normalized=False, params=None):
-    norm = tf.contrib.layers.variance_scaling_initializer(stddev)
-    const = tf.constant_initializer(0.0)
-    if params is not None:
-        w, b = params
-    else:
-        with tf.variable_scope(name or 'linear') as scope:
-            if reuse:
-                scope.reuse_variables()
-            w = tf.get_variable(
-                'w', [input.get_shape()[1], output_dim], initializer=norm, dtype=tf.float32)
-            b = tf.get_variable('b', [output_dim],
-                                initializer=const, dtype=tf.float32)
-    if normalized:
-        w_n = w / tf.reduce_sum(tf.square(w), 1, keep_dims=True)
-    else:
-        w_n = w
-    return tf.matmul(input, w_n) + b
+def save_images(fname, flat_img, width=28, height=28, sep=3):
+    N = flat_img.shape[0]
+    pdim = int(np.ceil(np.sqrt(N)))
+    image = np.zeros((pdim * (width + sep), pdim * (height + sep)))
+    for i in range(N):
+        row = int(i / pdim) * (height + sep)
+        col = (i % pdim) * (width + sep)
+        image[row:row + width, col:col +
+              height] = flat_img[i].reshape(width, height)
+    imsave(fname, image)
