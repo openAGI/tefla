@@ -34,8 +34,8 @@ def input(shape, name='inputs', outputs_collections=None, **unused):
 
 
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
-                    w_regularizer=tf.nn.l2_loss, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
-                    outputs_collections=None, use_bias=True):
+                    w_regularizer=tf.nn.l2_loss, w_normalized=False, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
+                    params=None, outputs_collections=None, use_bias=True):
     """Adds a fully connected layer.
 
         `fully_connected` creates a variable called `weights`, representing a fully
@@ -90,24 +90,30 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
 
     with tf.variable_scope(name, reuse=reuse):
         shape = [n_input, n_output] if hasattr(w_init, '__call__') else None
-        W = tf.get_variable(
-            name='W',
-            shape=shape,
-            dtype=tf.float32,
-            initializer=w_init,
-            regularizer=w_regularizer,
-            trainable=trainable
-        )
+        if params is not None:
+            W, b = params
+        else:
+            W = tf.get_variable(
+                name='W',
+                shape=shape,
+                dtype=tf.float32,
+                initializer=w_init,
+                regularizer=w_regularizer,
+                trainable=trainable
+            )
+        if w_normalized:
+            W = W / tf.reduce_sum(tf.square(W), 1, keep_dims=True)
         output = tf.matmul(x, W)
 
         if use_bias:
-            b = tf.get_variable(
-                name='b',
-                shape=[n_output],
-                dtype=tf.float32,
-                initializer=tf.constant_initializer(b_init),
-                trainable=trainable,
-            )
+            if params is None:
+                b = tf.get_variable(
+                    name='b',
+                    shape=[n_output],
+                    dtype=tf.float32,
+                    initializer=tf.constant_initializer(b_init),
+                    trainable=trainable,
+                )
 
             output = tf.nn.bias_add(value=output, bias=b)
 
@@ -1710,7 +1716,8 @@ def unit_norm(inputs, dim, epsilon=1e-7, scope=None):
         multiples = []
         if dim > 0:
             multiples.append(tf.ones([dim], tf.int32))
-        multiples.append(tf.strided_slice(tf.shape(inputs), [dim], [dim + 1], [1]))
+        multiples.append(tf.strided_slice(
+            tf.shape(inputs), [dim], [dim + 1], [1]))
         if dim < (input_rank - 1):
             multiples.append(tf.ones([input_rank - 1 - dim], tf.int32))
         multiples = tf.concat(multiples, 0)

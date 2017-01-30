@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
 
-class mnist_data:
+class MnistData:
     """
     Downloads the MNIST dataset and creates an input pipeline ready to be fed into a model.
 
@@ -24,23 +24,24 @@ class mnist_data:
     def __init__(self, one_hot_labels=True):
         """ Downloads the mnist data if necessary. """
         print("Loading MNIST data")
-        self.mnist = input_data.read_data_sets('data/MNIST', one_hot=one_hot_labels)
+        self.mnist = input_data.read_data_sets(
+            'data/MNIST', one_hot=one_hot_labels)
 
         self.TRAIN_SET_SIZE = self.mnist.train.images.shape[0]
         self.TEST_SET_SIZE = self.mnist.test.images.shape[0]
         self.VALIDATION_SET_SIZE = self.mnist.validation.images.shape[0]
 
-    def train_batch(self, batch_size, shuffle=False, standardizer=None):
+    def train_batch(self, batch_size, shuffle=True, standardizer=None):
         return self.__build_generic_data_tensor(self.mnist.train.images,
                                                 self.mnist.train.labels, batch_size,
                                                 shuffle, standardizer=standardizer)
 
-    def test_batch(self, batch_size, shuffle, standardizer=None):
+    def test_batch(self, batch_size, shuffle=False, standardizer=None):
         return self.__build_generic_data_tensor(self.mnist.test.images,
                                                 self.mnist.test.labels, batch_size,
                                                 shuffle, standardizer=standardizer)
 
-    def validation_batch(self, batch_size, shuffle, standardizer=None):
+    def validation_batch(self, batch_size, shuffle=False, standardizer=None):
         return self.__build_generic_data_tensor(self.mnist.validation.images,
                                                 self.mnist.validation.labels, batch_size,
                                                 shuffle, standardizer=standardizer)
