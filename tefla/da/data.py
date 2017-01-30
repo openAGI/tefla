@@ -436,7 +436,7 @@ def load_augment(fname, preprocessor, w, h, is_training, aug_params=no_augmentat
     else:
         img = perturb(img, augmentation_params=aug_params, target_shape=(w, h), mode=fill_mode,
                       mode_cval=fill_mode_cval)
-    img = brightness_transform(img, brightness_min=0.93, brightness_max=1.4)
+    # img = brightness_transform(img, brightness_min=0.93, brightness_max=1.4)
 
     if save_to_dir is not None:
         file_full_name = os.path.basename(fname)

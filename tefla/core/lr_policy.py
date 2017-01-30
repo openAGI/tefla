@@ -13,7 +13,7 @@ class InitialLrMixin(object):
     def __init__(self, initial_lr):
         self._base_lr = initial_lr
         self._start_epoch = 1
-        super(InitialLrMixin, self).__init__(self)
+        super(InitialLrMixin, self).__init__()
 
     @property
     def base_lr(self):
@@ -40,7 +40,7 @@ class NoBatchUpdateMixin(object):
     """No Batch update Mixin class"""
 
     def __init__(self):
-        super(NoBatchUpdateMixin, self).__init__(self)
+        super(NoBatchUpdateMixin, self).__init__()
 
     def batch_update(self, learning_rate, iter_idx):
         return learning_rate
@@ -50,7 +50,7 @@ class NoEpochUpdateMixin(object):
     """No Epoch update Mixin class"""
 
     def __init__(self):
-        super(NoEpochUpdateMixin, self).__init__(self)
+        super(NoEpochUpdateMixin, self).__init__()
 
     def epoch_update(self, learning_rate, training_history):
         return learning_rate

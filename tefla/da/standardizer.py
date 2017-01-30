@@ -7,7 +7,7 @@ class NoDAMixin(object):
     """Base DA mixin class"""
 
     def __init__(self):
-        super(NoDAMixin, self).__init__(self)
+        super(NoDAMixin, self).__init__()
 
     def da_processing_params(self):
         """DA processing params"""
