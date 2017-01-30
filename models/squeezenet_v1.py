@@ -29,7 +29,7 @@ def squeeze(inputs, num_outputs, **kwargs):
 def expand(inputs, num_outputs, **kwargs):
     with tf.variable_scope('expand'):
         e1x1 = conv2d(inputs, num_outputs, filter_size=(
-            1, 1), stride=1, name='1x1', **kwargs)
+            1, 1), stride=(1, 1), name='1x1', **kwargs)
         e3x3 = conv2d(inputs, num_outputs,
                       filter_size=(3, 3), name='3x3', **kwargs)
     return tf.concat(3, [e1x1, e3x3])
