@@ -121,7 +121,7 @@ def auroc_wrapper(y_true, y_pred):
     try:
         return roc_auc_score(y_true, y_pred[:, 1])
     except ValueError as e:
-        print e
+        print(e.message)
         return accuracy_score(y_true, np.argmax(y_pred, axis=1))
 
 
@@ -426,3 +426,31 @@ def last_dimension(shape, min_rank=1):
     if value is None:
         raise ValueError('last dimension shape must be known but is None')
     return value
+
+
+def load_frozen_graph(frozen_graph):
+    """Load Graph from frozen weights and model
+
+    Args:
+        frozen_graph: binary pb file
+
+    Returns:
+        loaded graph
+    """
+    with tf.gfile.GFile(frozen_graph, "rb") as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
+
+    try:
+        with tf.Graph().as_default() as graph:
+            tf.import_graph_def(
+                graph_def,
+                input_map=None,
+                return_elements=None,
+                name='model',
+                op_dict=None,
+                producer_op_list=None
+            )
+        return graph
+    except Exception as e:
+        print(e.message)
