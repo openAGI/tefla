@@ -1494,7 +1494,8 @@ def gumbel_softmax_sample(logits, temperature):
 
 
 def gumbel_softmax(logits, temperature, hard=False):
-    """Sample from the Gumbel-Softmax distribution and optionally discretize.
+    """Computes Gumbel Softmax
+    Sample from the Gumbel-Softmax distribution and optionally discretize.
     http://blog.evjang.com/2016/11/tutorial-categorical-variational.html
     https://arxiv.org/abs/1611.01144
 
@@ -1516,6 +1517,23 @@ def gumbel_softmax(logits, temperature, hard=False):
             tf.equal(y, tf.reduce_max(y, 1, keep_dims=True)), y.dtype)
         y = tf.stop_gradient(y_hard - y) + y
     return y
+
+
+def pixel_wise_softmax(inputs):
+    """Computes pixel wise softmax activation
+
+    Args:
+        x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+        name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
+    exponential_map = tf.exp(inputs)
+    sum_exp = tf.reduce_sum(exponential_map, 3, keep_dims=True)
+    tensor_sum_exp = tf.tile(sum_exp, tf.pack([1, 1, 1, tf.shape(inputs)[3]]))
+    return tf.div(exponential_map, tensor_sum_exp)
 
 
 def dropout(x, is_training, drop_p=0.5, seed=None, name='dropout', outputs_collections=None, **unused):
@@ -1712,7 +1730,8 @@ def unit_norm(inputs, dim, epsilon=1e-7, scope=None):
             raise ValueError(
                 'dim must be positive but smaller than the input rank.')
 
-        lengths = tf.sqrt(epsilon + tf.reduce_sum(tf.square(inputs), dim, True))
+        lengths = tf.sqrt(
+            epsilon + tf.reduce_sum(tf.square(inputs), dim, True))
         multiples = []
         if dim > 0:
             multiples.append(tf.ones([dim], tf.int32))
@@ -1722,6 +1741,28 @@ def unit_norm(inputs, dim, epsilon=1e-7, scope=None):
             multiples.append(tf.ones([input_rank - 1 - dim], tf.int32))
         multiples = tf.concat(multiples, 0)
         return tf.div(inputs, tf.tile(lengths, multiples))
+
+
+def crop_and_concat(inputs1, inputs2):
+    """Concates two features maps
+      concates different sizes feature maps cropping the larger map
+      concatenation across output channels
+
+    Args:
+        inputs1: A `Tensor`
+        inputs2: A `Tensor`
+
+    Returns:
+       concated output tensor
+    """
+    inputs1_shape = tf.shape(inputs1)
+    inputs2_shape = tf.shape(inputs2)
+    # offsets for the top left corner of the crop
+    offsets = [0, (inputs1_shape[1] - inputs2_shape[1]) // 2,
+               (inputs1_shape[2] - inputs2_shape[2]) // 2, 0]
+    size = [-1, inputs2_shape[1], inputs2_shape[2], -1]
+    inputs1_crop = tf.slice(inputs1, offsets, size)
+    return tf.concat(3, [inputs1_crop, inputs2])
 
 
 def _collect_named_outputs(outputs_collections, name, output):
