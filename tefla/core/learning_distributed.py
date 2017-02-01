@@ -171,9 +171,15 @@ class DistSupervisedTrainer(Base):
                 n_iters_per_epoch = dataset.n_iters_per_epoch
                 n_val_iters_per_epoch = dataset.n_val_iters_per_epoch
                 self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
+                images, labels = dataflow.batch_inputs(self.cnf.get('batch_size', 32), True, self.cnf.get('tfrecords_image_size'), self.cnf.get(
+                    'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
+                labels = self._adjust_ground_truth(labels)
+                val_images, val_labels = dataflow.batch_inputs(self.cnf.get('batch_size_test', 32), False, self.cnf.get('tfrecords_image_size'), self.cnf.get(
+                    'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
+                val_labels = self._adjust_ground_truth(val_labels)
 
-                total_loss, opt, val_total_loss = self._setup_model_loss(
-                    is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=None, num_replicas_to_aggregate=-1)
+                total_loss, opt, val_total_loss = self._setup_model_loss(images, labels, val_images, val_labels,
+                                                                         is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=None, num_replicas_to_aggregate=-1)
                 train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_grad_global_norm=self.clip_grad_global_norm, gradient_noise_scale=self.gradient_noise_scale,
                                                 gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
 
@@ -195,8 +201,9 @@ class DistSupervisedTrainer(Base):
                 sess = sv.prepare_or_wait_for_session(
                     target, config=sess_config)
 
+                coord = tf.train.Coordinator()
                 queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
-                sv.start_queue_runners(sess, queue_runners)
+                sv.start_queue_runners(sess, queue_runners, coord=coord)
                 tf.logging.info(
                     'Started %d queues for processing input data.', len(queue_runners))
 
@@ -220,10 +227,8 @@ class DistSupervisedTrainer(Base):
                         batch_train_sizes = []
                         epoch_start_time = time.time()
                         for iteration in range(n_iters_per_epoch):
-                            images, labels = dataflow.batch_inputs(self.cnf.get('batch_size', 32), True, self.cnf.get('tfrecords_image_size'), self.cnf.get(
-                                'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
-                            feed_dict_train = {self.inputs: images, self.labels: self._adjust_ground_truth(labels),
-                                               self.learning_rate: learning_rate}
+                            feed_dict_train = {
+                                self.learning_rate: learning_rate}
                             start_time = time.time()
                             loss_value, step = sess.run(
                                 [train_op, global_step], feed_dict=feed_dict_train)
@@ -268,10 +273,7 @@ class DistSupervisedTrainer(Base):
                         epoch_validation_metrics = []
                         batch_validation_sizes = []
                         for iteration in range(n_val_iters_per_epoch):
-                            val_images, val_labels = dataflow.batch_inputs(self.cnf.get('batch_size_test', 32), False, self.cnf.get('tfrecords_image_size'), self.cnf.get(
-                                'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
-                            feed_dict_val = {self.validation_inputs: val_images, self.validation_labels: self._adjust_ground_truth(val_labels),
-                                             self.learning_rate: learning_rate}
+                            feed_dict_val = {self.learning_rate: learning_rate}
                             log.debug(
                                 '6. Loading batch %d validation data done.' % iteration)
                             log.debug(
@@ -332,6 +334,8 @@ class DistSupervisedTrainer(Base):
                         raise
 
                 sv.stop()
+                coord.request_stop()
+                coord.join(stop_grace_period_secs=0.05)
 
                 if is_chief:
                     if not os.path.exists(self.weights_dir):
@@ -403,18 +407,12 @@ class DistSupervisedTrainer(Base):
 
             return total_loss
 
-    def _setup_model_loss(self, is_chief, task_id, num_workers, is_training, scope, initial_lr=0.1, reuse=None, global_step=None, num_replicas_to_aggregate=-1):
-        self.inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[
-                                     0], self.model.crop_size[1], 3), name="input")
-        self.labels = tf.placeholder(tf.int32, shape=(None,))
-        self.validation_inputs = tf.placeholder(tf.float32, shape=(
-            None, self.model.crop_size[0], self.model.crop_size[1], 3), name="validation_input")
-        self.validation_labels = tf.placeholder(tf.int32, shape=(None,))
+    def _setup_model_loss(self, inputs, labels, validation_inputs, validation_labels, is_chief, task_id, num_workers, is_training, scope, initial_lr=0.1, reuse=None, global_step=None, num_replicas_to_aggregate=-1):
 
         losses, total_loss = self._tower_loss(
-            scope, self.model, self.inputs, self.labels, is_training, reuse, is_classification=True)
+            scope, self.model, inputs, labels, is_training, reuse, is_classification=True)
         val_total_loss = self._tower_loss(
-            scope, self.model, self.validation_inputs, self.validation_labels, is_training=False, reuse=True, is_classification=True)
+            scope, self.model, validation_inputs, validation_labels, is_training=False, reuse=True, is_classification=True)
 
         if is_chief:
             loss_averages = tf.train.ExponentialMovingAverage(0.9, name='avg')

@@ -1731,6 +1731,7 @@ def _collect_named_outputs(outputs_collections, name, output):
 
 
 def _check_unused(unused, name):
-    allowed_keys = ['is_training', 'reuse', 'outputs_collections', 'trainable']
+    allowed_keys = ['is_training', 'reuse',
+                    'outputs_collections', 'trainable', 'padding']
     helper.veryify_args(unused, allowed_keys,
                         'Layer "%s" got unexpected argument(s):' % name)
