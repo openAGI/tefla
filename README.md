@@ -33,10 +33,32 @@ for current version installation:
 ```python
 pip install git+https://github.com/n3011/tefla.git
 ```
-
 ## Examples
+Many examples available with recent deep learning research integration
 
-Mnist example gives a overview about Tefla usages
+1. [Gumbel Softmax](https://github.com/n3011/tefla/examples/autoencoder)  
+2. [Unrolled_GAN](https://github.com/n3011/tefla/examples/unrolled_gan)
+3. [Spatial Transoformer Network](https://github.com/n3011/tefla/examples/spatial_transformer)
+4. [LSTM](https://github.com/n3011/tefla/examples/lstm_rnn)
+5. [DATASETS](https://github.com/n3011/tefla/examples/datasets)
+
+
+## Tefla Models
+Recent deep convolutional models are easy to implement using TEFLA
+ 
+1. [Recent Models](https://github.com/n3011/tefla/models)
+
+## Getting Started
+
+1. Its as easy as
+```python
+>>>from tefla.core.layers import conv2d
+>>>convolved = conv2d(input, 48, False, None)
+
+```
+
+
+2. Mnist example gives a overview about Tefla usages
  
 ```python
 def model(is_training, reuse):
@@ -90,4 +112,4 @@ Improvements and requests for new features are more than welcome! Do not hesitat
 
 [MIT License](https://n3011.github.io/tefla/license/)
 
-Note: This project BASE was originally forked from: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.
+Note: This project BASE is jointly developed with Artelus team: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.

@@ -23,7 +23,7 @@ import logging
               help='Relative path to training config file.')
 @click.option('--data_dir', default=None, show_default=True,
               help='Path to training directory.')
-@click.option('--parallel', default=False, show_default=True,
+@click.option('--parallel', default=True, show_default=True,
               help='parallel or queued.')
 @click.option('--start_epoch', default=1, show_default=True,
               help='Epoch number from which to resume training.')
@@ -49,9 +49,9 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, res
     standardizer = cnf.get('standardizer', NoOpStandardizer())
 
     training_iter, validation_iter = create_training_iters(
-        cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=False)
+        cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=parallel)
     trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, resume_lr=resume_lr, classification=cnf[
-                                'classification'], gpu_memory_fraction=gpu_memory_fraction, is_summary=is_summary)
+                                'classification'], gpu_memory_fraction=gpu_memory_fraction, is_summary=is_summary, loss_type='kappa_log')
     trainer.fit(data_set, weights_from, start_epoch,
                 verbose=1, summary_every=399)
 
