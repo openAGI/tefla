@@ -159,3 +159,36 @@ A Python list, the flattened version of the input.
 
  ---------- 
 
+# Returns the last dimension of shape while checking it has min_rank
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L406 target="_blank"><b>tefla.utils.util.last_dimension</b></a></span>  (shape,  min_rank=1)</span>
+
+<h3>Args</h3>
+
+
+ - **shape**: A `TensorShape`.
+ - **min_rank**: Integer, minimum rank of shape.
+
+<h3>Returns</h3>
+
+
+The value of the last dimension.
+
+ ---------- 
+
+# Load Graph from frozen weights and model
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L431 target="_blank"><b>tefla.utils.util.load_frozen_graph</b></a></span>  (frozen_graph)</span>
+
+<h3>Args</h3>
+
+
+ - **frozen_graph**: binary pb file
+
+<h3>Returns</h3>
+
+
+loaded graph
+
+ ---------- 
+

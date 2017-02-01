@@ -300,6 +300,12 @@
                 <li class="toctree-l3"><a href="#returns-a-flat-sequence-from-a-given-nested-structure">Returns a flat sequence from a given nested structure</a></li>
                 
             
+                <li class="toctree-l3"><a href="#returns-the-last-dimension-of-shape-while-checking-it-has-min_rank">Returns the last dimension of shape while checking it has min_rank</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#load-graph-from-frozen-weights-and-model">Load Graph from frozen weights and model</a></li>
+                
+            
             </ul>
         
     </li>
@@ -484,6 +490,29 @@ Note, numpy arrays are considered scalars.</li>
 <h3>Returns</h3>
 
 <p>A Python list, the flattened version of the input.</p>
+<hr />
+<h1 id="returns-the-last-dimension-of-shape-while-checking-it-has-min_rank">Returns the last dimension of shape while checking it has min_rank</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L406 target="_blank"><b>tefla.utils.util.last_dimension</b></a></span>  (shape,  min_rank=1)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>shape</strong>: A <code>TensorShape</code>.</li>
+<li><strong>min_rank</strong>: Integer, minimum rank of shape.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>The value of the last dimension.</p>
+<hr />
+<h1 id="load-graph-from-frozen-weights-and-model">Load Graph from frozen weights and model</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L431 target="_blank"><b>tefla.utils.util.load_frozen_graph</b></a></span>  (frozen_graph)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>frozen_graph</strong>: binary pb file</li>
+</ul>
+<h3>Returns</h3>
+
+<p>loaded graph</p>
 <hr />
               
             </div>
