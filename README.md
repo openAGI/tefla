@@ -36,17 +36,17 @@ pip install git+https://github.com/n3011/tefla.git
 ## Examples
 Many examples available with recent deep learning research integration
 
-1. [Gumbel Softmax](https://github.com/n3011/tefla/examples/autoencoder)  
-2. [Unrolled_GAN](https://github.com/n3011/tefla/examples/unrolled_gan)
-3. [Spatial Transoformer Network](https://github.com/n3011/tefla/examples/spatial_transformer)
-4. [LSTM](https://github.com/n3011/tefla/examples/lstm_rnn)
-5. [DATASETS](https://github.com/n3011/tefla/examples/datasets)
+1. [Gumbel Softmax](https://github.com/n3011/tefla/tree/master/examples/autoencoder)  
+2. [Unrolled_GAN](https://github.com/n3011/tefla/tree/master/examples/unrolled_gan)
+3. [Spatial Transoformer Network](https://github.com/n3011/tefla/tree/master/examples/spatial_transformer)
+4. [LSTM](https://github.com/n3011/tefla/tree/master/examples/lstm_rnn)
+5. [DATASETS](https://github.com/n3011/tefla/tree/master/examples/datasets)
 
 
 ## Tefla Models
 Recent deep convolutional models are easy to implement using TEFLA
  
-1. [Recent Models](https://github.com/n3011/tefla/models)
+1. [Recent Models](https://github.com/n3011/tefla/tree/master/models)
 
 ## Getting Started
 
