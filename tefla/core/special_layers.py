@@ -1,4 +1,6 @@
 import tensorflow as tf
+from tefla.core.layers import conv2d, batch_norm_tf as batch_norm
+from tefla.utils import util
 
 
 def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_transform=1, name='SpatialTransformer', **kwargs):
@@ -60,15 +62,18 @@ def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_trans
         x_s_flat = tf.reshape(x_s, [-1])
         y_s_flat = tf.reshape(y_s, [-1])
 
-        input_transformed = _interpolate(U, x_s_flat, y_s_flat, batch_size, downsample_factor)
+        input_transformed = _interpolate(
+            U, x_s_flat, y_s_flat, batch_size, downsample_factor)
 
-        output = tf.reshape(input_transformed, tf.pack([batch_size, out_height, out_width, num_channels]))
+        output = tf.reshape(input_transformed, tf.pack(
+            [batch_size, out_height, out_width, num_channels]))
         return output
 
 
 def _repeat(x, n_repeats):
     with tf.variable_scope('_repeat'):
-        rep = tf.transpose(tf.expand_dims(tf.ones(shape=tf.pack([n_repeats, ])), 1), [1, 0])
+        rep = tf.transpose(tf.expand_dims(
+            tf.ones(shape=tf.pack([n_repeats, ])), 1), [1, 0])
         rep = tf.cast(rep, tf.int32)
         x = tf.matmul(tf.reshape(x, (-1, 1)), rep)
         return tf.reshape(x, [-1])
@@ -139,8 +144,10 @@ def _interpolate(im, x, y, batch_size, downsample_factor):
 
 def _meshgrid(height, width):
     with tf.variable_scope('_meshgrid'):
-        x_t = tf.matmul(tf.ones(shape=tf.pack([height, 1])), tf.transpose(tf.expand_dims(tf.linspace(-1.0, 1.0, width), 1), [1, 0]))
-        y_t = tf.matmul(tf.expand_dims(tf.linspace(-1.0, 1.0, height), 1), tf.ones(shape=tf.pack([1, width])))
+        x_t = tf.matmul(tf.ones(shape=tf.pack([height, 1])), tf.transpose(
+            tf.expand_dims(tf.linspace(-1.0, 1.0, width), 1), [1, 0]))
+        y_t = tf.matmul(tf.expand_dims(
+            tf.linspace(-1.0, 1.0, height), 1), tf.ones(shape=tf.pack([1, width])))
 
         x_t_flat = tf.reshape(x_t, (1, -1))
         y_t_flat = tf.reshape(y_t, (1, -1))
@@ -148,3 +155,163 @@ def _meshgrid(height, width):
         ones = tf.ones_like(x_t_flat)
         grid = tf.concat(0, [x_t_flat, y_t_flat, ones])
         return grid
+
+
+def subsample(inputs, factor, name=None):
+    """Subsamples the input along the spatial dimensions.
+
+    Args:
+      inputs: A `Tensor` of size [batch, height_in, width_in, channels].
+      factor: The subsampling factor.
+      name: Optional variable_scope.
+
+    Returns:
+      output: A `Tensor` of size [batch, height_out, width_out, channels] with the
+        input, either intact (if factor == 1) or subsampled (if factor > 1).
+    """
+    if factor == 1:
+        return inputs
+    else:
+        return max_pool(inputs, filter_size=(1, 1), stride=(factor, factor), name=name)
+
+
+def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, name=None, **kwargs):
+    """Strided 2-D convolution with 'SAME' padding.
+
+    When stride > 1, then we do explicit zero-padding, followed by conv2d with
+    'VALID' padding.
+
+    Note that
+
+       net = conv2d_same(inputs, num_outputs, 3, stride=stride)
+
+    is equivalent to
+
+       net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')
+       net = subsample(net, factor=stride)
+
+    whereas
+
+       net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')
+
+    is different when the input's height or width is even, which is why we add the
+    current function. For more details, see ResnetUtilsTest.testConv2DSameEven().
+
+    Args:
+      inputs: A 4-D tensor of size [batch, height_in, width_in, channels].
+      num_outputs: An integer, the number of output filters.
+      kernel_size: An int with the kernel_size of the filters.
+      stride: An integer, the output stride.
+      rate: An integer, rate for atrous convolution.
+      name: name.
+
+    Returns:
+      output: A 4-D tensor of size [batch, height_out, width_out, channels] with
+        the convolution output.
+    """
+    if stride == 1:
+        return conv2d(inputs, num_outputs, filter_size=(kernel_size, kernel_size), stride=(1, 1), dilaton=rate,
+                      padding='SAME', name=name, **kwargs)
+    else:
+        kernel_size_effective = kernel_size + (kernel_size - 1) * (rate - 1)
+        pad_total = kernel_size_effective - 1
+        pad_beg = pad_total // 2
+        pad_end = pad_total - pad_beg
+        inputs = tf.pad(inputs,
+                        [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
+        return conv2d(inputs, num_outputs, kernel_size, stride=stride,
+                      dilation=rate, padding='VALID', name=name, **kwargs)
+
+
+def bottleneck_v2(inputs, depth, depth_bottleneck, stride, rate=1, name=None, **kwargs):
+    """Bottleneck residual unit variant with BN before convolutions.
+
+    This is the full preactivation residual unit variant proposed in [2]. See
+    Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
+    variant which has an extra bottleneck layer.
+
+    When putting together two consecutive ResNet blocks that use this unit, one
+    should use stride = 2 in the last unit of the first block.
+
+    Args:
+      inputs: A tensor of size [batch, height, width, channels].
+      depth: The depth of the ResNet unit output.
+      depth_bottleneck: The depth of the bottleneck layers.
+      stride: The ResNet unit's stride. Determines the amount of downsampling of
+        the units output compared to its input.
+      rate: An integer, rate for atrous convolution.
+      outputs_collections: Collection to add the ResNet unit output.
+      name: Optional variable_scope.
+
+    Returns:
+      The ResNet unit's output.
+    """
+    is_training = kwargs.get('is_training')
+    reuse = kwargs.get('reuse')
+    with tf.variable_scope(name, 'bottleneck_v2', [inputs]):
+        depth_in = util.last_dimension(inputs.get_shape(), min_rank=4)
+        preact = batch_norm(inputs, activation_fn=tf.nn.relu,
+                            name='preact', is_training=is_training, reuse=reuse)
+        if depth == depth_in:
+            shortcut = subsample(inputs, stride, 'shortcut')
+        else:
+            shortcut = conv2d(preact, depth, is_training, reuse, filter_size=(1, 1), stride=(
+                stride, stride), batch_norm=None, activation=None, name='shortcut')
+
+        residual = conv2d(preact, depth_bottleneck, filter_size=(1, 1), stride=(1, 1),
+                          name='conv1', **kwargs)
+        residual = conv2d_same(residual, depth_bottleneck, 3, stride,
+                               rate=rate, name='conv2', **kwargs)
+        residual = conv2d(residual, depth, is_training, reuse, filter_size=(1, 1), stride=(1, 1),
+                          batch_norm=None, activation=None, name='conv3')
+
+        output = shortcut + residual
+
+        return output
+
+
+def bottleneck_v2(inputs, depth, depth_bottleneck, stride, rate=1, name=None, **kwargs):
+    """Bottleneck residual unit variant with BN before convolutions.
+
+    This is the full preactivation residual unit variant proposed in [2]. See
+    Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
+    variant which has an extra bottleneck layer.
+
+    When putting together two consecutive ResNet blocks that use this unit, one
+    should use stride = 2 in the last unit of the first block.
+
+    Args:
+      inputs: A tensor of size [batch, height, width, channels].
+      depth: The depth of the ResNet unit output.
+      depth_bottleneck: The depth of the bottleneck layers.
+      stride: The ResNet unit's stride. Determines the amount of downsampling of
+        the units output compared to its input.
+      rate: An integer, rate for atrous convolution.
+      outputs_collections: Collection to add the ResNet unit output.
+      name: Optional variable_scope.
+
+    Returns:
+      The ResNet unit's output.
+    """
+    is_training = kwargs.get('is_training')
+    reuse = kwargs.get('reuse')
+    with tf.variable_scope(name, 'bottleneck_v2', [inputs]):
+        depth_in = util.last_dimension(inputs.get_shape(), min_rank=4)
+        preact = batch_norm(inputs, activation_fn=tf.nn.relu,
+                            name='preact', is_training=is_training, reuse=reuse)
+        if depth == depth_in:
+            shortcut = subsample(inputs, stride, 'shortcut')
+        else:
+            shortcut = conv2d(preact, depth, is_training, reuse, filter_size=(1, 1), stride=(
+                stride, stride), batch_norm=None, activation=None, name='shortcut')
+
+        residual = conv2d(preact, depth_bottleneck, filter_size=(1, 1), stride=(1, 1),
+                          name='conv1', **kwargs)
+        residual = conv2d_same(residual, depth_bottleneck, 3, stride,
+                               rate=rate, name='conv2', **kwargs)
+        residual = conv2d(residual, depth, is_training, reuse, filter_size=(1, 1), stride=(1, 1),
+                          batch_norm=None, activation=None, name='conv3')
+
+        output = tf.nn.relu(shortcut + residual)
+
+        return output
