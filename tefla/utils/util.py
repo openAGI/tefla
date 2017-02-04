@@ -53,7 +53,8 @@ def get_bbox_10crop(crop_size, im_size):
             bboxs[curr, :4] = (i, j, i + crop_size[0], j + crop_size[1])
             bboxs[curr, 4] = 1
             curr += 1
-    bboxs[4, :4] = np.tile(im_center, (1, 2)) + np.concatenate([-crop_size / 2.0, crop_size / 2.0])
+    bboxs[4, :4] = np.tile(im_center, (1, 2)) + \
+        np.concatenate([-crop_size / 2.0, crop_size / 2.0])
     bboxs[4, 4] = 1
     bboxs = np.tile(bboxs, (2, 1))
     bboxs[5:, 4] = 0
@@ -213,7 +214,8 @@ def assert_valid_dtypes(tensors):
     for t in tensors:
         dtype = t.dtype.base_dtype
         if dtype not in valid_dtype:
-            raise ValueError("Invalid type %r for %s, expected: %s." % (dtype, t.name, [v for v in valid_dtype]))
+            raise ValueError("Invalid type %r for %s, expected: %s." %
+                             (dtype, t.name, [v for v in valid_dtype]))
 
 
 def constant_value(value_or_tensor_or_var, dtype=None):
@@ -236,7 +238,8 @@ def constant_value(value_or_tensor_or_var, dtype=None):
     value = value_or_tensor_or_var
     if isinstance(value_or_tensor_or_var, (ops.Tensor, variables.Variable)):
         if dtype and value_or_tensor_or_var.dtype != dtype:
-            raise ValueError('It has the wrong type %s instead of %s' % (value_or_tensor_or_var.dtype, dtype))
+            raise ValueError('It has the wrong type %s instead of %s' %
+                             (value_or_tensor_or_var.dtype, dtype))
         if isinstance(value_or_tensor_or_var, variables.Variable):
             value = None
         else:
@@ -315,8 +318,10 @@ def rms(x, name=None):
 
 
 def weight_bias(W_shape, b_shape, w_init=tf.truncated_normal, b_init=0.0, w_regularizer=tf.nn.l2_loss, trainable=True):
-    W = tf.Variable(name='W', shape=W_shape, initializer=w_init, regularizer=w_regularizer, trainable=trainable)
-    b = tf.Variable(name='b', shape=b_shape, initializer=tf.constant_initializer(b_init), trainable=trainable)
+    W = tf.Variable(name='W', shape=W_shape, initializer=w_init,
+                    regularizer=w_regularizer, trainable=trainable)
+    b = tf.Variable(name='b', shape=b_shape, initializer=tf.constant_initializer(
+        b_init), trainable=trainable)
     return W, b
 
 
@@ -334,7 +339,8 @@ def one_hot_encoding(labels, num_classes, name='one_hot_encoding'):
         indices = tf.expand_dims(tf.range(0, batch_size), 1)
         labels = tf.cast(tf.expand_dims(labels, 1), indices.dtype)
         concated = tf.concat(1, [indices, labels])
-        onehot_labels = tf.sparse_to_dense(concated, tf.pack([batch_size, num_classes]), 1.0, 0.0)
+        onehot_labels = tf.sparse_to_dense(
+            concated, tf.pack([batch_size, num_classes]), 1.0, 0.0)
         onehot_labels.set_shape([batch_size, num_classes])
         return onehot_labels
 
@@ -421,7 +427,8 @@ def last_dimension(shape, min_rank=1):
     if dims is None:
         raise ValueError('dims of shape must be known but is None')
     if len(dims) < min_rank:
-        raise ValueError('rank of shape must be at least %d not: %d' % (min_rank, len(dims)))
+        raise ValueError(
+            'rank of shape must be at least %d not: %d' % (min_rank, len(dims)))
     value = dims[-1].value
     if value is None:
         raise ValueError('last dimension shape must be known but is None')
@@ -454,3 +461,27 @@ def load_frozen_graph(frozen_graph):
         return graph
     except Exception as e:
         print(e.message)
+
+
+def normalize(input_layer):
+    """ Normalize a input layer
+
+    Args:
+        inmput_layer: input layer tp normalize
+
+    Returns:
+        normalized layer
+    """
+    return input_layer / 127.5 - 1.
+
+
+def denormalize(input_layer):
+    """ DeNormalize a input layer
+
+    Args:
+        input_layer: input layer to de normalize
+
+    Returns:
+        denormalized layer
+    """
+    return (input_layer + 1.) / 2.
