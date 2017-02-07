@@ -6,8 +6,8 @@ import os
 import subprocess
 import time
 from datetime import datetime
-
 import numpy as np
+from progress.bar import Bar
 import tensorflow as tf
 from sklearn.metrics import auc, roc_curve
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, accuracy_score
@@ -485,3 +485,28 @@ def denormalize(input_layer):
         denormalized layer
     """
     return (input_layer + 1.) / 2.
+
+
+class ProgressBar(Bar):
+    """Display progress bar
+
+    """
+    message = 'Loading'
+    fill = '...'
+    suffix = '%(percent).1f%% | ETA: %(eta)ds'
+
+
+def get_var_maybe_avg(var_name, ema, **kwargs):
+    ''' utility for retrieving polyak averaged params '''
+    v = tf.get_variable(var_name, **kwargs)
+    if ema is not None:
+        v = ema.average(v)
+    return v
+
+
+def get_vars_maybe_avg(var_names, ema, **kwargs):
+    ''' utility for retrieving polyak averaged params '''
+    vars = []
+    for vn in var_names:
+        vars.append(get_var_maybe_avg(vn, ema, **kwargs))
+    return vars

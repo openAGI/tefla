@@ -1,6 +1,8 @@
 import tensorflow as tf
+from past.builtins import xrange
 from tefla.core.layers import conv2d, batch_norm_tf as batch_norm
 from tefla.utils import util
+from tefla.core import initializers as initz
 
 
 def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_transform=1, name='SpatialTransformer', **kwargs):
@@ -315,3 +317,86 @@ def bottleneck_v2(inputs, depth, depth_bottleneck, stride, rate=1, name=None, **
         output = tf.nn.relu(shortcut + residual)
 
         return output
+
+
+def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, batch_size, regularizer=tf.nn.l2_loss, init_f=initz.random_normal(), trainable=True, **kwargs):
+    with tf.variable_scope(name, reuse=reuse):
+        global_step = tf.get_variable('global_step', shape=[
+        ], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+        A_shape = B_shape = [nwords, edim]
+        C_shape = [edim, edim]
+        T_A_shape = T_B_shape = [mem_size, edim]
+        A = tf.get_variable(
+            name='A',
+            shape=A_shape,
+            initializer=init_f,
+            regularizer=regularizer,
+            trainable=trainable
+        )
+        B = tf.get_variable(
+            name='B',
+            shape=B_shape,
+            initializer=init_f,
+            regularizer=regularizer,
+            trainable=trainable
+        )
+        C = tf.get_variable(
+            name='C',
+            shape=C_shape,
+            initializer=init_f,
+            regularizer=regularizer,
+            trainable=trainable
+        )
+        T_A = tf.get_variable(
+            name='T_A',
+            shape=T_A_shape,
+            initializer=init_f,
+            regularizer=regularizer,
+            trainable=trainable
+        )
+        T_B = tf.get_variable(
+            name='T_B',
+            shape=T_B_shape,
+            initializer=init_f,
+            regularizer=regularizer,
+            trainable=trainable
+        )
+
+        # m_i = sum A_ij * x_ij + T_A_i
+        Ain_c = tf.nn.embedding_lookup(A, context)
+        Ain_t = tf.nn.embedding_lookup(T_A, time)
+        Ain = tf.add(Ain_c, Ain_t)
+
+        # c_i = sum B_ij * u + T_B_i
+        Bin_c = tf.nn.embedding_lookup(B, context)
+        Bin_t = tf.nn.embedding_lookup(T_B, time)
+        Bin = tf.add(Bin_c, Bin_t)
+
+        hid = []
+        hid.append(inputs)
+
+        for h in xrange(nhop):
+            hid3dim = tf.reshape(hid[-1], [-1, 1, edim])
+            Aout = tf.batch_matmul(hid3dim, Ain, adj_y=True)
+            Aout2dim = tf.reshape(Aout, [-1, mem_size])
+            P = tf.nn.softmax(Aout2dim)
+
+            probs3dim = tf.reshape(P, [-1, 1, mem_size])
+            Bout = tf.batch_matmul(probs3dim, Bin)
+            Bout2dim = tf.reshape(Bout, [-1, edim])
+
+            Cout = tf.matmul(hid[-1], C)
+            Dout = tf.add(Cout, Bout2dim)
+
+            self.share_list[0].append(Cout)
+
+            if lindim == edim:
+                hid.append(Dout)
+            elif lindim == 0:
+                hid.append(tf.nn.relu(Dout))
+            else:
+                F = tf.slice(Dout, [0, 0], [batch_size, lindim])
+                G = tf.slice(Dout, [0, lindim], [batch_size, edim - lindim])
+                K = tf.nn.relu(G)
+                hid.append(tf.concat(1, [F, K]))
+        return hid
