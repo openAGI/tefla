@@ -828,6 +828,71 @@ def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3
     return output
 
 
+def down_shifted_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(2, 3), stride=(1, 1), **kwargs):
+    """ Down shifted convolution for PIXEL CNN
+    """
+    x = tf.pad(x, [[0, 0], [filter_size[0] - 1, 0],
+                   [int((filter_size[1] - 1) / 2), int((filter_size[1] - 1) / 2)], [0, 0]])
+    return conv2d(x, n_output_channels, is_training, reuse, trainable=trainable, filter_size=filter_size, pad='VALID', stride=stride, **kwargs)
+
+
+def down_shifted_upsample2d(x, output_shape, is_training, reuse, trainable=True, filter_size=(2, 3), stride=(1, 1), **kwargs):
+    """ Down shifted deconvolution for PIXEL CNN
+    """
+    x = upsample2d(x, output_shape, is_training, reuse, trainable=trainable,
+                   filter_size=filter_size, pad='VALID', stride=stride, **kwargs)
+    xs = list(map(int, x.get_shape()))
+    return x[:, :(xs[1] - filter_size[0] + 1), int((filter_size[1] - 1) / 2):(xs[2] - int((filter_size[1] - 1) / 2)), :]
+
+
+def down_right_shifted_conv2d(x, n_output_channels, is_training, reuse, filter_size=(2, 3), stride=(1, 1), **kwargs):
+    """ Down right shifted convolution for PIXEL CNN
+    """
+    x = tf.pad(x, [[0, 0], [filter_size[0] - 1, 0],
+                   [filter_size[1] - 1, 0], [0, 0]])
+    return conv2d(x, n_output_channels, is_training, reuse, trainable=trainable, filter_size=filter_size, pad='VALID', stride=stride, **kwargs)
+
+
+def down_right_upsample2d(x, output_shape, is_training, reuse, trainable=True, filter_size=(2, 2), stride=(1, 1), **kwargs):
+    """ Down right shifted deconvolution for PIXEL CNN
+    """
+    x = upsample2d(x, output_shape, is_training, reuse, trainable=trainable,
+                   filter_size=filter_size, pad='VALID', stride=stride, **kwargs)
+    xs = list(map(int, x.get_shape()))
+    return x[:, :(xs[1] - filter_size[0] + 1):, :(xs[2] - filter_size[1] + 1), :]
+
+
+def gated_resnet(x, is_training, reuse, a=None, h=None, activation=concat_elu, conv=conv2d, init=False, counters={}, ema=None, dropout_p=0., name='gated_resnet', outputs_collections=None, **kwargs):
+    """Gated Resnet block
+    """
+    with tf.name_scope(name):
+        xs = list(map(int, x.get_shape()))
+        num_filters = xs[-1]
+
+        c1 = conv(activation(x), num_filters, is_training, reuse, **kwargs)
+        if a is not None:
+            c1 += conv(activation(a), num_filters, is_training,
+                       reuse, filter_size=(1, 1), **kwargs)
+        c1 = activation(c1)
+        if dropout_p > 0:
+            c1 = dropout(c1, drop_p=dropout_p)
+        c2 = conv(c1, num_filters * 2, is_training,
+                  reuse, init_scale=0.1, **kwargs)
+
+        if h is not None:
+            with tf.variable_scope(get_name('conditional_weights', counters)):
+                hw = helper.get_var_maybe_avg('hw', ema, shape=[int_shape(h)[-1], 2 * num_filters], dtype=tf.float32,
+                                              initializer=tf.random_normal_initializer(0, 0.05), trainable=True)
+            if init:
+                hw = hw.initialized_value()
+            c2 += tf.reshape(tf.matmul(h, hw), [xs[0], 1, 1, 2 * num_filters])
+
+        a, b = tf.split(3, 2, c2)
+        c3 = a * tf.nn.sigmoid(b)
+        output = x + c3
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
 def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', outputs_collections=None, **unused):
     """
     Max pooling layer
@@ -1370,6 +1435,23 @@ def elu(x, name='elu', outputs_collections=None, **unused):
     _check_unused(unused, name)
     with tf.name_scope(name):
         output = tf.nn.elu(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def concat_elu(x, name='concat_elu', outputs_collections=None, **unused):
+    """ like concatenated ReLU (http://arxiv.org/abs/1603.05201), but then with ELU
+
+    Args:
+        x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+        name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
+    with tf.name_scope(name):
+        axis = len(x.get_shape()) - 1
+        output = tf.nn.elu(tf.concat(axis, [x, -x]))
         return _collect_named_outputs(outputs_collections, name, output)
 
 
