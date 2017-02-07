@@ -86,6 +86,40 @@ class Top_k(Metric):
         return acc
 
 
+class IOU(Metric, MetricMixin):
+    """
+    Class to compute Top_k accuracy metric for predictions and labels
+    """
+
+    def __init__(self, name='IOU'):
+        super(IOU, self).__init__(name)
+        self.name = name
+
+    def metric(self, predictions, targets, top_k=1):
+        """
+        Computes top k metric
+
+        Args:
+            predictions: 2D tensor/array, predictions of the network
+            targets: 2D tensor/array, ground truth labels of the network
+            top_k: int, returns the top_k accuracy; {1,2,3 max_classes}
+
+        Returns:
+            top_k accuracy
+        """
+        return self._iou_op(predictions, targets)
+
+    def _iou_op(self, predictions, targets, top_k=1, dtype=tf.int32):
+        with tf.name_scope('iou'):
+            targets = tf.cast(targets, dtype)
+            conf_mat = self.confusion_matrix(predictions, targets)
+            t = []
+            k = len(conf_mat[0])
+            for i in range(k):
+                t.append(sum([conf_mat[i][j] for j in range(k)]))
+            return (1.0 / k) * sum([float(conf_mat[i][i]) / (t[i] - conf_mat[i][i] + sum([conf_mat[j][i] for j in range(k)])) for i in range(k)])
+
+
 class Kappa(Metric, MetricMixin):
 
     def __init__(self, name='kappa'):
