@@ -862,7 +862,7 @@ def down_right_upsample2d(x, output_shape, is_training, reuse, trainable=True, f
     return x[:, :(xs[1] - filter_size[0] + 1):, :(xs[2] - filter_size[1] + 1), :]
 
 
-def gated_resnet(x, is_training, reuse, a=None, h=None, activation=concat_elu, conv=conv2d, init=False, counters={}, ema=None, dropout_p=0., name='gated_resnet', outputs_collections=None, **kwargs):
+def gated_resnet(x, is_training, reuse, a=None, h=None, activation=tf.nn.relu, conv=conv2d, init=False, counters={}, ema=None, dropout_p=0., name='gated_resnet', outputs_collections=None, **kwargs):
     """Gated Resnet block
     """
     with tf.name_scope(name):
