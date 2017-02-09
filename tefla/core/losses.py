@@ -38,7 +38,7 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
         y_pow: int, to whcih the labels should be raised; useful if model diverge. e.g. y_pow=2
         num_ratings: numbers of rater to used, typically num_classes of the model
         batch_size: batch_size of the training or validation ops
-        eps: a float, prevents divide by zero 
+        eps: a float, prevents divide by zero
         name: Optional scope/name for op_scope.
 
     Returns:
@@ -183,3 +183,45 @@ def l1_l2_regularizer(var, weight_l1=1.0, weight_l2=1.0, name='l1_l2_regularizer
             tf.abs(var)), name='value_l1')
         reg_l2 = tf.mul(weight_l2_t, tf.nn.l2_loss(var), name='value_l2')
         return tf.add(reg_l1, reg_l2, name='value')
+
+
+def discretized_mix_logistic_loss(inputs, predictions, sum_all=True, name='disretized_mix_logistic_loss'):
+    """ log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval """
+    with tf.name_scope(name):
+        inputs_shape = list(map(int, inputs.get_shape()))
+        predictions_shape = list(map(int, predictions.get_shape()))
+        nr_mix = int(predictions_shape[-1] / 10)
+        logit_probs = predcitions[:, :, :, :nr_mix]
+        predictions = tf.reshape(
+            predictions[:, :, :, nr_mix:], inputs_shape + [nr_mix * 3])
+        means = predictions[:, :, :, :, :nr_mix]
+        log_scales = tf.maximum(l[:, :, :, :, nr_mix:2 * nr_mix], -7.)
+        coeffs = tf.nn.tanh(l[:, :, :, :, 2 * nr_mix:3 * nr_mix])
+        inputs = tf.reshape(inputs, inputs_shape +
+                            [1]) + tf.zeros(inputs_shape + [nr_mix])
+        m2 = tf.reshape(means[:, :, :, 1, :] + coeffs[:, :, :, 0, :]
+                        * inputs[:, :, :, 0, :], [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
+        m3 = tf.reshape(means[:, :, :, 2, :] + coeffs[:, :, :, 1, :] * inputs[:, :, :, 0, :] +
+                        coeffs[:, :, :, 2, :] * inputs[:, :, :, 1, :], [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
+        means = tf.concat(3, [tf.reshape(means[:, :, :, 0, :], [
+                          inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix]), m2, m3])
+        centered_inputs = inputs - means
+        inv_stdv = tf.exp(-log_scales)
+        plus_in = inv_stdv * (centered_inputs + 1. / 255.)
+        cdf_plus = tf.nn.sigmoid(plus_in)
+        min_in = inv_stdv * (centered_inputs - 1. / 255.)
+        cdf_min = tf.nn.sigmoid(min_in)
+        log_cdf_plus = plus_in - tf.nn.softplus(plus_in)
+        log_one_minus_cdf_min = -tf.nn.softplus(min_in)
+        cdf_delta = cdf_plus - cdf_min
+        mid_in = inv_stdv * centered_inputs
+        log_pdf_mid = mid_in - log_scales - 2. * tf.nn.softplus(mid_in)
+        log_probs = tf.select(inputs < -0.999, log_cdf_plus, tf.select(inputs > 0.999, log_one_minus_cdf_min, tf.select(
+            cdf_delta > 1e-5, tf.log(tf.maximum(cdf_delta, 1e-12)), log_pdf_mid - np.log(127.5))))
+
+        log_probs = tf.reduce_sum(log_probs, 3) + \
+            log_prob_from_logits(logit_probs)
+        if sum_all:
+            return -tf.reduce_sum(log_sum_exp(log_probs))
+        else:
+            return -tf.reduce_sum(log_sum_exp(log_probs), [1, 2])
