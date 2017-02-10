@@ -562,7 +562,7 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
 
 
 def upsample2d(input_, output_shape, is_training, reuse, trainable=True, filter_size=(5, 5), stride=(2, 2), w_init=initz.he_normal(seed=None), b_init=0.0,
-               w_regularizer=tf.nn.l2_loss, batch_norm=None, activation=None, name="deconv2d", use_bias=True, with_w=False, outputs_collections=None, **unused):
+               w_regularizer=tf.nn.l2_loss, batch_norm=None, batch_norm_args=None, activation=None, name="deconv2d", use_bias=True, with_w=False, outputs_collections=None, **unused):
     """Adds a 2D upsampling or deconvolutional layer.
 
         his operation is sometimes called "deconvolution" after Deconvolutional Networks,
@@ -636,9 +636,12 @@ def upsample2d(input_, output_shape, is_training, reuse, trainable=True, filter_
             output = tf.reshape(tf.nn.bias_add(
                 output, biases), output.get_shape())
 
-        if batch_norm:
+        if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
+            batch_norm_args = batch_norm_args or {}
             output = batch_norm(output, is_training=is_training,
-                                reuse=reuse, name='bn_upsample')
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse)
@@ -663,7 +666,7 @@ def _phase_shift(input_, r):
     return output
 
 
-def subpixel2d(input_, r, color=False, name=None, outputs_collections=None, **unused):
+def subpixel2d(input_, r, color=True, name=None, outputs_collections=None, **unused):
     input_shape = helper.get_input_shape(input_)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name or "subpixel"):
