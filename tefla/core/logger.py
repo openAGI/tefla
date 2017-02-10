@@ -15,7 +15,8 @@ from logging import INFO
 from logging import WARN
 
 
-__all_ = ['setFileHandler', 'vlog', 'setVerbosity', 'getVerbosity', 'debug', 'info', 'warn', 'error', 'fatal']
+__all_ = ['setFileHandler', 'vlog', 'setVerbosity',
+          'getVerbosity', 'debug', 'info', 'warn', 'error', 'fatal']
 
 _logger = _logging.getLogger('deeprl')
 
@@ -100,6 +101,7 @@ def _verbosity(verbosity):
         '3': ERROR,
         '4': FATAL,
     }[verbosity]
+
 
 def getVerbosity():
     """

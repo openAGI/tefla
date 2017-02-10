@@ -63,7 +63,7 @@ class DistSupervisedTrainer(Base):
         self.capacity = self.cnf.get('capacity', 2000)
         self.feature_keys = self.cnf.get('feature_keys')
         super(DistSupervisedTrainer, self).__init__(
-            self, util.load_module(model), cnf, **kwargs)
+            model, cnf, **kwargs)
 
     def fit(self, task_id, target, dataset, datadir, cluster_spec, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
         """
