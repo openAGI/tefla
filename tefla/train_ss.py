@@ -53,7 +53,7 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, res
     training_iter, validation_iter = create_training_iters(
         cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=parallel)
     trainer = SemiSupervisedTrainer(model, cnf, training_iterator=training_iter, validation_iterator=validation_iter, resume_lr=resume_lr, classification=cnf[
-        'classification'], gpu_memory_fraction=gpu_memory_fraction, is_summary=is_summary)
+        'classification'], gpu_memory_fraction=gpu_memory_fraction, is_summary=is_summary, verbosity=2)
     trainer.fit(data_set, num_classes, weights_from,
                 start_epoch, summary_every=399)
 
