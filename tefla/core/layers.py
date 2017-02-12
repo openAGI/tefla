@@ -1828,7 +1828,7 @@ def unit_norm(inputs, dim, epsilon=1e-7, scope=None):
         return tf.div(inputs, tf.tile(lengths, multiples))
 
 
-def crop_and_concat(inputs1, inputs2):
+def crop_and_concat(inputs1, inputs2, name='crop_concat'):
     """Concates two features maps
       concates different sizes feature maps cropping the larger map
       concatenation across output channels
@@ -1840,14 +1840,15 @@ def crop_and_concat(inputs1, inputs2):
     Returns:
        concated output tensor
     """
-    inputs1_shape = tf.shape(inputs1)
-    inputs2_shape = tf.shape(inputs2)
-    # offsets for the top left corner of the crop
-    offsets = [0, (inputs1_shape[1] - inputs2_shape[1]) // 2,
-               (inputs1_shape[2] - inputs2_shape[2]) // 2, 0]
-    size = [-1, inputs2_shape[1], inputs2_shape[2], -1]
-    inputs1_crop = tf.slice(inputs1, offsets, size)
-    return tf.concat(3, [inputs1_crop, inputs2])
+    with tf.name_scope(name):
+        inputs1_shape = tf.shape(inputs1)
+        inputs2_shape = tf.shape(inputs2)
+        # offsets for the top left corner of the crop
+        offsets = [0, (inputs1_shape[1] - inputs2_shape[1]) // 2,
+                   (inputs1_shape[2] - inputs2_shape[2]) // 2, 0]
+        size = [-1, inputs2_shape[1], inputs2_shape[2], -1]
+        inputs1_crop = tf.slice(inputs1, offsets, size)
+        return tf.concat(3, [inputs1_crop, inputs2])
 
 
 def _collect_named_outputs(outputs_collections, name, output):
