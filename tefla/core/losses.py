@@ -4,6 +4,7 @@
 # Copyright 2016, Mrinal Haloi
 # -------------------------------------------------------------------#
 import tensorflow as tf
+import numpy as np
 
 log_loss = tf.contrib.losses.log_loss
 
@@ -55,7 +56,7 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
         try:
             pred_norm = pred_ / \
                 (eps + tf.reshape(tf.reduce_sum(pred_, 1), [-1, 1]))
-        except:
+        except Exception:
             pred_norm = pred_ / \
                 (eps + tf.reshape(tf.reduce_sum(pred_, 1), [batch_size, 1]))
 
@@ -70,7 +71,7 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
 
         try:
             return -(1 - nom / denom)
-        except:
+        except Exception:
             return -(1 - nom / (denom + eps))
 
 
@@ -186,17 +187,27 @@ def l1_l2_regularizer(var, weight_l1=1.0, weight_l2=1.0, name='l1_l2_regularizer
 
 
 def discretized_mix_logistic_loss(inputs, predictions, sum_all=True, name='disretized_mix_logistic_loss'):
-    """ log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval """
+    """ log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval
+
+    Args:
+        predictions: 4D tensor or array, [batch_size, width, height, out_channels] predictions of the network .
+        inputs: 4D tensor or array, [batch_size, width, height, num_classes] ground truth labels or target labels.
+        name: Optional scope/name for op_scope.
+
+    Returns:
+        A tensor with the discretized mix logistic loss.
+    """
     with tf.name_scope(name):
         inputs_shape = list(map(int, inputs.get_shape()))
         predictions_shape = list(map(int, predictions.get_shape()))
         nr_mix = int(predictions_shape[-1] / 10)
-        logit_probs = predcitions[:, :, :, :nr_mix]
+        logit_probs = predictions[:, :, :, :nr_mix]
         predictions = tf.reshape(
             predictions[:, :, :, nr_mix:], inputs_shape + [nr_mix * 3])
         means = predictions[:, :, :, :, :nr_mix]
-        log_scales = tf.maximum(l[:, :, :, :, nr_mix:2 * nr_mix], -7.)
-        coeffs = tf.nn.tanh(l[:, :, :, :, 2 * nr_mix:3 * nr_mix])
+        log_scales = tf.maximum(
+            predictions[:, :, :, :, nr_mix:2 * nr_mix], -7.)
+        coeffs = tf.nn.tanh(predictions[:, :, :, :, 2 * nr_mix:3 * nr_mix])
         inputs = tf.reshape(inputs, inputs_shape +
                             [1]) + tf.zeros(inputs_shape + [nr_mix])
         m2 = tf.reshape(means[:, :, :, 1, :] + coeffs[:, :, :, 0, :]
@@ -225,3 +236,47 @@ def discretized_mix_logistic_loss(inputs, predictions, sum_all=True, name='disre
             return -tf.reduce_sum(log_sum_exp(log_probs))
         else:
             return -tf.reduce_sum(log_sum_exp(log_probs), [1, 2])
+
+
+def mse_loss(pred, labels):
+    try:
+        batch_size = tf.cast(pred.shape[0], tf.float32)
+    except Exception as e:
+        print('Pred is a tf tensor %s' % str(e.message))
+        batch_size = tf.cast(tf.shape(pred)[0], tf.float32)
+    loss_val = tf.sqrt(2 * tf.nn.l2_loss(pred - labels)) / batch_size
+    return loss_val
+
+
+def pullaway_loss(embeddings, name='pullaway_loss'):
+    """Pull Away loss calculation
+
+    Args:
+        embeddings: The embeddings to be orthogonalized for varied faces. Shape [batch_size, embeddings_dim]
+
+    Return: pull away term loss
+    """
+    with tf.name_scope(name):
+        norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keep_dims=True))
+        normalized_embeddings = embeddings / norm
+        similarity = tf.matmul(normalized_embeddings,
+                               normalized_embeddings, transpose_b=True)
+        batch_size = tf.cast(tf.shape(embeddings)[0], tf.float32)
+        pt_loss = (tf.reduce_sum(similarity) - batch_size) / \
+            (batch_size * (batch_size - 1))
+        return pt_loss
+
+
+def log_sum_exp(x):
+    """ numerically stable log_sum_exp implementation that prevents overflow """
+    axis = len(x.get_shape()) - 1
+    m = tf.reduce_max(x, axis)
+    m2 = tf.reduce_max(x, axis, keep_dims=True)
+    return m + tf.log(tf.reduce_sum(tf.exp(x - m2), axis))
+
+
+def log_prob_from_logits(x):
+    """ numerically stable log_softmax implementation that prevents overflow """
+    axis = len(x.get_shape()) - 1
+    m = tf.reduce_max(x, axis, keep_dims=True)
+    return x - m - tf.log(tf.reduce_sum(tf.exp(x - m), axis, keep_dims=True))

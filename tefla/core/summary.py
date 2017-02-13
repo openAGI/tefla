@@ -9,7 +9,8 @@ import os
 from tefla.utils.util import rms
 
 
-__all__ =['summary_metric', 'summary_activation', 'create_summary_writer', 'summary_param', 'summary_trainable_params', 'summary_gradients', 'summary_image']
+__all__ = ['summary_metric', 'summary_activation', 'create_summary_writer',
+           'summary_param', 'summary_trainable_params', 'summary_gradients', 'summary_image']
 
 
 def _formatted_name(tensor):
@@ -29,7 +30,8 @@ def summary_metric(tensor, name=None, collections=None):
         name = _formatted_name(tensor)
     ndims = tensor.get_shape().ndims
     with tf.name_scope('summary/metric'):
-        tf.summary.scalar(name + '/mean', tf.reduce_mean(tensor), collections=collections)
+        tf.summary.scalar(
+            name + '/mean', tf.reduce_mean(tensor), collections=collections)
         if ndims >= 2:
             tf.summary.histogram(name, tensor, collections=collections)
 
@@ -49,7 +51,8 @@ def summary_activation(tensor, name=None, collections=None):
     with tf.name_scope('summary/activation'):
         if ndims >= 2:
             tf.summary.histogram(name, tensor)
-        tf.summary.scalar(name + '/sparsity', tf.nn.zero_fraction(tensor), collections=collections)
+        tf.summary.scalar(name + '/sparsity',
+                          tf.nn.zero_fraction(tensor), collections=collections)
         tf.summary.scalar(name + '/rms', rms(tensor), collections=collections)
 
 
@@ -70,7 +73,8 @@ def create_summary_writer(summary_dir, sess):
         os.mkdir(summary_dir + '/train')
     if not os.path.exists(summary_dir + '/test'):
         os.mkdir(summary_dir + '/test')
-    train_writer = tf.summary.FileWriter(summary_dir + '/train', graph=sess.graph)
+    train_writer = tf.summary.FileWriter(
+        summary_dir + '/train', graph=sess.graph)
     val_writer = tf.summary.FileWriter(summary_dir + '/test', graph=sess.graph)
     return train_writer, val_writer
 
@@ -115,7 +119,8 @@ def summary_trainable_params(summary_types, collections=None):
             name = _formatted_name(tensor)
             ndims = tensor.get_shape().ndims
             for s_type in summary_types:
-                summary_param(s_type, tensor, ndims, name, collections=collections)
+                summary_param(s_type, tensor, ndims, name,
+                              collections=collections)
 
 
 def summary_gradients(grad_vars, summary_types, collections=None):
@@ -132,10 +137,12 @@ def summary_gradients(grad_vars, summary_types, collections=None):
         for grad, var in grad_vars:
             ndims = grad.get_shape().ndims
             for s_type in summary_types:
-                summary_param(s_type, grad, ndims, var.op.name + '/grad', collections=None)
+                summary_param(s_type, grad, ndims, var.op.name +
+                              '/grad', collections=None)
         try:
-            tf.summary.scalar('/global_norm', tf.global_norm(map(lambda grad_v: grad_v[0], grad_vars)), collections=collections)
-        except:
+            tf.summary.scalar('/global_norm', tf.global_norm(
+                map(lambda grad_v: grad_v[0], grad_vars)), collections=collections)
+        except Exception:
             return
 
 
@@ -152,4 +159,5 @@ def summary_image(tensor, name=None, max_images=10, collections=None):
     if name is None:
         name = name + _formatted_name(tensor)
     with tf.name_scope('summary/image'):
-        tf.summary.image(name, tensor, max_images=max_images, collections=collections)
+        tf.summary.image(name, tensor, max_images=max_images,
+                         collections=collections)

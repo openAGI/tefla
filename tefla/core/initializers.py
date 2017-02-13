@@ -1,5 +1,6 @@
 from __future__ import division, print_function, absolute_import
 import numpy as np
+import math
 import tensorflow as tf
 from tensorflow.contrib.layers import variance_scaling_initializer
 
@@ -40,17 +41,11 @@ def he_uniform(seed=None, scale=1.0, dtype=tf.float32):
 
 
 def random_normal(seed=None, mean=0.0, stddev=1.0, dtype=tf.float32, name=None):
-    """
-    He Normal initializer
-    Kaiming He et al. (2015): Delving deep into rectifiers: Surpassing human-level
-    performance on imagenet classification. arXiv preprint arXiv:1502.01852.
+    """Random Normal initializer
 
     Args:
-        scale: float
-               Scaling factor for the weights. Set this to ``1.0`` for linear and
-               sigmoid units, to ``sqrt(2)`` for rectified linear units, and
-               to ``sqrt(2/(1+alpha**2))`` for leaky rectified linear units with
-               leakiness ``alpha``. Other transfer functions may need different factors.
+        mean: a `float`
+        stddev: a `float`
     """
     return variance_scaling_initializer_v2(factor=2.0, mode='FAN_IN', uniform=False,
                                            seed=None, dtype=tf.float32, mean=mean, stddev=stddev, normal_type='random_normal', name=name)
