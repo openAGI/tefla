@@ -6,6 +6,8 @@ import os
 import subprocess
 import time
 from datetime import datetime
+from scipy.misc import imsave
+import numbers
 import numpy as np
 from progress.bar import Bar
 import tensorflow as tf
@@ -510,3 +512,16 @@ def get_vars_maybe_avg(var_names, ema, **kwargs):
     for vn in var_names:
         vars.append(get_var_maybe_avg(vn, ema, **kwargs))
     return vars
+
+
+def save_images(fname, flat_img, width=28, height=28, sep=3, channels=3):
+    N = flat_img.shape[0]
+    pdim = int(np.ceil(np.sqrt(N)))
+    image = np.zeros((pdim * (width + sep), pdim *
+                      (height + sep), channels))
+    for i in range(N):
+        row = int(i / pdim) * (height + sep)
+        col = (i % pdim) * (width + sep)
+        image[row:row + width, col:col +
+              height, :] = flat_img[i].reshape(width, height, 3)
+    imsave(fname, image)

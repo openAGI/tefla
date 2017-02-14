@@ -101,11 +101,12 @@ class SemiSupervisedTrainer(Base):
             allow_soft_placement=True, gpu_options=gpu_options))
         sess.run(init)
         if start_epoch > 1:
-            weights_from = "weights/model-epoch-%d.ckpt" % (
+            weights_from = "weights/model-epoch-%d" % (
                 start_epoch - 1)
 
         if weights_from:
-            self._load_weights(sess, saver, weights_from)
+            _load_variables(sess, saver, weights_from)
+            # self._load_weights(sess, weights_from)
 
         learning_rate_value = self.lr_policy.initial_lr
         log.info("Initial learning rate: %f " % learning_rate_value)
@@ -114,6 +115,7 @@ class SemiSupervisedTrainer(Base):
                 self.cnf.get('summary_dir', '/tmp/tefla-summary'), sess)
         # keep track of maximum accuracy and auroc and save corresponding
         # weights
+        training_history = []
         seed_delta = 100
         batch_iter_idx = 1
         n_iters_per_epoch = len(
@@ -127,6 +129,10 @@ class SemiSupervisedTrainer(Base):
             g_train_losses = []
             batch_train_sizes = []
             for batch_num, (Xb, yb) in enumerate(self.training_iterator(training_X, training_y)):
+                if Xb.shape[0] != self.cnf['batch_size_train']:
+                    batch_pad = - Xb.shape[0] + self.cnf['batch_size_train']
+                    Xb = np.vstack((Xb, Xb[0:batch_pad, :, :, :]))
+                    yb = np.hstack((yb, yb[0:batch_pad]))
                 feed_dict_train = {self.inputs: Xb,
                                    self.labels: yb, self.learning_rate_d: learning_rate_value, self.learning_rate_g: learning_rate_value}
                 log.debug('1. Loading batch %d data done.' % batch_num)
@@ -164,8 +170,10 @@ class SemiSupervisedTrainer(Base):
                 d_train_losses, weights=batch_train_sizes)
             g_avg_loss = np.average(
                 g_train_losses, weights=batch_train_sizes)
-            log.debug("Epoch %d, D_avg_loss: %s, G_avg_loss" %
+            log.debug("Epoch %d, D_avg_loss: %s, G_avg_loss %s" %
                       (epoch, d_avg_loss, g_avg_loss))
+            print("Epoch %d, D_avg_loss: %s, G_avg_loss %s" %
+                  (epoch, d_avg_loss, g_avg_loss))
             # Plot training loss every epoch
             log.debug('5. Writing epoch summary...')
             if self.is_summary:
@@ -240,11 +248,24 @@ class SemiSupervisedTrainer(Base):
                  epoch_validation_loss,
                  custom_metrics_string)
             )
+            print(
+                "Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
+                (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - tic,
+                 d_avg_loss,
+                 epoch_validation_loss,
+                 custom_metrics_string)
+            )
+            epoch_info = dict(
+                epoch=epoch,
+                training_loss=d_avg_loss,
+                validation_loss=epoch_validation_loss
+            )
 
-            saver.save(sess, "%s/model-epoch" %
-                       (weights_dir), global_step=epoch)
+            training_history.append(epoch_info)
+            saver.save(sess, "%s/model-epoch-%d.ckpt" % (weights_dir, epoch))
+
             learning_rate_value = self.lr_policy.epoch_update(
-                learning_rate_value)
+                learning_rate_value, training_history)
 
             # Learning rate step decay
         if self.is_summary:
@@ -289,9 +310,9 @@ class SemiSupervisedTrainer(Base):
         joint = tf.concat(0, [inputs, G])
         print(joint.get_shape())
         self.end_points_D = self.model.discriminator(
-            joint, True, None, batch_size=batch_size_train)
+            joint, True, None, num_classes=num_classes, batch_size=batch_size_train)
         self.end_points_D_val = self.model.discriminator(
-            inputs, False, True, batch_size=batch_size_val)
+            inputs, False, True, num_classes=num_classes, batch_size=batch_size_val)
 
         # For printing layers shape
         self.training_end_points = self.end_points_D
@@ -357,7 +378,7 @@ class SemiSupervisedTrainer(Base):
         self.d_loss_fakes.append(self.d_loss_fake)
         self.d_loss_classes.append(self.d_loss_class)
         self.d_losses.append(self.d_loss)
-        self.predictions = self.end_points_D['D_on_data']
+        self.predictions = self.end_points_D_val['predictions']
 
     def _get_vars_semi_supervised(self):
         t_vars = tf.trainable_variables()
@@ -456,3 +477,33 @@ class SemiSupervisedTrainer(Base):
             [apply_d_gradient_op], self.d_losses[-1])
         self.train_op_g = control_flow_ops.with_dependencies(
             [apply_g_gradient_op], self.g_losses[-1])
+
+
+def _load_variables(sess, saver, weights_from):
+    print("---Loading session/weights from %s..." % weights_from)
+    try:
+        saver.restore(sess, weights_from)
+    except Exception as e:
+        log.info(
+            "Unable to restore entire session from checkpoint. Error: %s." % e.message)
+        log.info("Doing selective restore.")
+        try:
+            reader = tf.train.NewCheckpointReader(weights_from)
+            names_to_restore = set(reader.get_variable_to_shape_map().keys())
+            variables_to_restore = [v for v in tf.global_variables() if v.name[
+                :-2] in names_to_restore]
+            log.info("Loading %d variables: " % len(variables_to_restore))
+            for var in variables_to_restore:
+                logger.info("Loading: %s %s)" % (var.name, var.get_shape()))
+                restorer = tf.train.Saver([var])
+                try:
+                    restorer.restore(sess, weights_from)
+                except Exception as e:
+                    logger.info("Problem loading: %s -- %s" %
+                                (var.name, e.message))
+                    continue
+            log.info("Loaded session/weights from %s" % weights_from)
+        except Exception:
+            log.info(
+                "Couldn't load session/weights from %s; starting from scratch" % weights_from)
+            sess.run(tf.global_variables_initilizer())
