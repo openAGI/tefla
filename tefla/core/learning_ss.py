@@ -7,6 +7,7 @@ from __future__ import division, print_function, absolute_import
 
 import os
 import time
+import cv2
 
 import numpy as np
 import tensorflow as tf
@@ -266,6 +267,14 @@ class SemiSupervisedTrainer(Base):
 
             learning_rate_value = self.lr_policy.epoch_update(
                 learning_rate_value, training_history)
+            end_points_G_val = self.model.generator(
+                [self.cnf['batch_size_test'], 100], False, True, batch_size=self.cnf['batch_size_test'])
+
+            util.save_images('generated_images.jpg',
+                             sess.run(end_points_G_val['softmax']), width=128, height=128)
+
+            G = sess.run(end_points_G_val['softmax'])
+            cv2.imwrite('generated_image.jpg', G[0, :, :, :] * 50 + 128)
 
             # Learning rate step decay
         if self.is_summary:
@@ -282,7 +291,7 @@ class SemiSupervisedTrainer(Base):
 
         return feature_loss
 
-    def _tower_loss_semi_supervised(self, inputs, targets, gpu_idx=0, num_classes=11, is_fm_loss=True):
+    def _tower_loss_semi_supervised(self, inputs, targets, gpu_idx=0, num_classes=11, is_fm_loss=False):
         with tf.variable_scope("train_specific"):
             avg_error_rate = tf.get_variable(
                 'avg_error_rate', [], initializer=tf.constant_initializer(0.), trainable=False)
@@ -292,7 +301,7 @@ class SemiSupervisedTrainer(Base):
         batch_size_train = self.cnf['batch_size_train']
         batch_size_val = self.cnf['batch_size_test']
         self.end_points_G = self.model.generator(
-            [batch_size_train, 100], True, None)
+            [batch_size_train, 100], True, None, batch_size_val)
 
         if gpu_idx == 0:
             G_means = tf.reduce_mean(
