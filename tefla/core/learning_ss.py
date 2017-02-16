@@ -102,7 +102,7 @@ class SemiSupervisedTrainer(Base):
             allow_soft_placement=True, gpu_options=gpu_options))
         sess.run(init)
         if start_epoch > 1:
-            weights_from = "weights/model-epoch-%d" % (
+            weights_from = "weights/model-epoch-%d.ckpt" % (
                 start_epoch - 1)
 
         if weights_from:
