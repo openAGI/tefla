@@ -91,7 +91,7 @@ class Base(object):
             self.validation_metric_placeholders = tuple(
                 self.validation_metric_placeholders)
 
-    def _optimizer(self, lr, optname='momentum', decay=0.9, momentum=0.9, epsilon=1e-08, beta1=0.9, beta2=0.999):
+    def _optimizer(self, lr, optname='momentum', decay=0.9, momentum=0.9, epsilon=1e-08, beta1=0.5, beta2=0.999):
         """ definew the optimizer to use.
 
         Args:
