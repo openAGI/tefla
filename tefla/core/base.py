@@ -91,7 +91,7 @@ class Base(object):
             self.validation_metric_placeholders = tuple(
                 self.validation_metric_placeholders)
 
-    def _optimizer(self, lr, optname='momentum', decay=0.9, momentum=0.9, epsilon=1e-08, beta1=0.5, beta2=0.999):
+    def _optimizer(self, lr, optname='momentum', decay=0.9, momentum=0.9, epsilon=1e-08, beta1=0.5, beta2=0.999, l1_reg=0.0, l2_reg=0.0, accum_val=0.1, lr_power=-0.5):
         """ definew the optimizer to use.
 
         Args:
@@ -118,6 +118,15 @@ class Base(object):
         if optname == 'adam':
             opt = tf.train.AdamOptimizer(
                 learning_rate=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, use_locking=False, name='Adam')
+        if optname == 'proximalgd':
+            opt = tf.train.ProximalGradientDescentOptimizer(
+                lr, l1_regularization_strength=l1_reg, l2_regularization_strength=l2_reg, use_locking=False, name='ProximalGradientDescent')
+        if optname == 'proximaladagrad':
+            opt = tf.train.ProximalAdagradOptimizer(lr, initial_accumulator_value=accum_val, l1_regularization_strength=l1_reg,
+                                                    l2_regularization_strength=l2_reg, use_locking=False, name='ProximalGradientDescent')
+        if optname == 'ftrl':
+            opt = tf.train.FtrlOptimizer(lr, learning_rate_power=lr_power, initial_accumulator_value=accum_val,
+                                         l1_regularization_strength=l1_reg, l2_regularization_strength=l2_reg, use_locking=False, name='Ftrl')
         return opt
 
     def _sigmoid_kl_with_logits(self, logits, targets):

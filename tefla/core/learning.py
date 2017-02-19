@@ -26,16 +26,16 @@ class SupervisedTrainer(Base):
 
 
     Args:
-        model: model definition 
+        model: model definition
         cnf: dict, training configs
         training_iterator: iterator to use for training data access, processing and augmentations
         validation_iterator: iterator to use for validation data access, processing and augmentations
-        start_epoch: int, training start epoch; for resuming training provide the last 
+        start_epoch: int, training start epoch; for resuming training provide the last
         epoch number to resume training from, its a required parameter for training data balancing
         resume_lr: float, learning rate to use for new training
         classification: bool, classificattion or regression
         clip_norm: bool, to clip gradient using gradient norm, stabilizes the training
-        n_iters_per_epoch: int,  number of iteratiosn for each epoch; 
+        n_iters_per_epoch: int,  number of iteratiosn for each epoch;
             e.g: total_training_samples/batch_size
         gpu_memory_fraction: amount of gpu memory to use
         is_summary: bool, to write summary or not
@@ -89,7 +89,8 @@ class SupervisedTrainer(Base):
             log.info('%s %s' % (n, s))
 
         log.info("\n---Non Trainable vars in model:")
-        name_shapes = map(lambda v: (v.name, v.get_shape()), non_trainable_vars)
+        name_shapes = map(lambda v: (v.name, v.get_shape()),
+                          non_trainable_vars)
         for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
             log.info('%s %s' % (n, s))
 
@@ -99,7 +100,7 @@ class SupervisedTrainer(Base):
         for n in sorted(names):
             log.debug(n)
 
-        self._print_layer_shapes(self.training_end_points, log)
+        # self._print_layer_shapes(self.training_end_points, log)
 
     def _train_loop(self, data_set, weights_from, start_epoch, summary_every):
         training_X, training_y, validation_X, validation_y = \
@@ -123,7 +124,8 @@ class SupervisedTrainer(Base):
             per_process_gpu_memory_fraction=self.gpu_memory_fraction)
         with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             if start_epoch > 1:
-                weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
+                weights_from = "weights/model-epoch-%d.ckpt" % (
+                    start_epoch - 1)
 
             sess.run(tf.initialize_all_variables())
             if weights_from:
@@ -214,7 +216,8 @@ class SupervisedTrainer(Base):
                         '6. Loading batch %d validation data done.' % batch_num)
 
                     if (epoch - 1) % summary_every == 0 and self.is_summary:
-                        log.debug('7. Running validation steps with summary...')
+                        log.debug(
+                            '7. Running validation steps with summary...')
                         validation_predictions_e, validation_loss_e, summary_str_validate = sess.run(
                             [self.validation_predictions, self.validation_loss,
                                 validation_batch_summary_op],
@@ -321,15 +324,15 @@ class SupervisedTrainer(Base):
         else:
             return ce_loss_mean
 
-    def _tower_loss(self, scope, model, images, labels, is_training, reuse, is_classification=True):
+    def _tower_loss(self, scope, model, images, labels, is_training, reuse, is_classification=True, gpu_id=0):
         if is_training:
-            self.training_end_points = model(
+            training_end_points = model(
                 images, is_training=is_training, reuse=reuse)
             if is_classification:
-                _, = self._loss_softmax(self.training_end_points[
+                _, = self._loss_softmax(training_end_points[
                                         'logits'], labels, is_training)
             else:
-                _, = self._loss_regression(self.training_end_points[
+                _, = self._loss_regression(training_end_points[
                                            'logits'], labels, is_training)
             losses = tf.get_collection('losses', scope)
             total_loss = tf.add_n(losses, name='total_loss')
@@ -338,14 +341,16 @@ class SupervisedTrainer(Base):
                                    self.cnf['TOWER_NAME'], '', l.op.name)
                 tf.scalar_summary(loss_name, l)
         else:
-            self.validation_end_points = model(
+            validation_end_points = model(
                 images, is_training=is_training, reuse=reuse)
             if is_classification:
-                total_loss = self._loss_softmax(self.validation_end_points[
+                total_loss = self._loss_softmax(validation_end_points[
                                                 'logits'], labels, is_training)
             else:
-                total_loss = self._loss_regression(self.validation_end_points[
+                total_loss = self._loss_regression(alidation_end_points[
                                                    'logits'], labels, is_training)
+        if gpu_id == 0:
+            self._print_layer_shapes(training_end_points, log)
 
         return total_loss
 
@@ -356,7 +361,7 @@ class SupervisedTrainer(Base):
             for g, _ in grad_and_vars:
                 expanded_g = tf.expand_dims(g, 0)
                 grads.append(expanded_g)
-            grad = tf.concat(0, grads)
+            grad = tf.concat(grads, 0)
             grad = tf.reduce_mean(grad, 0)
 
             v = grad_and_vars[0][1]
@@ -366,13 +371,14 @@ class SupervisedTrainer(Base):
 
     def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
         tower_grads = []
-        images_gpus = tf.split(0, self.cnf['num_gpus'], self.inputs)
-        labels_gpus = tf.split(0, self.cnf['num_gpus'], self.labels)
+        tower_loss = []
+        images_gpus = tf.split(self.inputs, self.cnf['num_gpus'], axis=0)
+        labels_gpus = tf.split(self.labels, self.cnf['num_gpus'], axis=0)
         for i in xrange(self.cnf['num_gpus']):
             with tf.device('/gpu:%d' % i):
                 with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
                     loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[
-                                            i], is_training=is_training, reuse=reuse, is_classification=is_classification)
+                                            i], is_training=is_training, reuse=reuse, is_classification=is_classification, gpu_id=i)
 
                     tf.get_variable_scope().reuse_variables()
                     reuse = True
@@ -382,10 +388,11 @@ class SupervisedTrainer(Base):
                     else:
                         grads_and_vars = opt.compute_gradients(loss)
                     tower_grads.append(grads_and_vars)
+                    tower_loss.append(loss)
 
         grads_and_vars = self._average_gradients(tower_grads)
 
-        return grads_and_vars, loss
+        return grads_and_vars, sum(loss)
 
     def _process_towers_loss(self, opt, model, is_training=False, reuse=True, is_classification=True):
         tower_loss = []
