@@ -79,7 +79,7 @@ class SupervisedTrainer(Base):
         log.info(pprint.pformat(self.cnf))
         data_set.print_info()
         log.info('Max epochs: %d' % self.num_epochs)
-        all_vars = set(tf.all_variables())
+        all_vars = set(tf.global_variables())
         trainable_vars = set(tf.trainable_variables())
         non_trainable_vars = all_vars.difference(trainable_vars)
 
@@ -127,7 +127,7 @@ class SupervisedTrainer(Base):
                 weights_from = "weights/model-epoch-%d.ckpt" % (
                     start_epoch - 1)
 
-            sess.run(tf.initialize_all_variables())
+            sess.run(tf.global_variables_initializer())
             if weights_from:
                 self._load_weights(sess, saver, weights_from)
 

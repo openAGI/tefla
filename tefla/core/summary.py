@@ -159,5 +159,5 @@ def summary_image(tensor, name=None, max_images=10, collections=None):
     if name is None:
         name = name + _formatted_name(tensor)
     with tf.name_scope('summary/image'):
-        tf.summary.image(name, tensor, max_images=max_images,
+        tf.summary.image(name, tensor, max_outputs=max_images,
                          collections=collections)
