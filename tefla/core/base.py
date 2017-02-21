@@ -51,14 +51,14 @@ class Base(object):
                 tf.float32, shape=[], name="epoch_loss")
 
             # Training summaries
-            tf.scalar_summary('learning rate', self.learning_rate,
+            tf.summary.scalar('learning rate', self.learning_rate,
                               collections=[TRAINING_EPOCH_SUMMARIES])
-            tf.scalar_summary('training (cross entropy) loss', self.epoch_loss,
+            tf.summary.scalar('training (cross entropy) loss', self.epoch_loss,
                               collections=[TRAINING_EPOCH_SUMMARIES])
             if g_grads_and_var is not None:
                 self.epoch_loss_g = tf.placeholder(
                     tf.float32, shape=[], name="epoch_loss_g")
-                tf.scalar_summary('training (cross entropy) loss', self.epoch_loss_g,
+                tf.summary.scalar('training (cross entropy) loss', self.epoch_loss_g,
                                   collections=[TRAINING_EPOCH_SUMMARIES])
             if len(self.inputs.get_shape()) == 4:
                 summary.summary_image(self.inputs, 'inputs', max_images=10, collections=[
@@ -79,14 +79,14 @@ class Base(object):
                 summary.summary_activation(val, name=key, collections=[
                                            VALIDATION_BATCH_SUMMARIES])
 
-            tf.scalar_summary('validation loss', self.epoch_loss,
+            tf.summary.scalar('validation loss', self.epoch_loss,
                               collections=[VALIDATION_EPOCH_SUMMARIES])
             self.validation_metric_placeholders = []
             for metric_name, _ in self.validation_metrics_def:
                 validation_metric = tf.placeholder(
                     tf.float32, shape=[], name=metric_name.replace(' ', '_'))
                 self.validation_metric_placeholders.append(validation_metric)
-                tf.scalar_summary(metric_name, validation_metric,
+                tf.summary.scalar(metric_name, validation_metric,
                                   collections=[VALIDATION_EPOCH_SUMMARIES])
             self.validation_metric_placeholders = tuple(
                 self.validation_metric_placeholders)

@@ -65,7 +65,7 @@ class SemiSupervisedTrainer(Base):
         with tf.Graph().as_default(), tf.device('/gpu:0'):
             self._setup_model_loss(num_classes=num_classes)
             if self.is_summary:
-                self._setup_summaries()
+                self._setup_summaries(self.capped_d_grads, self.capped_g_grads)
             self._setup_misc()
             self._print_info(data_set)
             self._train_semi_supervised(
@@ -463,25 +463,25 @@ class SemiSupervisedTrainer(Base):
                     [barrier], self.d_loss_class)
         t_vars = self._get_vars_semi_supervised()
         if self.clip_by_global_norm:
-            capped_d_grads = self._clip_grad_global_norms(
+            self.capped_d_grads = self._clip_grad_global_norms(
                 t_vars['d_vars'], self.d_losses[-1], d_optimizer, gradient_noise_scale=0.0)
-            capped_g_grads = self._clip_grad_global_norms(
+            self.capped_g_grads = self._clip_grad_global_norms(
                 t_vars['g_vars'], self.g_losses[-1], g_optimizer, gradient_noise_scale=0.0)
         else:
-            capped_d_grads = d_optimizer.compute_gradients(
+            self.capped_d_grads = d_optimizer.compute_gradients(
                 self.d_losses[-1], t_vars['d_vars'])
-            capped_g_grads = g_optimizer.compute_gradients(
+            self.capped_g_grads = g_optimizer.compute_gradients(
                 self.g_losses[-1], t_vars['g_vars'])
         global_step = tf.get_variable(
             'global_step', [], initializer=tf.constant_initializer(0), trainable=False)
         if self.gradient_multipliers is not None:
             with tf.name_scope('multiply_grads'):
-                capped_d_grads = self._multiply_gradients(
-                    capped_d_grads, self.gradient_multipliers)
+                self.capped_d_grads = self._multiply_gradients(
+                    self.capped_d_grads, self.gradient_multipliers)
         apply_d_gradient_op = d_optimizer.apply_gradients(
-            capped_d_grads, global_step=global_step)
+            self.capped_d_grads, global_step=global_step)
         apply_g_gradient_op = g_optimizer.apply_gradients(
-            capped_g_grads, global_step=global_step)
+            self.capped_g_grads, global_step=global_step)
         self.train_op_d = control_flow_ops.with_dependencies(
             [apply_d_gradient_op], self.d_losses[-1])
         self.train_op_g = control_flow_ops.with_dependencies(

@@ -61,7 +61,7 @@ class SupervisedTrainer(Base):
         """
         self._setup_model_loss(keep_moving_averages)
         if self.is_summary:
-            self._setup_summaries()
+            self._setup_summaries(self.grads_and_vars)
         self._setup_misc()
         self._print_info(data_set)
         self._train_loop(data_set, weights_from, start_epoch, summary_every)
@@ -339,7 +339,7 @@ class SupervisedTrainer(Base):
             for l in losses + [total_loss]:
                 loss_name = re.sub('%s_[0-9]*/' %
                                    self.cnf['TOWER_NAME'], '', l.op.name)
-                tf.scalar_summary(loss_name, l)
+                tf.summary.scalar(loss_name, l)
         else:
             validation_end_points = model(
                 images, is_training=is_training, reuse=reuse)
