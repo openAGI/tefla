@@ -310,7 +310,7 @@ class SupervisedTrainer(Base):
     def _loss_softmax(self, logits, labels, is_training):
         labels = tf.cast(labels, tf.int64)
         ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            logits, labels, name='cross_entropy_loss')
+            labels=labels, logits=logits, name='cross_entropy_loss')
         ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
         if is_training:
             tf.add_to_collection('losses', ce_loss_mean)
