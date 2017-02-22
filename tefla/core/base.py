@@ -203,6 +203,24 @@ class Base(object):
         for k, v in end_points.iteritems():
             log.info("%s - %s" % (k, v.get_shape()))
 
+    def _average_gradients(self, tower_grads):
+        average_grads = []
+        for grad_and_vars in zip(*tower_grads):
+            grads = []
+            for g, _ in grad_and_vars:
+                expanded_g = tf.expand_dims(g, 0)
+                grads.append(expanded_g)
+            try:
+                grad = tf.concat(grads, 0)
+            except Exception:
+                grad = tf.concat(0, grads)
+            grad = tf.reduce_mean(grad, 0)
+
+            v = grad_and_vars[0][1]
+            grad_and_var = (grad, v)
+            average_grads.append(grad_and_var)
+        return average_grads
+
     def _clip_grad_norms(self, gradients_to_variables, max_norm=5):
         """Clips the gradients by the given value.
 

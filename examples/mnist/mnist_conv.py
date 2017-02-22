@@ -30,7 +30,8 @@ train_labels = mnist[0].labels
 validation_images = mnist[1].images.reshape(-1, height, width, 1)
 validation_labels = mnist[1].labels
 
-data_set = DataSet(train_images, train_labels, validation_images, validation_labels)
+data_set = DataSet(train_images, train_labels,
+                   validation_images, validation_labels)
 
 
 def model(is_training, reuse):
@@ -63,7 +64,10 @@ training_cnf = {
         }
     )
 }
-util.init_logging('train.log', file_log_level=logging.INFO, console_log_level=logging.INFO)
+util.init_logging('train.log', file_log_level=logging.INFO,
+                  console_log_level=logging.INFO)
 
-trainer = SupervisedTrainer(model, training_cnf, classification=training_cnf['classification'])
-trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)
+trainer = SupervisedTrainer(model, training_cnf, classification=training_cnf[
+                            'classification'], is_summary=True)
+trainer.fit(data_set, weights_from=None,
+            start_epoch=1, verbose=1, summary_every=10)
