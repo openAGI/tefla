@@ -152,10 +152,9 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
         n_output: Integer or long, the number of output units in the layer.
         reuse: whether or not the layer and its variables should be reused. To be
             able to reuse the layer scope must be given.
-
-        filter_size: a list or tuple of 2 positive integers specifying the spatial
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
             dimensions of of the filters.
-        stride: a tuple or list of 2 positive integers specifying the stride at which to
+        stride: a int or tuple/list of 2 positive integers specifying the stride at which to
             compute output.
         padding: one of `"VALID"` or `"SAME"`.
         activation: activation function, set to None to skip it and maintain
@@ -185,8 +184,8 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
-        shape = [filter_size[0], filter_size[1], x.get_shape()[-1], n_output_channels] if hasattr(w_init,
-                                                                                                  '__call__') else None
+        shape = helper.filter_2d(filter_size, x.get_shape()[-1], n_output_channels) if hasattr(w_init,
+                                                                                               '__call__') else None
         W = tf.get_variable(
             name='W',
             shape=shape,
@@ -198,8 +197,8 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
         output = tf.nn.conv2d(
             input=x,
             filter=W,
-            strides=[1, stride[0], stride[1], 1],
-            padding=padding)
+            strides=helper.stride_2d(stride),
+            padding=helper.kernel_padding(padding))
 
         if use_bias:
             if untie_biases:
@@ -259,8 +258,7 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
         n_output: Integer or long, the number of output units in the layer.
         reuse: whether or not the layer and its variables should be reused. To be
             able to reuse the layer scope must be given.
-
-        filter_size: a list or tuple of 2 positive integers specifying the spatial
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
         dimensions of of the filters.
         dilation:  A positive int32. The stride with which we sample input values across
             the height and width dimensions. Equivalently, the rate by which we upsample the
@@ -294,8 +292,8 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
-        shape = [filter_size[0], filter_size[1], x.get_shape()[-1], n_output_channels] if hasattr(w_init,
-                                                                                                  '__call__') else None
+        shape = helper.filter_2d(filter_size, x.get_shape()[-1], n_output_channels) if hasattr(w_init,
+                                                                                               '__call__') else None
         W = tf.get_variable(
             name='W',
             shape=shape,
@@ -308,7 +306,7 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
             value=x,
             filters=W,
             rate=dilation,
-            padding=padding)
+            padding=helper.kernel_padding(padding))
 
         if use_bias:
             if untie_biases:
@@ -367,7 +365,9 @@ def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, f
         n_output: Integer or long, the number of output units in the layer.
         reuse: whether or not the layer and its variables should be reused. To be
             able to reuse the layer scope must be given.
-        filter_size: a list or tuple of 2 positive integers specifying the spatial
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
+        stride: a int or tuple/list of 2 positive integers specifying the stride at which to
+            compute output.
         dimensions of of the filters.
         depth_multiplier:  A positive int32. the number of depthwise convolution output channels for
             each input channel. The total number of depthwise convolution output
@@ -400,8 +400,8 @@ def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, f
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
-        depthwise_shape = [filter_size[0], filter_size[1], x.get_shape()[-1], depth_multiplier] if hasattr(w_init,
-                                                                                                           '__call__') else None
+        depthwise_shape = helper.filter_2d(filter_size, x.get_shape()[-1], depth_multiplier) if hasattr(w_init,
+                                                                                                        '__call__') else None
         pointwise_shape = [1, 1, x.get_shape()[-1] * depth_multiplier, n_output_channels] if hasattr(w_init,
                                                                                                      '__call__') else None
         depthwise_W = tf.get_variable(
@@ -423,8 +423,8 @@ def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, f
             input=x,
             depthwise_filter=depthwise_W,
             pointwise_filter=pointwise_W,
-            strides=[1, stride[0], stride[1], 1],
-            padding=padding)
+            strides=helper.stride_2d(stride),
+            padding=helper.kernel_padding(padding))
 
         if use_bias:
             if untie_biases:
@@ -481,8 +481,10 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
         is_training: Bool, training or testing
         reuse: whether or not the layer and its variables should be reused. To be
             able to reuse the layer scope must be given.
-        filter_size: a list or tuple of 2 positive integers specifying the spatial
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
             dimensions of of the filters.
+        stride: a int or tuple/list of 2 positive integers specifying the stride at which to
+            compute output.
         depth_multiplier:  A positive int32. the number of depthwise convolution output channels for
             each input channel. The total number of depthwise convolution output
             channels will be equal to `num_filters_in * depth_multiplier
@@ -514,8 +516,8 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
-        shape = [filter_size[0], filter_size[1], x.get_shape()[-1], depth_multiplier] if hasattr(w_init,
-                                                                                                 '__call__') else None
+        shape = helper.filter_2d(filter_size, x.get_shape()[-1], depth_multiplier) if hasattr(w_init,
+                                                                                              '__call__') else None
         W = tf.get_variable(
             name='W',
             shape=shape,
@@ -527,8 +529,8 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
         output = tf.nn.depthwise_conv2d(
             input=x,
             filters=W,
-            strides=[1, stride[0], stride[1], 1],
-            padding=padding)
+            strides=helper.stride_2d(stride),
+            padding=helper.kernel_padding(padding))
 
         if use_bias:
             if untie_biases:
@@ -543,6 +545,107 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
                 b = tf.get_variable(
                     name='b',
                     shape=[x.get_shape()[-1] * depth_multiplier],
+                    initializer=tf.constant_initializer(b_init),
+                    trainable=trainable,
+                )
+                output = tf.nn.bias_add(value=output, bias=b)
+
+        if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
+
+        if activation:
+            output = activation(output, reuse=reuse, trainable=trainable)
+
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def conv3d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3, 3), stride=(1, 1, 1),
+           padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
+           name='conv3d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
+           outputs_collections=None):
+    """Adds a 3D convolutional layer.
+
+        `convolutional layer` creates a variable called `weights`, representing a conv
+        weight matrix, which is multiplied by the `x` to produce a
+        `Tensor` of hidden units. If a `batch_norm` is provided (such as
+        `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+        None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+        created and added the hidden units. Finally, if `activation` is not `None`,
+        it is applied to the hidden units as well.
+        Note: that if `x` have a rank 5
+
+    Args:
+        x: A 5-D `Tensor` of with at least rank 2 and value for the last dimension,
+            i.e. `[batch_size, in_depth, in_height, in_width, depth]`,
+        is_training: Bool, training or testing
+        n_output: Integer or long, the number of output units in the layer.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        filter_size: a int, or  list/tuple of 3 positive integers specifying the spatial
+            dimensions of of the filters.
+        stride: a int, or tuple/list of 3 positive integers specifying the stride at which to
+            compute output.
+        padding: one of `"VALID"` or `"SAME"`.
+        activation: activation function, set to None to skip it and maintain
+            a linear activation.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        untie_biases: spatial dimensions wise baises
+        b_init: An initializer for the biases. If None skip biases.
+        outputs_collections: The collections to which the outputs are added.
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+        name: Optional name or scope for variable_scope/name_scope.
+        use_bias: Whether to add bias or not
+
+    Returns:
+        The 5-D `Tensor` variable representing the result of the series of operations.
+        e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, n_output].
+
+    Raises:
+        ValueError: if `x` has rank less than 5 or if its last dimension is not set.
+    """
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 5, "Input Tensor shape must be 5-D"
+    with tf.variable_scope(name, reuse=reuse):
+        shape = helper.filter_3d(filter_size, x.get_shape(
+        )[-1], n_output_channels) if hasattr(w_init, '__call__') else None
+        W = tf.get_variable(
+            name='W',
+            shape=shape,
+            initializer=w_init,
+            regularizer=w_regularizer,
+            trainable=trainable
+        )
+
+        output = tf.nn.conv3d(
+            input=x,
+            filter=W,
+            strides=helper.stride_3d(stride),
+            padding=helper.kernel_padding(padding))
+
+        if use_bias:
+            if untie_biases:
+                b = tf.get_variable(
+                    name='b',
+                    shape=output.get_shape()[1:],
+                    initializer=tf.constant_initializer(b_init),
+                    trainable=trainable,
+                )
+                output = tf.add(output, b)
+            else:
+                b = tf.get_variable(
+                    name='b',
+                    shape=[n_output_channels],
                     initializer=tf.constant_initializer(b_init),
                     trainable=trainable,
                 )
@@ -581,9 +684,9 @@ def upsample2d(input_, output_shape, is_training, reuse, trainable=True, filter_
         output_shape: 4D tensor, the output shape
         reuse: whether or not the layer and its variables should be reused. To be
             able to reuse the layer scope must be given.
-        filter_size: a list or tuple of 2 positive integers specifying the spatial
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
             dimensions of of the filters.
-        stride: a tuple or list of 2 positive integers specifying the stride at which to
+        stride: a int or tuple/list of 2 positive integers specifying the stride at which to
             compute output.
         padding: one of `"VALID"` or `"SAME"`.
         activation: activation function, set to None to skip it and maintain
@@ -612,8 +715,8 @@ def upsample2d(input_, output_shape, is_training, reuse, trainable=True, filter_
     input_shape = helper.get_input_shape(input_)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name or 'upsample2d', reuse=reuse):
-        shape = [filter_size[0], filter_size[1], output_shape[-1], input_.get_shape()[-1]] if hasattr(w_init,
-                                                                                                      '__call__') else None
+        shape = helper.filter_2d(filter_size, output_shape[-1], input_.get_shape()[-1]) if hasattr(w_init,
+                                                                                                   '__call__') else None
 
         # filter : [height, width, output_channels, in_channels]
         w = tf.get_variable(
@@ -624,8 +727,101 @@ def upsample2d(input_, output_shape, is_training, reuse, trainable=True, filter_
             trainable=trainable
         )
 
-        output = tf.nn.conv2d_transpose(input_, w, output_shape=output_shape, strides=[
-                                        1, stride[0], stride[1], 1])
+        output = tf.nn.conv2d_transpose(
+            input_, w, output_shape=output_shape, strides=helper.stride_2d(stride))
+        if use_bias:
+            biases = tf.get_variable(
+                name='biases',
+                shape=[output_shape[-1]],
+                initializer=tf.constant_initializer(b_init),
+                trainable=trainable
+            )
+            output = tf.reshape(tf.nn.bias_add(
+                output, biases), output.get_shape())
+
+        if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
+
+        if activation:
+            output = activation(output, reuse=reuse)
+
+        tf.add_to_collection(tf.GraphKeys.ACTIVATIONS, output)
+
+        if with_w:
+            return _collect_named_outputs(outputs_collections, name, output), w, biases
+        else:
+            return _collect_named_outputs(outputs_collections, name, output)
+
+
+def upsample3d(input_, output_shape, is_training, reuse, trainable=True, filter_size=(5, 5, 5), stride=(2, 2, 2), w_init=initz.he_normal(seed=None), b_init=0.0,
+               w_regularizer=tf.nn.l2_loss, batch_norm=None, batch_norm_args=None, activation=None, name="deconv3d", use_bias=True, with_w=False, outputs_collections=None, **unused):
+    """Adds a 3D upsampling or deconvolutional layer.
+
+        his operation is sometimes called "deconvolution" after Deconvolutional Networks,
+        but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
+        If a `batch_norm` is provided (such as
+        `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+        None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+        created and added the hidden units. Finally, if `activation` is not `None`,
+        it is applied to the hidden units as well.
+        Note: that if `x` have a rank 5
+
+    Args:
+        x: A 5-D `Tensor` of with at least rank 2 and value for the last dimension,
+            i.e. `[batch_size, in_depth, in_height, in_width, depth]`,
+        is_training: Bool, training or testing
+        output_shape: 5D tensor, the output shape
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        filter_size: a int or list/tuple of 3 positive integers specifying the spatial
+            dimensions of of the filters.
+        stride: a int or tuple/list of 3 positive integers specifying the stride at which to
+            compute output.
+        padding: one of `"VALID"` or `"SAME"`.
+        activation: activation function, set to None to skip it and maintain
+            a linear activation.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        b_init: An initializer for the biases. If None skip biases.
+        outputs_collections: The collections to which the outputs are added.
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+        name: Optional name or scope for variable_scope/name_scope.
+        use_bias: Whether to add bias or not
+
+    Returns:
+        The tensor variable representing the result of the series of operations.
+        e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, n_output].
+
+    Raises:
+        ValueError: if `x` has rank less than 4 or if its last dimension is not set.
+    """
+    input_shape = helper.get_input_shape(input_)
+    assert len(input_shape) == 5, "Input Tensor shape must be 5-D"
+    with tf.variable_scope(name or 'upsample2d', reuse=reuse):
+        shape = helper.filter_3d(filter_size, output_shape[-1], input_.get_shape()[-1]) if hasattr(w_init,
+                                                                                                   '__call__') else None
+
+        # filter : [depth, height, width, output_channels, in_channels]
+        w = tf.get_variable(
+            name='W',
+            shape=shape,
+            initializer=w_init,
+            regularizer=w_regularizer,
+            trainable=trainable
+        )
+
+        output = tf.nn.conv3d_transpose(
+            input_, w, output_shape=output_shape, strides=helper.stride_3d(stride))
         if use_bias:
             biases = tf.get_variable(
                 name='biases',
@@ -698,9 +894,9 @@ def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=
         n_output: Integer or long, the number of output units in the layer.
         reuse: whether or not the layer and its variables should be reused. To be
             able to reuse the layer scope must be given.
-        filter_size: a list or tuple of 2 positive integers specifying the spatial
+        filter_size: a int or list/ tuple of 2 positive integers specifying the spatial
             dimensions of of the filters.
-        stride: a tuple or list of 2 positive integers specifying the stride at which to
+        stride: a int or tuple/list of 2 positive integers specifying the stride at which to
             compute output.
         padding: one of `"VALID"` or `"SAME"`.
         activation: activation function, set to None to skip it and maintain
@@ -730,8 +926,8 @@ def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.variable_scope(name, reuse=reuse):
-        w_shape = [filter_size[0], filter_size[1], x.get_shape(
-        )[-1], n_output] if hasattr(w_init, '__call__') else None
+        w_shape = helper.filter_2d(filter_size, x.get_shape(
+        )[-1], n_output) if hasattr(w_init, '__call__') else None
 
         w_t_shape = [n_output]
         b_shape = [n_output]
@@ -744,13 +940,20 @@ def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=
         output = tf.nn.conv2d(
             input=x,
             filter=W,
-            strides=[1, stride[0], stride[1], 1],
-            padding=padding)
+            strides=helper.stride_2d(stride),
+            padding=helper.kernel_padding(padding))
         output = tf.add(output, b)
         H = activation(output, name='activation')
         T = tf.sigmoid(tf.matmul(output, W_t) + b_t, name='transform_gate')
-        C = tf.sub(1.0, T, name="carry_gate")
-        output = tf.add(tf.mul(H, T), tf.mul(output, C), name='output')
+        try:
+            C = tf.sub(1.0, T, name="carry_gate")
+        except Exception:
+            C = tf.subtract(1.0, T, name="carry_gate")
+        try:
+            output = tf.add(tf.mul(H, T), tf.mul(output, C), name='output')
+        except Exception:
+            output = tf.add(tf.multiply(H, T), tf.multiply(
+                output, C), name='output')
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -820,8 +1023,14 @@ def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3
                 w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
         H = activation(tf.matmul(x, W) + b, name='activation')
         T = tf.sigmoid(tf.matmul(x, W_t) + b_t, name='transform_gate')
-        C = tf.sub(1.0, T, name="carry_gate")
-        output = tf.add(tf.mul(H, T), tf.mul(x, C), name='output')
+        try:
+            C = tf.sub(1.0, T, name="carry_gate")
+        except Exception:
+            C = tf.subtract(1.0, T, name="carry_gate")
+        try:
+            output = tf.add(tf.mul(H, T), tf.mul(x, C), name='output')
+        except Exception:
+            output = tf.add(tf.multiply(H, T), tf.multiply(x, C), name='output')
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -902,10 +1111,10 @@ def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', 
 
     Args:
         x: A 4-D 'Tensor` of shape `[batch_size, height, width, channels]`
-        filter_size: A list of length 2: [kernel_height, kernel_width] of the
+        filter_size: A int or list/tuple of length 2: [kernel_height, kernel_width] of the
             pooling kernel over which the op is computed. Can be an int if both
             values are the same.
-        stride: A list of length 2: [stride_height, stride_width].
+        stride: A int or list/tuple of length 2: [stride_height, stride_width].
         padding: The padding method, either 'VALID' or 'SAME'.
         outputs_collections: The collections to which the outputs are added.
         name: Optional scope/name for name_scope.
@@ -915,7 +1124,7 @@ def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', 
         e.g.: 4-D `Tensor` [batch, new_height, new_width, channels].
 
     Raises:
-        ValueError: If `kernel_size' is not a 2-D list
+        ValueError: If `input` is not 4-D array
     """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
@@ -923,9 +1132,43 @@ def max_pool(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool', 
     with tf.name_scope(name):
         output = tf.nn.max_pool(
             value=x,
-            ksize=[1, filter_size[0], filter_size[1], 1],
-            strides=[1, stride[0], stride[1], 1],
-            padding=padding,
+            ksize=helper.kernel_2d(filter_size),
+            strides=helper.stride_2d(stride),
+            padding=helper.kernel_padding(padding),
+        )
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def max_pool_3d(x, filter_size=(3, 3, 3), stride=(2, 2, 2), padding='SAME', name='pool', outputs_collections=None, **unused):
+    """
+    Max pooling layer
+
+    Args:
+        x: A 5-D 'Tensor` of shape `[batch_size, depth, height, width, channels]`
+        filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of the
+            pooling kernel over which the op is computed. Can be an int if both
+            values are the same.
+        stride: A int or list/tuple of length 3: [stride_depth, stride_height, stride_width].
+        padding: The padding method, either 'VALID' or 'SAME'.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+        e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, channels].
+
+    Raises:
+        ValueError: If `input` is not 5-D array
+    """
+    _check_unused(unused, name)
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 5, "Input Tensor shape must be 4-D"
+    with tf.name_scope(name):
+        output = tf.nn.max_pool3d(
+            value=x,
+            ksize=helper.kernel_3d(filter_size),
+            strides=helper.stride_3d(stride),
+            padding=helper.kernel_padding(padding),
         )
         return _collect_named_outputs(outputs_collections, name, output)
 
@@ -990,10 +1233,10 @@ def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool
 
     Args:
         x: A 4-D `Tensor` of shape `[batch_size, height, width, channels]`
-        filter_size: A list of length 2: [kernel_height, kernel_width] of the
+        filter_size: A int or list/tuple of length 2: [kernel_height, kernel_width] of the
             pooling kernel over which the op is computed. Can be an int if both
             values are the same.
-        stride: A list of length 2: [stride_height, stride_width].
+        stride: A int or list/tuple of length 2: [stride_height, stride_width].
         padding: The padding method, either 'VALID' or 'SAME'.
         outputs_collections: The collections to which the outputs are added.
         name: Optional scope/name for name_scope.
@@ -1004,7 +1247,7 @@ def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool
         e.g.: 4-D `Tensor` [batch, new_height, new_width, channels].
 
     Raises:
-        ValueError: If 'kernel_size' is not a 2-D list
+        ValueError: If 'input` not 4-D array
     """
     _check_unused(unused, name)
     input_shape = helper.get_input_shape(x)
@@ -1012,11 +1255,82 @@ def rms_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name='pool
     with tf.name_scope(name):
         output = tf.nn.avg_pool(
             value=tf.square(x),
-            ksize=[1, filter_size[0], filter_size[1], 1],
-            strides=[1, stride[0], stride[1], 1],
-            padding=padding,
+            ksize=helper.kernel_2d(filter_size),
+            strides=helper.stride_2d(stride),
+            padding=helper.kernel_padding(padding),
         )
         output = tf.sqrt(output + epsilon)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def rms_pool_3d(x, filter_size=(3, 3, 3), stride=(2, 2, 2), padding='SAME', name='pool', epsilon=0.000000000001,
+                outputs_collections=None, **unused):
+    """
+    RMS pooling layer
+
+    Args:
+        x: A 5-D `Tensor` of shape `[batch_size, depth, height, width, channels]`
+        filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of the
+            pooling kernel over which the op is computed. Can be an int if both
+            values are the same.
+        stride: A int or list/tuple of length 3: [stride_depth, stride_height, stride_width].
+        padding: The padding method, either 'VALID' or 'SAME'.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+        epsilon: prevents divide by zero
+
+    Returns:
+        A 5-D `Tensor` representing the results of the pooling operation.
+        e.g.: 5-D `Tensor` [batch, new_height, new_width, channels].
+
+    Raises:
+        ValueError: If 'input' is not a 5-D array
+    """
+    _check_unused(unused, name)
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    with tf.name_scope(name):
+        output = tf.nn.avg_pool3d(
+            value=tf.square(x),
+            ksize=helper.kernel_3d(filter_size),
+            strides=helper.stride_3d(stride),
+            padding=helper.kernel_padding(padding),
+        )
+        output = tf.sqrt(output + epsilon)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def avg_pool_3d(x, filter_size=(3, 3, 3), stride=(2, 2, 2), padding='SAME', name=None, outputs_collections=None, **unused):
+    """
+    Avg pooling layer
+
+    Args:
+        x: A 4-D `Tensor` of shape `[batch_size, depth, height, width, channels]`
+        filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of the
+            pooling kernel over which the op is computed. Can be an int if both
+            values are the same.
+        stride: A int or list/tuple of length 3: [stride_depth, stride_height, stride_width].
+        padding: The padding method, either 'VALID' or 'SAME'.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+
+    Returns:
+        A 5-D `Tensor` representing the results of the pooling operation.
+        e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, channels].
+
+    Raises:
+        ValueError: If 'input' is not a 5-D array
+    """
+    _check_unused(unused, name)
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 5, "Input Tensor shape must be 5-D"
+    with tf.name_scope(name or "pool"):
+        output = tf.nn.avg_pool3d(
+            value=x,
+            ksize=helper.kernel_3d(filter_size),
+            strides=helper.stride_3d(stride),
+            padding=helper.kernel_padding(padding),
+            name="avg_pool")
         return _collect_named_outputs(outputs_collections, name, output)
 
 
@@ -1026,10 +1340,10 @@ def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None,
 
     Args:
         x: A 4-D `Tensor` of shape `[batch_size, height, width, channels]`
-        filter_size: A list of length 2: [kernel_height, kernel_width] of the
+        filter_size: A int or list/tuple of length 2: [kernel_height, kernel_width] of the
             pooling kernel over which the op is computed. Can be an int if both
             values are the same.
-        stride: A list of length 2: [stride_height, stride_width].
+        stride: A int or list/tuple of length 2: [stride_height, stride_width].
         padding: The padding method, either 'VALID' or 'SAME'.
         outputs_collections: The collections to which the outputs are added.
         name: Optional scope/name for name_scope.
@@ -1047,9 +1361,9 @@ def avg_pool_2d(x, filter_size=(3, 3), stride=(2, 2), padding='SAME', name=None,
     with tf.name_scope(name or "pool"):
         output = tf.nn.avg_pool(
             value=x,
-            ksize=[1, filter_size[0], filter_size[1], 1],
-            strides=[1, stride[0], stride[1], 1],
-            padding=padding,
+            ksize=helper.kernel_2d(filter_size),
+            strides=helper.stride_2d(stride),
+            padding=helper.kernel_padding(padding),
             name="avg_pool")
         return _collect_named_outputs(outputs_collections, name, output)
 
@@ -1323,8 +1637,10 @@ def prelu(x, reuse, alpha_init=0.2, trainable=True, name='prelu', outputs_collec
             initializer=tf.constant(alpha_init, shape=[x.get_shape()[-1]]),
             trainable=trainable
         )
-
-        output = tf.nn.relu(x) + tf.mul(alphas, (x - tf.abs(x))) * 0.5
+        try:
+            output = tf.nn.relu(x) + tf.mul(alphas, (x - tf.abs(x))) * 0.5
+        except Exception:
+            output = tf.nn.relu(x) + tf.multiply(alphas, (x - tf.abs(x))) * 0.5
         return _collect_named_outputs(outputs_collections, name, output)
 
 
@@ -1473,7 +1789,10 @@ def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unu
     """
     _check_unused(unused, name)
     with tf.name_scope(name):
-        output = tf.nn.relu(x) + tf.mul(alpha, (x - tf.abs(x))) * 0.5
+        try:
+            output = tf.nn.relu(x) + tf.mul(alpha, (x - tf.abs(x))) * 0.5
+        except Exception:
+            output = tf.nn.relu(x) + tf.multiply(alpha, (x - tf.abs(x))) * 0.5
         return _collect_named_outputs(outputs_collections, name, output)
 
 
@@ -1716,7 +2035,7 @@ def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **
         elif mode == 'elemwise_mul':
             output = tensors[0]
             for i in range(1, len(tensors)):
-                output = tf.mul(output, tensors[i])
+                output = tf.multiply(output, tensors[i])
         elif mode == 'sum':
             output = tf.reduce_sum(tf.concat(axis, tensors), axis=axis)
         elif mode == 'mean':
