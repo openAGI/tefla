@@ -96,6 +96,15 @@
                 <li class="toctree-l3"><a href="#spatial-transformer-layer">Spatial Transformer Layer</a></li>
                 
             
+                <li class="toctree-l3"><a href="#subsamples-the-input-along-the-spatial-dimensions">Subsamples the input along the spatial dimensions</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#strided-2-d-convolution-with-same-padding">Strided 2-D convolution with 'SAME' padding</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#bottleneck-residual-unit-variant-with-bn-before-convolutions">Bottleneck residual unit variant with BN before convolutions</a></li>
+                
+            
             </ul>
         
     </li>
@@ -338,7 +347,7 @@
             <div class="section">
               
                 <h1 id="spatial-transformer-layer">Spatial Transformer Layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L4 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L7 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span></p>
 <p>Implements a spatial transformer layer as described in [1]<em>.
 It's based on lasagne implementation in [2]</em>, modified by Mrinal Haloi</p>
 <h3>Args</h3>
@@ -355,6 +364,65 @@ The output of the localisation network should be [batch_size, num_transform, 6] 
 <h3>Returns</h3>
 
 <p>spatial transformed output of the network</p>
+<hr />
+<h1 id="subsamples-the-input-along-the-spatial-dimensions">Subsamples the input along the spatial dimensions</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L161 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span></p>
+<h3>Args</h3>
+
+<p>inputs: A <code>Tensor</code> of size [batch, height_in, width_in, channels].
+  factor: The subsampling factor.
+  name: Optional variable_scope.</p>
+<h3>Returns</h3>
+
+<p>output: A <code>Tensor</code> of size [batch, height_out, width_out, channels] with the
+input, either intact (if factor == 1) or subsampled (if factor &gt; 1).</p>
+<hr />
+<h1 id="strided-2-d-convolution-with-same-padding">Strided 2-D convolution with 'SAME' padding</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L179 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p>When stride &gt; 1, then we do explicit zero-padding, followed by conv2d with
+'VALID' padding.</p>
+<p>Note that</p>
+<p>net = conv2d_same(inputs, num_outputs, 3, stride=stride)</p>
+<p>is equivalent to</p>
+<p>net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')
+   net = subsample(net, factor=stride)</p>
+<p>whereas</p>
+<p>net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')</p>
+<p>is different when the input's height or width is even, which is why we add the
+current function. For more details, see ResnetUtilsTest.testConv2DSameEven().</p>
+<h3>Args</h3>
+
+<p>inputs: A 4-D tensor of size [batch, height_in, width_in, channels].
+  num_outputs: An integer, the number of output filters.
+  kernel_size: An int with the kernel_size of the filters.
+  stride: An integer, the output stride.
+  rate: An integer, rate for atrous convolution.
+  name: name.</p>
+<h3>Returns</h3>
+
+<p>output: A 4-D tensor of size [batch, height_out, width_out, channels] with
+the convolution output.</p>
+<hr />
+<h1 id="bottleneck-residual-unit-variant-with-bn-before-convolutions">Bottleneck residual unit variant with BN before convolutions</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L274 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p>This is the full preactivation residual unit variant proposed in [2]. See
+Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
+variant which has an extra bottleneck layer.</p>
+<p>When putting together two consecutive ResNet blocks that use this unit, one
+should use stride = 2 in the last unit of the first block.</p>
+<h3>Args</h3>
+
+<p>inputs: A tensor of size [batch, height, width, channels].
+  depth: The depth of the ResNet unit output.
+  depth_bottleneck: The depth of the bottleneck layers.
+  stride: The ResNet unit's stride. Determines the amount of downsampling of
+ - the units output compared to its input.
+  rate: An integer, rate for atrous convolution.
+  outputs_collections: Collection to add the ResNet unit output.
+  name: Optional variable_scope.</p>
+<h3>Returns</h3>
+
+<p>The ResNet unit's output.</p>
 <hr />
               
             </div>

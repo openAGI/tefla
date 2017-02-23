@@ -1,6 +1,6 @@
 # Define a log loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L11 target="_blank"><b>tefla.core.losses.log_loss_custom</b></a></span>  (predictions,  labels,  eps=1e-07,  name='log')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L12 target="_blank"><b>tefla.core.losses.log_loss_custom</b></a></span>  (predictions,  labels,  eps=1e-07,  name='log')</span>
 
 <h3>Args</h3>
 
@@ -19,7 +19,7 @@ A tensor with the log loss.
 
 # Define a kappa loss, Its a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L32 target="_blank"><b>tefla.core.losses.kappa_loss</b></a></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L33 target="_blank"><b>tefla.core.losses.kappa_loss</b></a></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span>
 
 <h3>Args</h3>
 
@@ -29,7 +29,7 @@ A tensor with the log loss.
  - **y_pow**: int, to whcih the labels should be raised; useful if model diverge. e.g. y_pow=2
  - **num_ratings**: numbers of rater to used, typically num_classes of the model
  - **batch_size**: batch_size of the training or validation ops
- - **eps**: a float, prevents divide by zero 
+ - **eps**: a float, prevents divide by zero
  - **name**: Optional scope/name for op_scope.
 
 <h3>Returns</h3>
@@ -41,7 +41,7 @@ A tensor with the kappa loss.
 
 # Define a joint kappa and log loss, Kappa is a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L77 target="_blank"><b>tefla.core.losses.kappa_log_loss</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L78 target="_blank"><b>tefla.core.losses.kappa_log_loss</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span>
 
 <h3>Args</h3>
 
@@ -65,7 +65,7 @@ A tensor with the kappa log loss.
 
 # Define a joint kappa and log loss; log loss is clipped by a defined min value; Kappa is a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L108 target="_blank"><b>tefla.core.losses.kappa_log_loss_clipped</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  name='kappa_log_clipped')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L109 target="_blank"><b>tefla.core.losses.kappa_log_loss_clipped</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  name='kappa_log_clipped')</span>
 
 <h3>Args</h3>
 
@@ -89,7 +89,7 @@ A tensor with the clipped kappa log loss.
 
 # Define a cross entropy loss with label smoothing
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L139 target="_blank"><b>tefla.core.losses.cross_entropy_loss</b></a></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L140 target="_blank"><b>tefla.core.losses.cross_entropy_loss</b></a></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
 <h3>Args</h3>
 
 
@@ -112,7 +112,7 @@ A tensor with the cross entropy loss.
 
 # Define a L2Loss, useful for regularize, i.e. weight decay
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L167 target="_blank"><b>tefla.core.losses.l1_l2_regularizer</b></a></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L168 target="_blank"><b>tefla.core.losses.l1_l2_regularizer</b></a></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
 <h3>Args</h3>
 
 
@@ -129,6 +129,35 @@ A tensor with the cross entropy loss.
 
 
 the l1+L2 loss op.
+
+ ---------- 
+
+# log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L189 target="_blank"><b>tefla.core.losses.discretized_mix_logistic_loss</b></a></span>  (inputs,  predictions,  sum_all=True,  name='disretized_mix_logistic_loss')</span>
+
+<h3>Args</h3>
+
+
+ - **predictions**: 4D tensor or array, [batch_size, width, height, out_channels] predictions of the network .
+ - **inputs**: 4D tensor or array, [batch_size, width, height, num_classes] ground truth labels or target labels.
+ - **name**: Optional scope/name for op_scope.
+
+<h3>Returns</h3>
+
+
+A tensor with the discretized mix logistic loss.
+
+ ---------- 
+
+# Pull Away loss calculation
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L251 target="_blank"><b>tefla.core.losses.pullaway_loss</b></a></span>  (embeddings,  name='pullaway_loss')</span>
+
+<h3>Args</h3>
+
+
+ - **embeddings**: The embeddings to be orthogonalized for varied faces. Shape [batch_size, embeddings_dim]
 
  ---------- 
 

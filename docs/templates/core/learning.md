@@ -6,16 +6,16 @@
 <h3>Args</h3>
 
 
- - **model**: model definition 
+ - **model**: model definition
  - **cnf**: dict, training configs
  - **training_iterator**: iterator to use for training data access, processing and augmentations
  - **validation_iterator**: iterator to use for validation data access, processing and augmentations
- - **start_epoch**: int, training start epoch; for resuming training provide the last 
+ - **start_epoch**: int, training start epoch; for resuming training provide the last
  - epoch number to resume training from, its a required parameter for training data balancing
  - **resume_lr**: float, learning rate to use for new training
  - **classification**: bool, classificattion or regression
  - **clip_norm**: bool, to clip gradient using gradient norm, stabilizes the training
- - **n_iters_per_epoch**: int,  number of iteratiosn for each epoch; 
+ - **n_iters_per_epoch**: int,  number of iteratiosn for each epoch;
 e.g: total_training_samples/batch_size
  - **gpu_memory_fraction**: amount of gpu memory to use
  - **is_summary**: bool, to write summary or not
@@ -26,7 +26,7 @@ e.g: total_training_samples/batch_size
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L48 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=10,  keep_moving_averages=False)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L49 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=10,  keep_moving_averages=False)</span>
 
 <h5>Args</h5>
 

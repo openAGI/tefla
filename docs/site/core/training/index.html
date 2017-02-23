@@ -350,20 +350,20 @@
             <div class="section">
               
                 <h1 id="supervised-trainer-class">Supervised Trainer class</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L23 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f0c502897d0>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7f0c50289810>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False,  loss_type='softmax_cross_entropy')</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L24 target="_blank"><b>tefla.core.training.SupervisedTrainer</b></a></span>  (model,  cnf,  training_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fb14a764710>,  validation_iterator=<tefla.da.iterator.BatchIterator  object  at  0x7fb14a764790>,  start_epoch=1,  resume_lr=0.01,  classification=True,  clip_norm=True,  n_iters_per_epoch=1094,  gpu_memory_fraction=0.94,  is_summary=False,  loss_type='softmax_cross_entropy')</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>model</strong>: model definition </li>
+<li><strong>model</strong>: model definition</li>
 <li><strong>cnf</strong>: dict, training configs</li>
 <li><strong>training_iterator</strong>: iterator to use for training data access, processing and augmentations</li>
 <li><strong>validation_iterator</strong>: iterator to use for validation data access, processing and augmentations</li>
-<li><strong>start_epoch</strong>: int, training start epoch; for resuming training provide the last </li>
+<li><strong>start_epoch</strong>: int, training start epoch; for resuming training provide the last</li>
 <li>epoch number to resume training from, its a required parameter for training data balancing</li>
 <li><strong>resume_lr</strong>: float, learning rate to use for new training</li>
 <li><strong>classification</strong>: bool, classificattion or regression</li>
 <li><strong>clip_norm</strong>: bool, to clip gradient using gradient norm, stabilizes the training</li>
-<li><strong>n_iters_per_epoch</strong>: int,  number of iteratiosn for each epoch; 
+<li><strong>n_iters_per_epoch</strong>: int,  number of iteratiosn for each epoch;
 e.g: total_training_samples/batch_size</li>
 <li><strong>gpu_memory_fraction</strong>: amount of gpu memory to use</li>
 <li><strong>is_summary</strong>: bool, to write summary or not</li>
@@ -371,7 +371,7 @@ e.g: total_training_samples/batch_size</li>
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L62 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=10,  verbose=0)</span></p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L63 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=10,  verbose=0)</span></p>
 <h5>Args</h5>
 
 <ul>
@@ -385,7 +385,7 @@ of summary writing</li>
 </ul>
 <hr />
 <h1 id="clips-the-gradients-by-the-given-value">Clips the gradients by the given value</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L471 target="_blank"><b>tefla.core.training._clip_grad_norms</b></a></span>  (gradients_to_variables,  max_norm=10)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L537 target="_blank"><b>tefla.core.training._clip_grad_norms</b></a></span>  (gradients_to_variables,  max_norm=10)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -397,7 +397,7 @@ of summary writing</li>
 <p>A list of clipped gradient to variable pairs.</p>
 <hr />
 <h1 id="clips-the-gradients-by-the-given-value_1">Clips the gradients by the given value</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L493 target="_blank"><b>tefla.core.training.clip_grad_global_norms</b></a></span>  (tvars,  loss,  opt,  global_norm=1,  gate_gradients=1,  gradient_noise_scale=4.0,  GATE_GRAPH=2,  grad_loss=None,  agre_method=None,  col_grad_ops=False)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L559 target="_blank"><b>tefla.core.training.clip_grad_global_norms</b></a></span>  (tvars,  loss,  opt,  global_norm=1,  gate_gradients=1,  gradient_noise_scale=4.0,  GATE_GRAPH=2,  grad_loss=None,  agre_method=None,  col_grad_ops=False)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -411,7 +411,7 @@ of summary writing</li>
 <p>A list of clipped gradient to variable pairs.</p>
 <hr />
 <h1 id="multiply-specified-gradients">Multiply specified gradients</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L516 target="_blank"><b>tefla.core.training.multiply_gradients</b></a></span>  (grads_and_vars,  gradient_multipliers)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L584 target="_blank"><b>tefla.core.training.multiply_gradients</b></a></span>  (grads_and_vars,  gradient_multipliers)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -424,7 +424,7 @@ of summary writing</li>
 <p>The updated list of gradient to variable pairs.</p>
 <hr />
 <h1 id="adds-scaled-noise-from-a-0-mean-normal-distribution-to-gradients">Adds scaled noise from a 0-mean normal distribution to gradients</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L554 target="_blank"><b>tefla.core.training.add_scaled_noise_to_gradients</b></a></span>  (grads_and_vars,  gradient_noise_scale=10.0)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/training.py#L623 target="_blank"><b>tefla.core.training.add_scaled_noise_to_gradients</b></a></span>  (grads_and_vars,  gradient_noise_scale=10.0)</span></p>
 <h3>Args</h3>
 
 <ul>
