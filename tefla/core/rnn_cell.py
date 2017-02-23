@@ -244,13 +244,13 @@ class AttentionCell(core_rnn_cell.RNNCell):
             inputs = _linear([inputs, attns], input_size,
                              self.reuse, trainable=self.trainable, name=scope)
             lstm_output, new_state = self._cell(inputs, state)
-            new_state_cat = tf.concat_v2(helper.flatten_sq(new_state), 1)
+            new_state_cat = tf.concat(helper.flatten_sq(new_state), 1)
             new_attns, new_attn_states = _attention(
                 new_state_cat, attn_states, True, self.reuse, self._attn_size, self._attn_vec_size, self._attn_length, trainable=self.trainable)
             with tf.variable_scope("attn_output_projection"):
                 output = _linear([lstm_output, new_attns], self._attn_size,
                                  self.reuse, trainable=self.trainable, name=scope)
-            new_attn_states = tf.concat_v2(
+            new_attn_states = tf.concat(
                 [new_attn_states, tf.expand_dims(output, 1)], 1)
             new_attn_states = tf.reshape(
                 new_attn_states, [-1, self._attn_length * self._attn_size])
@@ -379,7 +379,7 @@ class MultiRNNCell(core_rnn_cell.RNNCell):
                         cur_inp, new_state = cell(cur_inp, cur_state)
                         new_states.append(new_state)
             new_states = (
-                tuple(new_states) if self._state_is_tuple else tf.concat_v2(new_states, 1))
+                tuple(new_states) if self._state_is_tuple else tf.concat(new_states, 1))
             return cur_inp, new_states
 
 
@@ -510,7 +510,7 @@ def _linear(x, n_output, reuse, trainable=True, w_init=initz.he_normal(), b_init
         if len(x) == 1:
             output = tf.matmul(x[0], W)
         else:
-            output = tf.matmul(tf.concat_v2(x, 1), W)
+            output = tf.matmul(tf.concat(x, 1), W)
 
         if use_bias:
             b = tf.get_variable(

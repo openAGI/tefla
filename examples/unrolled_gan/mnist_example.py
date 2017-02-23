@@ -106,16 +106,16 @@ def main():
                 g_prior += 0. * tf.reduce_sum(tf.square(param))
 
         with tf.variable_scope('D') as scope:
-            disc_out = discriminator(tf.concat_v2(
+            disc_out = discriminator(tf.concat(
                 [x_tf, x_gen], 0), z_size, True, None)
             disc_real = disc_out[:batch_size, :]
             disc_fake = disc_out[batch_size:, :]
             d_params = tf.get_collection(
                 tf.GraphKeys.TRAINABLE_VARIABLES, scope=scope.name)
 
-        loss_d = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(tf.concat_v2([disc_real, disc_fake], 0),
-                                                                        tf.concat_v2([tf.ones_like(disc_real),
-                                                                                      tf.zeros_like(disc_fake)], 0)))
+        loss_d = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=tf.concat([disc_real, disc_fake], 0),
+                                                                        labels=tf.concat([tf.ones_like(disc_real),
+                                                                                          tf.zeros_like(disc_fake)], 0)))
 
         optimizer_d = RMSPropunroll(learning_rate=d_lr)
         opt_d = optimizer_d.minimize(loss_d, var_list=d_params)
@@ -125,22 +125,22 @@ def main():
         if lookahead > 0:
             for i in range(lookahead):
                 disc_out_g = discriminator_from_params(
-                    tf.concat_v2([x_tf, x_gen], 0), next_d_params, True, None)
+                    tf.concat([x_tf, x_gen], 0), next_d_params, True, None)
                 disc_real_g = disc_out_g[:batch_size, :]
                 disc_fake_g = disc_out_g[batch_size:, :]
-                loss_d_tmp = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(tf.concat_v2([disc_real_g, disc_fake_g], 0),
-                                                                                    tf.concat_v2([tf.ones_like(disc_real_g),
-                                                                                                  tf.zeros_like(disc_fake_g)], 0)))
+                loss_d_tmp = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=tf.concat([disc_real_g, disc_fake_g], 0),
+                                                                                    labels=tf.concat([tf.ones_like(disc_real_g),
+                                                                                                      tf.zeros_like(disc_fake_g)], 0)))
 
                 grads = tf.gradients(loss_d_tmp, next_d_params)
                 next_d_params, opt_vars = optimizer_d.unroll(
                     grads, next_d_params, opt_vars=opt_vars)
         else:
             disc_out_g = discriminator_from_params(
-                tf.concat_v2([x_tf, x_gen], 0), next_d_params, True, None)
+                tf.concat([x_tf, x_gen], 0), next_d_params, True, None)
             disc_fake_g = disc_out_g[batch_size:, :]
         loss_g = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
-            disc_fake_g, tf.ones_like(disc_fake_g)))
+            logits=disc_fake_g, labels=tf.ones_like(disc_fake_g)))
 
         loss_generator = loss_g
         optimizer_g = RMSPropunroll(learning_rate=g_lr)
