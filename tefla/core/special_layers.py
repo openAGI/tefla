@@ -53,11 +53,11 @@ def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_trans
         grid = _meshgrid(out_height, out_width)
         grid = tf.expand_dims(grid, 0)
         grid = tf.reshape(grid, [-1])
-        grid = tf.tile(grid, tf.pack([batch_size]))
-        grid = tf.reshape(grid, tf.pack([batch_size, 3, -1]))
+        grid = tf.tile(grid, tf.stack([batch_size]))
+        grid = tf.reshape(grid, tf.stack([batch_size, 3, -1]))
 
         # Transform A x (x_t, y_t, 1)^T -> (x_s, y_s)
-        T_g = tf.batch_matmul(theta, grid)
+        T_g = tf.matmul(theta, grid)
         x_s = tf.slice(T_g, [0, 0, 0], [-1, 1, -1])
         y_s = tf.slice(T_g, [0, 1, 0], [-1, 1, -1])
         x_s_flat = tf.reshape(x_s, [-1])
@@ -66,7 +66,7 @@ def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_trans
         input_transformed = _interpolate(
             U, x_s_flat, y_s_flat, batch_size, downsample_factor)
 
-        output = tf.reshape(input_transformed, tf.pack(
+        output = tf.reshape(input_transformed, tf.stack(
             [batch_size, out_height, out_width, num_channels]))
         return output
 
@@ -74,7 +74,7 @@ def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_trans
 def _repeat(x, n_repeats):
     with tf.variable_scope('_repeat'):
         rep = tf.transpose(tf.expand_dims(
-            tf.ones(shape=tf.pack([n_repeats, ])), 1), [1, 0])
+            tf.ones(shape=tf.stack([n_repeats, ])), 1), [1, 0])
         rep = tf.cast(rep, tf.int32)
         x = tf.matmul(tf.reshape(x, (-1, 1)), rep)
         return tf.reshape(x, [-1])
@@ -123,7 +123,7 @@ def _interpolate(im, x, y, batch_size, downsample_factor):
 
         # use indices to lookup pixels in the flat image and restore
         # channels dim
-        im_flat = tf.reshape(im, tf.pack([-1, channels]))
+        im_flat = tf.reshape(im, tf.stack([-1, channels]))
         im_flat = tf.cast(im_flat, tf.float32)
         Ia = tf.gather(im_flat, idx_a)
         Ib = tf.gather(im_flat, idx_b)
@@ -145,16 +145,16 @@ def _interpolate(im, x, y, batch_size, downsample_factor):
 
 def _meshgrid(height, width):
     with tf.variable_scope('_meshgrid'):
-        x_t = tf.matmul(tf.ones(shape=tf.pack([height, 1])), tf.transpose(
+        x_t = tf.matmul(tf.ones(shape=tf.stack([height, 1])), tf.transpose(
             tf.expand_dims(tf.linspace(-1.0, 1.0, width), 1), [1, 0]))
         y_t = tf.matmul(tf.expand_dims(
-            tf.linspace(-1.0, 1.0, height), 1), tf.ones(shape=tf.pack([1, width])))
+            tf.linspace(-1.0, 1.0, height), 1), tf.ones(shape=tf.stack([1, width])))
 
         x_t_flat = tf.reshape(x_t, (1, -1))
         y_t_flat = tf.reshape(y_t, (1, -1))
 
         ones = tf.ones_like(x_t_flat)
-        grid = tf.concat(0, [x_t_flat, y_t_flat, ones])
+        grid = tf.concat([x_t_flat, y_t_flat, ones], 0)
         return grid
 
 
@@ -376,12 +376,12 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
 
         for h in range(nhop):
             hid3dim = tf.reshape(hid[-1], [-1, 1, edim])
-            Aout = tf.batch_matmul(hid3dim, Ain, adj_y=True)
+            Aout = tf.matmul(hid3dim, Ain, adj_y=True)
             Aout2dim = tf.reshape(Aout, [-1, mem_size])
             P = tf.nn.softmax(Aout2dim)
 
             probs3dim = tf.reshape(P, [-1, 1, mem_size])
-            Bout = tf.batch_matmul(probs3dim, Bin)
+            Bout = tf.matmul(probs3dim, Bin)
             Bout2dim = tf.reshape(Bout, [-1, edim])
 
             Cout = tf.matmul(hid[-1], C)
@@ -397,5 +397,5 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
                 F = tf.slice(Dout, [0, 0], [batch_size, lindim])
                 G = tf.slice(Dout, [0, lindim], [batch_size, edim - lindim])
                 K = tf.nn.relu(G)
-                hid.append(tf.concat(1, [F, K]))
+                hid.append(tf.concat([F, K], 1))
         return hid

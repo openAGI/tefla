@@ -62,8 +62,6 @@ def model(x, y, batch_size, is_training=True, reuse=None):
     with tf.variable_scope('model', reuse=reuse):
         x_tensor = tf.reshape(x, [-1, 28, 28, 1])
 
-        is_training = True
-        reuse = None
         fc1 = fc(x, 20, is_training, reuse, name='fc1', activation=None)
         fc1 = tf.tanh(fc1)
         fc1 = dropout(fc1, is_training, drop_p=0.5)
@@ -89,7 +87,7 @@ def model(x, y, batch_size, is_training=True, reuse=None):
         prediction = softmax(logits, 'prediction')
 
         loss = tf.reduce_mean(
-            tf.nn.softmax_cross_entropy_with_logits(logits, y))
+            tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=y))
         opt = tf.train.AdamOptimizer()
         optimizer = opt.minimize(loss)
         # grads = opt.compute_gradients(loss, [fc2_b])
@@ -106,9 +104,8 @@ def main():
     batch_size_test = 64
     x = tf.placeholder(tf.float32, [None, 784])
     y = tf.placeholder(tf.float32, [None, 10])
-    _, loss, optimizer = model(x, y, batch_size_train,
-                               is_training=True, reuse=None)
-    accuracy, _, _ = model(x, y, batch_size_test, is_training=False, reuse=True)
+    accuracy, loss, optimizer = model(x, y, batch_size_train,
+                                      is_training=True, reuse=None)
     n_epochs = 500
     num_train_examples = data.traindata.shape[0]
     num_test_examples = data.testdata.shape[0]
