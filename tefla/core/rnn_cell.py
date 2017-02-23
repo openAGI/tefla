@@ -9,7 +9,7 @@ from tefla.core import logger as log
 from tefla.utils import util as helper
 
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
-core_rnn_cell = tf.nn.rnn_cell
+core_rnn_cell = tf.contrib.rnn
 
 
 class BasicRNNCell(core_rnn_cell.RNNCell):
@@ -50,10 +50,13 @@ class BasicRNNCell(core_rnn_cell.RNNCell):
     def __call__(self, inputs, state, scope='basic_rnn_cell'):
         """Most basic RNN: output = new_state = act(W * input + U * state + B)."""
         with tf.variable_scope(scope):
-            output = self._activation(_linear([inputs, state], self._num_units, self.reuse, trainable=self.trainable, name=scope))
+            output = self._activation(_linear(
+                [inputs, state], self._num_units, self.reuse, trainable=self.trainable, name=scope))
             if self.layer_norm is not None:
-                output = self.layer_norm(output, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-            output = _collect_named_outputs(self.outputs_collections, scope + '_output', output)
+                output = self.layer_norm(
+                    output, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+            output = _collect_named_outputs(
+                self.outputs_collections, scope + '_output', output)
         return output, output
 
 
@@ -119,7 +122,8 @@ class LSTMCell(core_rnn_cell.RNNCell):
         """Long short-term memory cell (LSTM)."""
         with tf.variable_scope(scope):
             c, h = state
-            concat = _linear([inputs, h], 4 * self._num_units, self.reuse, trainable=self.trainable, use_bias=False, name=scope)
+            concat = _linear([inputs, h], 4 * self._num_units, self.reuse,
+                             trainable=self.trainable, use_bias=False, name=scope)
 
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
             try:
@@ -130,10 +134,14 @@ class LSTMCell(core_rnn_cell.RNNCell):
 
             # apply batch normalization to inner state and gates
             if self.layer_norm is not None:
-                i = self.layer_norm(i, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-                j = self.layer_norm(j, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-                f = self.layer_norm(f, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-                o = self.layer_norm(o, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                i = self.layer_norm(
+                    i, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                j = self.layer_norm(
+                    j, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                f = self.layer_norm(
+                    f, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                o = self.layer_norm(
+                    o, self.reuse, trainable=self.trainable, **self.layer_norm_args)
 
             j = self._activation(j)
             if (not isinstance(self._keep_prob, float)) or self._keep_prob < 1:
@@ -143,18 +151,23 @@ class LSTMCell(core_rnn_cell.RNNCell):
                      self._activation(j))
 
             if self._cell_clip is not None:
-                new_c = tf.clip_by_value(new_c, -self._cell_clip, self._cell_clip)
+                new_c = tf.clip_by_value(
+                    new_c, -self._cell_clip, self._cell_clip)
 
             if self.layer_norm is not None:
-                layer_norm_new_c = self.layer_norm(new_c, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-                new_h = self._activation(layer_norm_new_c) * self._inner_activation(o)
+                layer_norm_new_c = self.layer_norm(
+                    new_c, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                new_h = self._activation(
+                    layer_norm_new_c) * self._inner_activation(o)
             else:
                 new_h = self._activation(new_c) * self._inner_activation(o)
 
             new_state = core_rnn_cell.LSTMStateTuple(new_c, new_h)
 
-            new_h = _collect_named_outputs(self.outputs_collections, scope + '_h', new_h)
-            new_state = _collect_named_outputs(self.outputs_collections, scope + '_state', new_state)
+            new_h = _collect_named_outputs(
+                self.outputs_collections, scope + '_h', new_h)
+            new_state = _collect_named_outputs(
+                self.outputs_collections, scope + '_state', new_state)
             return new_h, new_state
 
 
@@ -194,7 +207,8 @@ class AttentionCell(core_rnn_cell.RNNCell):
         if not helper.is_sequence(cell.state_size):
             raise ValueError("Cell state should be tuple of states")
         if attn_length <= 0:
-            raise ValueError("attn_length should be greater than zero, got %s" % str(attn_length))
+            raise ValueError(
+                "attn_length should be greater than zero, got %s" % str(attn_length))
         if attn_size is None:
             attn_size = cell.output_size
         if attn_vec_size is None:
@@ -222,25 +236,35 @@ class AttentionCell(core_rnn_cell.RNNCell):
         """Long short-term memory cell with attention (LSTMA)."""
         with tf.variable_scope(scope, reuse=self.reuse):
             state, attns, attn_states = state
-            attn_states = tf.reshape(attn_states, [-1, self._attn_length, self._attn_size])
+            attn_states = tf.reshape(
+                attn_states, [-1, self._attn_length, self._attn_size])
             input_size = self._input_size
             if input_size is None:
                 input_size = inputs.get_shape().as_list()[1]
-            inputs = _linear([inputs, attns], input_size, self.reuse, trainable=self.trainable, name=scope)
+            inputs = _linear([inputs, attns], input_size,
+                             self.reuse, trainable=self.trainable, name=scope)
             lstm_output, new_state = self._cell(inputs, state)
             new_state_cat = tf.concat_v2(helper.flatten_sq(new_state), 1)
-            new_attns, new_attn_states = _attention(new_state_cat, attn_states, True, self.reuse, self._attn_size, self._attn_vec_size, self._attn_length, trainable=self.trainable)
+            new_attns, new_attn_states = _attention(
+                new_state_cat, attn_states, True, self.reuse, self._attn_size, self._attn_vec_size, self._attn_length, trainable=self.trainable)
             with tf.variable_scope("attn_output_projection"):
-                output = _linear([lstm_output, new_attns], self._attn_size, self.reuse, trainable=self.trainable, name=scope)
-            new_attn_states = tf.concat_v2([new_attn_states, tf.expand_dims(output, 1)], 1)
-            new_attn_states = tf.reshape(new_attn_states, [-1, self._attn_length * self._attn_size])
+                output = _linear([lstm_output, new_attns], self._attn_size,
+                                 self.reuse, trainable=self.trainable, name=scope)
+            new_attn_states = tf.concat_v2(
+                [new_attn_states, tf.expand_dims(output, 1)], 1)
+            new_attn_states = tf.reshape(
+                new_attn_states, [-1, self._attn_length * self._attn_size])
             new_state = (new_state, new_attns, new_attn_states)
             if self.layer_norm is not None:
-                output = self.layer_norm(output, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-                new_state = self.layer_norm(new_state, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                output = self.layer_norm(
+                    output, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                new_state = self.layer_norm(
+                    new_state, self.reuse, trainable=self.trainable, **self.layer_norm_args)
 
-            output = _collect_named_outputs(self.outputs_collections, scope + '_output', output)
-            new_state = _collect_named_outputs(self.outputs_collections, scope + '_state', new_state)
+            output = _collect_named_outputs(
+                self.outputs_collections, scope + '_output', output)
+            new_state = _collect_named_outputs(
+                self.outputs_collections, scope + '_state', new_state)
             return output, new_state
 
 
@@ -287,22 +311,31 @@ class GRUCell(core_rnn_cell.RNNCell):
             with tf.variable_scope("gates"):  # Reset gate and update gate.
                 # We start with bias of 1.0 to not reset and not update.
                 try:
-                    r, u = tf.split(2, 1, value=_linear([inputs, state], 2 * self._num_units, self.reuse, b_init=self._b_init, trainable=self.trainable, name=scope))
+                    r, u = tf.split(2, 1, value=_linear(
+                        [inputs, state], 2 * self._num_units, self.reuse, b_init=self._b_init, trainable=self.trainable, name=scope))
                 except Exception as e:
-                    print('Upgrade to recent version >= r.12 %s' % str(e.message))
-                    r, u = tf.split(_linear([inputs, state], 2 * self._num_units, self.reuse, b_init=self._b_init, trainable=self.trainable, name=scope), 2, 1)
+                    print('Upgrade to recent version >= r.12 %s' %
+                          str(e.message))
+                    r, u = tf.split(_linear([inputs, state], 2 * self._num_units, self.reuse,
+                                            b_init=self._b_init, trainable=self.trainable, name=scope), 2, 1)
                 r, u = self._inner_activation(r), self._inner_activation(u)
                 if self.layer_norm is not None:
-                    u = self.layer_norm(u, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-                    r = self.layer_norm(r, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                    u = self.layer_norm(
+                        u, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                    r = self.layer_norm(
+                        r, self.reuse, trainable=self.trainable, **self.layer_norm_args)
             with tf.variable_scope("candidate"):
-                c = self._activation(_linear([inputs, r * state], self._num_units, True, name=scope))
+                c = self._activation(
+                    _linear([inputs, r * state], self._num_units, True, name=scope))
             new_h = u * state + (1 - u) * c
             if self.layer_norm is not None:
-                c = self.layer_norm(c, self.reuse, trainable=self.trainable, **self.layer_norm_args)
-                new_h = self.layer_norm(new_h, self.reuse, trainable=self.trainable)
+                c = self.layer_norm(
+                    c, self.reuse, trainable=self.trainable, **self.layer_norm_args)
+                new_h = self.layer_norm(
+                    new_h, self.reuse, trainable=self.trainable)
 
-            new_h = _collect_named_outputs(self.outputs_collections, scope + '_h', new_h)
+            new_h = _collect_named_outputs(
+                self.outputs_collections, scope + '_h', new_h)
         return new_h, new_h
 
 
@@ -340,11 +373,13 @@ class MultiRNNCell(core_rnn_cell.RNNCell):
                 for i, cell in enumerate(self._cells):
                     with tf.variable_scope("cell_%d" % i):
                         if not helper.is_sequence(state):
-                            raise ValueError("Expected state to be a tuple of length %d, but received: %s" % (len(self.state_size), state))
+                            raise ValueError("Expected state to be a tuple of length %d, but received: %s" % (
+                                len(self.state_size), state))
                         cur_state = state[i]
                         cur_inp, new_state = cell(cur_inp, cur_state)
                         new_states.append(new_state)
-            new_states = (tuple(new_states) if self._state_is_tuple else tf.concat_v2(new_states, 1))
+            new_states = (
+                tuple(new_states) if self._state_is_tuple else tf.concat_v2(new_states, 1))
             return cur_inp, new_states
 
 
@@ -372,7 +407,8 @@ class DropoutWrapper(core_rnn_cell.RNNCell):
         if not isinstance(cell, core_rnn_cell.RNNCell):
             raise TypeError("The parameter cell is not a RNNCell.")
         if not any(keep_prob >= 0.0 and keep_prob <= 1.0 for keep_prob in [input_keep_prob, output_keep_prob]):
-            raise ValueError("Parameter input/output_keep_prob must be float, between 0 and 1")
+            raise ValueError(
+                "Parameter input/output_keep_prob must be float, between 0 and 1")
         self._cell = cell
         self._is_training = is_training
         self._input_keep_prob = input_keep_prob
@@ -391,10 +427,12 @@ class DropoutWrapper(core_rnn_cell.RNNCell):
         """Run the cell with the declared dropouts."""
 
         if (not isinstance(self._input_keep_prob, float) or self._input_keep_prob < 1):
-            inputs = _dropout(inputs, self._is_training, keep_prob=self._input_keep_prob, seed=self._seed)
+            inputs = _dropout(inputs, self._is_training,
+                              keep_prob=self._input_keep_prob, seed=self._seed)
         output, new_state = self._cell(inputs, state)
         if (not isinstance(self._output_keep_prob, float) or self._output_keep_prob < 1):
-            output = _dropout(output, self._is_training, keep_prob=self._output_keep_prob, seed=self._seed)
+            output = _dropout(output, self._is_training,
+                              keep_prob=self._output_keep_prob, seed=self._seed)
         return output, new_state
 
 
@@ -454,7 +492,8 @@ def _linear(x, n_output, reuse, trainable=True, w_init=initz.he_normal(), b_init
         if shape.ndims != 2:
             raise ValueError("linear is expecting 2D arguments: %s" % shapes)
         if shape[1].value is None:
-            raise ValueError("linear expects shape[1] to be provided for shape %s, but saw %s" % (shape, shape[1]))
+            raise ValueError(
+                "linear expects shape[1] to be provided for shape %s, but saw %s" % (shape, shape[1]))
         else:
             n_input += shape[1].value
 
@@ -486,7 +525,8 @@ def _linear(x, n_output, reuse, trainable=True, w_init=initz.he_normal(), b_init
 
         if layer_norm is not None:
             layer_norm_args = layer_norm_args or {}
-            output = layer_norm(output, reuse=reuse, trainable=trainable, **layer_norm_args)
+            output = layer_norm(output, reuse=reuse,
+                                trainable=trainable, **layer_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
@@ -531,26 +571,33 @@ def layer_norm(x, reuse, center=True, scale=True, trainable=True, epsilon=1e-12,
         axis = list(range(1, x_rank))
         beta, gamma = None, None
         if center:
-            beta = tf.get_variable(name='beta', initializer=tf.constant(0.0, shape=[x.get_shape()[-1:]]), trainable=trainable)
+            beta = tf.get_variable(name='beta', initializer=tf.constant(
+                0.0, shape=[x.get_shape()[-1:]]), trainable=trainable)
         if scale:
-            gamma = tf.get_variable(name='gamma', initializer=tf.constant(1.0, shape=[x.get_shape()[-1:]]), trainable=trainable)
+            gamma = tf.get_variable(name='gamma', initializer=tf.constant(
+                1.0, shape=[x.get_shape()[-1:]]), trainable=trainable)
 
         mean, variance = tf.nn.moments(x, axis, keep_dims=True)
-        output = tf.nn.batch_normalization(x, mean, variance, beta, gamma, epsilon)
+        output = tf.nn.batch_normalization(
+            x, mean, variance, beta, gamma, epsilon)
         output.set_shape(x_shape)
         return _collect_named_outputs(outputs_collections, name, output)
 
 
 def _attention(query, attn_states, is_training, reuse, attn_size, attn_vec_size, attn_length, trainable=True, name='attention'):
     with tf.variable_scope(name, reuse=reuse):
-        v = tf.get_variable(name="V", shape=[attn_vec_size], trainable=trainable)
-        attn_states_reshaped = tf.reshape(attn_states, shape=[-1, attn_length, 1, attn_size])
-        attn_conv = conv2d(attn_states_reshaped, attn_vec_size, is_training, reuse, filter_size=(1, 1), stride=(1, 1), trainable=trainable, use_bias=False)
+        v = tf.get_variable(
+            name="V", shape=[attn_vec_size], trainable=trainable)
+        attn_states_reshaped = tf.reshape(
+            attn_states, shape=[-1, attn_length, 1, attn_size])
+        attn_conv = conv2d(attn_states_reshaped, attn_vec_size, is_training, reuse, filter_size=(
+            1, 1), stride=(1, 1), trainable=trainable, use_bias=False)
         y = _linear(query, attn_vec_size, reuse)
         y = tf.reshape(y, [-1, 1, 1, attn_vec_size])
         s = tf.reduce_sum(v * tf.tanh(attn_conv + y), [2, 3])
         a = softmax(s)
-        d = tf.reduce_sum(tf.reshape(a, [-1, attn_length, 1, 1]) * attn_states_reshaped, [1, 2])
+        d = tf.reduce_sum(tf.reshape(
+            a, [-1, attn_length, 1, 1]) * attn_states_reshaped, [1, 2])
         new_attns = tf.reshape(d, [-1, attn_size])
         new_attn_states = tf.slice(attn_states, [0, 1, 0], [-1, -1, -1])
         return new_attns, new_attn_states
