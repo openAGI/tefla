@@ -338,20 +338,20 @@
             <div class="section">
               
                 <h1 id="semi-supervised-trainer">Semi Supervised Trainer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L27 target="_blank"><b>tefla.core.learning_ss.SemiSupervisedTrainer</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L28 target="_blank"><b>tefla.core.learning_ss.SemiSupervisedTrainer</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span></p>
 <h3>Args</h3>
 
 <ul>
-<li><strong>model</strong>: model definition </li>
+<li><strong>model</strong>: model definition</li>
 <li><strong>cnf</strong>: dict, training configs</li>
 <li><strong>training_iterator</strong>: iterator to use for training data access, processing and augmentations</li>
 <li><strong>validation_iterator</strong>: iterator to use for validation data access, processing and augmentations</li>
-<li><strong>start_epoch</strong>: int, training start epoch; for resuming training provide the last </li>
+<li><strong>start_epoch</strong>: int, training start epoch; for resuming training provide the last</li>
 <li>epoch number to resume training from, its a required parameter for training data balancing</li>
 <li><strong>resume_lr</strong>: float, learning rate to use for new training</li>
 <li><strong>classification</strong>: bool, classificattion or regression</li>
 <li><strong>clip_norm</strong>: bool, to clip gradient using gradient norm, stabilizes the training</li>
-<li><strong>n_iters_per_epoch</strong>: int,  number of iteratiosn for each epoch; 
+<li><strong>n_iters_per_epoch</strong>: int,  number of iteratiosn for each epoch;
 e.g: total_training_samples/batch_size</li>
 <li><strong>gpu_memory_fraction</strong>: amount of gpu memory to use</li>
 <li><strong>is_summary</strong>: bool, to write summary or not</li>
@@ -359,7 +359,7 @@ e.g: total_training_samples/batch_size</li>
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L51 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  start_epoch=1,  summary_every=199,  model_name='multiclass_ss',  weights_dir='weights')</span></p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L53 target="_blank"><b>fit</b></a></span>  (data_set,  num_classes=6,  weights_from=None,  start_epoch=1,  summary_every=199,  model_name='multiclass_ss',  weights_dir='weights')</span></p>
 <h5>Args</h5>
 
 <ul>
@@ -371,7 +371,7 @@ e.g. for retarining set the epoch number you want to resume training from</li>
 of summary writing</li>
 </ul>
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L304 target="_blank"><b>sigmoid_kl_with_logits</b></a></span>  (logits,  targets)</span>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L405 target="_blank"><b>sigmoid_kl_with_logits</b></a></span>  (logits,  targets)</span>
 <h5>Args</h5></p>
 <ul>
 <li><strong>logits</strong>: logits</li>
