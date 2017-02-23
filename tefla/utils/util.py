@@ -525,3 +525,100 @@ def save_images(fname, flat_img, width=28, height=28, sep=3, channels=3):
         image[row:row + width, col:col +
               height, :] = flat_img[i].reshape(width, height, 3)
     imsave(fname, image)
+
+
+def stride_2d(strides):
+    if isinstance(strides, int):
+        return [1, strides, strides, 1]
+    elif isinstance(strides, (tuple, list)):
+        if len(strides) == 2:
+            return [1, strides[0], strides[1], 1]
+        elif len(strides) == 4:
+            return [strides[0], strides[1], strides[2], strides[3]]
+        else:
+            raise Exception("strides length error: " + str(len(strides))
+                            + ", only a length of 2 or 4 is supported.")
+    else:
+        raise Exception("strides format error: " + str(type(strides)))
+
+
+def kernel_2d(kernel):
+    if isinstance(kernel, int):
+        return [1, kernel, kernel, 1]
+    elif isinstance(kernel, (tuple, list)):
+        if len(kernel) == 2:
+            return [1, kernel[0], kernel[1], 1]
+        elif len(kernel) == 4:
+            return [kernel[0], kernel[1], kernel[2], kernel[3]]
+        else:
+            raise Exception("kernel length error: " + str(len(kernel))
+                            + ", only a length of 2 or 4 is supported.")
+    else:
+        raise Exception("kernel format error: " + str(type(kernel)))
+
+
+def filter_2d(fsize, in_depth, out_depth):
+    if isinstance(fsize, int):
+        return [fsize, fsize, in_depth, out_depth]
+    elif isinstance(fsize, (tuple, list)):
+        if len(fsize) == 2:
+            return [fsize[0], fsize[1], in_depth, out_depth]
+        else:
+            raise Exception("filter length error: " + str(len(fsize))
+                            + ", only a length of 2 is supported.")
+    else:
+        raise Exception("filter format error: " + str(type(fsize)))
+
+
+def kernel_padding(padding):
+    if padding in ['same', 'SAME', 'valid', 'VALID']:
+        return str.upper(padding)
+    else:
+        raise Exception("Unknown padding! Accepted values: 'same', 'valid'.")
+
+
+def filter_3d(fsize, in_depth, out_depth):
+    if isinstance(fsize, int):
+        return [fsize, fsize, fsize, in_depth, out_depth]
+    elif isinstance(fsize, (tuple, list)):
+        if len(fsize) == 3:
+            return [fsize[0], fsize[1], fsize[2], in_depth, out_depth]
+        else:
+            raise Exception("filter length error: " + str(len(fsize))
+                            + ", only a length of 3 is supported.")
+    else:
+        raise Exception("filter format error: " + str(type(fsize)))
+
+
+def stride_3d(strides):
+    if isinstance(strides, int):
+        return [1, strides, strides, strides, 1]
+    elif isinstance(strides, (tuple, list)):
+        if len(strides) == 3:
+            return [1, strides[0], strides[1], strides[2], 1]
+        elif len(strides) == 5:
+            assert strides[0] == strides[
+                4] == 1, "Must have strides[0] = strides[4] = 1"
+            return [strides[0], strides[1], strides[2], strides[3], strides[4]]
+        else:
+            raise Exception("strides length error: " + str(len(strides))
+                            + ", only a length of 3 or 5 is supported.")
+    else:
+        raise Exception("strides format error: " + str(type(strides)))
+
+
+def kernel_3d(kernel):
+    if isinstance(kernel, int):
+        return [1, kernel, kernel, kernel, 1]
+    elif isinstance(kernel, (tuple, list)):
+        if len(kernel) == 3:
+            return [1, kernel[0], kernel[1], kernel[2], 1]
+        elif len(kernel) == 5:
+            assert kernel[0] == kernel[
+                4] == 1, "Must have kernel[0] = kernel[4] = 1"
+            return [kernel[0], kernel[1], kernel[2], kernel[3], kernel[4]]
+        else:
+            raise Exception("kernels length error: " + str(len(kernel))
+                            + ", only a length of 3 or 5 is supported.")
+    else:
+        raise Exception("kernel format error: " + str(type(kernel)))

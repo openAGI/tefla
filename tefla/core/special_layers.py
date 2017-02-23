@@ -1,5 +1,4 @@
 import tensorflow as tf
-from past.builtins import xrange
 from tefla.core.layers import conv2d, batch_norm_tf as batch_norm
 from tefla.utils import util
 from tefla.core import initializers as initz
@@ -375,7 +374,7 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
         hid = []
         hid.append(inputs)
 
-        for h in xrange(nhop):
+        for h in range(nhop):
             hid3dim = tf.reshape(hid[-1], [-1, 1, edim])
             Aout = tf.batch_matmul(hid3dim, Ain, adj_y=True)
             Aout2dim = tf.reshape(Aout, [-1, mem_size])
