@@ -25,7 +25,8 @@ class Reader(object):
         self.num_epochs = num_epochs
         self.shuffle = shuffle
         self.capacity = capacity
-        self._readers = [self.dataset.reader_class(**reader_kwargs) for _ in range(num_readers)]
+        self._readers = [self.dataset.reader_class(
+            **reader_kwargs) for _ in range(num_readers)]
 
     @property
     def num_readers(self):
@@ -47,7 +48,8 @@ class Reader(object):
         """
         with tf.name_scope('single_reader'):
             data_files = self.dataset.data_files()
-            filename_queue = tf.string_input_producer(data_files, num_epochs=num_epochs, shuffle=shuffle, capacity=capacity)
+            filename_queue = tf.string_input_producer(
+                data_files, num_epochs=num_epochs, shuffle=shuffle, capacity=capacity)
             # return key, value
             _, value = self._reader.read(filename_queue)
             return value
@@ -65,15 +67,19 @@ class Reader(object):
         """
         with tf.name_scope('parallel_reader'):
             data_files = self.dataset.data_files()
-            filename_queue = tf.train.string_input_producer(data_files, num_epochs=self.num_epochs, shuffle=self.shuffle)
+            filename_queue = tf.train.string_input_producer(
+                data_files, num_epochs=self.num_epochs, shuffle=self.shuffle)
             if self.shuffle:
-                examples_queue = tf.RandomShuffleQueue(capacity=self.capacity, min_after_dequeue=min_queue_examples, dtypes=[tf.string])
+                examples_queue = tf.RandomShuffleQueue(
+                    capacity=self.capacity, min_after_dequeue=min_queue_examples, dtypes=[tf.string])
             else:
-                examples_queue = tf.FIFOQueue(capacity=self.capacity, dtypes=[tf.string])
+                examples_queue = tf.FIFOQueue(
+                    capacity=self.capacity, dtypes=[tf.string])
 
             enqueue_ops = []
             for _reader in self._readers:
                 _, value = _reader.read(filename_queue)
                 enqueue_ops.append(examples_queue.enqueue([value]))
-            tf.train.queue_runner.add_queue_runner(tf.train.queue_runner.QueueRunner(examples_queue, enqueue_ops))
+            tf.train.queue_runner.add_queue_runner(
+                tf.train.queue_runner.QueueRunner(examples_queue, enqueue_ops))
             return examples_queue.dequeue()
