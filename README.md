@@ -25,7 +25,7 @@ Tefla features:
 
 **TensorFlow Installation**
 
-Tefla requires Tensorflow(version >=r0.12)
+Tefla requires Tensorflow(version >=r1.0)
 
 **Tefla Installation**
 
