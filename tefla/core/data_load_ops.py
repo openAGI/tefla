@@ -17,9 +17,12 @@ def get_names(files):
 
 def get_labels(names, labels=None, label_file='data/trainLabels.csv',
                per_patient=False):
-    if labels is None:
-        labels = pd.read_csv(label_file,
-                             index_col=0).loc[names].values.flatten()
+    try:
+        if labels is None:
+            labels = pd.read_csv(label_file,
+                                 index_col=0).loc[names].values.flatten()
+    except Exception:
+        labels = np.zeros(shape=[len(names)])
 
     if per_patient:
         left = np.array(['left' in n for n in names])
