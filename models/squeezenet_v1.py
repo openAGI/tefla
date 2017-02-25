@@ -32,7 +32,7 @@ def expand(inputs, num_outputs, **kwargs):
             1, 1), stride=(1, 1), name='1x1', **kwargs)
         e3x3 = conv2d(inputs, num_outputs,
                       filter_size=(3, 3), name='3x3', **kwargs)
-    return tf.concat(3, [e1x1, e3x3])
+    return tf.concat([e1x1, e3x3], 3)
 
 
 def model(is_training, reuse, dropout_keep_prob=0.5):

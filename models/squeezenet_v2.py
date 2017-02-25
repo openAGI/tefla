@@ -6,12 +6,12 @@ import tensorflow as tf
 from tefla.core import initializers as initz
 from tefla.core.layer_arg_ops import common_layer_args, make_args, end_points
 from tefla.core.layers import dropout, batch_norm_tf as batch_norm
-from tefla.core.layers import input, conv2d, max_pool, prelu, softmax, global_avg_pool
+from tefla.core.layers import input, conv2d, max_pool, prelu, softmax, global_avg_pool, separable_conv2d
 from tefla.utils import util
 
 # sizes - (width, height)
-image_size = (128, 128)
-crop_size = (112, 112)
+image_size = (256, 256)
+crop_size = (224, 224)
 
 
 def fire_module(inputs, squeeze_depth, expand_depth, name=None, **kwargs):
@@ -32,7 +32,7 @@ def expand(inputs, num_outputs, **kwargs):
             1, 1), stride=(1, 1), name='1x1', **kwargs)
         e3x3 = conv2d(inputs, num_outputs,
                       filter_size=(3, 3), name='3x3', **kwargs)
-    return tf.concat(3, [e1x1, e3x3])
+    return tf.concat([e1x1, e3x3], 3)
 
 
 def bottleneck_simple(inputs, squeeze_depth, expand_depth, name=None, **kwargs):
@@ -77,7 +77,9 @@ def model(is_training, reuse, num_classes=5, dropout_keep_prob=0.5):
     pool_args = make_args(padding='SAME', **common_args)
     inputs = input((None, crop_size[1], crop_size[0], 3), **common_args)
     with tf.variable_scope('squeezenet', values=[inputs]):
-        net = conv2d(inputs, 96, stride=(2, 2), name='conv1', **conv_args)
+        net = separable_conv2d(inputs, 256, stride=(2, 2),
+                               name='conv1', **conv_args)
+        # net = conv2d(inputs, 96, stride=(2, 2), name='conv1', **conv_args)
         net = max_pool(net, name='maxpool1', **pool_args)
         net = fire_module(net, 16, 64, name='fire2', **conv_args_fm)
         net = bottleneck_simple(net, 16, 64, name='fire3', **conv_args_fm)
@@ -97,7 +99,15 @@ def model(is_training, reuse, num_classes=5, dropout_keep_prob=0.5):
         net = bottleneck_simple(net, 64, 256, name='fire9', **conv_args_fm)
         net = batch_norm(net, activation_fn=tf.nn.relu,
                          name='fire9_bn', is_training=is_training, reuse=reuse)
-        # Reversed avg and conv layers per 'Network in Network'
+        net = fire_module(net, 128, 384, name='fire10', **conv_args_fm)
+        net = max_pool(net,  name='maxpool9', **pool_args)
+        net = bottleneck_simple(net, 128, 384, name='fire11', **conv_args_fm)
+        net = batch_norm(net, activation_fn=tf.nn.relu,
+                         name='fire11_bn', is_training=is_training, reuse=reuse)
+        net = fire_module(net, 128, 512, name='fire12', **conv_args_fm)
+        net = bottleneck_simple(net, 128, 512, name='fire13', **conv_args_fm)
+        net = batch_norm(net, activation_fn=tf.nn.relu,
+                         name='fire13_bn', is_training=is_training, reuse=reuse)
         net = dropout(net, drop_p=1 - dropout_keep_prob,
                       name='dropout6', **common_args)
         net = conv2d(net, num_classes, filter_size=(
