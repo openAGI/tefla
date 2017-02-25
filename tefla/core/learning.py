@@ -374,21 +374,21 @@ class SupervisedTrainer(Base):
         tower_loss = []
         images_gpus = tf.split(self.inputs, self.cnf['num_gpus'], axis=0)
         labels_gpus = tf.split(self.labels, self.cnf['num_gpus'], axis=0)
-        for i in xrange(self.cnf['num_gpus']):
-            with tf.device('/gpu:%d' % i):
-                with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
-                    loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[
-                                            i], is_training=is_training, reuse=reuse, is_classification=is_classification, gpu_id=i)
+        with tf.variable_scope(tf.get_variable_scope()):
+            for i in xrange(self.cnf['num_gpus']):
+                with tf.device('/gpu:%d' % i):
+                    with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
+                        loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[
+                                                i], is_training=is_training, reuse=reuse, is_classification=is_classification, gpu_id=i)
 
-                    tf.get_variable_scope().reuse_variables()
-                    reuse = True
-                    if self.clip_by_global_norm:
-                        grads_and_vars = self._clip_grad_global_norms(tf.trainable_variables(
-                        ), loss, opt, global_norm=self.norm_threshold, gradient_noise_scale=0.0)
-                    else:
-                        grads_and_vars = opt.compute_gradients(loss)
-                    tower_grads.append(grads_and_vars)
-                    tower_loss.append(loss)
+                        tf.get_variable_scope().reuse_variables()
+                        if self.clip_by_global_norm:
+                            grads_and_vars = self._clip_grad_global_norms(tf.trainable_variables(
+                            ), loss, opt, global_norm=self.norm_threshold, gradient_noise_scale=0.0)
+                        else:
+                            grads_and_vars = opt.compute_gradients(loss)
+                        tower_grads.append(grads_and_vars)
+                        tower_loss.append(loss)
 
         grads_and_vars = self._average_gradients(tower_grads)
 

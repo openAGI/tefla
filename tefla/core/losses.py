@@ -6,7 +6,7 @@
 import tensorflow as tf
 import numpy as np
 
-log_loss = tf.contrib.losses.log_loss
+log_loss = tf.losses.log_loss
 
 
 def log_loss_custom(predictions, labels, eps=1e-7, name='log'):
@@ -158,10 +158,10 @@ def cross_entropy_loss(logits, labels, label_smoothing=0.0, weight=1.0, name='cr
             smooth_negatives = label_smoothing / num_classes
             labels = labels * smooth_positives + smooth_negatives
         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
-            logits, labels, name='xentropy')
+            logits=logits, labels=labels, name='xentropy')
         weight = tf.convert_to_tensor(
             weight, dtype=logits.dtype.base_dtype, name='loss_weight')
-        loss = tf.mul(weight, tf.reduce_mean(cross_entropy), name='value')
+        loss = tf.multiply(weight, tf.reduce_mean(cross_entropy), name='value')
         return loss
 
 
@@ -180,9 +180,9 @@ def l1_l2_regularizer(var, weight_l1=1.0, weight_l2=1.0, name='l1_l2_regularizer
             weight_l1, dtype=var.dtype.base_dtype, name='weight_l1')
         weight_l2_t = tf.convert_to_tensor(
             weight_l2, dtype=var.dtype.base_dtype, name='weight_l2')
-        reg_l1 = tf.mul(weight_l1_t, tf.reduce_sum(
+        reg_l1 = tf.multiply(weight_l1_t, tf.reduce_sum(
             tf.abs(var)), name='value_l1')
-        reg_l2 = tf.mul(weight_l2_t, tf.nn.l2_loss(var), name='value_l2')
+        reg_l2 = tf.multiply(weight_l2_t, tf.nn.l2_loss(var), name='value_l2')
         return tf.add(reg_l1, reg_l2, name='value')
 
 

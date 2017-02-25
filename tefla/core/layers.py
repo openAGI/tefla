@@ -1218,11 +1218,12 @@ def fractional_pool(x, pooling_ratio=[1.0, 1.44, 1.73, 1.0], pseudo_random=None,
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
         if type == 'avg':
-            output = tf.nn.fractional_avg_pool(x, pooling_ratio, pseudo_random=pseudo_random,
-                                               overlapping=overlapping, deterministic=determinastic, seed=seed, seed2=seed2, name=name)
+            outputs = tf.nn.fractional_avg_pool(x, pooling_ratio, pseudo_random=pseudo_random,
+                                                overlapping=overlapping, deterministic=determinastic, seed=seed, seed2=seed2, name=name)
         else:
-            output = tf.nn.fractional_max_pool(x, pooling_ratio, pseudo_random=pseudo_random,
-                                               overlapping=overlapping, deterministic=determinastic, seed=seed, seed2=seed2, name=name)
+            outputs = tf.nn.fractional_max_pool(x, pooling_ratio, pseudo_random=pseudo_random,
+                                                overlapping=overlapping, deterministic=determinastic, seed=seed, seed2=seed2, name=name)
+        output = outputs[0]
         return _collect_named_outputs(outputs_collections, name, output)
 
 
