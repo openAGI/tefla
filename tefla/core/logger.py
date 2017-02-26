@@ -18,7 +18,7 @@ from logging import WARN
 __all_ = ['setFileHandler', 'vlog', 'setVerbosity',
           'getVerbosity', 'debug', 'info', 'warn', 'error', 'fatal']
 
-_logger = _logging.getLogger('deeprl')
+_logger = _logging.getLogger('Tefla')
 
 _handler = _logging.StreamHandler(sys.stderr)
 _handler.setFormatter(_logging.Formatter(_logging.BASIC_FORMAT, None))

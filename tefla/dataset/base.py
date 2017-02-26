@@ -77,7 +77,8 @@ class Dataset(object):
             # return np.array(sorted(data_files))
             return data_files
         except Exception:
-            raise ValueError('No files found for dataset %s at %s' % (self.name, self.data_dir))
+            raise ValueError('No files found for dataset %s at %s' %
+                             (self.name, self.data_dir))
 
     @property
     def reader_class(self):

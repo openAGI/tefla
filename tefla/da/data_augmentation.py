@@ -31,7 +31,7 @@ import random
 import scipy.ndimage
 
 
-def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=None, num_readers=1):
+def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1):
     """Generate batches of ImageNet images for evaluation.
 
     Args:
@@ -51,7 +51,7 @@ def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=N
     return images, labels
 
 
-def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=None, num_readers=1):
+def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1):
     """Generate batches of distorted versions of Training images.
 
     Args:
@@ -66,7 +66,7 @@ def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, ba
     """
     with tf.device('/cpu:0'):
         images, labels = dataflow.batch_inputs(batch_size, True, tfrecords_image_size, crop_size,
-                                               im_size=im_size, num_preprocess_threads=num_preprocess_threads, num_readers=num_readers)
+                                               im_size=im_size, num_preprocess_threads=num_preprocess_threads, image_preprocessing=image_preprocessing)
     return images, labels
 
 
@@ -234,9 +234,6 @@ def distort_image(image, crop_size, im_size=None, thread_id=0, scope=None):
 
         distorted_image = tf.random_crop(
             image, [crop_size[0], crop_size[1], 3], 12345)
-        if not thread_id:
-            tf.image_summary('cropped_resized_image',
-                             tf.expand_dims(distorted_image, 0))
 
         # Randomly flip the image horizontally.
         distorted_image = tf.image.random_flip_left_right(distorted_image)
@@ -244,9 +241,6 @@ def distort_image(image, crop_size, im_size=None, thread_id=0, scope=None):
         distorted_image = tf.image.random_flip_up_down(distorted_image)
         # Randomly distort the colors.
         distorted_image = distort_color(distorted_image, thread_id)
-        if not thread_id:
-            tf.image_summary('final_distorted_image',
-                             tf.expand_dims(distorted_image, 0))
         return distorted_image
 
 
@@ -285,7 +279,7 @@ def eval_image(image, crop_size, im_size=None, thread_id=0, scope=None):
         return image
 
 
-def image_preprocessing(image_buffer, train, crop_size, im_size=None, thread_id=0, bbox=None):
+def image_preprocessing(image, train, crop_size, im_size=None, thread_id=0, bbox=None):
     """Decode and preprocess one image for evaluation or training.
 
     Args:
@@ -302,7 +296,7 @@ def image_preprocessing(image_buffer, train, crop_size, im_size=None, thread_id=
         3-D float Tensor containing an appropriately scaled image
     """
 
-    image = decode_jpeg(image_buffer)
+    # image = decode_jpeg(image_buffer)
     if im_size is not None:
         if not isinstance(im_size, tf.Tensor):
             im_size = tf.convert_to_tensor(im_size)

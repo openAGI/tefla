@@ -83,7 +83,7 @@ class Dataflow(object):
         return data_batch, label_batch
 
     # TODO need refinements
-    def batch_inputs(self, batch_size, train, tfrecords_image_size, crop_size, im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=4):
+    def batch_inputs(self, batch_size, train, tfrecords_image_size, crop_size, im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=16):
         """Contruct batches of training or evaluation examples from the image dataset.
 
         Args:
@@ -138,3 +138,7 @@ class Dataflow(object):
             if item not in valid_items:
                 raise ValueError(
                     'Item [%s] is invalid. Valid entries include: %s' % (item, valid_items))
+
+    @property
+    def n_iters_per_epoch(self):
+        return self.dataset.n_iters_per_epoch
