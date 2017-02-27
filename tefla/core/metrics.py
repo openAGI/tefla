@@ -207,10 +207,12 @@ class Kappa(Metric, MetricMixin):
 
 class KappaV2(Metric, MetricMixin):
 
-    def __init__(self, name='kappa'):
+    def __init__(self, name='kappa', num_classes=10, batch_size=32):
+        self.num_classes = num_classes
+        self.batch_size = batch_size
         super(KappaV2, self).__init__(name)
 
-    def metric(self, predictions, targets, num_classes=5, batch_size=32, **kwargs):
+    def metric(self, predictions, targets, num_classes=None, batch_size=None, **kwargs):
         """
         Computes Kappa metric
 
@@ -223,6 +225,10 @@ class KappaV2(Metric, MetricMixin):
         Returns:
             Kappa score
         """
+        if num_classes is None:
+            num_classes = self.num_classes
+        if batch_size is None:
+            batch_size = self.batch_size
         targets = tf.convert_to_tensor(targets)
         predictions = tf.convert_to_tensor(predictions)
         if targets.get_shape().ndims == 1:
