@@ -228,7 +228,8 @@ class KappaV2(Metric, MetricMixin):
         if targets.get_shape().ndims == 1:
             targets = tf.one_hot(targets, num_classes, on_value=1, off_value=0)
         if predictions.get_shape().ndims == 1:
-            predictions = tf.one_hot(predictions, num_classes, on_value=1, off_value=0)
+            predictions = tf.one_hot(
+                predictions, num_classes, on_value=1, off_value=0)
         return self._kappa_loss(predictions, targets, batch_size=batch_size, num_ratings=num_classes, **kwargs)
 
     def _kappa_loss(self, predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_size=32, name='kappa'):

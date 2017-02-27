@@ -46,7 +46,7 @@ def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=N
     """
     with tf.device('/cpu:0'):
         images, labels = dataflow.batch_inputs(batch_size, False, tfrecords_image_size, crop_size,
-                                               im_size=im_size, num_preprocess_threads=num_preprocess_threads, num_readers=num_readers)
+                                               im_size=im_size, num_preprocess_threads=num_preprocess_threads, image_preprocessing=image_preprocessing)
 
     return images, labels
 

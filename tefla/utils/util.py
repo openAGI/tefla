@@ -327,7 +327,7 @@ def weight_bias(W_shape, b_shape, w_init=tf.truncated_normal, b_init=0.0, w_regu
     return W, b
 
 
-def one_hot_encoding(labels, num_classes, name='one_hot_encoding'):
+def one_hot(labels, num_classes, name='one_hot'):
     """Transform numeric labels into onehot_labels.
     Args:
         labels: [batch_size] target labels.
