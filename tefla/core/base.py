@@ -181,7 +181,7 @@ class Base(object):
                 variables_to_restore = []
                 for v_name in names_to_restore:
                     try:
-                        temp = [v for v in tf.all_variables() if v.name.strip(':0') == str(v_name)][
+                        temp = [v for v in tf.global_variables() if v.name.strip(':0') == str(v_name)][
                             0]
                         variables_to_restore.append(temp)
                     except Exception, e:
@@ -194,9 +194,9 @@ class Base(object):
             except ValueError:
                 log.debug(
                     "Couldn't load weights from %s; starting from scratch" % weights_from)
-                sess.run(tf.initialize_all_variables())
+                sess.run(tf.global_variables_initializer())
         else:
-            sess.run(tf.initialize_all_variables())
+            sess.run(tf.global_variables_initializer())
 
     def _print_layer_shapes(self, end_points, log):
         log.info("\nModel layer output shapes:")
@@ -338,15 +338,6 @@ class Base(object):
             noisy_gradients.append(gradient + noise)
         # return list(zip(noisy_gradients, variables))
         return noisy_gradients
-
-    def _verbosity(self, verbosity, log):
-        return{
-            '0': log.DEBUG,
-            '1': log.INFO,
-            '2': log.WARN,
-            '3': log.ERROR,
-            '4': log.FATAL,
-        }[verbosity]
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
