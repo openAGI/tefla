@@ -125,7 +125,7 @@ class Kappa(Metric, MetricMixin):
     def __init__(self, name='kappa'):
         super(Kappa, self).__init__(name)
 
-    def metric(self, predictions, targets):
+    def metric(self, predictions, targets, num_classes):
         """
         Computes Kappa metric
 
@@ -143,7 +143,7 @@ class Kappa(Metric, MetricMixin):
         if len(predictions.shape) > 1 and predictions.shape[1] > 1:
             predictions = np.argmax(predictions, axis=1)
         try:
-            return self._quadratic_weighted_kappa(predictions, targets)
+            return self._quadratic_weighted_kappa(predictions, targets, max_rating=num_classes - 1)
         except IndexError:
             return np.nan
 
@@ -223,13 +223,13 @@ class KappaV2(Metric, MetricMixin):
         Returns:
             Kappa score
         """
-        targets = np.array(targets)
-        predictions = np.array(predictions)
-        if targets.ndim == 1:
-            targets = one_hot(targets, m=num_classes)
-        if predictions.ndim == 1:
-            predictions = one_hot(predictions, m=num_classes)
-        return self._kappa_loss(predictions, targets, batch_size=batch_size, **kwargs)
+        targets = tf.convert_to_tensor(targets)
+        predictions = tf.convert_to_tensor(predictions)
+        if targets.get_shape().ndims == 1:
+            targets = tf.one_hot(targets, num_classes, on_value=1, off_value=0)
+        if predictions.get_shape().ndims == 1:
+            predictions = tf.one_hot(predictions, num_classes, on_value=1, off_value=0)
+        return self._kappa_loss(predictions, targets, batch_size=batch_size, num_ratings=num_classes, **kwargs)
 
     def _kappa_loss(self, predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_size=32, name='kappa'):
         with tf.name_scope(name):
