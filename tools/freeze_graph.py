@@ -28,7 +28,7 @@ bazel build tensorflow/python/tools:freeze_graph && \
 bazel-bin/tensorflow/python/tools/freeze_graph \
 --input_graph=some_graph_def.pb \
 --input_checkpoint=model.ckpt-8361242 \
---output_graph=/tmp/frozen_graph.pb --output_node_names=softmax
+--output_graph=/tmp/frozen_graph.pb --output_node_names=predictions/Softmax
 
 You can also look at freeze_graph_test.py for an example of how to use it.
 

@@ -6,6 +6,8 @@
 # -------------------------------------------------------------------#
 import argparse
 import tensorflow as tf
+import cv2
+import numpy as np
 
 
 def load_frozen_graph(frozen_graph):
@@ -45,3 +47,19 @@ if __name__ == '__main__':
 
     inputs = graph.get_tensor_by_name('model/inputs/input:0')
     predictions = graph.get_tensor_by_name('model/predictions/Softmax:0')
+
+    im1 = cv2.imread(
+        '/home/artelus_server/Downloads/test_512/Lim, Chu Luan_OD-ARMD.tiff', 1)
+    im1 = im1[0:448, 0:448, :]
+    im2 = cv2.imread(
+        '/home/artelus_server/Downloads/test_512/Lim, Chu Luan_OD-ARMD.tiff', 1)
+    im2 = im2[0:448, 0:448, :]
+    im = []
+    im.append(im1)
+    im.append(im2)
+    im = np.reshape(np.asarray(im), (2, 448, 448, 3))
+
+    with graph.as_default():
+        with tf.Session() as sess:
+            pred = sess.run([predictions], {inputs: im})
+            print(pred)

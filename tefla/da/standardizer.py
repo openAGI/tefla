@@ -38,7 +38,7 @@ class SamplewiseStandardizer(NoDAMixin):
     def __init__(self, clip, channel_wise=False):
         self.clip = clip
         self.channel_wise = channel_wise
-        super(SamplewiseStandardizer, self).__init__(self)
+        super(SamplewiseStandardizer, self).__init__()
 
     def __call__(self, img, is_training):
         if self.channel_wise:
