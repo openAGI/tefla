@@ -106,7 +106,7 @@ def kappa_log_loss(predictions, labels, label_smoothing=0.0, y_pow=1, batch_size
         return kappa_loss_res + log_scale * (log_loss_res - log_offset)
 
 
-def kappa_log_loss_clipped(predictions, labels, label_smoothing=0.0, y_pow=1, batch_size=32, log_scale=0.5, log_cutoff=0.80, name='kappa_log_clipped'):
+def kappa_log_loss_clipped(predictions, labels, label_smoothing=0.0, y_pow=1, batch_size=32, log_scale=0.5, log_cutoff=0.80, num_classes=5, name='kappa_log_clipped'):
     """Define a joint kappa and log loss; log loss is clipped by a defined min value; Kappa is a continuous differentiable approximation of discrete kappa loss.
 
     Args:
