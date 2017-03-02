@@ -145,7 +145,10 @@ kappa = kappa_wrapper
 
 
 def accuracy_wrapper(y_true, y_pred):
-    return accuracy_score(y_true, y_pred.argmax(axis=1))
+    try:
+        return accuracy_score(y_true, y_pred.argmax(axis=1))
+    except Exception:
+        return accuracy_score(y_true, y_pred)
 
 
 def dump_vars(sess):
@@ -622,3 +625,7 @@ def kernel_3d(kernel):
                             + ", only a length of 3 or 5 is supported.")
     else:
         raise Exception("kernel format error: " + str(type(kernel)))
+
+
+def accuracy_tf(labels, predictions):
+    return tf.contrib.metrics.accuracy(tf.argmax(labels, 1), predictions)
