@@ -11,6 +11,7 @@ import numpy as np
 
 from tefla.da.iterator import BatchIterator
 from tefla.core.lr_policy import NoDecayPolicy
+from tefla.core.losses import kappa_log_loss_clipped
 import tefla.core.summary as summary
 import tefla.core.logger as log
 
@@ -24,7 +25,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 class Base(object):
 
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=0, loss_type='softmax_cross_entropy', weights_dir='weights'):
+                 validation_iterator=BatchIterator(128, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=0, loss_type='softmax_cross_entropy', label_smoothing=0.009, weights_dir='weights'):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -41,9 +42,11 @@ class Base(object):
         self.gpu_memory_fraction = gpu_memory_fraction
         self.is_summary = is_summary
         self.loss_type = loss_type
+        self.num_classes = num_classes
         self.weights_dir = weights_dir
         log.setFileHandler(log_file_name)
         log.setVerbosity(str(verbosity))
+        super(Base, self).__init__(label_smoothing)
 
     def _setup_summaries(self, d_grads_and_var, g_grads_and_var=None):
         with tf.name_scope('summaries'):
@@ -203,6 +206,12 @@ class Base(object):
         for k, v in end_points.iteritems():
             log.info("%s - %s" % (k, v.get_shape()))
 
+    def _adjust_ground_truth(self, y):
+        if self.loss_type == 'kappa_log':
+            return np.eye(self.num_classes)[y]
+        else:
+            return y if self.classification else y.reshape(-1, 1).astype(np.float32)
+
     def _average_gradients(self, tower_grads):
         average_grads = []
         for grad_and_vars in zip(*tower_grads):
@@ -350,7 +359,10 @@ class Base(object):
     def _print_info(self, data_set):
         log.info('Config:')
         log.info(pprint.pformat(self.cnf))
-        data_set.print_info()
+        try:
+            data_set.print_info()
+        except Exception:
+            log.info('No Dataset info found')
         log.info('Max epochs: %d' % self.num_epochs)
         all_vars = set(tf.global_variables())
         trainable_vars = set(tf.trainable_variables())
@@ -372,5 +384,115 @@ class Base(object):
         names = map(lambda v: v.name, all_ops)
         for n in sorted(names):
             log.debug(n)
+        try:
+            self._print_layer_shapes(self.training_end_points, log)
+        except Exception:
+            log.info('Multi GPU setup')
 
-        self._print_layer_shapes(self.training_end_points, log)
+
+class BaseMixin(object):
+
+    def __init__(self, label_smoothing=0.009):
+        self.label_smoothing = label_smoothing
+        super(BaseMixin, self).__init__()
+
+    def _loss_regression(self, logits, labels, is_training):
+        labels = tf.cast(labels, tf.int64)
+        sq_loss = tf.square(tf.sub(logits, labels), name='regression loss')
+        sq_loss_mean = tf.reduce_mean(sq_loss, name='regression')
+        if is_training:
+            tf.add_to_collection('losses', sq_loss_mean)
+
+            l2_loss = tf.add_n(tf.get_collection(
+                tf.GraphKeys.REGULARIZATION_LOSSES))
+            l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+            tf.add_to_collection('losses', l2_loss)
+
+            return tf.add_n(tf.get_collection('losses'), name='total_loss')
+        else:
+            return sq_loss_mean
+
+    def _loss_softmax(self, logits, labels, is_training):
+        labels = tf.cast(labels, tf.int64)
+        ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+            labels=labels, logits=logits, name='cross_entropy_loss')
+        ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
+        if is_training:
+            tf.add_to_collection('losses', ce_loss_mean)
+
+            l2_loss = tf.add_n(tf.get_collection(
+                tf.GraphKeys.REGULARIZATION_LOSSES))
+            l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+            tf.add_to_collection('losses', l2_loss)
+
+            return tf.add_n(tf.get_collection('losses'), name='total_loss')
+        else:
+            return ce_loss_mean
+
+    def _loss_kappa(self, predictions, labels, is_training, y_pow=2):
+        labels = tf.cast(labels, tf.int64)
+        if is_training:
+            kappa_loss = kappa_log_loss_clipped(
+                predictions, labels, y_pow=y_pow, label_smoothing=self.label_smoothing, batch_size=self.cnf['batch_size_train'])
+            tf.add_to_collection('losses', kappa_loss)
+            l2_loss = tf.add_n(tf.get_collection(
+                tf.GraphKeys.REGULARIZATION_LOSSES))
+            l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+            tf.add_to_collection('losses', l2_loss)
+
+            return tf.add_n(tf.get_collection('losses'), name='total_loss')
+        else:
+            kappa_loss = kappa_log_loss_clipped(
+                predictions, labels, batch_size=self.cnf['batch_size_test'])
+            return kappa_loss
+
+    def _tower_loss(self, scope, model, images, labels, is_training, reuse, loss_type='kappa_log', y_pow=2, is_classification=True, gpu_id=0):
+        if is_training:
+            training_end_points = model(
+                images, is_training=is_training, reuse=reuse)
+            if is_classification:
+                if loss_type == 'kappa_log':
+                    loss_temp = self._loss_kappa(
+                        training_end_points['predictions'], labels, is_training, y_pow=y_pow)
+                else:
+                    loss_temp = self._loss_softmax(training_end_points[
+                        'logits'], labels, is_training)
+            else:
+                loss_temp = self._loss_regression(training_end_points[
+                    'logits'], labels, is_training)
+            losses = tf.get_collection('losses', scope)
+            total_loss = tf.add_n(losses, name='total_loss')
+            if gpu_id == 0:
+                self._print_layer_shapes(training_end_points, log)
+        else:
+            validation_end_points = model(
+                images, is_training=is_training, reuse=reuse)
+            if is_classification:
+                if loss_type == 'kappa_log':
+                    loss = self._loss_kappa(validation_end_points[
+                                            'predictions'], labels, is_training)
+                else:
+                    loss = self._loss_softmax(validation_end_points[
+                        'logits'], labels, is_training)
+            else:
+                loss = self._loss_regression(alidation_end_points[
+                    'logits'], labels, is_training)
+            validation_predictions = validation_end_points['predictions']
+            total_loss = {'loss': loss, 'predictions': validation_predictions}
+
+        return total_loss
+
+    def _average_gradients(self, tower_grads):
+        average_grads = []
+        for grad_and_vars in zip(*tower_grads):
+            grads = []
+            for g, _ in grad_and_vars:
+                expanded_g = tf.expand_dims(g, 0)
+                grads.append(expanded_g)
+            grad = tf.concat(grads, 0)
+            grad = tf.reduce_mean(grad, 0)
+
+            v = grad_and_vars[0][1]
+            grad_and_var = (grad, v)
+            average_grads.append(grad_and_var)
+        return average_grads
