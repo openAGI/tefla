@@ -8,7 +8,7 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from tefla.core.base import Base
+from tefla.core.base import Base, BaseMixin
 import tefla.core.summary as summary
 import tefla.core.logger as log
 from tefla.utils import util
@@ -20,7 +20,7 @@ VALIDATION_BATCH_SUMMARIES = 'validation_batch_summaries'
 VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 
-class SupervisedTrainer(Base):
+class SupervisedLearner(Base, BaseMixin):
     """
     Supervised Trainer, support data parallelism, multi GPU
 
@@ -43,7 +43,7 @@ class SupervisedTrainer(Base):
 
     def __init__(self, model, cnf, clip_by_global_norm=False, **kwargs):
         self.clip_by_global_norm = clip_by_global_norm
-        super(SupervisedTrainer, self).__init__(
+        super(SupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, keep_moving_averages=False):
@@ -59,12 +59,13 @@ class SupervisedTrainer(Base):
                 of summary writing
             keep_moving_averages: a bool, keep moving averages of trainable variables
         """
-        self._setup_model_loss(keep_moving_averages)
-        if self.is_summary:
-            self._setup_summaries(self.grads_and_vars)
-        self._setup_misc()
-        self._print_info(data_set)
-        self._train_loop(data_set, weights_from, start_epoch, summary_every)
+        with tf.Graph().as_default():
+            self._setup_model_loss(keep_moving_averages)
+            if self.is_summary:
+                self._setup_summaries(self.grads_and_vars)
+            self._setup_misc()
+            self._print_info(data_set)
+            self._train_loop(data_set, weights_from, start_epoch, summary_every)
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
@@ -73,34 +74,6 @@ class SupervisedTrainer(Base):
             self.update_ops = None
             # if update_ops is not None:
             #     regularized_training_loss = control_flow_ops.with_dependencies(update_ops, regularized_training_loss)
-
-    def _print_info(self, data_set):
-        log.info('Config:')
-        log.info(pprint.pformat(self.cnf))
-        data_set.print_info()
-        log.info('Max epochs: %d' % self.num_epochs)
-        all_vars = set(tf.global_variables())
-        trainable_vars = set(tf.trainable_variables())
-        non_trainable_vars = all_vars.difference(trainable_vars)
-
-        log.info("\n---Trainable vars in model:")
-        name_shapes = map(lambda v: (v.name, v.get_shape()), trainable_vars)
-        for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
-            log.info('%s %s' % (n, s))
-
-        log.info("\n---Non Trainable vars in model:")
-        name_shapes = map(lambda v: (v.name, v.get_shape()),
-                          non_trainable_vars)
-        for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
-            log.info('%s %s' % (n, s))
-
-        all_ops = tf.get_default_graph().get_operations()
-        log.debug("\n---All ops in graph")
-        names = map(lambda v: v.name, all_ops)
-        for n in sorted(names):
-            log.debug(n)
-
-        # self._print_layer_shapes(self.training_end_points, log)
 
     def _train_loop(self, data_set, weights_from, start_epoch, summary_every):
         training_X, training_y, validation_X, validation_y = \
@@ -122,7 +95,7 @@ class SupervisedTrainer(Base):
 
         gpu_options = tf.GPUOptions(
             per_process_gpu_memory_fraction=self.gpu_memory_fraction)
-        with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
+        with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=False)) as sess:
             if start_epoch > 1:
                 weights_from = "weights/model-epoch-%d.ckpt" % (
                     start_epoch - 1)
@@ -158,7 +131,7 @@ class SupervisedTrainer(Base):
                     if epoch % summary_every == 0 and self.is_summary:
                         log.debug('2. Running training steps with summary...')
                         training_predictions_e, training_loss_e, summary_str_train, _ = sess.run(
-                            [self.training_predictions, self.regularized_training_loss, training_batch_summary_op,
+                            [self.training_predictions, self.training_loss, training_batch_summary_op,
                              self.train_op],
                             feed_dict=feed_dict_train)
                         train_writer.add_summary(summary_str_train, epoch)
@@ -172,7 +145,7 @@ class SupervisedTrainer(Base):
                     else:
                         log.debug(
                             '2. Running training steps without summary...')
-                        training_loss_e, _ = sess.run([self.regularized_training_loss, self.train_op],
+                        training_loss_e, _ = sess.run([self.training_loss, self.train_op],
                                                       feed_dict=feed_dict_train)
                         log.debug(
                             '2. Running training steps without summary done.')
@@ -218,10 +191,8 @@ class SupervisedTrainer(Base):
                     if (epoch - 1) % summary_every == 0 and self.is_summary:
                         log.debug(
                             '7. Running validation steps with summary...')
-                        validation_predictions_e, validation_loss_e, summary_str_validate = sess.run(
-                            [self.validation_predictions, self.validation_loss,
-                                validation_batch_summary_op],
-                            feed_dict=feed_dict_validation)
+                        _validation_metric, summary_str_validate = sess.run(
+                            [self.validation_metric, validation_batch_summary_op], feed_dict=feed_dict_validation)
                         validation_writer.add_summary(
                             summary_str_validate, epoch)
                         validation_writer.flush()
@@ -234,18 +205,17 @@ class SupervisedTrainer(Base):
                     else:
                         log.debug(
                             '7. Running validation steps without summary...')
-                        validation_predictions_e, validation_loss_e = sess.run(
-                            [self.validation_predictions, self.validation_loss],
-                            feed_dict=feed_dict_validation)
+                        _validation_metric = sess.run(
+                            self.validation_metric, feed_dict=feed_dict_validation)
                         log.debug(
                             '7. Running validation steps without summary done.')
-                    validation_losses.append(validation_loss_e)
-                    batch_validation_sizes.append(len(validation_Xb))
+                    validation_losses.append(_validation_metric[-1])
+                    batch_validation_sizes.append(
+                        self.cnf['batch_size_test'])
 
                     for i, (_, metric_function) in enumerate(self.validation_metrics_def):
-                        metric_score = metric_function(
-                            validation_yb, validation_predictions_e)
-                        batch_validation_metrics[i].append(metric_score)
+                        batch_validation_metrics[i].append(
+                            _validation_metric[i])
                     log.debug('8. Validation batch %d done' % batch_num)
 
                 epoch_validation_loss = np.average(
@@ -259,7 +229,8 @@ class SupervisedTrainer(Base):
                 if self.is_summary:
                     summary_str_validate = sess.run(validation_epoch_summary_op, feed_dict={
                                                     self.epoch_loss: epoch_validation_loss, self.validation_metric_placeholders: epoch_validation_metrics})
-                    validation_writer.add_summary(summary_str_validate, epoch)
+                    validation_writer.add_summary(
+                        summary_str_validate, epoch)
                     validation_writer.flush()
                 log.debug('9. Writing epoch validation summary done.')
 
@@ -287,99 +258,32 @@ class SupervisedTrainer(Base):
                 training_history.append(epoch_info)
 
                 log.debug('10. Epoch done. [%d]' % epoch)
+                learning_rate_value = self.lr_policy.epoch_update(
+                    learning_rate_value, training_history)
+                log.info("Learning rate: %f " % learning_rate_value)
             if self.is_summary:
                 train_writer.close()
                 validation_writer.close()
-
-    def _loss_regression(self, logits, labels, is_training):
-        labels = tf.cast(labels, tf.int64)
-        sq_loss = tf.square(tf.sub(logits, labels), name='regression loss')
-        sq_loss_mean = tf.reduce_mean(sq_loss, name='regression')
-        if is_training:
-            tf.add_to_collection('losses', sq_loss_mean)
-
-            l2_loss = tf.add_n(tf.get_collection(
-                tf.GraphKeys.REGULARIZATION_LOSSES))
-            l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-            tf.add_to_collection('losses', l2_loss)
-
-            return tf.add_n(tf.get_collection('losses'), name='total_loss')
-        else:
-            return sq_loss_mean
-
-    def _loss_softmax(self, logits, labels, is_training):
-        labels = tf.cast(labels, tf.int64)
-        ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            labels=labels, logits=logits, name='cross_entropy_loss')
-        ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
-        if is_training:
-            tf.add_to_collection('losses', ce_loss_mean)
-
-            l2_loss = tf.add_n(tf.get_collection(
-                tf.GraphKeys.REGULARIZATION_LOSSES))
-            l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-            tf.add_to_collection('losses', l2_loss)
-
-            return tf.add_n(tf.get_collection('losses'), name='total_loss')
-        else:
-            return ce_loss_mean
-
-    def _tower_loss(self, scope, model, images, labels, is_training, reuse, is_classification=True, gpu_id=0):
-        if is_training:
-            training_end_points = model(
-                images, is_training=is_training, reuse=reuse)
-            if is_classification:
-                _, = self._loss_softmax(training_end_points[
-                                        'logits'], labels, is_training)
-            else:
-                _, = self._loss_regression(training_end_points[
-                                           'logits'], labels, is_training)
-            losses = tf.get_collection('losses', scope)
-            total_loss = tf.add_n(losses, name='total_loss')
-            for l in losses + [total_loss]:
-                loss_name = re.sub('%s_[0-9]*/' %
-                                   self.cnf['TOWER_NAME'], '', l.op.name)
-                tf.summary.scalar(loss_name, l)
-        else:
-            validation_end_points = model(
-                images, is_training=is_training, reuse=reuse)
-            if is_classification:
-                total_loss = self._loss_softmax(validation_end_points[
-                                                'logits'], labels, is_training)
-            else:
-                total_loss = self._loss_regression(alidation_end_points[
-                                                   'logits'], labels, is_training)
-        if gpu_id == 0:
-            self._print_layer_shapes(training_end_points, log)
-
-        return total_loss
-
-    def _average_gradients(self, tower_grads):
-        average_grads = []
-        for grad_and_vars in zip(*tower_grads):
-            grads = []
-            for g, _ in grad_and_vars:
-                expanded_g = tf.expand_dims(g, 0)
-                grads.append(expanded_g)
-            grad = tf.concat(grads, 0)
-            grad = tf.reduce_mean(grad, 0)
-
-            v = grad_and_vars[0][1]
-            grad_and_var = (grad, v)
-            average_grads.append(grad_and_var)
-        return average_grads
+        coord.request_stop()
+        coord.join(stop_grace_period_secs=0.05)
 
     def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
         tower_grads = []
         tower_loss = []
-        images_gpus = tf.split(self.inputs, self.cnf['num_gpus'], axis=0)
-        labels_gpus = tf.split(self.labels, self.cnf['num_gpus'], axis=0)
+        if self.cnf.get('num_gpus', 1) > 1:
+            images_gpus = tf.split(
+                self.inputs, self.cnf.get('num_gpus', 1), axis=0)
+            labels_gpus = tf.split(
+                self.labels, self.cnf.get('num_gpus', 1), axis=0)
+        else:
+            images_gpus = [self.inputs]
+            labels_gpus = [self.labels]
         with tf.variable_scope(tf.get_variable_scope()):
-            for i in xrange(self.cnf['num_gpus']):
+            for i in xrange(self.cnf.get('num_gpus', 1)):
                 with tf.device('/gpu:%d' % i):
                     with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
                         loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[
-                                                i], is_training=is_training, reuse=reuse, is_classification=is_classification, gpu_id=i)
+                                                i], loss_type=self.loss_type, is_training=is_training, reuse=reuse, is_classification=is_classification, gpu_id=i)
 
                         tf.get_variable_scope().reuse_variables()
                         if self.clip_by_global_norm:
@@ -392,25 +296,39 @@ class SupervisedTrainer(Base):
 
         grads_and_vars = self._average_gradients(tower_grads)
 
-        return grads_and_vars, sum(loss)
+        return grads_and_vars, sum(tower_loss)
 
-    def _process_towers_loss(self, opt, model, is_training=False, reuse=True, is_classification=True):
+    def _process_towers_loss(self, opt, model, is_training=False, reuse=True, is_classification=True, num_classes=10):
         tower_loss = []
-        images_gpus = tf.split(0, self.cnf['num_gpus'], self.validation_inputs)
-        labels_gpus = tf.split(0, self.cnf['num_gpus'], self.validation_labels)
-        for i in xrange(self.cnf['num_gpus']):
+        predictions = []
+        validation_metric = []
+        validation_metric_tmp = [[] for _, _ in self.validation_metrics_def]
+        if self.cnf.get('num_gpus', 1) > 1:
+            images_gpus = tf.split(
+                self.validation_inputs, self.cnf.get('num_gpus', 1), axis=0)
+            labels_gpus = tf.split(
+                self.validation_labels, self.cnf.get('num_gpus', 1), axis=0)
+        else:
+            images_gpus = [self.validation_inputs]
+            labels_gpus = [self.validation_labels]
+        for i in xrange(self.cnf.get('num_gpus', 1)):
             with tf.device('/gpu:%d' % i):
                 with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
-                    loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[
-                                            i], is_training=is_training, reuse=reuse, is_classification=is_classification)
-                    tower_loss.append(loss)
+                    loss_pred = self._tower_loss(scope, model, images_gpus[i], labels_gpus[
+                        i], loss_type=self.loss_type, is_training=is_training, reuse=reuse, is_classification=is_classification)
+                    tower_loss.append(loss_pred['loss'])
+                    predictions.append(loss_pred['predictions'])
+                    for j, (_, metric_function) in enumerate(self.validation_metrics_def):
+                        metric_score = metric_function(
+                            labels_gpus[i], tf.argmax(loss_pred['predictions'], 1))
+                        validation_metric_tmp[j].append(metric_score)
+        predictions = tf.convert_to_tensor(predictions)
+        predictions = tf.reshape(predictions, [-1, num_classes])
+        for i, (_, _) in enumerate(self.validation_metrics_def):
+            validation_metric.append(sum(validation_metric_tmp[i]))
+        return sum(tower_loss), predictions, validation_metric
 
-        return sum(tower_loss)
-
-    def _adjust_ground_truth(self, y):
-        return y if self.classification else y.reshape(-1, 1).astype(np.float32)
-
-    def _setup_model_loss(self, keep_moving_averages=False):
+    def _setup_model_loss(self, keep_moving_averages=False, num_classes=5):
         self.learning_rate = tf.placeholder(
             tf.float32, shape=[], name="learning_rate_placeholder")
         # Keep old variable around to load old params, till we need this
@@ -418,16 +336,22 @@ class SupervisedTrainer(Base):
             1.0, trainable=False, name="learning_rate")
         optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get(
             'optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
-        self.inputs = tf.placeholder(tf.float32, shape=(None, self.model.crop_size[
-                                     0], self.model.crop_size[1], 3), name="input")
-        self.labels = tf.placeholder(tf.int32, shape=(None,))
+        self.inputs = tf.placeholder(tf.float32, shape=(
+            None, self.cnf['crop_size'][0], self.cnf['crop_size'][1], 3), name="input")
+        if self.loss_type == 'kappa_log':
+            self.labels = tf.placeholder(tf.int64, shape=(None, num_classes))
+            self.validation_labels = tf.placeholder(
+                tf.int64, shape=(None, num_classes))
+        else:
+            self.labels = tf.placeholder(tf.int64, shape=(None,))
+            self.validation_labels = tf.placeholder(tf.int64, shape=(None,))
         self.validation_inputs = tf.placeholder(tf.float32, shape=(
-            None, self.model.crop_size[0], self.model.crop_size[1], 3), name="validation_input")
-        self.validation_labels = tf.placeholder(tf.int32, shape=(None,))
+            None, self.cnf['crop_size'][0], self.cnf['crop_size'][1], 3), name="validation_input")
         self.grads_and_vars, self.training_loss = self._process_towers_grads(
             optimizer, self.model, is_classification=self.classification)
-        self.validation_loss = self._process_towers_loss(
-            optimizer, self.model, is_classification=self.classification)
+        self.validation_loss, self.validation_predictions, self.validation_metric = self._process_towers_loss(
+            optimizer, self.model, is_classification=self.classification, num_classes=num_classes)
+        self.validation_metric.append(self.validation_loss)
 
         if self.clip_norm and not self.clip_by_global_norm:
             self.grads_and_vars = self._clip_grad_norms(
