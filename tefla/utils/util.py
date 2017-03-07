@@ -19,6 +19,7 @@ from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_util
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import variables
+import matplotlib.pyplot as plt
 
 from quadratic_weighted_kappa import quadratic_weighted_kappa
 
@@ -628,4 +629,7 @@ def kernel_3d(kernel):
 
 
 def accuracy_tf(labels, predictions):
-    return tf.contrib.metrics.accuracy(tf.argmax(labels, 1), predictions)
+    try:
+        return tf.contrib.metrics.accuracy(labels, predictions)
+    except Exception:
+        return tf.contrib.metrics.accuracy(labels, predictions)
