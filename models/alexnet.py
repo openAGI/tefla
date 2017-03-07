@@ -28,7 +28,7 @@ def alexnet_v2(is_training, reuse,
                num_classes=1000,
                dropout_keep_prob=0.5,
                spatial_squeeze=True,
-               scope='alexnet_v2'):
+               name='alexnet_v2'):
     """AlexNet version 2.
 
     Described in: http://arxiv.org/pdf/1404.5997v2.pdf
@@ -50,7 +50,7 @@ def alexnet_v2(is_training, reuse,
         layers during training.
       spatial_squeeze: whether or not should squeeze the spatial dimensions of the
         outputs. Useful to remove unnecessary dimensions for classification.
-      scope: Optional scope for the variables.
+      name: Optional name for the variables.
 
     Returns:
       the last op containing the log predictions and end_points dict.
@@ -65,28 +65,28 @@ def alexnet_v2(is_training, reuse,
     pool_args = make_args(padding='SAME', **common_args)
 
     inputs = input((None, crop_size[1], crop_size[0], 3), **common_args)
-    with tf.variable_scope(scope, 'alexnet_v2', [inputs]):
+    with tf.variable_scope(name, 'alexnet_v2', [inputs]):
         net = conv2d(inputs, 64, filter_size=(11, 11), stride=(4, 4),
-                     scope='conv1', **conv_args)
-        net = max_pool(net, stride=(2, 2), scope='pool1', **pool_args)
-        net = conv2d(net, 192, filter_size=(5, 5), scope='conv2', **conv_args)
-        net = max_pool(net, stride=(2, 2), scope='pool2', **pool_args)
-        net = conv2d(net, 384, scope='conv3', **conv_args)
-        net = conv2d(net, 384, scope='conv4', **conv_args)
-        net = conv2d(net, 256, scope='conv5', **conv_args)
-        net = max_pool(net, stride=(2, 2), scope='pool5', **pool_args)
+                     name='conv1', **conv_args)
+        net = max_pool(net, stride=(2, 2), name='pool1', **pool_args)
+        net = conv2d(net, 192, filter_size=(5, 5), name='conv2', **conv_args)
+        net = max_pool(net, stride=(2, 2), name='pool2', **pool_args)
+        net = conv2d(net, 384, name='conv3', **conv_args)
+        net = conv2d(net, 384, name='conv4', **conv_args)
+        net = conv2d(net, 256, name='conv5', **conv_args)
+        net = max_pool(net, stride=(2, 2), name='pool5', **pool_args)
 
         # Use conv2d instead of fully_connected layers.
         net = conv2d(net, 4096, filter_size=(5, 5),
-                     scope='fc6', **conv_args)
+                     name='fc6', **conv_args)
         net = dropout(net, drop_p=1 - dropout_keep_prob,
-                      scope='dropout6', **common_args)
-        net = conv2d(net, 4096, filter_size=(1, 1), scope='fc7', **conv_args)
+                      name='dropout6', **common_args)
+        net = conv2d(net, 4096, filter_size=(1, 1), name='fc7', **conv_args)
         net = dropout(net, drop_p=1 - dropout_keep_prob,
-                      scope='dropout7', **common_args)
+                      name='dropout7', **common_args)
         logits = conv2d(net, num_classes, filter_size=(1, 1),
                         activation=None,
-                        scope='logits', **logit_args)
+                        name='logits', **logit_args)
 
         if spatial_squeeze:
             logits = tf.squeeze(logits, [1, 2], name='fc8/squeezed')
