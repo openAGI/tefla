@@ -56,6 +56,7 @@ Recent deep convolutional models are easy to implement using TEFLA
 >>>convolved = conv2d(input, 48, False, None)
 
 ```
+```python
 2. a. Data Directory structure for using normal images
     1. [trainv1](https://github.com/n3011/tefla/blob/master/tefla/train.py)
 |-- Data_Dir
@@ -65,7 +66,7 @@ Recent deep convolutional models are easy to implement using TEFLA
 |   |-- validation_labels.csv
   b. TFRecords support available using tefla/dataset class
     1. [Train v2](https://github.com/n3011/tefla/blob/master/tefla/trainv2.py)
-
+```
 3. Mnist example gives a overview about Tefla usages
  
 ```python
