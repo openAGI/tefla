@@ -64,9 +64,14 @@ Recent deep convolutional models are easy to implement using TEFLA
 |   |-- training_labels.csv
 |   |-- validation_labels.csv
 ```
+
 b. TFRecords support available using tefla/dataset class
     1. [Train v2](https://github.com/n3011/tefla/blob/master/tefla/trainv2.py)
 
+c. Run training:
+```python
+  python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
+```
 
 3. Mnist example gives a overview about Tefla usages
  
