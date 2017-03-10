@@ -276,7 +276,6 @@ def eval_image(image, crop_size, im_size=None, thread_id=0, scope=None):
         image = tf.image.resize_bilinear(
             image, crop_size, align_corners=False)
         image = tf.squeeze(image, [0])
-        image = tf.image.per_image_standardization(image)
         return image
 
 
