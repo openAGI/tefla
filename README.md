@@ -56,8 +56,8 @@ Recent deep convolutional models are easy to implement using TEFLA
 >>>convolved = conv2d(input, 48, False, None)
 
 ```
+# 2 a. Data Directory structure for using normal images
 ```python
-2. a. Data Directory structure for using normal images
 |-- Data_Dir
 |   |-- training_image_size (eg. training_256, for 256 image size)
 |   |-- validation_image_size (eg. validation_256, for 256 image size)
@@ -65,10 +65,10 @@ Recent deep convolutional models are easy to implement using TEFLA
 |   |-- validation_labels.csv
 ```
 
-b. TFRecords support available using tefla/dataset class
+# 2 b. TFRecords support available using tefla/dataset class
     1. [Train v2](https://github.com/n3011/tefla/blob/master/tefla/trainv2.py)
 
-c. Run training:
+# Run training:
 ```python
   python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
 ```
