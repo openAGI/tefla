@@ -11,7 +11,7 @@ import numpy as np
 
 from tefla.da.iterator import BatchIterator
 from tefla.core.lr_policy import NoDecayPolicy
-from tefla.core.losses import kappa_log_loss_clipped
+from tefla.core.losses import kappa_log_loss_clipped, segment_loss
 import tefla.core.summary as summary
 import tefla.core.logger as log
 
@@ -46,7 +46,10 @@ class Base(object):
         self.weights_dir = weights_dir
         log.setFileHandler(log_file_name)
         log.setVerbosity(str(verbosity))
-        super(Base, self).__init__(label_smoothing)
+        try:
+            super(Base, self).__init__(label_smoothing)
+        except Exception:
+            super(Base, self).__init__()
 
     def _setup_summaries(self, d_grads_and_var, g_grads_and_var=None):
         with tf.name_scope('summaries'):
@@ -264,7 +267,7 @@ class Base(object):
         Returns:
             A list of clipped gradient to variable pairs.
          """
-        var_refs = [v.ref() for v in tvars]
+        var_refs = [v.read_value() for v in tvars]
         grads = tf.gradients(loss, var_refs, grad_ys=grad_loss, gate_gradients=(
             gate_gradients == 1), aggregation_method=agre_method, colocate_gradients_with_ops=col_grad_ops)
         if gradient_noise_scale is not None:
@@ -356,7 +359,7 @@ class Base(object):
             # if update_ops is not None:
             #     regularized_training_loss = control_flow_ops.with_dependencies(update_ops, regularized_training_loss)
 
-    def _print_info(self, data_set):
+    def _print_info(self, data_set=None):
         log.info('Config:')
         log.info(pprint.pformat(self.cnf))
         try:

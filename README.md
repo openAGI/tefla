@@ -56,11 +56,28 @@ Recent deep convolutional models are easy to implement using TEFLA
 >>>convolved = conv2d(input, 48, False, None)
 
 ```
+# 2 a. Data Directory structure for using normal images
+```python
+|-- Data_Dir
+|   |-- training_image_size (eg. training_256, for 256 image size)
+|   |-- validation_image_size (eg. validation_256, for 256 image size)
+|   |-- training_labels.csv
+|   |-- validation_labels.csv
+```
 
+# 2 b. TFRecords support available using tefla/dataset class
+    1. [Train v2](https://github.com/n3011/tefla/blob/master/tefla/trainv2.py)
 
-2. Mnist example gives a overview about Tefla usages
+# Run training:
+```python
+  python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
+```
+
+3. Mnist example gives a overview about Tefla usages
  
 ```python
+image_size =(32, 32)
+crop_size = (28, 28)
 def model(is_training, reuse):
     common_args = common_layer_args(is_training, reuse)
     conv_args = make_args(batch_norm=True, activation=prelu, **common_args)

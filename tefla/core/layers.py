@@ -33,6 +33,23 @@ def input(shape, name='inputs', outputs_collections=None, **unused):
     return _collect_named_outputs(outputs_collections, name, inputs)
 
 
+def register_to_collections(inputs, name=None, outputs_collections=None, **unused):
+    """
+    Add item to colelction.
+
+    Args:
+        shape: A `Tensor`, define the input shape
+            e.g. for image input [batch_size, height, width, depth]
+        name: A optional score/name for this op
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A placeholder for the input
+    """
+    _check_unused(unused, name)
+    return _collect_named_outputs(outputs_collections, name, inputs)
+
+
 def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0,
                     w_regularizer=tf.nn.l2_loss, w_normalized=False, name='fc', batch_norm=None, batch_norm_args=None, activation=None,
                     params=None, outputs_collections=None, use_bias=True):
@@ -339,7 +356,7 @@ def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, fil
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1), depth_multiplier=8,
+def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1), depth_multiplier=1,
                      padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                      name='separable_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                      outputs_collections=None):
@@ -1030,7 +1047,8 @@ def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3
         try:
             output = tf.add(tf.mul(H, T), tf.mul(x, C), name='output')
         except Exception:
-            output = tf.add(tf.multiply(H, T), tf.multiply(x, C), name='output')
+            output = tf.add(tf.multiply(H, T),
+                            tf.multiply(x, C), name='output')
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)

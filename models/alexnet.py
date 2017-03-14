@@ -24,11 +24,11 @@ image_size = (256, 256)
 crop_size = (224, 224)
 
 
-def alexnet_v2(is_training, reuse,
-               num_classes=1000,
-               dropout_keep_prob=0.5,
-               spatial_squeeze=True,
-               name='alexnet_v2'):
+def model(is_training, reuse,
+          num_classes=1000,
+          dropout_keep_prob=0.5,
+          spatial_squeeze=True,
+          scope='alexnet_v2'):
     """AlexNet version 2.
 
     Described in: http://arxiv.org/pdf/1404.5997v2.pdf

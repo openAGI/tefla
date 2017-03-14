@@ -106,17 +106,17 @@ def distort_color(image, thread_id=0, scope=None):
 
         if color_ordering == 0:
             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-            image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
+            image = tf.image.random_saturation(image, lower=0.75, upper=1.25)
             image = tf.image.random_hue(image, max_delta=0.2)
             image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
         elif color_ordering == 1:
             image = tf.image.random_brightness(image, max_delta=32. / 255.)
-            image = tf.image.random_contrast(image, lower=0.5, upper=1.5)
+            image = tf.image.random_contrast(image, lower=0.75, upper=1.25)
             image = tf.image.random_saturation(image, lower=0.5, upper=1.5)
             image = tf.image.random_hue(image, max_delta=0.2)
 
         # The random_* ops do not necessarily clamp.
-        image = tf.clip_by_value(image, 0.0, 1.0)
+        # image = tf.clip_by_value(image, 0.0, 1.0)
         return image
 
 
@@ -276,7 +276,6 @@ def eval_image(image, crop_size, im_size=None, thread_id=0, scope=None):
         image = tf.image.resize_bilinear(
             image, crop_size, align_corners=False)
         image = tf.squeeze(image, [0])
-        image = tf.image.per_image_standardization(image)
         return image
 
 
@@ -311,3 +310,68 @@ def image_preprocessing(image, train, crop_size, im_size=None, thread_id=0, bbox
     image = tf.image.per_image_standardization(image)
 
     return image
+
+
+def random_image_scaling(image, label):
+    """Randomly scales the images between 0.5 to 1.5 times the original size.
+
+    Args:
+      img: Training image to scale.
+      label: Segmentation mask to scale.
+    """
+    scale = tf.random_uniform(
+        [1], minval=0.5, maxval=1.5, dtype=tf.float32, seed=None)
+    h_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(img)[0]), scale))
+    w_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(img)[1]), scale))
+    new_shape = tf.squeeze(tf.stack([h_new, w_new]), axis=1)
+    image = tf.image.resize_images(image, new_shape)
+    label = tf.image.resize_nearest_neighbor(
+        tf.expand_dims(label, 0), new_shape)
+    label = tf.squeeze(label, axis=0)
+
+    return image, label
+
+
+def random_image_mirroring(image, label):
+    """Randomly mirrors the images.
+
+    Args:
+      img: Training image to mirror.
+      label: Segmentation mask to mirror.
+    """
+    distort_left_right_random = tf.random_uniform(
+        [1], 0, 1.0, dtype=tf.float32)[0]
+    mirror = tf.less(tf.stack([1.0, distort_left_right_random, 1.0]), 0.5)
+    image = tf.reverse(image, mirror)
+    label = tf.reverse(label, mirror)
+    return image, label
+
+
+def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_label=255):
+    """Randomly crop and pads the input images.
+
+    Args:
+      image: Training image to crop/ pad.
+      label: Segmentation mask to crop/ pad.
+      crop_h: Height of cropped segment.
+      crop_w: Width of cropped segment.
+      ignore_label: Label to ignore during the training.
+    """
+
+    label = tf.cast(label, dtype=tf.float32)
+    label = label - ignore_label
+    combined = tf.concat(2, [image, label])
+    image_shape = tf.shape(image)
+    combined_pad = tf.image.pad_to_bounding_box(combined, 0, 0, tf.maximum(
+        crop_h, image_shape[0]), tf.maximum(crop_w, image_shape[1]))
+
+    last_image_dim = tf.shape(image)[-1]
+    last_label_dim = tf.shape(label)[-1]
+    combined_crop = tf.random_crop(combined_pad, [crop_h, crop_w, 4])
+    img_crop = combined_crop[:, :, :last_image_dim]
+    label_crop = combined_crop[:, :, last_image_dim:]
+    label_crop = label_crop + ignore_label
+    label_crop = tf.cast(label_crop, dtype=tf.uint8)
+    img_crop.set_shape((crop_h, crop_w, 3))
+    label_crop.set_shape((crop_h, crop_w, 1))
+    return img_crop, label_crop
