@@ -2010,7 +2010,7 @@ def _flatten(x, name='flatten'):
         return flattened
 
 
-def repeat(x, repetitions, layer, num_outputs, name='repeat', outputs_collections=None, *args, **kwargs):
+def repeat(x, repetitions, layer, num_outputs=None, name='Repeat', outputs_collections=None, *args, **kwargs):
     """
     Repeat op
 
@@ -2024,7 +2024,7 @@ def repeat(x, repetitions, layer, num_outputs, name='repeat', outputs_collection
     Returns:
         A `Tensor` representing the results of the repetition operation.
     """
-    with tf.variable_scope(name):
+    with tf.variable_scope(name, 'Repeat'):
         inputs = tf.convert_to_tensor(x)
         if name is None:
             if hasattr(layer, '__name__'):
@@ -2033,12 +2033,16 @@ def repeat(x, repetitions, layer, num_outputs, name='repeat', outputs_collection
                 # In case layer is a functools.partial.
                 name = layer.func.__name__
             else:
-                name = 'repeat'
+                name = 'Repeat'
         outputs = inputs
         for i in range(repetitions):
             new_name = name + '_' + str(i + 1)
-            outputs = layer(outputs, num_outputs,
-                            name=new_name, *args, **kwargs)
+            if num_outputs is None:
+                outputs = layer(outputs,
+                                name=new_name, *args, **kwargs)
+            else:
+                outputs = layer(outputs, num_outputs,
+                                name=new_name, *args, **kwargs)
             tf.add_to_collection(outputs_collections,
                                  NamedOutputs(new_name, outputs))
         return outputs
