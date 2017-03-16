@@ -1815,6 +1815,25 @@ def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unu
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def relu(x, name='relu', outputs_collections=None, **unused):
+    """
+    Computes reaky relu
+
+    Args:
+        x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+        aplha: the conatant fro scalling the activation
+        name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A `Tensor` representing the results of the activation operation.
+    """
+    _check_unused(unused, name)
+    with tf.name_scope(name):
+        output = tf.nn.relu(x)
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
 def lrelu(x, leak=0.2, name="lrelu", outputs_collections=None, **unused):
     """
     Computes reaky relu lasagne style
@@ -1991,7 +2010,7 @@ def _flatten(x, name='flatten'):
         return flattened
 
 
-def repeat(x, repetitions, layer, name='repeat', outputs_collections=None, *args, **kwargs):
+def repeat(x, repetitions, layer, num_outputs, name='repeat', outputs_collections=None, *args, **kwargs):
     """
     Repeat op
 
@@ -2005,7 +2024,7 @@ def repeat(x, repetitions, layer, name='repeat', outputs_collections=None, *args
     Returns:
         A `Tensor` representing the results of the repetition operation.
     """
-    with tf.variable_scope(name, 'Repeat'):
+    with tf.variable_scope(name):
         inputs = tf.convert_to_tensor(x)
         if name is None:
             if hasattr(layer, '__name__'):
@@ -2018,7 +2037,8 @@ def repeat(x, repetitions, layer, name='repeat', outputs_collections=None, *args
         outputs = inputs
         for i in range(repetitions):
             new_name = name + '_' + str(i + 1)
-            outputs = layer(outputs, name=new_name, *args, **kwargs)
+            outputs = layer(outputs, num_outputs,
+                            name=new_name, *args, **kwargs)
             tf.add_to_collection(outputs_collections,
                                  NamedOutputs(new_name, outputs))
         return outputs

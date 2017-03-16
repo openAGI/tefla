@@ -190,9 +190,10 @@ class Base(object):
                         temp = [v for v in tf.global_variables() if v.name.strip(':0') == str(v_name)][
                             0]
                         variables_to_restore.append(temp)
-                    except Exception, e:
+                    except Exception:
+                        print(v_name)
                         log.info(
-                            "Unable to get corect variables Error: %s." % e.message)
+                            "Unable to get corect variables Error: %s.")
                         continue
                 new_saver = tf.train.Saver(variables_to_restore)
                 new_saver.restore(sess, weights_from)
