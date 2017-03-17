@@ -1,6 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import numpy as np
+import tensorflow as tf
 
 
 class NoDAMixin(object):
@@ -114,3 +115,63 @@ class AggregateStandardizer(object):
         alpha = color_vec.astype(np.float32) * self.ev
         noise = np.dot(self.u, alpha.T)
         return img + noise[:, np.newaxis, np.newaxis]
+
+
+class AggregateStandardizerTF(object):
+    """Aggregate Standardizer
+
+    Creates a standardizer based on whole training dataset
+
+    Args:
+        mean: 1-D array, aggregate mean array
+            e.g.: mean is calculated for each color channel, R, G, B
+        std: 1-D array, aggregate standard deviation array
+            e.g.: std is calculated for each color channel, R, G, B
+        u: 2-D array, eigenvector for the color channel variation
+        ev: 1-D array, eigenvalues
+        sigma: float, noise factor
+        color_vec: an optional color vector
+    """
+
+    def __init__(self, mean, std, u, ev, sigma=0.0, color_vec=None):
+        self.mean = tf.reshape(tf.to_float(mean), shape=(1, 1, 3))
+        self.std = tf.reshape(tf.to_float(std), shape=(1, 1, 3))
+        self.u = tf.reshape(tf.to_float(u), shape=(3, 3))
+        self.ev = tf.reshape(tf.to_float(ev), shape=(3,))
+        self.sigma = tf.to_float(sigma)
+        self.color_vec = color_vec
+
+    def da_processing_params(self):
+        return {'sigma': self.sigma}
+
+    def set_tta_args(self, **kwargs):
+        self.color_vec = kwargs['color_vec']
+
+    def __call__(self, img, is_training):
+        img = tf.subtract(img, self.mean)
+        img = tf.divide(img, self.std)
+        if is_training:
+            img = self.augment_color(img, sigma=self.sigma)
+        else:
+            # tta (test time augmentation)
+            img = self.augment_color(img, color_vec=self.color_vec)
+        return img
+
+    def augment_color(self, img, sigma=0.0, color_vec=None):
+        """Augment color
+
+        Args:
+            img: input image
+            sigma: a float, noise factor
+            color_vec: an optional color vec
+
+        """
+        if color_vec is None:
+            if not sigma > 0.0:
+                color_vec = tf.zeros(shape=(3,), dtype=tf.float32)
+            else:
+                color_vec = tf.random_normal(shape=(3,), mean=0.0, std=sigma)
+
+        alpha = tf.multiply(tf.to_float(color_vec), self.ev)
+        noise = tf.reshape(tf.tensordot(self.u, alpha, 1), shape=(1, 1, 3))
+        return tf.add(img, noise)
