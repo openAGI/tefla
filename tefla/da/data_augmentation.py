@@ -321,8 +321,8 @@ def random_image_scaling(image, label):
     """
     scale = tf.random_uniform(
         [1], minval=0.5, maxval=1.5, dtype=tf.float32, seed=None)
-    h_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(img)[0]), scale))
-    w_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(img)[1]), scale))
+    h_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(image)[0]), scale))
+    w_new = tf.to_int32(tf.multiply(tf.to_float(tf.shape(image)[1]), scale))
     new_shape = tf.squeeze(tf.stack([h_new, w_new]), axis=1)
     image = tf.image.resize_images(image, new_shape)
     label = tf.image.resize_nearest_neighbor(
@@ -360,13 +360,13 @@ def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_la
 
     label = tf.cast(label, dtype=tf.float32)
     label = label - ignore_label
-    combined = tf.concat(2, [image, label])
+    combined = tf.concat([image, label], axis=2)
     image_shape = tf.shape(image)
     combined_pad = tf.image.pad_to_bounding_box(combined, 0, 0, tf.maximum(
         crop_h, image_shape[0]), tf.maximum(crop_w, image_shape[1]))
 
     last_image_dim = tf.shape(image)[-1]
-    last_label_dim = tf.shape(label)[-1]
+    # last_label_dim = tf.shape(label)[-1]
     combined_crop = tf.random_crop(combined_pad, [crop_h, crop_w, 4])
     img_crop = combined_crop[:, :, :last_image_dim]
     label_crop = combined_crop[:, :, last_image_dim:]

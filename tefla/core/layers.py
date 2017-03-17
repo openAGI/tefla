@@ -872,9 +872,9 @@ def _phase_shift(input_, r):
     X = tf.reshape(input_, (bsize, a, b, r, r))
     X = tf.transpose(X, (0, 1, 2, 4, 3))
     X = tf.split(1, a, X)
-    X = tf.concat(2, [tf.squeeze(x) for x in X])
+    X = tf.concat([tf.squeeze(x) for x in X], axis=2)
     X = tf.split(1, b, X)
-    X = tf.concat(2, [tf.squeeze(x) for x in X])
+    X = tf.concat([tf.squeeze(x) for x in X], axis=2)
     output = tf.reshape(X, (bsize, a * r, b * r, 1))
     return output
 
@@ -885,7 +885,7 @@ def subpixel2d(input_, r, color=True, name=None, outputs_collections=None, **unu
     with tf.name_scope(name or "subpixel"):
         if color:
             inputc = tf.split(3, 3, input_)
-            output = tf.concat(3, [_phase_shift(x, r) for x in inputc])
+            output = tf.concat([_phase_shift(x, r) for x in inputc], axis=3)
         else:
             output = _phase_shift(input_, r)
     return _collect_named_outputs(outputs_collections, name, output)
@@ -1789,13 +1789,13 @@ def concat_elu(x, name='concat_elu', outputs_collections=None, **unused):
     """
     with tf.name_scope(name):
         axis = len(x.get_shape()) - 1
-        output = tf.nn.elu(tf.concat(axis, [x, -x]))
+        output = tf.nn.elu(tf.concat([x, -x], axis=axis))
         return _collect_named_outputs(outputs_collections, name, output)
 
 
 def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unused):
     """
-    Computes reaky relu
+    Computes leaky relu
 
     Args:
         x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
@@ -1817,7 +1817,7 @@ def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unu
 
 def relu(x, name='relu', outputs_collections=None, **unused):
     """
-    Computes reaky relu
+    Computes relu
 
     Args:
         x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
@@ -1974,7 +1974,7 @@ def pixel_wise_softmax(inputs):
     """
     exponential_map = tf.exp(inputs)
     sum_exp = tf.reduce_sum(exponential_map, 3, keep_dims=True)
-    tensor_sum_exp = tf.tile(sum_exp, tf.pack([1, 1, 1, tf.shape(inputs)[3]]))
+    tensor_sum_exp = tf.tile(sum_exp, tf.stack([1, 1, 1, tf.shape(inputs)[3]]))
     return tf.div(exponential_map, tensor_sum_exp)
 
 
@@ -2070,7 +2070,7 @@ def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **
     with tf.name_scope(name):
         tensors = [l for l in tensors_list]
         if mode == 'concat':
-            output = tf.concat(axis, tensors)
+            output = tf.concat(tensors, axis=axis)
         elif mode == 'elemwise_sum':
             output = tensors[0]
             for i in range(1, len(tensors)):
@@ -2080,19 +2080,19 @@ def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **
             for i in range(1, len(tensors)):
                 output = tf.multiply(output, tensors[i])
         elif mode == 'sum':
-            output = tf.reduce_sum(tf.concat(axis, tensors), axis=axis)
+            output = tf.reduce_sum(tf.concat(tensors, axis=axis), axis=axis)
         elif mode == 'mean':
-            output = tf.reduce_mean(tf.concat(axis, tensors), axis=axis)
+            output = tf.reduce_mean(tf.concat(tensors, axis=axis), axis=axis)
         elif mode == 'prod':
-            output = tf.reduce_prod(tf.concat(axis, tensors), axis=axis)
+            output = tf.reduce_prod(tf.concat(tensors, axis=axis), axis=axis)
         elif mode == 'max':
-            output = tf.reduce_max(tf.concat(axis, tensors), axis=axis)
+            output = tf.reduce_max(tf.concat(tensors, axis=axis), axis=axis)
         elif mode == 'min':
-            output = tf.reduce_min(tf.concat(axis, tensors), axis=axis)
+            output = tf.reduce_min(tf.concat(tensors, axis=axis), axis=axis)
         elif mode == 'and':
-            output = tf.reduce_all(tf.concat(axis, tensors), axis=axis)
+            output = tf.reduce_all(tf.concat(tensors, axis=axis), axis=axis)
         elif mode == 'or':
-            output = tf.reduce_any(tf.concat(axis, tensors), axis=axis)
+            output = tf.reduce_any(tf.concat(tensors, axis=axis), axis=axis)
         else:
             raise Exception("Unknown merge mode", str(mode))
         return _collect_named_outputs(outputs_collections, name, output)
@@ -2210,7 +2210,7 @@ def crop_and_concat(inputs1, inputs2, name='crop_concat'):
                    (inputs1_shape[2] - inputs2_shape[2]) // 2, 0]
         size = [-1, inputs2_shape[1], inputs2_shape[2], -1]
         inputs1_crop = tf.slice(inputs1, offsets, size)
-        return tf.concat(3, [inputs1_crop, inputs2])
+        return tf.concat([inputs1_crop, inputs2], axis=3)
 
 
 def _collect_named_outputs(outputs_collections, name, output):

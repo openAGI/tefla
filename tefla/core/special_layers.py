@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tefla.core.layers import conv2d, batch_norm_tf as batch_norm
+from tefla.core.layers import conv2d, max_pool, batch_norm_tf as batch_norm
 from tefla.utils import util
 from tefla.core import initializers as initz
 
@@ -224,7 +224,7 @@ def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, name=None, **k
                       dilation=rate, padding='VALID', name=name, **kwargs)
 
 
-def bottleneck_v2(inputs, depth, depth_bottleneck, stride, rate=1, name=None, **kwargs):
+def bottleneck_v1(inputs, depth, depth_bottleneck, stride, rate=1, name=None, **kwargs):
     """Bottleneck residual unit variant with BN before convolutions.
 
     This is the full preactivation residual unit variant proposed in [2]. See
@@ -318,10 +318,8 @@ def bottleneck_v2(inputs, depth, depth_bottleneck, stride, rate=1, name=None, **
         return output
 
 
-def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, batch_size, regularizer=tf.nn.l2_loss, init_f=initz.random_normal(), trainable=True, **kwargs):
-    with tf.variable_scope(name, reuse=reuse):
-        global_step = tf.get_variable('global_step', shape=[
-        ], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, batch_size, nhop, share_list, regularizer=tf.nn.l2_loss, init_f=initz.random_normal(), trainable=True, name=None, **kwargs):
+    with tf.variable_scope(name, 'memory_module', reuse=reuse):
         A_shape = B_shape = [nwords, edim]
         C_shape = [edim, edim]
         T_A_shape = T_B_shape = [mem_size, edim]
@@ -387,7 +385,7 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
             Cout = tf.matmul(hid[-1], C)
             Dout = tf.add(Cout, Bout2dim)
 
-            self.share_list[0].append(Cout)
+            share_list[0].append(Cout)
 
             if lindim == edim:
                 hid.append(Dout)
