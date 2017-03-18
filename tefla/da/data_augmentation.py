@@ -120,6 +120,27 @@ def distort_color(image, thread_id=0, scope=None):
         return image
 
 
+VGG_MEAN = [103.939, 116.779, 123.68]
+
+
+def vggnet_input(im_tf):
+    im_tf = tf.image.convert_image_dtype(im_tf, dtype=tf.float32)
+    # im_tf = tf.image.central_crop(im_tf, central_fraction=0.875)
+    # im_tf = tf.expand_dims(im_tf, 0)
+    # im_tf = tf.image.resize_bilinear(im_tf, [224, 224], align_corners=False)
+    # im_tf = tf.squeeze(im_tf, [0])
+    im_tf = tf.subtract(im_tf, 0.5)
+    im_tf = tf.multiply(im_tf, 2.0)
+    im_tf = im_tf * 255.0
+    r_, g_, b_ = tf.split(im_tf, 3, axis=2)
+    r_ = r_ - VGG_MEAN[2]
+    g_ = b_ - VGG_MEAN[1]
+    b_ = b_ - VGG_MEAN[0]
+    im_tf = tf.concat([r_, g_, b_], axis=2)
+    # im_tf = tf.expand_dims(im_tf, 0)
+    return im_tf
+
+
 def random_crop(image, crop_size, padding=None):
     """Randmly crop a image.
 
