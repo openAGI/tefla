@@ -3,7 +3,7 @@ import os
 import numpy as np
 import scipy.misc
 import math
-from tefla.da.data_augmentation import distort_color
+from tefla.da.data_augmentation import distort_color, vggnet_input
 
 
 class PascalVoc(object):
@@ -93,8 +93,9 @@ class PascalVoc(object):
             filename_queue = self.datafiles(label_filename=label_filename)
             image, label = self.decode_file(
                 filename_queue, height=height, width=width)
-            image = distort_color(image)
-            image = tf.image.per_image_standardization(image)
+            image = vggnet_input(image)
+            # image = distort_color(image)
+            # image = tf.image.per_image_standardization(image)
             image_batch, label_batch = tf.train.shuffle_batch(
                 [image, label],
                 batch_size=batch_size,
@@ -118,9 +119,9 @@ class PascalVoc(object):
 if __name__ == '__main__':
     sess = tf.Session()
     data_voc = PascalVoc(name='pascal_voc', data_dir='/home/artelus_server/data/VOCdevkit/segment/', batch_size=1,
-                         height=224, extension='.jpg', capacity=1024, min_queue_examples=256, num_preprocess_threads=8)
+                         height=224, extension='.jpg', is_train=True, capacity=1024, min_queue_examples=256, num_preprocess_threads=8)
     images, labels = data_voc.get_batch(
-        batch_size=1, is_train=True, label_filename=None, height=224, width=224)
+        batch_size=1, label_filename=None, height=224, width=224)
     coord = tf.train.Coordinator()
     tf.train.start_queue_runners(sess=sess, coord=coord)
     import itertools
