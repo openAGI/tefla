@@ -824,7 +824,7 @@ def upsample3d(input_, output_shape, is_training, reuse, trainable=True, filter_
     """
     input_shape = helper.get_input_shape(input_)
     assert len(input_shape) == 5, "Input Tensor shape must be 5-D"
-    with tf.variable_scope(name or 'upsample2d', reuse=reuse):
+    with tf.variable_scope(name or 'upsample3d', reuse=reuse):
         shape = helper.filter_3d(filter_size, output_shape[-1], input_.get_shape()[-1]) if hasattr(w_init,
                                                                                                    '__call__') else None
 
