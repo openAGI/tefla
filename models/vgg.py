@@ -19,7 +19,7 @@ from __future__ import print_function
 import tensorflow as tf
 from tefla.core import initializers as initz
 from tefla.core.layer_arg_ops import common_layer_args, make_args, end_points
-from tefla.core.layers import dropout, repeat
+from tefla.core.layers import dropout, repeat, prelu, relu, global_avg_pool
 from tefla.core.layers import input, conv2d, max_pool, prelu, softmax
 
 # sizes - (width, height)
@@ -161,7 +161,7 @@ def vgg_16(is_training, reuse,
 def vgg_19(is_training, reuse,
            num_classes=1000,
            dropout_keep_prob=0.5,
-           spatial_squeeze=True,
+           spatial_squeeze=False,
            name='vgg_19'):
     """Oxford Net VGG 19-Layers version E Example.
 
@@ -182,13 +182,12 @@ def vgg_19(is_training, reuse,
       the last op containing the log predictions and end_points dict.
     """
     common_args = common_layer_args(is_training, reuse)
-    conv_args = make_args(batch_norm=True, activation=prelu, w_init=initz.he_normal(
+    conv_args = make_args(batch_norm=None, activation=relu, w_init=initz.he_normal(
         scale=1), untie_biases=False, **common_args)
     logit_args = make_args(
         activation=None, w_init=initz.he_normal(scale=1), **common_args)
-    pred_args = make_args(
-        activation=prelu, w_init=initz.he_normal(scale=1), **common_args)
-    pool_args = make_args(padding='SAME', **common_args)
+    pred_args = make_args(**common_args)
+    pool_args = make_args(padding='SAME', filter_size=2, **common_args)
     inputs = input((None, crop_size[1], crop_size[0], 3), **common_args)
     with tf.variable_scope(name, 'vgg_19', [inputs]):
         net = repeat(inputs, 2, conv2d,
@@ -207,16 +206,18 @@ def vgg_19(is_training, reuse,
             3, 3), name='conv5', **conv_args)
         net = max_pool(net, name='pool5', **pool_args)
         # Use conv2d instead of fully_connected layers.
-        net = conv2d(net, 4096, filter_size=(7, 7), name='fc6', **conv_args)
-        net = dropout(net, drop_p=1 - dropout_keep_prob, is_training=is_training,
+        net = conv2d(net, 4096, filter_size=(7, 7),
+                     name='fc6', **conv_args)
+        net = dropout(net, drop_p=1 - dropout_keep_prob,
                       name='dropout6', **common_args)
         net = conv2d(net, 4096, filter_size=(1, 1), name='fc7', **conv_args)
-        net = dropout(net, drop_p=1 - dropout_keep_prob, is_training=is_training,
+        net = max_pool(net, filter_size=(7, 7), stride=7)
+        net = dropout(net, drop_p=1 - dropout_keep_prob,
                       name='dropout7', **common_args)
         logits = conv2d(net, num_classes, filter_size=(1, 1),
-                        activation=None,
-                        name='logits', **logit_args)
+                        name='fc8', **logit_args)
         if spatial_squeeze:
-            logits = tf.squeeze(logits, [1, 2], name='logits/squeezed')
+            logits = tf.squeeze(logits, [1, 2], name='logits')
+        # logits = global_avg_pool(logits)
         predictions = softmax(logits, name='predictions', **pred_args)
         return end_points(is_training)
