@@ -1411,7 +1411,7 @@ def global_avg_pool(x, name="global_avg_pool", outputs_collections=None, **unuse
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **unused):
+def feature_max_pool_1d(x, stride=2, name='feature_max_pool_1d', outputs_collections=None, **unused):
     """
     Feature max pooling layer
 
@@ -1436,6 +1436,36 @@ def feature_max_pool_1d(x, stride=2, name='pool', outputs_collections=None, **un
         output = tf.reduce_max(
             input_tensor=x,
             reduction_indices=[2],
+        )
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def feature_max_pool_2d(x, stride=2, name='feature_max_pool_2d', outputs_collections=None, **unused):
+    """
+    Feature max pooling layer
+
+    Args:
+        x: A $-D tensor of shape `[batch_size, height, width, channels]`
+        stride: A int.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+
+    Returns:
+        A $-D `Tensor` representing the results of the pooling operation.
+        e.g.: $-D `Tensor` [batch_size, height, width, new_channels]
+
+    Raises:
+        ValueError: If 'kernel_size' is None
+    """
+    _check_unused(unused, name)
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    x = tf.reshape(
+        x, (-1, input_shape[1], input_shape[2], input_shape[3] // stride, stride))
+    with tf.name_scope(name):
+        output = tf.reduce_max(
+            input_tensor=x,
+            reduction_indices=[4],
         )
         return _collect_named_outputs(outputs_collections, name, output)
 

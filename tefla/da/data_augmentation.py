@@ -363,6 +363,7 @@ def random_image_mirroring(image, label):
     distort_left_right_random = tf.random_uniform(
         [1], 0, 1.0, dtype=tf.float32)[0]
     mirror = tf.less(tf.stack([1.0, distort_left_right_random, 1.0]), 0.5)
+    mirror = tf.cast(mirror, tf.int32)
     image = tf.reverse(image, mirror)
     label = tf.reverse(label, mirror)
     return image, label
@@ -396,3 +397,14 @@ def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_la
     img_crop.set_shape((crop_h, crop_w, 3))
     label_crop.set_shape((crop_h, crop_w, 1))
     return img_crop, label_crop
+
+
+def seg_input_aug(image, label):
+    # image, label = random_image_mirroring(image, label)
+    image = tf.image.resize_images(
+        image, [448, 448], method=0)
+    label = tf.expand_dims(label, 2)
+    label = tf.image.resize_images(
+        label, [448, 448], method=0)
+    label = tf.squeeze(label)
+    return image, label
