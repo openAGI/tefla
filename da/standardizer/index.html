@@ -229,6 +229,9 @@
                 <li class="toctree-l3"><a href="#aggregate-standardizer">Aggregate Standardizer</a></li>
                 
             
+                <li class="toctree-l3"><a href="#aggregate-standardizer_1">Aggregate Standardizer</a></li>
+                
+            
             </ul>
         
     </li>
@@ -341,7 +344,7 @@
             <div class="section">
               
                 <h1 id="samplewise-standardizer">Samplewise Standardizer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L28 target="_blank"><b>tefla.da.standardizer.SamplewiseStandardizer</b></a></span>  (clip,  channel_wise=False)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L29 target="_blank"><b>tefla.da.standardizer.SamplewiseStandardizer</b></a></span>  (clip,  channel_wise=False)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -351,7 +354,7 @@ e.g.: 6</li>
 </ul>
 <hr />
 <h1 id="aggregate-standardizer">Aggregate Standardizer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L59 target="_blank"><b>tefla.da.standardizer.AggregateStandardizer</b></a></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L60 target="_blank"><b>tefla.da.standardizer.AggregateStandardizer</b></a></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span></p>
 <p>Creates a standardizer based on whole training dataset</p>
 <h3>Args</h3>
 
@@ -368,7 +371,34 @@ e.g.: std is calculated for each color channel, R, G, B</li>
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L99 target="_blank"><b>augment_color</b></a></span>  (img,  sigma=0.0,  color_vec=None)</span></p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L100 target="_blank"><b>augment_color</b></a></span>  (img,  sigma=0.0,  color_vec=None)</span></p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>img</strong>: input image</li>
+<li><strong>sigma</strong>: a float, noise factor</li>
+<li><strong>color_vec</strong>: an optional color vec</li>
+</ul>
+<hr />
+<h1 id="aggregate-standardizer_1">Aggregate Standardizer</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L120 target="_blank"><b>tefla.da.standardizer.AggregateStandardizerTF</b></a></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span></p>
+<p>Creates a standardizer based on whole training dataset</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>mean</strong>: 1-D array, aggregate mean array
+e.g.: mean is calculated for each color channel, R, G, B</li>
+<li><strong>std</strong>: 1-D array, aggregate standard deviation array
+e.g.: std is calculated for each color channel, R, G, B</li>
+<li><strong>u</strong>: 2-D array, eigenvector for the color channel variation</li>
+<li><strong>ev</strong>: 1-D array, eigenvalues</li>
+<li><strong>sigma</strong>: float, noise factor</li>
+<li><strong>color_vec</strong>: an optional color vector</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L160 target="_blank"><b>augment_color</b></a></span>  (img,  sigma=0.0,  color_vec=None)</span></p>
 <h5>Args</h5>
 
 <ul>
