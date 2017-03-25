@@ -375,9 +375,11 @@ The output of the localisation network should be [batch_size, num_transform, 6] 
 <p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L162 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span></p>
 <h3>Args</h3>
 
-<p>inputs: A <code>Tensor</code> of size [batch, height_in, width_in, channels].
-  factor: The subsampling factor.
-  name: Optional variable_scope.</p>
+<ul>
+<li><strong>inputs</strong>: A <code>Tensor</code> of size [batch, height_in, width_in, channels].</li>
+<li><strong>factor</strong>: The subsampling factor.</li>
+<li><strong>name</strong>: Optional variable_scope.</li>
+</ul>
 <h3>Returns</h3>
 
 <p>output: A <code>Tensor</code> of size [batch, height_out, width_out, channels] with the
@@ -390,20 +392,22 @@ input, either intact (if factor == 1) or subsampled (if factor &gt; 1).</p>
 <p>Note that</p>
 <p>net = conv2d_same(inputs, num_outputs, 3, stride=stride)</p>
 <p>is equivalent to</p>
-<p>net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')
+<p>net = conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')
    net = subsample(net, factor=stride)</p>
 <p>whereas</p>
-<p>net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')</p>
+<p>net = conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')</p>
 <p>is different when the input's height or width is even, which is why we add the
 current function. For more details, see ResnetUtilsTest.testConv2DSameEven().</p>
 <h3>Args</h3>
 
-<p>inputs: A 4-D tensor of size [batch, height_in, width_in, channels].
-  num_outputs: An integer, the number of output filters.
-  kernel_size: An int with the kernel_size of the filters.
-  stride: An integer, the output stride.
-  rate: An integer, rate for atrous convolution.
-  name: name.</p>
+<ul>
+<li><strong>inputs</strong>: A 4-D tensor of size [batch, height_in, width_in, channels].</li>
+<li><strong>num_outputs</strong>: An integer, the number of output filters.</li>
+<li><strong>kernel_size</strong>: An int with the kernel_size of the filters.</li>
+<li><strong>stride</strong>: An integer, the output stride.</li>
+<li><strong>rate</strong>: An integer, rate for atrous convolution.</li>
+<li><strong>name</strong>: name.</li>
+</ul>
 <h3>Returns</h3>
 
 <p>output: A 4-D tensor of size [batch, height_out, width_out, channels] with
@@ -418,14 +422,16 @@ variant which has an extra bottleneck layer.</p>
 should use stride = 2 in the last unit of the first block.</p>
 <h3>Args</h3>
 
-<p>inputs: A tensor of size [batch, height, width, channels].
-  depth: The depth of the ResNet unit output.
-  depth_bottleneck: The depth of the bottleneck layers.
-  stride: The ResNet unit's stride. Determines the amount of downsampling of
- - the units output compared to its input.
-  rate: An integer, rate for atrous convolution.
-  outputs_collections: Collection to add the ResNet unit output.
-  name: Optional variable_scope.</p>
+<ul>
+<li><strong>inputs</strong>: A tensor of size [batch, height, width, channels].</li>
+<li><strong>depth</strong>: The depth of the ResNet unit output.</li>
+<li><strong>depth_bottleneck</strong>: The depth of the bottleneck layers.</li>
+<li><strong>stride</strong>: The ResNet unit's stride. Determines the amount of downsampling of
+the units output compared to its input.</li>
+<li><strong>rate</strong>: An integer, rate for atrous convolution.</li>
+<li><strong>outputs_collections</strong>: Collection to add the ResNet unit output.</li>
+<li><strong>name</strong>: Optional variable_scope.</li>
+</ul>
 <h3>Returns</h3>
 
 <p>The ResNet unit's output.</p>
@@ -439,14 +445,16 @@ variant which has an extra bottleneck layer.</p>
 should use stride = 2 in the last unit of the first block.</p>
 <h3>Args</h3>
 
-<p>inputs: A tensor of size [batch, height, width, channels].
-  depth: The depth of the ResNet unit output.
-  depth_bottleneck: The depth of the bottleneck layers.
-  stride: The ResNet unit's stride. Determines the amount of downsampling of
- - the units output compared to its input.
-  rate: An integer, rate for atrous convolution.
-  outputs_collections: Collection to add the ResNet unit output.
-  name: Optional variable_scope.</p>
+<ul>
+<li><strong>inputs</strong>: A tensor of size [batch, height, width, channels].</li>
+<li><strong>depth</strong>: The depth of the ResNet unit output.</li>
+<li><strong>depth_bottleneck</strong>: The depth of the bottleneck layers.</li>
+<li><strong>stride</strong>: The ResNet unit's stride. Determines the amount of downsampling of
+the units output compared to its input.</li>
+<li><strong>rate</strong>: An integer, rate for atrous convolution.</li>
+<li><strong>outputs_collections</strong>: Collection to add the ResNet unit output.</li>
+<li><strong>name</strong>: Optional variable_scope.</li>
+</ul>
 <h3>Returns</h3>
 
 <p>The ResNet unit's output.</p>
@@ -456,18 +464,28 @@ should use stride = 2 in the last unit of the first block.</p>
    More details on the arguments at https://github.com/lucasb-eyer/pydensecrf.</p>
 <h3>Args</h3>
 
-<p>probs: class probabilities per pixel.
-  img: if given, the pairwise bilateral potential on raw RGB values will be computed.
-  n_iters: number of iterations of MAP inference.
-  sxy_gaussian: standard deviations for the location component of the colour-independent term.
-  compat_gaussian: label compatibilities for the colour-independent term (can be a number, a 1D array, or a 2D array).
-  kernel_gaussian: kernel precision matrix for the colour-independent term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
-  normalisation_gaussian: normalisation for the colour-independent term (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
-  sxy_bilateral: standard deviations for the location component of the colour-dependent term.
-  compat_bilateral: label compatibilities for the colour-dependent term (can be a number, a 1D array, or a 2D array).
-  srgb_bilateral: standard deviations for the colour component of the colour-dependent term.
-  kernel_bilateral: kernel precision matrix for the colour-dependent term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
-  normalisation_bilateral: normalisation for the colour-dependent term (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).</p>
+<ul>
+<li><strong>probs</strong>: class probabilities per pixel.</li>
+<li><strong>img</strong>: if given, the pairwise bilateral potential on raw RGB values will be computed.</li>
+<li><strong>n_iters</strong>: number of iterations of MAP inference.</li>
+<li><strong>sxy_gaussian</strong>: standard deviations for the location component
+of the colour-independent term.</li>
+<li><strong>compat_gaussian</strong>: label compatibilities for the colour-independent
+term (can be a number, a 1D array, or a 2D array).</li>
+<li><strong>kernel_gaussian</strong>: kernel precision matrix for the colour-independent
+term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).</li>
+<li><strong>normalisation_gaussian</strong>: normalisation for the colour-independent term
+(possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).</li>
+<li><strong>sxy_bilateral</strong>: standard deviations for the location component of the colour-dependent term.</li>
+<li><strong>compat_bilateral</strong>: label compatibilities for the colour-dependent
+term (can be a number, a 1D array, or a 2D array).</li>
+<li><strong>srgb_bilateral</strong>: standard deviations for the colour component
+of the colour-dependent term.</li>
+<li><strong>kernel_bilateral</strong>: kernel precision matrix for the colour-dependent term
+(can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).</li>
+<li><strong>normalisation_bilateral</strong>: normalisation for the colour-dependent term
+(possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).</li>
+</ul>
 <h3>Returns</h3>
 
 <p>Refined predictions after MAP inference.</p>

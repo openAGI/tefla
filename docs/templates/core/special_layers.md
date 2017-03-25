@@ -31,14 +31,14 @@ spatial transformed output of the network
 <h3>Args</h3>
 
 
-  inputs: A `Tensor` of size [batch, height_in, width_in, channels].
-  factor: The subsampling factor.
-  name: Optional variable_scope.
+ - **inputs**: A `Tensor` of size [batch, height_in, width_in, channels].
+ - **factor**: The subsampling factor.
+ - **name**: Optional variable_scope.
 
 <h3>Returns</h3>
 
 
-  output: A `Tensor` of size [batch, height_out, width_out, channels] with the
+output: A `Tensor` of size [batch, height_out, width_out, channels] with the
 input, either intact (if factor == 1) or subsampled (if factor > 1).
 
  ---------- 
@@ -56,12 +56,12 @@ Note that
 
 is equivalent to
 
-   net = slim.conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')
+   net = conv2d(inputs, num_outputs, 3, stride=1, padding='SAME')
    net = subsample(net, factor=stride)
 
 whereas
 
-   net = slim.conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')
+   net = conv2d(inputs, num_outputs, 3, stride=stride, padding='SAME')
 
 is different when the input's height or width is even, which is why we add the
 current function. For more details, see ResnetUtilsTest.testConv2DSameEven().
@@ -69,17 +69,17 @@ current function. For more details, see ResnetUtilsTest.testConv2DSameEven().
 <h3>Args</h3>
 
 
-  inputs: A 4-D tensor of size [batch, height_in, width_in, channels].
-  num_outputs: An integer, the number of output filters.
-  kernel_size: An int with the kernel_size of the filters.
-  stride: An integer, the output stride.
-  rate: An integer, rate for atrous convolution.
-  name: name.
+ - **inputs**: A 4-D tensor of size [batch, height_in, width_in, channels].
+ - **num_outputs**: An integer, the number of output filters.
+ - **kernel_size**: An int with the kernel_size of the filters.
+ - **stride**: An integer, the output stride.
+ - **rate**: An integer, rate for atrous convolution.
+ - **name**: name.
 
 <h3>Returns</h3>
 
 
-  output: A 4-D tensor of size [batch, height_out, width_out, channels] with
+output: A 4-D tensor of size [batch, height_out, width_out, channels] with
 the convolution output.
 
  ---------- 
@@ -98,19 +98,19 @@ should use stride = 2 in the last unit of the first block.
 <h3>Args</h3>
 
 
-  inputs: A tensor of size [batch, height, width, channels].
-  depth: The depth of the ResNet unit output.
-  depth_bottleneck: The depth of the bottleneck layers.
-  stride: The ResNet unit's stride. Determines the amount of downsampling of
- - the units output compared to its input.
-  rate: An integer, rate for atrous convolution.
-  outputs_collections: Collection to add the ResNet unit output.
-  name: Optional variable_scope.
+ - **inputs**: A tensor of size [batch, height, width, channels].
+ - **depth**: The depth of the ResNet unit output.
+ - **depth_bottleneck**: The depth of the bottleneck layers.
+ - **stride**: The ResNet unit's stride. Determines the amount of downsampling of
+the units output compared to its input.
+ - **rate**: An integer, rate for atrous convolution.
+ - **outputs_collections**: Collection to add the ResNet unit output.
+ - **name**: Optional variable_scope.
 
 <h3>Returns</h3>
 
 
-  The ResNet unit's output.
+The ResNet unit's output.
 
  ---------- 
 
@@ -128,19 +128,19 @@ should use stride = 2 in the last unit of the first block.
 <h3>Args</h3>
 
 
-  inputs: A tensor of size [batch, height, width, channels].
-  depth: The depth of the ResNet unit output.
-  depth_bottleneck: The depth of the bottleneck layers.
-  stride: The ResNet unit's stride. Determines the amount of downsampling of
- - the units output compared to its input.
-  rate: An integer, rate for atrous convolution.
-  outputs_collections: Collection to add the ResNet unit output.
-  name: Optional variable_scope.
+ - **inputs**: A tensor of size [batch, height, width, channels].
+ - **depth**: The depth of the ResNet unit output.
+ - **depth_bottleneck**: The depth of the bottleneck layers.
+ - **stride**: The ResNet unit's stride. Determines the amount of downsampling of
+the units output compared to its input.
+ - **rate**: An integer, rate for atrous convolution.
+ - **outputs_collections**: Collection to add the ResNet unit output.
+ - **name**: Optional variable_scope.
 
 <h3>Returns</h3>
 
 
-  The ResNet unit's output.
+The ResNet unit's output.
 
  ---------- 
 
@@ -152,23 +152,31 @@ should use stride = 2 in the last unit of the first block.
 <h3>Args</h3>
 
 
-  probs: class probabilities per pixel.
-  img: if given, the pairwise bilateral potential on raw RGB values will be computed.
-  n_iters: number of iterations of MAP inference.
-  sxy_gaussian: standard deviations for the location component of the colour-independent term.
-  compat_gaussian: label compatibilities for the colour-independent term (can be a number, a 1D array, or a 2D array).
-  kernel_gaussian: kernel precision matrix for the colour-independent term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
-  normalisation_gaussian: normalisation for the colour-independent term (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
-  sxy_bilateral: standard deviations for the location component of the colour-dependent term.
-  compat_bilateral: label compatibilities for the colour-dependent term (can be a number, a 1D array, or a 2D array).
-  srgb_bilateral: standard deviations for the colour component of the colour-dependent term.
-  kernel_bilateral: kernel precision matrix for the colour-dependent term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
-  normalisation_bilateral: normalisation for the colour-dependent term (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
+ - **probs**: class probabilities per pixel.
+ - **img**: if given, the pairwise bilateral potential on raw RGB values will be computed.
+ - **n_iters**: number of iterations of MAP inference.
+ - **sxy_gaussian**: standard deviations for the location component
+of the colour-independent term.
+ - **compat_gaussian**: label compatibilities for the colour-independent
+term (can be a number, a 1D array, or a 2D array).
+ - **kernel_gaussian**: kernel precision matrix for the colour-independent
+term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
+ - **normalisation_gaussian**: normalisation for the colour-independent term
+(possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
+ - **sxy_bilateral**: standard deviations for the location component of the colour-dependent term.
+ - **compat_bilateral**: label compatibilities for the colour-dependent
+term (can be a number, a 1D array, or a 2D array).
+ - **srgb_bilateral**: standard deviations for the colour component
+of the colour-dependent term.
+ - **kernel_bilateral**: kernel precision matrix for the colour-dependent term
+(can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
+ - **normalisation_bilateral**: normalisation for the colour-dependent term
+(possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
 
 <h3>Returns</h3>
 
 
-  Refined predictions after MAP inference.
+Refined predictions after MAP inference.
 
  ---------- 
 
