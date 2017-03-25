@@ -18,7 +18,7 @@
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L79 target="_blank"><b>batch_inputs</b></a></span>  (batch_size,  train,  tfrecords_image_size,  crop_size,  im_size=None,  bbox=None,  image_preprocessing=None,  num_preprocess_threads=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L86 target="_blank"><b>batch_inputs</b></a></span>  (batch_size,  train,  tfrecords_image_size,  crop_size,  im_size=None,  bbox=None,  image_preprocessing=None,  num_preprocess_threads=16)</span>
 
 <h5>Args</h5>
 
@@ -43,7 +43,7 @@ labels: 1-D integer Tensor of [batch_size].
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L31 target="_blank"><b>get</b></a></span>  (items,  image_size,  resize_size=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L32 target="_blank"><b>get</b></a></span>  (items,  image_size,  resize_size=None)</span>
 
 <h5>Args</h5>
 
@@ -59,7 +59,7 @@ e.g.: [width, height]
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L52 target="_blank"><b>get_batch</b></a></span>  (batch_size,  target_probs,  image_size,  resize_size=None,  init_probs=None,  enqueue_many=False,  queue_capacity=2048,  threads_per_queue=1,  name='balancing_op')</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L54 target="_blank"><b>get_batch</b></a></span>  (batch_size,  target_probs,  image_size,  resize_size=None,  crop_size=[32,  32,  3],  init_probs=None,  enqueue_many=True,  queue_capacity=2048,  threads_per_queue=1,  name='balancing_op')</span>
 
 Stochastically creates batches based on per-class probabilities.
 This method discards examples. Internally, it creates one queue to

@@ -1,6 +1,6 @@
 # Spatial Transformer Layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L7 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L8 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span>
 
 Implements a spatial transformer layer as described in [1]_.
 It's based on lasagne implementation in [2]_, modified by Mrinal Haloi
@@ -26,7 +26,7 @@ spatial transformed output of the network
 
 # Subsamples the input along the spatial dimensions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L161 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L162 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span>
 
 <h3>Args</h3>
 
@@ -45,7 +45,7 @@ input, either intact (if factor == 1) or subsampled (if factor > 1).
 
 # Strided 2-D convolution with 'SAME' padding
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L179 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L180 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span>
 
 When stride > 1, then we do explicit zero-padding, followed by conv2d with
 'VALID' padding.
@@ -86,7 +86,7 @@ the convolution output.
 
 # Bottleneck residual unit variant with BN before convolutions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L274 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L228 target="_blank"><b>tefla.core.special_layers.bottleneck_v1</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span>
 
 This is the full preactivation residual unit variant proposed in [2]. See
 Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
@@ -111,6 +111,64 @@ should use stride = 2 in the last unit of the first block.
 
 
   The ResNet unit's output.
+
+ ---------- 
+
+# Bottleneck residual unit variant with BN before convolutions
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L275 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span>
+
+This is the full preactivation residual unit variant proposed in [2]. See
+Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
+variant which has an extra bottleneck layer.
+
+When putting together two consecutive ResNet blocks that use this unit, one
+should use stride = 2 in the last unit of the first block.
+
+<h3>Args</h3>
+
+
+  inputs: A tensor of size [batch, height, width, channels].
+  depth: The depth of the ResNet unit output.
+  depth_bottleneck: The depth of the bottleneck layers.
+  stride: The ResNet unit's stride. Determines the amount of downsampling of
+ - the units output compared to its input.
+  rate: An integer, rate for atrous convolution.
+  outputs_collections: Collection to add the ResNet unit output.
+  name: Optional variable_scope.
+
+<h3>Returns</h3>
+
+
+  The ResNet unit's output.
+
+ ---------- 
+
+# DenseCRF over unnormalised predictions
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L403 target="_blank"><b>tefla.core.special_layers.dense_crf</b></a></span>  (probs,  img=None,  n_iters=20,  sxy_gaussian=  (1,  1),  compat_gaussian=4,  kernel_gaussian=<KernelType.DIAG_KERNEL:  1>,  normalisation_gaussian=<NormalizationType.NORMALIZE_SYMMETRIC:  3>,  sxy_bilateral=  (49,  49),  compat_bilateral=5,  srgb_bilateral=  (13,  13,  13),  kernel_bilateral=<KernelType.DIAG_KERNEL:  1>,  normalisation_bilateral=<NormalizationType.NORMALIZE_SYMMETRIC:  3>)</span>
+   More details on the arguments at https://github.com/lucasb-eyer/pydensecrf.
+
+<h3>Args</h3>
+
+
+  probs: class probabilities per pixel.
+  img: if given, the pairwise bilateral potential on raw RGB values will be computed.
+  n_iters: number of iterations of MAP inference.
+  sxy_gaussian: standard deviations for the location component of the colour-independent term.
+  compat_gaussian: label compatibilities for the colour-independent term (can be a number, a 1D array, or a 2D array).
+  kernel_gaussian: kernel precision matrix for the colour-independent term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
+  normalisation_gaussian: normalisation for the colour-independent term (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
+  sxy_bilateral: standard deviations for the location component of the colour-dependent term.
+  compat_bilateral: label compatibilities for the colour-dependent term (can be a number, a 1D array, or a 2D array).
+  srgb_bilateral: standard deviations for the colour component of the colour-dependent term.
+  kernel_bilateral: kernel precision matrix for the colour-dependent term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
+  normalisation_bilateral: normalisation for the colour-dependent term (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
+
+<h3>Returns</h3>
+
+
+  Refined predictions after MAP inference.
 
  ---------- 
 

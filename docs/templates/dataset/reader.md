@@ -18,7 +18,7 @@
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/reader.py#L55 target="_blank"><b>parallel_reader</b></a></span>  (min_queue_examples=1024)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/reader.py#L57 target="_blank"><b>parallel_reader</b></a></span>  (min_queue_examples=1024)</span>
 
 Primarily used for Training ops
 
@@ -31,7 +31,7 @@ Primarily used for Training ops
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/reader.py#L35 target="_blank"><b>single_reader</b></a></span>  (num_epochs=1,  shuffle=False,  capacity=1)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/reader.py#L36 target="_blank"><b>single_reader</b></a></span>  (num_epochs=1,  shuffle=False,  capacity=1)</span>
 
 Data will be read using single TFRecordReader, primarily used for validation
 

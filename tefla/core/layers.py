@@ -1445,14 +1445,14 @@ def feature_max_pool_2d(x, stride=2, name='feature_max_pool_2d', outputs_collect
     Feature max pooling layer
 
     Args:
-        x: A $-D tensor of shape `[batch_size, height, width, channels]`
+        x: A 4-D tensor of shape `[batch_size, height, width, channels]`
         stride: A int.
         outputs_collections: The collections to which the outputs are added.
         name: Optional scope/name for name_scope.
 
     Returns:
-        A $-D `Tensor` representing the results of the pooling operation.
-        e.g.: $-D `Tensor` [batch_size, height, width, new_channels]
+        A 4-D `Tensor` representing the results of the pooling operation.
+        e.g.: 4-D `Tensor` [batch_size, height, width, new_channels]
 
     Raises:
         ValueError: If 'kernel_size' is None

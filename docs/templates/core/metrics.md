@@ -1,6 +1,6 @@
 # Computes accuracy metric
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L331 target="_blank"><b>tefla.core.metrics.accuracy_op</b></a></span>  (predictions,  targets,  num_classes=5)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L338 target="_blank"><b>tefla.core.metrics.accuracy_op</b></a></span>  (predictions,  targets,  num_classes=5)</span>
 
 <h3>Args</h3>
 
@@ -18,7 +18,7 @@ accuracy
 
 # Retruns one hot vector
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L352 target="_blank"><b>tefla.core.metrics.one_hot</b></a></span>  (vec,  m=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L359 target="_blank"><b>tefla.core.metrics.one_hot</b></a></span>  (vec,  m=None)</span>
 
 <h3>Args</h3>
 
