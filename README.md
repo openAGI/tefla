@@ -41,7 +41,13 @@ Many examples available with recent deep learning research integration
 3. [Spatial Transoformer Network](https://github.com/n3011/tefla/tree/master/examples/spatial_transformer)
 4. [LSTM](https://github.com/n3011/tefla/tree/master/examples/lstm_rnn)
 5. [DATASETS](https://github.com/n3011/tefla/tree/master/examples/datasets)
+6. [ImageNet classificatrion](https://github.com/n3011/tefla/tree/master/examples/classification)
 
+## Pretrained Weights
+1. [VGG19 Trained on ImageNet](https://drive.google.com/file/d/0B9ScQjaDDiwpRnVqZV9JQmh4ZE0/view?usp=sharing)
+   a.[(Model is converted from original Caffe version](https://gist.github.com/ksimonyan/3785162f95cd2d5fee77#file-readme-md)
+2. [Inception_Resnet_v2 trained on ImageNet](https://drive.google.com/file/d/0B9ScQjaDDiwpTk1kNDBqT1lKRUU/view?usp=sharing)
+   a.[model is converted from original tf version, trained by Google brain](https://github.com/tensorflow/models/tree/master/slim)
 
 ## Tefla Models
 Recent deep convolutional models are easy to implement using TEFLA
@@ -58,11 +64,11 @@ Recent deep convolutional models are easy to implement using TEFLA
 ```
 # 2 a. Data Directory structure for using normal images
 ```python
-|-- Data_Dir
-|   |-- training_image_size (eg. training_256, for 256 image size)
-|   |-- validation_image_size (eg. validation_256, for 256 image size)
-|   |-- training_labels.csv
-|   |-- validation_labels.csv
+|\-\- Data_Dir
+|   |\-\- training_image_size (eg. training_256, for 256 image size)
+|   |\-\- validation_image_size (eg. validation_256, for 256 image size)
+|   |\-\- training_labels.csv
+|   |\-\- validation_labels.csv
 ```
 
 # 2 b. TFRecords support available using tefla/dataset class
@@ -70,7 +76,7 @@ Recent deep convolutional models are easy to implement using TEFLA
 
 # Run training:
 ```python
-  python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
+  python tefla/train.py \-\-model models/alexnet.py \-\-training_cnf models/multiclass_cnf.py \-\-data_dir /path/to/data/dir (as per instructions 2.a)
 ```
 
 3. Mnist example gives a overview about Tefla usages
