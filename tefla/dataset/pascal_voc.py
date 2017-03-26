@@ -3,17 +3,18 @@ import os
 import numpy as np
 import scipy.misc
 import math
-from tefla.da.data_augmentation import distort_color, vggnet_input
+from tefla.da.data_augmentation import distort_color, vggnet_input, seg_input_aug
 
 
 class PascalVoc(object):
 
-    def __init__(self, name='pascal_voc', data_dir=None, is_train=None, batch_size=1, height=224, extension='.jpg', capacity=1024, min_queue_examples=256, num_preprocess_threads=8):
+    def __init__(self, name='pascal_voc', data_dir=None, is_label_filename=None, standardizer=None, is_train=None, batch_size=1, extension='.jpg', capacity=1024, min_queue_examples=256, num_preprocess_threads=8):
         self.name = name
         self.data_dir = data_dir
         self.is_train = is_train
+        self.standardizer = standardizer
+        self.label_filename = is_label_filename
         self.batch_size = batch_size
-        self.height = height
         self.extension = extension
         self.capacity = capacity
         self.min_queue_examples = min_queue_examples
@@ -27,9 +28,9 @@ class PascalVoc(object):
 
     @property
     def n_iters_per_epoch(self):
-        return int(math.ceil(self._num_examples_per_epoch / float(self._batch_size)))
+        return int(math.ceil(self._num_examples_per_epoch / float(self.batch_size)))
 
-    def decode_file(self, filename_queue, height=224, width=224):
+    def decode_file(self, filename_queue, height, width):
         imageValue = tf.read_file(filename_queue[0])
         labelValue = tf.read_file(filename_queue[1])
 
@@ -38,23 +39,23 @@ class PascalVoc(object):
 
         image = tf.reshape(image_bytes, (height, width, 3))
         label = tf.reshape(label_bytes, (height, width))
-
+        image = tf.to_float(image)
         return image, label
 
-    def datafiles(self, label_filename=None):
+    def datafiles(self, height):
         if self.is_train:
             with open(self.data_dir + 'train.txt', 'r') as f:
                 files = f.readlines()
             image_files = [os.path.join(self.data_dir, 'images_' + str(
-                self.height), filename.strip('\n') + self.extension) for filename in files]
-            if label_filename is None:
+                height), filename.strip('\n') + self.extension) for filename in files]
+            if self.label_filename is None:
                 label_files = [os.path.join(self.data_dir, 'labels_' + str(
-                    self.height), filename.strip('\n') + '.png') for filename in files]
+                    height), filename.strip('\n') + '.png') for filename in files]
             else:
                 with open(self.data_dir + 'train_labels.txt', 'r') as f:
                     lfiles = f.readlines()
                 label_files = [os.path.join(self.data_dir, 'labels_' + str(
-                    self.height), filename.strip('\n') + '.png') for filename in lfiles]
+                    height), filename.strip('\n') + '.png') for filename in lfiles]
 
             filename_queue = tf.train.slice_input_producer(
                 [image_files, label_files], shuffle=True)
@@ -62,21 +63,21 @@ class PascalVoc(object):
             with open(self.data_dir + 'val.txt', 'r') as f:
                 files = f.readlines()
             image_files = [os.path.join(self.data_dir, 'images_' + str(
-                self.height), filename.strip('\n') + self.extension) for filename in files]
-            if label_filename is None:
+                height), filename.strip('\n') + self.extension) for filename in files]
+            if self.label_filename is None:
                 label_files = [os.path.join(self.data_dir, 'labels_' + str(
-                    self.height), filename.strip('\n') + '.png') for filename in files]
+                    height), filename.strip('\n') + '.png') for filename in files]
             else:
                 with open(self.data_dir + 'val_labels.txt', 'r') as f:
                     lfiles = f.readlines()
                 label_files = [os.path.join(self.data_dir, 'labels_' + str(
-                    self.height), filename.strip('\n') + '.png') for filename in lfiles]
+                    height), filename.strip('\n') + '.png') for filename in lfiles]
 
         filename_queue = tf.train.slice_input_producer(
             [image_files, label_files], shuffle=True)
         return filename_queue
 
-    def get_batch(self, batch_size=1, label_filename=None, height=224, width=224):
+    def get_batch(self, batch_size=1, height=None, width=None):
         """Construct a queued batch of images and labels.
         Args:
             image: 3-D Tensor of [height, width, 3] of type.float32.
@@ -90,12 +91,16 @@ class PascalVoc(object):
             labels: Labels. 3D tensor of [batch_size, height, width] size.
         """
         if self.is_train:
-            filename_queue = self.datafiles(label_filename=label_filename)
-            image, label = self.decode_file(
-                filename_queue, height=height, width=width)
-            image = vggnet_input(image)
+            filename_queue = self.datafiles(height)
+            image, label = self.decode_file(filename_queue, height, width)
+            # image = vggnet_input(image)
             # image = distort_color(image)
             # image = tf.image.per_image_standardization(image)
+            if self.standardizer is not None:
+                image = self.standardizer(image, True)
+            image = tf.transpose(image, perm=[1, 0, 2])
+            label = tf.transpose(label, perm=[1, 0])
+            image, label = seg_input_aug(image, label)
             image_batch, label_batch = tf.train.shuffle_batch(
                 [image, label],
                 batch_size=batch_size,
@@ -121,7 +126,7 @@ if __name__ == '__main__':
     data_voc = PascalVoc(name='pascal_voc', data_dir='/home/artelus_server/data/VOCdevkit/segment/', batch_size=1,
                          height=224, extension='.jpg', is_train=True, capacity=1024, min_queue_examples=256, num_preprocess_threads=8)
     images, labels = data_voc.get_batch(
-        batch_size=1, label_filename=None, height=224, width=224)
+        batch_size=1, label_filename=None)
     coord = tf.train.Coordinator()
     tf.train.start_queue_runners(sess=sess, coord=coord)
     import itertools

@@ -42,13 +42,14 @@ def pascal_palette():
                (192, 128,   0): 11,
                (64,   0, 128): 12,
                (192,   0, 128): 13,
-               (64, 128, 128): 14,
-               (192, 128, 128): 15,
-               (0,  64,   0): 16,
-               (128,  64,   0): 17,
-               (0, 192,   0): 18,
-               (128, 192,   0): 19,
-               (0,  64, 128): 20}
+               (64, 128, 128): 14}
+    # (192, 128, 128): 15,
+    # (0,  64,   0): 16,
+    #  (128,  64,   0): 17,
+    # (0, 192,   0): 18,
+    # (128, 192,   0): 19,
+    # (0,  64, 128): 20
+    # }
 
     return palette
 
@@ -65,8 +66,10 @@ def palette_demo():
 
 def convert_seg_labels(label_file, image_height, image_width):
     image = scipy.misc.imread(label_file, mode='RGB')
-    arr_3d = scipy.misc.imresize(image, size=(
-        image_height, image_width), interp='cubic')
+    print(label_file)
+    # arr_3d = scipy.misc.imresize(image, size=(
+    #    image_height, image_width), interp='cubic')
+    arr_3d = image
     arr_2d = np.zeros((arr_3d.shape[0], arr_3d.shape[1]), dtype=np.uint8)
     palette = pascal_palette()
 
