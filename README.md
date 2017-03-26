@@ -50,9 +50,9 @@ Many examples available with recent deep learning research integration
 
 ## Pretrained Weights
 1. [VGG19 Trained on ImageNet](https://drive.google.com/file/d/0B9ScQjaDDiwpRnVqZV9JQmh4ZE0/view?usp=sharing)
-   a.[(Model is converted from original Caffe version](https://gist.github.com/ksimonyan/3785162f95cd2d5fee77#file-readme-md)
+   Note: [(Model is converted from original Caffe version](https://gist.github.com/ksimonyan/3785162f95cd2d5fee77#file-readme-md)
 2. [Inception_Resnet_v2 trained on ImageNet](https://drive.google.com/file/d/0B9ScQjaDDiwpTk1kNDBqT1lKRUU/view?usp=sharing)
-   a.[model is converted from original tf version, trained by Google brain](https://github.com/tensorflow/models/tree/master/slim)
+   Note: [model is converted from original tf version, trained by Google brain](https://github.com/tensorflow/models/tree/master/slim)
 
 ## Tefla Models
 Recent deep convolutional models are easy to implement using TEFLA
