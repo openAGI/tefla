@@ -33,6 +33,11 @@ for current version installation:
 ```python
 pip install git+https://github.com/n3011/tefla.git
 ```
+## Documentation
+
+[Tefla Docs](https://n3011.github.io/tefla/)
+
+
 ## Examples
 Many examples available with recent deep learning research integration
 
@@ -117,9 +122,6 @@ trainer = SupervisedTrainer(model, training_cnf, classification=training_cnf['cl
 trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every=10)
 ```
 
-## Documentation
-
-[Tefla Docs](https://n3011.github.io/tefla/)
 
 
 ## Contributions
