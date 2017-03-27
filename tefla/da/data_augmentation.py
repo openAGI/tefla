@@ -353,20 +353,36 @@ def random_image_scaling(image, label):
     return image, label
 
 
-def random_image_mirroring(image, label):
+def random_flip_left_right(image, label, seed=1234):
     """Randomly mirrors the images.
 
     Args:
       img: Training image to mirror.
       label: Segmentation mask to mirror.
     """
-    distort_left_right_random = tf.random_uniform(
-        [1], 0, 1.0, dtype=tf.float32)[0]
-    mirror = tf.less(tf.stack([1.0, distort_left_right_random, 1.0]), 0.5)
-    mirror = tf.cast(mirror, tf.int32)
-    image = tf.reverse(image, mirror)
-    label = tf.reverse(label, mirror)
-    return image, label
+    im_shape = image.get_shape()
+    label_shape = label.get_shape()
+    uniform_random = tf.random_uniform([], 0, 1.0, seed=seed)
+    mirror_cond = tf.less(uniform_random, .5)
+    image = tf.cond(mirror_cond, lambda: tf.reverse(image, [1]), lambda: image)
+    label = tf.cond(mirror_cond, lambda: tf.reverse(label, [1]), lambda: label)
+    return image.set_shape(im_shape), label.set_shape(label_shape)
+
+
+def random_flip_up_down(image, label, seed=1234):
+    """Randomly flip up/down the images.
+
+    Args:
+      img: Training image to mirror.
+      label: Segmentation mask to mirror.
+    """
+    im_shape = image.get_shape()
+    label_shape = label.get_shape()
+    uniform_random = tf.random_uniform([], 0, 1.0, seed=seed)
+    mirror_cond = tf.less(uniform_random, .5)
+    image = tf.cond(mirror_cond, lambda: tf.reverse(image, [0]), lambda: image)
+    label = tf.cond(mirror_cond, lambda: tf.reverse(label, [0]), lambda: label)
+    return image.set_shape(im_shape), label.set_shape(label_shape)
 
 
 def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_label=255):
@@ -399,8 +415,11 @@ def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_la
     return img_crop, label_crop
 
 
-def seg_input_aug(image, label):
-    # image, label = random_image_mirroring(image, label)
+def seg_input_aug(image, label, crop_h=448, crop_w=448):
+    image, label = random_flip_left_right(image, label)
+    image, label = random_flip_up_down(image, label)
+    image, label = random_crop_and_pad_image_and_labels(
+        image, label, crop_h, crop_w)
     image = tf.image.resize_images(
         image, [448, 448], method=0)
     label = tf.expand_dims(label, 2)
