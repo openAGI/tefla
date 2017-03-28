@@ -633,3 +633,16 @@ def accuracy_tf(labels, predictions):
         return tf.contrib.metrics.accuracy(labels, predictions)
     except Exception:
         return tf.contrib.metrics.accuracy(labels, predictions)
+
+
+def fast_hist(a, b, n):
+    k = (a >= 0) & (a < n)
+    return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
+
+
+def get_hist(predictions, labels, num_classes, batch_size=1):
+    hist = np.zeros((num_classes, num_classes))
+    for i in range(batch_size):
+        hist += fast_hist(labels[i].flatten(),
+                          predictions[i].argmax(2).flatten(), num_classes)
+    return hist

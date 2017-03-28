@@ -108,10 +108,14 @@ class PascalVoc(object):
                 capacity=self.capacity,
                 min_after_dequeue=self.min_queue_examples)
         else:
-            filename_queue = self.datafiles(label_filename=label_filename)
+            filename_queue = self.datafiles(height)
             image, label = self.decode_file(
                 filename_queue, height=height, width=width)
-            image = tf.image.per_image_standardization(image)
+            if self.standardizer is not None:
+                image = self.standardizer(image, True)
+            image = tf.transpose(image, perm=[1, 0, 2])
+            label = tf.transpose(label, perm=[1, 0])
+            image, label = seg_input_aug(image, label)
             image_batch, label_batch = tf.train.batch(
                 [image, label],
                 batch_size=batch_size,
