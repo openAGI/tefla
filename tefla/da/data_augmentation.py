@@ -353,36 +353,32 @@ def random_image_scaling(image, label):
     return image, label
 
 
-def random_flip_left_right(image, label, seed=1234):
+def random_flip_left_right(image, label, im_shape=(512, 512, 3), label_shape=(512, 512), seed=1234):
     """Randomly mirrors the images.
 
     Args:
       img: Training image to mirror.
       label: Segmentation mask to mirror.
     """
-    im_shape = image.get_shape()
-    label_shape = label.get_shape()
     uniform_random = tf.random_uniform([], 0, 1.0, seed=seed)
     mirror_cond = tf.less(uniform_random, .5)
     image = tf.cond(mirror_cond, lambda: tf.reverse(image, [1]), lambda: image)
     label = tf.cond(mirror_cond, lambda: tf.reverse(label, [1]), lambda: label)
-    return image.set_shape(im_shape), label.set_shape(label_shape)
+    return image, label
 
 
-def random_flip_up_down(image, label, seed=1234):
+def random_flip_up_down(image, label, im_shape=(512, 512, 3), label_shape=(512, 512), seed=1234):
     """Randomly flip up/down the images.
 
     Args:
       img: Training image to mirror.
       label: Segmentation mask to mirror.
     """
-    im_shape = image.get_shape()
-    label_shape = label.get_shape()
     uniform_random = tf.random_uniform([], 0, 1.0, seed=seed)
     mirror_cond = tf.less(uniform_random, .5)
     image = tf.cond(mirror_cond, lambda: tf.reverse(image, [0]), lambda: image)
     label = tf.cond(mirror_cond, lambda: tf.reverse(label, [0]), lambda: label)
-    return image.set_shape(im_shape), label.set_shape(label_shape)
+    return image, label
 
 
 def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_label=255):
@@ -397,6 +393,7 @@ def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_la
     """
 
     label = tf.cast(label, dtype=tf.float32)
+    label = tf.expand_dims(label, 2)
     label = label - ignore_label
     combined = tf.concat([image, label], axis=2)
     image_shape = tf.shape(image)
@@ -410,8 +407,9 @@ def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_la
     label_crop = combined_crop[:, :, last_image_dim:]
     label_crop = label_crop + ignore_label
     label_crop = tf.cast(label_crop, dtype=tf.uint8)
-    img_crop.set_shape((crop_h, crop_w, 3))
-    label_crop.set_shape((crop_h, crop_w, 1))
+    label_crop = tf.squeeze(label_crop, axis=[2])
+    # img_crop.set_shape((crop_h, crop_w, 3))
+    # label_crop.set_shape((crop_h, crop_w))
     return img_crop, label_crop
 
 
@@ -426,4 +424,5 @@ def seg_input_aug(image, label, crop_h=448, crop_w=448):
     label = tf.image.resize_images(
         label, [448, 448], method=0)
     label = tf.squeeze(label)
+    image = tf.reshape(image, (448, 448, 3))
     return image, label
