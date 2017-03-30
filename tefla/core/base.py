@@ -5,7 +5,6 @@
 # -------------------------------------------------------------------#
 from __future__ import division, print_function, absolute_import
 
-import tensorflow as tf
 import pprint
 import numpy as np
 
@@ -14,6 +13,7 @@ from tefla.core.lr_policy import NoDecayPolicy
 from tefla.core.losses import kappa_log_loss_clipped, segment_loss
 import tefla.core.summary as summary
 import tefla.core.logger as log
+import tensorflow as tf
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'

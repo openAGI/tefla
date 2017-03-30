@@ -3,10 +3,10 @@
 # Contact: mrinal.haloi11@gmail.com
 # Copyright 2016, Mrinal Haloi
 # -------------------------------------------------------------------#
-import tensorflow as tf
 import os
 
 from tefla.utils.util import rms
+import tensorflow as tf
 
 
 __all__ = ['summary_metric', 'summary_activation', 'create_summary_writer',

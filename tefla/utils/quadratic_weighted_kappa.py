@@ -35,7 +35,8 @@ def calculate_kappa(y_true, y_pred):
     total = float(TN + TP + FN + FP)
 
     Po = (TN + TP) / total
-    Pe = (((FP + TP) / total) * ((FN + TP) / total)) + (((TN + FN) / total) * ((TN + FP) / total))
+    Pe = (((FP + TP) / total) * ((FN + TP) / total)) + \
+        (((TN + FN) / total) * ((TN + FP) / total))
 
     kappa = np.round(((Po - Pe) / (1 - Pe)) * 100, 2)
     return kappa

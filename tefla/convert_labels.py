@@ -137,9 +137,9 @@ def save(img, fname):
               help="Where to save converted images.")
 @click.option('--test', is_flag=True, default=False, show_default=True,
               help="Convert images one by one and examine them on screen.")
-@click.option('--crop_height', default=224, show_default=True,
+@click.option('--crop_height', default=512, show_default=True,
               help="Size of converted images.")
-@click.option('--crop_width', default=224, show_default=True,
+@click.option('--crop_width', default=512, show_default=True,
               help="Size of converted images.")
 @click.option('--extension', default='png', show_default=True,
               help="Filetype of converted images.")

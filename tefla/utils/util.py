@@ -7,21 +7,20 @@ import subprocess
 import time
 from datetime import datetime
 from scipy.misc import imsave
+import matplotlib.pyplot as plt
 import numbers
 import numpy as np
 from progress.bar import Bar
-import tensorflow as tf
 from sklearn.metrics import auc, roc_curve
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, accuracy_score
+from quadratic_weighted_kappa import quadratic_weighted_kappa
 from sklearn.preprocessing import label_binarize
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_util
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import variables
-import matplotlib.pyplot as plt
-
-from quadratic_weighted_kappa import quadratic_weighted_kappa
+import tensorflow as tf
 
 
 def roc(y_true, y_pred, classes=[0, 1, 2, 3, 4]):

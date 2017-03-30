@@ -1,5 +1,6 @@
 # Original code from: https://github.com/sveitser/kaggle_diabetic
-# Original MIT license: https://github.com/sveitser/kaggle_diabetic/blob/master/LICENSE
+# Original MIT license:
+# https://github.com/sveitser/kaggle_diabetic/blob/master/LICENSE
 """data augmentation.
 
 The code for data augmentation originally comes from
@@ -133,7 +134,8 @@ def build_rescale_transform_slow(downscale_factor, image_shape, target_shape):
     # centering
     shift_x = cols / (2.0 * downscale_factor) - tcols / 2.0
     shift_y = rows / (2.0 * downscale_factor) - trows / 2.0
-    tform_shift_ds = skimage.transform.SimilarityTransform(translation=(shift_x, shift_y))
+    tform_shift_ds = skimage.transform.SimilarityTransform(
+        translation=(shift_x, shift_y))
     return tform_shift_ds + tform_ds
 
 
@@ -155,11 +157,13 @@ def build_rescale_transform_fast(downscale_factor, image_shape, target_shape):
     """
     rows, cols = image_shape
     trows, tcols = target_shape
-    tform_ds = skimage.transform.AffineTransform(scale=(downscale_factor, downscale_factor))
+    tform_ds = skimage.transform.AffineTransform(
+        scale=(downscale_factor, downscale_factor))
     # centering
     shift_x = cols / (2.0 * downscale_factor) - tcols / 2.0
     shift_y = rows / (2.0 * downscale_factor) - trows / 2.0
-    tform_shift_ds = skimage.transform.SimilarityTransform(translation=(shift_x, shift_y))
+    tform_shift_ds = skimage.transform.SimilarityTransform(
+        translation=(shift_x, shift_y))
     return tform_shift_ds + tform_ds
 
 
@@ -195,8 +199,10 @@ def build_center_uncenter_transforms(image_shape):
     """
     center_shift = np.array(
         [image_shape[1], image_shape[0]]) / 2.0 - 0.5  # need to swap rows and cols here apparently! confusing!
-    tform_uncenter = skimage.transform.SimilarityTransform(translation=-center_shift)
-    tform_center = skimage.transform.SimilarityTransform(translation=center_shift)
+    tform_uncenter = skimage.transform.SimilarityTransform(
+        translation=-center_shift)
+    tform_center = skimage.transform.SimilarityTransform(
+        translation=center_shift)
     return tform_center, tform_uncenter
 
 
@@ -274,7 +280,8 @@ def random_perturbation_transform(zoom_range, rotation_range, shear_range, trans
         zoom_y = np.exp(rng.uniform(*log_zoom_range))
     else:
         zoom_x = zoom_y = np.exp(rng.uniform(*log_zoom_range))
-    # the range should be multiplicatively symmetric, so [1/1.1, 1.1] instead of [0.9, 1.1] makes more sense.
+    # the range should be multiplicatively symmetric, so [1/1.1, 1.1] instead
+    # of [0.9, 1.1] makes more sense.
 
     return build_augmentation_transform((zoom_x, zoom_y), rotation, shear, translation, flip)
 
@@ -315,7 +322,8 @@ def perturb(img, augmentation_params, target_shape, rng=np.random, mode='constan
     shape = img.shape[1:]
     tform_centering = build_centering_transform(shape, target_shape)
     tform_center, tform_uncenter = build_center_uncenter_transforms(shape)
-    tform_augment = random_perturbation_transform(rng=rng, **augmentation_params)
+    tform_augment = random_perturbation_transform(
+        rng=rng, **augmentation_params)
     # shift to center, augment, shift back (for the rotation/shearing)
     tform_augment = tform_uncenter + tform_augment + tform_center
     return fast_warp(img, tform_centering + tform_augment,
@@ -342,10 +350,13 @@ def perturb_rescaled(img, scale, augmentation_params, target_shape=(224, 224), r
     Returns:
         a `ndarray` of transformed image
     """
-    tform_rescale = build_rescale_transform(scale, img.shape, target_shape)  # also does centering
+    tform_rescale = build_rescale_transform(
+        scale, img.shape, target_shape)  # also does centering
     tform_center, tform_uncenter = build_center_uncenter_transforms(img.shape)
-    tform_augment = random_perturbation_transform(rng=rng, **augmentation_params)
-    tform_augment = tform_uncenter + tform_augment + tform_center  # shift to center, augment, shift back (for the rotation/shearing)
+    tform_augment = random_perturbation_transform(
+        rng=rng, **augmentation_params)
+    # shift to center, augment, shift back (for the rotation/shearing)
+    tform_augment = tform_uncenter + tform_augment + tform_center
     return fast_warp(img, tform_rescale + tform_augment, output_shape=target_shape, mode=mode, mode_cval=mode_cval).astype('float32')
 
 
@@ -420,7 +431,8 @@ def load_augment(fname, preprocessor, w, h, is_training, aug_params=no_augmentat
     """
     img = load_image(fname, preprocessor)
 
-    # target shape should be (h, w) i.e. (rows, cols). need to revisit when we do non-square shapes
+    # target shape should be (h, w) i.e. (rows, cols). need to revisit when we
+    # do non-square shapes
 
     if bbox is not None:
         img = definite_crop(img, bbox)
@@ -441,7 +453,8 @@ def load_augment(fname, preprocessor, w, h, is_training, aug_params=no_augmentat
     if save_to_dir is not None:
         file_full_name = os.path.basename(fname)
         file_name, file_ext = os.path.splitext(file_full_name)
-        fname2 = "%s/%s_DA_%d%s" % (save_to_dir, file_name, np.random.randint(1e4), file_ext)
+        fname2 = "%s/%s_DA_%d%s" % (save_to_dir,
+                                    file_name, np.random.randint(1e4), file_ext)
         save_image(img, fname2)
 
     if standardizer is not None:
