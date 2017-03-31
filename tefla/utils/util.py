@@ -526,7 +526,9 @@ def save_images(fname, flat_img, width=28, height=28, sep=3, channels=3):
         row = int(i / pdim) * (height + sep)
         col = (i % pdim) * (width + sep)
         image[row:row + width, col:col +
-              height, :] = flat_img[i].reshape(width, height, 3)
+              height, :] = flat_img[i].reshape(width, height, channels)
+    if channels == 1:
+        image = image.reshape(pdim * (width + sep), pdim * (height + sep))
     imsave(fname, image)
 
 
