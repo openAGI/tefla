@@ -25,10 +25,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
 import numpy as np
 import random
 import scipy.ndimage
+import tensorflow as tf
 
 
 def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1):
@@ -414,15 +414,17 @@ def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_la
 
 
 def seg_input_aug(image, label, crop_h=448, crop_w=448):
+    """
     image, label = random_flip_left_right(image, label)
     image, label = random_flip_up_down(image, label)
     image, label = random_crop_and_pad_image_and_labels(
         image, label, crop_h, crop_w)
+    """
     image = tf.image.resize_images(
         image, [448, 448], method=0)
     label = tf.expand_dims(label, 2)
     label = tf.image.resize_images(
         label, [448, 448], method=0)
     label = tf.squeeze(label)
-    image = tf.reshape(image, (448, 448, 3))
+    # image = tf.reshape(image, (448, 448, 3))
     return image, label
