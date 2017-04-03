@@ -13,7 +13,7 @@ class PredictSessionMixin(object):
     base mixin class for prediction
 
     Args:
-        weights_from: path to the weights file
+        graph: graph with weights and variables
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
@@ -42,9 +42,8 @@ class OneCropPredictor(PredictSessionMixin):
     """One crop Predictor, it predict network out put from a single crop of an input image
 
     Args:
-        model: model definition file
+        graph: graph with weights and variables
         cnf: prediction configs
-        weights_from: location of the model weights file
         prediction_iterator: iterator to access and augment the data for prediction
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
@@ -72,9 +71,8 @@ class QuasiPredictor(PredictSessionMixin):
     """Quasi transform predictor
 
     Args:
-        model: model definition file
+        graph: graph with weights and variables
         cnf: prediction configs
-        weights_from: location of the model weights file
         prediction_iterator: iterator to access and augment the data for prediction
         number_of_transform: number of determinastic augmentaions to be performed on the input data
             resulted predictions are averaged over the augmentated transformation prediction outputs
@@ -110,9 +108,8 @@ class CropPredictor(PredictSessionMixin):
     """Multiples non Data augmented crops predictor
 
     Args:
-        model: model definition file
+        graph: graph with weights and variables
         cnf: prediction configs
-        weights_from: location of the model weights file
         prediction_iterator: iterator to access and augment the data for prediction
         crop_size: crop size for network input
         im_size: original image size
@@ -177,3 +174,31 @@ def _ensemble(en_type, x):
         'gmean': gmean(x, axis=0),
         'log_mean': np.mean(np.log(x + (x == 0)), axis=0),
     }[en_type]
+
+
+class SegmentPredictor(PredictSessionMixin):
+    """One crop Predictor, it predict network out put from a single crop of an input image
+
+    Args:
+        graph: graph with weights and variables
+        cnf: prediction configs
+        standardizer: standardizer for the  input data for prediction
+        gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
+    """
+
+    def __init__(self, graph, standardizer, input_tensor_name='model/inputs/input:0', predict_tensor_name='model/predictions/Softmax:0'):
+        self.standardizer = standardizer
+        self.inputs = graph.get_tensor_by_name(input_tensor_name)
+        self.predictions = graph.get_tensor_by_name(predict_tensor_name)
+        super(OneCropPredictor, self).__init__(graph)
+
+    def _real_predict(self, X, xform=None, crop_bbox=None):
+        tic = time.time()
+        print('Making %d predictions' % len(X))
+        X = self.standardizer(X, False)
+        X = X.transpose(1, 0, 2)
+        X = np.expand_dims(X, 0)
+        predictions = self.sess.run(
+            self.predictions, feed_dict={self.inputs: X})
+        print('took %6.1f seconds' % (time.time() - tic))
+        return predictions
