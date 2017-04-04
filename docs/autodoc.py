@@ -24,6 +24,7 @@ from tefla.core import prediction
 from tefla.core import summary
 from tefla.core import training as trainer
 from tefla.core import learning as trainer_multi_gpu
+from tefla.core import learningv2 as trainer_multi_gpuv2
 from tefla.core import learning_ss as trainer_semisupervised
 from tefla.da import data as data_augmentation
 from tefla.da import iterator
@@ -37,43 +38,46 @@ from tefla.dataset import reader
 from tefla.utils import util as utils
 
 MODULES = [
-           (layers, 'tefla.core.layers'),
-           (special_layers, 'tefla.core.special_layers'),
-           (rnn_cell, 'tefla.core.rnn_cell'),
-           (initializers, 'tefla.core.initializers'),
-           (metrics, 'tefla.core.metrics'),
-           (losses, 'tefla.core.losses'),
-           (logger, 'tefla.core.logger'),
-           (layer_args, 'tefla.core.layer_arg_ops'),
-           (iter_ops, 'tefla.core.iter_ops'),
-           (lr_policy, 'tefla.core.lr_policy'),
-           (summary, 'tefla.core.summary'),
-           (utils, 'tefla.utils.util'),
-           (dataflow, 'tefla.dataset.dataflow'),
-           (base_data, 'tefla.dataset.base'),
-           (decoder, 'tefla.dataset.decoder'),
-           (reader, 'tefla.dataset.reader'),
-           (image_to_tfrecords, 'tefla.dataset.image_to_tfrecords'),
-           (data_augmentation, 'tefla.da.data'),
-           (standardizer, 'tefla.da.standardizer'),
-           # (iterator, 'tefla.da.iterator'),
-           (prediction, 'tefla.core.prediction'),
-           (trainer, 'tefla.core.training'),
-           (trainer_multi_gpu, 'tefla.core.learning'),
-           (trainer_semisupervised, 'tefla.core.learning_ss'),
-           ]
+    (layers, 'tefla.core.layers'),
+    (special_layers, 'tefla.core.special_layers'),
+    (rnn_cell, 'tefla.core.rnn_cell'),
+    (initializers, 'tefla.core.initializers'),
+    (metrics, 'tefla.core.metrics'),
+    (losses, 'tefla.core.losses'),
+    (logger, 'tefla.core.logger'),
+    (layer_args, 'tefla.core.layer_arg_ops'),
+    (iter_ops, 'tefla.core.iter_ops'),
+    (lr_policy, 'tefla.core.lr_policy'),
+    (summary, 'tefla.core.summary'),
+    (utils, 'tefla.utils.util'),
+    (dataflow, 'tefla.dataset.dataflow'),
+    (base_data, 'tefla.dataset.base'),
+    (decoder, 'tefla.dataset.decoder'),
+    (reader, 'tefla.dataset.reader'),
+    (image_to_tfrecords, 'tefla.dataset.image_to_tfrecords'),
+    (data_augmentation, 'tefla.da.data'),
+    (standardizer, 'tefla.da.standardizer'),
+    # (iterator, 'tefla.da.iterator'),
+    (prediction, 'tefla.core.prediction'),
+    (trainer, 'tefla.core.training'),
+    (trainer_multi_gpu, 'tefla.core.learning'),
+    (trainer_multi_gpuv2, 'tefla.core.learningv2'),
+    (trainer_semisupervised, 'tefla.core.learning_ss'),
+]
 
 KEYWORDS = ['Input', 'x', 'Output', 'Examples', 'Args',
             'Returns', 'Raises', 'References', 'Links']
 
 
 SKIP = ['get_from_module']
+
+
 def top_level_functions(body):
     return (f for f in body if isinstance(f, ast.FunctionDef))
 
 
 def top_level_classes(body):
-    #return (node for node in ast.walk(body) if isinstance(node, ast.ClassDef))
+    # return (node for node in ast.walk(body) if isinstance(node, ast.ClassDef))
     return (f for f in body if isinstance(f, ast.ClassDef))
 
 
@@ -86,24 +90,25 @@ def get_line_no(obj):
     """Gets the source line number of this object. None if `obj` code cannot be found.
     """
     try:
-	lineno = getsourcelines(obj)[1]
+        lineno = getsourcelines(obj)[1]
     except:
-	# no code found
-	lineno = None
+        # no code found
+        lineno = None
     return lineno
+
 
 def get_src_path(obj, src_root='tefla', append_base=True):
     """Creates a src path string with line info for use as markdown link.
     """
     path = getsourcefile(obj)
     if not src_root in path:
-	# this can happen with e.g.
-	# inlinefunc-wrapped functions
-	if hasattr(obj, "__module__"):
-	    path = "%s.%s" % (obj.__module__, obj.__name__)
-	else:
-	    path = obj.__name__
-	path = path.replace(".", "/")
+        # this can happen with e.g.
+        # inlinefunc-wrapped functions
+        if hasattr(obj, "__module__"):
+            path = "%s.%s" % (obj.__module__, obj.__name__)
+        else:
+            path = obj.__name__
+        path = path.replace(".", "/")
     try:
         pre, post = path.rsplit(src_root + "/", 1)
     except:
@@ -114,7 +119,7 @@ def get_src_path(obj, src_root='tefla', append_base=True):
 
     path = src_root + "/" + post + lineno
     if append_base:
-	path = os.path.join('https://github.com/n3011/tefla/blob/master', path)
+        path = os.path.join('https://github.com/n3011/tefla/blob/master', path)
     return path
 
 
@@ -232,7 +237,8 @@ def enlarge_span(str):
 
 def header_style(header, path):
     name = header.split('(')[0]
-    bold_name = '<span style="color:black;"><a href='+ path + ' target="_blank"><b>' + name + '</b></a></span>'
+    bold_name = '<span style="color:black;"><a href=' + \
+        path + ' target="_blank"><b>' + name + '</b></a></span>'
     header = header.replace('self, ', '').replace('(', ' (').replace(' ', '  ')
     header = header.replace(name, bold_name)
     # return '<span style="display: inline-block;margin: 6px 0;font-size: ' \
@@ -244,12 +250,12 @@ def header_style(header, path):
 
 def method_header_style(header, path):
     name = header.split('(')[0]
-    bold_name = '<span style="color:black;"><a href='+ path + ' target="_blank"><b>' + name + '</b></a></span>'
+    bold_name = '<span style="color:black;"><a href=' + \
+        path + ' target="_blank"><b>' + name + '</b></a></span>'
     # bold_name = '<span style="color:black"><b>' + name + '</b></span>'
     header = header.replace('self, ', '').replace('(', ' (').replace(' ', '  ')
     header = header.replace(name, bold_name)
     return '<span class="extra_h2">' + header + '</span>'
-
 
 
 print('Starting...')
@@ -260,7 +266,7 @@ def get_func_doc(name, func):
     doc_source = ''
     if name in SKIP:
         return ''
-    #if name[0] == '_':
+    # if name[0] == '_':
     #    return ''
     if func in classes_and_functions:
         return ''
@@ -284,7 +290,7 @@ def get_func_doc(name, func):
 def get_method_doc(name, func):
     doc_source = ''
     if name in SKIP:
-        return  ''
+        return ''
     if name[0] == '_':
         return ''
     if func in classes_and_functions:
@@ -345,7 +351,7 @@ for module, module_name in MODULES:
     # Either insert content into existing page,
     # or create page otherwise
     path = 'docs/templates/' + module_name.replace('.', '/')[6:] + '.md'
-    if False: #os.path.exists(path):
+    if False:  # os.path.exists(path):
         template = open(path).read()
         assert '{{autogenerated}}' in template, ('Template found for ' + path +
                                                  ' but missing {{autogenerated}} tag.')
@@ -357,7 +363,3 @@ for module, module_name in MODULES:
     if not os.path.exists(subdir):
         os.makedirs(subdir)
     open(path, 'w').write(md_source)
-
-
-
-

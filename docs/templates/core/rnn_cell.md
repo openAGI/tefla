@@ -1,6 +1,6 @@
 # The most basic RNN cell
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7fd0ac0ff668>,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7fe56969eed8>,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span>
 
 <h3>Args</h3>
 
@@ -40,7 +40,7 @@ able to reuse the layer scope must be given.
 
 # LSTM unit
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L63 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  forget_bias=1.0,  input_size=None,  activation=<function  tanh  at  0x7fd0ac0ff668>,  inner_activation=<function  sigmoid  at  0x7fd0ac0ff5f0>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L63 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  forget_bias=1.0,  input_size=None,  activation=<function  tanh  at  0x7fe56969eed8>,  inner_activation=<function  sigmoid  at  0x7fe56969ee60>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span>
 
 This class adds layer normalization and recurrent dropout to a
 basic LSTM unit. Layer normalization implementation is based on:
@@ -108,7 +108,7 @@ built from inputs and attention. Derived from the input tensor by default.
 
 # Gated Recurrent Unit cell (cf. http://arxiv.org/abs/1406.1078)
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L271 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7fd0ac0ff668>,  inner_activation=<function  sigmoid  at  0x7fd0ac0ff5f0>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L271 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7fe56969eed8>,  inner_activation=<function  sigmoid  at  0x7fe56969ee60>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span>
 
 <h3>Args</h3>
 
@@ -161,7 +161,7 @@ probability; if it is float and 1, no output dropout will be added.
 
 # Adds a fully connected layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L439 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7fd053d9a578>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fd0abfc7488>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L439 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7fe55137ab18>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fe569586938>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
 
 `fully_connected` creates a variable called `weights`, representing a fully
 connected weight matrix, which is multiplied by the `x` to produce a

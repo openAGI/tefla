@@ -207,6 +207,15 @@
                 <li class="toctree-l3"><a href="#calculate-the-loss-from-the-logits-and-the-labels">Calculate the loss from the logits and the labels</a></li>
                 
             
+                <li class="toctree-l3"><a href="#calculate-the-triplet-loss-according-to-the-facenet-paper">Calculate the triplet loss according to the FaceNet paper</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#decov-loss-as-described-in-httpsarxivorgpdf151106068pdf">Decov loss as described in https://arxiv.org/pdf/1511.06068.pdf</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#center-loss-based-on-the-paper-a-discriminative-feature-learning-approach-for-deep-face-recognition">Center loss based on the paper "A Discriminative Feature Learning Approach for Deep Face Recognition"</a></li>
+                
+            
             </ul>
         
     </li>
@@ -362,7 +371,7 @@
             <div class="section">
               
                 <h1 id="define-a-log-loss">Define a log loss</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L12 target="_blank"><b>tefla.core.losses.log_loss_custom</b></a></span>  (predictions,  labels,  eps=1e-07,  name='log')</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L11 target="_blank"><b>tefla.core.losses.log_loss_custom</b></a></span>  (predictions,  labels,  eps=1e-07,  name='log')</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -376,7 +385,7 @@
 <p>A tensor with the log loss.</p>
 <hr />
 <h1 id="define-a-kappa-loss-its-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a kappa loss, Its a continuous differentiable approximation of discrete kappa loss</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L43 target="_blank"><b>tefla.core.losses.kappa_loss</b></a></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L42 target="_blank"><b>tefla.core.losses.kappa_loss</b></a></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -393,7 +402,7 @@
 <p>A tensor with the kappa loss.</p>
 <hr />
 <h1 id="define-a-joint-kappa-and-log-loss-kappa-is-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a joint kappa and log loss, Kappa is a continuous differentiable approximation of discrete kappa loss</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L88 target="_blank"><b>tefla.core.losses.kappa_log_loss</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L87 target="_blank"><b>tefla.core.losses.kappa_log_loss</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -412,7 +421,7 @@
 <p>A tensor with the kappa log loss.</p>
 <hr />
 <h1 id="define-a-joint-kappa-and-log-loss-log-loss-is-clipped-by-a-defined-min-value-kappa-is-a-continuous-differentiable-approximation-of-discrete-kappa-loss">Define a joint kappa and log loss; log loss is clipped by a defined min value; Kappa is a continuous differentiable approximation of discrete kappa loss</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L119 target="_blank"><b>tefla.core.losses.kappa_log_loss_clipped</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  num_classes=5,  name='kappa_log_clipped')</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L118 target="_blank"><b>tefla.core.losses.kappa_log_loss_clipped</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  num_classes=5,  name='kappa_log_clipped')</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -431,46 +440,36 @@
 <p>A tensor with the clipped kappa log loss.</p>
 <hr />
 <h1 id="define-a-cross-entropy-loss-with-label-smoothing">Define a cross entropy loss with label smoothing</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L150 target="_blank"><b>tefla.core.losses.cross_entropy_loss</b></a></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
-<h3>Args</h3></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L149 target="_blank"><b>tefla.core.losses.cross_entropy_loss</b></a></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span></p>
+<h3>Args</h3>
+
 <ul>
 <li><strong>predictions</strong>: 2D tensor or array, [batch_size, num_classes] predictions of the network .</li>
 <li><strong>labels</strong>: 2D tensor or array,[batch_size, num_classes]  ground truth labels or target labels.</li>
 <li><strong>label_smoothing</strong>: a float, used to smooth the labels for better generalizationif greater than 0 then smooth the labels.</li>
 <li><strong>weight</strong>: scale the loss by this factor.</li>
-<li>
-<p><strong>name</strong>: Optional scope/name for op_scope.
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>A tensor with the cross entropy loss.</p>
-</li>
+<li><strong>name</strong>: Optional scope/name for op_scope.</li>
 </ul>
 <h3>Returns</h3>
 
 <p>A tensor with the cross entropy loss.</p>
 <hr />
 <h1 id="define-a-l2loss-useful-for-regularize-ie-weight-decay">Define a L2Loss, useful for regularize, i.e. weight decay</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L178 target="_blank"><b>tefla.core.losses.l1_l2_regularizer</b></a></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
-<h3>Args</h3></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L179 target="_blank"><b>tefla.core.losses.l1_l2_regularizer</b></a></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span></p>
+<h3>Args</h3>
+
 <ul>
 <li><strong>var</strong>: tensor to regularize.</li>
 <li><strong>weight_l1</strong>: an optional weight to modulate the l1 loss.</li>
 <li><strong>weight_l2</strong>: an optional weight to modulate the l2 loss.</li>
-<li>
-<p><strong>name</strong>: Optional scope/name for op_scope.
-<h3>Returns</h3></p>
-</li>
-<li>
-<p>the l1+L2 loss op.</p>
-</li>
+<li><strong>name</strong>: Optional scope/name for op_scope.</li>
 </ul>
 <h3>Returns</h3>
 
 <p>the l1+L2 loss op.</p>
 <hr />
 <h1 id="log-likelihood-for-mixture-of-discretized-logistics-assumes-the-data-has-been-rescaled-to-11-interval">log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L199 target="_blank"><b>tefla.core.losses.discretized_mix_logistic_loss</b></a></span>  (inputs,  predictions,  sum_all=True,  name='disretized_mix_logistic_loss')</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L202 target="_blank"><b>tefla.core.losses.discretized_mix_logistic_loss</b></a></span>  (inputs,  predictions,  sum_all=True,  name='disretized_mix_logistic_loss')</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -483,7 +482,7 @@
 <p>A tensor with the discretized mix logistic loss.</p>
 <hr />
 <h1 id="pull-away-loss-calculation">Pull Away loss calculation</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L261 target="_blank"><b>tefla.core.losses.pullaway_loss</b></a></span>  (embeddings,  name='pullaway_loss')</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L264 target="_blank"><b>tefla.core.losses.pullaway_loss</b></a></span>  (embeddings,  name='pullaway_loss')</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -491,7 +490,7 @@
 </ul>
 <hr />
 <h1 id="calculate-the-loss-from-the-logits-and-the-labels">Calculate the loss from the logits and the labels</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L295 target="_blank"><b>tefla.core.losses.segment_loss</b></a></span>  (logits,  labels,  num_classes,  head=None)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L298 target="_blank"><b>tefla.core.losses.segment_loss</b></a></span>  (logits,  labels,  num_classes,  head=None)</span>
 <h3>Args</h3></p>
 <p>logits: tensor, float - [batch_size * width * height, num_classes].
  -   Use vgg_fcn.up as logits.
@@ -505,6 +504,45 @@
 <h3>Returns</h3>
 
 <p>loss: Loss tensor of type float.</p>
+<hr />
+<h1 id="calculate-the-triplet-loss-according-to-the-facenet-paper">Calculate the triplet loss according to the FaceNet paper</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L331 target="_blank"><b>tefla.core.losses.triplet_loss</b></a></span>  (anchor,  positive,  negative,  alpha=0.2,  name='triplet_loss')</span></p>
+<h3>Args</h3>
+
+<p>anchor: 2-D <code>tensor</code> [batch_size, embedding_size], the embeddings for the anchor images.
+  positive: 2-D <code>tensor</code> [batch_size, embedding_size], the embeddings for the positive images.
+  negative: 2-D <code>tensor</code> [batch_size, embedding_size], the embeddings for the negative images.
+  alpha: positive to negative triplet distance margin</p>
+<h3>Returns</h3>
+
+<p>the triplet loss.</p>
+<hr />
+<h1 id="decov-loss-as-described-in-httpsarxivorgpdf151106068pdf">Decov loss as described in https://arxiv.org/pdf/1511.06068.pdf</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L351 target="_blank"><b>tefla.core.losses.decov_loss</b></a></span>  (xs,  name='decov_loss')</span>
+'Reducing Overfitting In Deep Networks by Decorrelating Representation'</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>xs</strong>: 4-D <code>tensor</code> [batch_size, height, width, channels], input</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a <code>float</code> decov loss</p>
+<hr />
+<h1 id="center-loss-based-on-the-paper-a-discriminative-feature-learning-approach-for-deep-face-recognition">Center loss based on the paper "A Discriminative Feature Learning Approach for Deep Face Recognition"</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L372 target="_blank"><b>tefla.core.losses.center_loss</b></a></span>  (features,  label,  alpha,  num_classes,  name='center_loss')</span>
+   (http://ydwen.github.io/papers/WenECCV16.pdf)</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>features</strong>: 2-D <code>tensor</code> [batch_size, feature_length], input features</li>
+<li><strong>label</strong>: 1-D <code>tensor</code> [batch_size], input label</li>
+<li><strong>alpha</strong>: center loss parameter</li>
+<li><strong>num_classes</strong>: a <code>int</code> numof classes for training</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a <code>float</code>, center loss</p>
 <hr />
               
             </div>
