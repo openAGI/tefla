@@ -68,6 +68,12 @@
     </url>
         
     <url>
+     <loc>/core/learning_v2/</loc>
+     <lastmod>2017-04-05</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
      <loc>/core/learning_ss/</loc>
      <lastmod>2017-04-05</lastmod>
      <changefreq>daily</changefreq>
