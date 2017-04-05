@@ -24,7 +24,7 @@ from tefla.core import prediction
 from tefla.core import summary
 from tefla.core import training as trainer
 from tefla.core import learning as trainer_multi_gpu
-from tefla.core import learningv2 as trainer_multi_gpuv2
+from tefla.core import learningv2 as trainer_multi_gpu_v2
 from tefla.core import learning_ss as trainer_semisupervised
 from tefla.da import data as data_augmentation
 from tefla.da import iterator
@@ -61,7 +61,7 @@ MODULES = [
     (prediction, 'tefla.core.prediction'),
     (trainer, 'tefla.core.training'),
     (trainer_multi_gpu, 'tefla.core.learning'),
-    (trainer_multi_gpuv2, 'tefla.core.learningv2'),
+    (trainer_multi_gpu_v2, 'tefla.core.learning_v2'),
     (trainer_semisupervised, 'tefla.core.learning_ss'),
 ]
 

@@ -1,6 +1,6 @@
 # Supervised Learner, support data parallelism, multi GPU, accept TFRecords data as input
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L27 target="_blank"><b>tefla.core.learningv2.SupervisedLearner</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L27 target="_blank"><b>tefla.core.learning_v2.SupervisedLearner</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span>
 
 
 <h3>Args</h3>
