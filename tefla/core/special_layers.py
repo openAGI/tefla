@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 import pydensecrf.densecrf as dcrf
 from tefla.core.layers import conv2d, max_pool, batch_norm_tf as batch_norm
@@ -400,7 +401,7 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
         return hid
 
 
-def dense_crf(probs, img=None, n_iters=20,
+def dense_crf(probs, img=None, n_classes=15, n_iters=20,
               sxy_gaussian=(1, 1), compat_gaussian=4,
               kernel_gaussian=dcrf.DIAG_KERNEL,
               normalisation_gaussian=dcrf.NORMALIZE_SYMMETRIC,
@@ -455,5 +456,5 @@ def dense_crf(probs, img=None, n_iters=20,
     Q = d.inference(n_iters)
     preds = np.array(Q, dtype=np.float32).reshape(
         (n_classes, h, w)).transpose(1, 2, 0)
-    preds = tf.expand_dims(preds, 0)
+    preds = np.expand_dims(preds, 0)
     return preds
