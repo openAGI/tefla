@@ -15,10 +15,11 @@ pages:
   - RNN: core/rnn_cell.md
   - Special Layers: core/special_layers.md
   - Layer Args: core/layer_arg_ops.md
-- Trainer:
-  - Trainer: core/training.md
-  - Trainer Multi GPU: core/learning.md
-  - Trainer Semi Supervised: core/learning_ss.md
+- Learner:
+  - Learner: core/training.md
+  - Learner Multi GPU: core/learning.md
+  - Learner Multi GPU V2: core/learning_v2.md
+  - Learner Semi Supervised: core/learning_ss.md
 - Predictor:
   - Predictor: core/prediction.md
 - Built-in Ops:
