@@ -5,6 +5,7 @@ from scipy.stats.mstats import gmean
 import numpy as np
 import tensorflow as tf
 from tefla.da import tta
+from tefla.da import data
 from tefla.utils import util
 
 
@@ -186,17 +187,18 @@ class SegmentPredictor(PredictSessionMixin):
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
-    def __init__(self, graph, standardizer, input_tensor_name='model/inputs/input:0', predict_tensor_name='model/predictions/Softmax:0'):
+    def __init__(self, graph, standardizer, preprocessor, input_tensor_name='model/inputs/input:0', predict_tensor_name='model/ArgMax:0'):
         self.standardizer = standardizer
+        self.preprocessor = preprocessor
         self.inputs = graph.get_tensor_by_name(input_tensor_name)
         self.predictions = graph.get_tensor_by_name(predict_tensor_name)
-        super(OneCropPredictor, self).__init__(graph)
+        super(SegmentPredictor, self).__init__(graph)
 
     def _real_predict(self, X, xform=None, crop_bbox=None):
         tic = time.time()
-        print('Making %d predictions' % len(X))
+        X = data.load_image(X, preprocessor=self.preprocessor)
         X = self.standardizer(X, False)
-        X = X.transpose(1, 0, 2)
+        X = X.transpose(1, 2, 0)
         X = np.expand_dims(X, 0)
         predictions = self.sess.run(
             self.predictions, feed_dict={self.inputs: X})
