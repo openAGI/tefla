@@ -3,9 +3,8 @@
 # Contact: mrinal.haloi11@gmail.com
 # Copyright 2016, Mrinal Haloi
 # -------------------------------------------------------------------#
-import tensorflow as tf
 import numpy as np
-
+import tensorflow as tf
 log_loss = tf.losses.log_loss
 
 
@@ -28,6 +27,16 @@ def log_loss_custom(predictions, labels, eps=1e-7, name='log'):
         predictions.get_shape().assert_is_compatible_with(labels.get_shape())
         loss = -tf.reduce_mean(labels * tf.log(predictions))
         return loss
+
+
+def log_loss_tf(predictions, labels, eps=1e-7, weights=1.0, name='log_loss'):
+    with tf.name_scope(name):
+        predictions.get_shape().assert_is_compatible_with(labels.get_shape())
+        predictions = tf.to_float(predictions)
+        labels = tf.to_float(labels)
+        losses = -tf.multiply(labels, tf.log(predictions + eps)) - tf.multiply(
+            (1 - labels), tf.log(1 - predictions + eps))
+    return tf.losses.compute_weighted_loss(losses, weights, scope=name)
 
 
 def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_size=32, name='kappa'):
@@ -131,7 +140,7 @@ def kappa_log_loss_clipped(predictions, labels, label_smoothing=0.0, y_pow=1, ba
             smooth_positives = 1.0 - label_smoothing
             smooth_negatives = label_smoothing / num_classes
             labels = labels * smooth_positives + smooth_negatives
-        log_loss_res = log_loss(predictions, labels)
+        log_loss_res = log_loss_tf(predictions, labels)
         kappa_loss_res = kappa_loss(
             predictions, labels, y_pow=y_pow, batch_size=batch_size)
         return kappa_loss_res + log_scale * tf.clip_by_value(log_loss_res, log_cutoff, 10 ** 3)
@@ -139,6 +148,7 @@ def kappa_log_loss_clipped(predictions, labels, label_smoothing=0.0, y_pow=1, ba
 
 def cross_entropy_loss(logits, labels, label_smoothing=0.0, weight=1.0, name='cross_entropy_loss'):
     """Define a cross entropy loss with label smoothing.
+
     Args:
         predictions: 2D tensor or array, [batch_size, num_classes] predictions of the network .
         labels: 2D tensor or array,[batch_size, num_classes]  ground truth labels or target labels.
@@ -146,6 +156,7 @@ def cross_entropy_loss(logits, labels, label_smoothing=0.0, weight=1.0, name='cr
                         if greater than 0 then smooth the labels.
         weight: scale the loss by this factor.
         name: Optional scope/name for op_scope.
+
     Returns:
         A tensor with the cross entropy loss.
     """
@@ -167,11 +178,13 @@ def cross_entropy_loss(logits, labels, label_smoothing=0.0, weight=1.0, name='cr
 
 def l1_l2_regularizer(var, weight_l1=1.0, weight_l2=1.0, name='l1_l2_regularizer'):
     """Define a L2Loss, useful for regularize, i.e. weight decay.
+
     Args:
         var: tensor to regularize.
         weight_l1: an optional weight to modulate the l1 loss.
         weight_l2: an optional weight to modulate the l2 loss.
         name: Optional scope/name for op_scope.
+
     Returns:
         the l1+L2 loss op.
     """
@@ -280,3 +293,102 @@ def log_prob_from_logits(x):
     axis = len(x.get_shape()) - 1
     m = tf.reduce_max(x, axis, keep_dims=True)
     return x - m - tf.log(tf.reduce_sum(tf.exp(x - m), axis, keep_dims=True))
+
+
+def segment_loss(logits, labels, num_classes, head=None):
+    """Calculate the loss from the logits and the labels.
+    Args:
+      logits: tensor, float - [batch_size * width * height, num_classes].
+          Use vgg_fcn.up as logits.
+      labels: Labels tensor, int32 - [batch_size * width * height, num_classes].
+          The ground truth of your data.
+      head: numpy array - [num_classes]
+          Weighting the loss of each class
+          Optional: Prioritize some classes
+    Returns:
+      loss: Loss tensor of type float.
+    """
+    with tf.name_scope('segment_loss'):
+        # logits = tf.reshape(logits, (-1, num_classes))
+        epsilon = tf.constant(value=1e-7)
+        labels = tf.to_float(labels)
+        # labels = tf.to_float(tf.reshape(labels, (-1, num_classes)))
+
+        softmax = tf.nn.softmax(logits) + epsilon
+
+        if head is not None:
+            cross_entropy = -tf.reduce_sum(tf.mul(labels * tf.log(softmax),
+                                                  head), axis=[1])
+        else:
+            cross_entropy = -tf.reduce_sum(
+                labels * tf.log(softmax), axis=[1])
+
+        cross_entropy_mean = tf.reduce_mean(cross_entropy,
+                                            name='xentropy_mean')
+    return cross_entropy_mean
+
+
+def triplet_loss(anchor, positive, negative, alpha=0.2, name='triplet_loss'):
+    """Calculate the triplet loss according to the FaceNet paper
+
+    Args:
+      anchor: 2-D `tensor` [batch_size, embedding_size], the embeddings for the anchor images.
+      positive: 2-D `tensor` [batch_size, embedding_size], the embeddings for the positive images.
+      negative: 2-D `tensor` [batch_size, embedding_size], the embeddings for the negative images.
+      alpha: positive to negative triplet distance margin
+
+    Returns:
+      the triplet loss.
+    """
+    with tf.name_scope(name):
+        pos_dist = tf.reduce_sum(tf.square(tf.subtract(anchor, positive)), 1)
+        neg_dist = tf.reduce_sum(tf.square(tf.subtract(anchor, negative)), 1)
+        basic_loss = tf.add(tf.subtract(pos_dist, neg_dist), alpha)
+        loss = tf.reduce_mean(tf.maximum(basic_loss, 0.0), 0)
+    return loss
+
+
+def decov_loss(xs, name='decov_loss'):
+    """Decov loss as described in https://arxiv.org/pdf/1511.06068.pdf
+    'Reducing Overfitting In Deep Networks by Decorrelating Representation'
+
+    Args:
+        xs: 4-D `tensor` [batch_size, height, width, channels], input
+
+    Returns:
+        a `float` decov loss
+    """
+    with tf.name_scope(name):
+        x = tf.reshape(xs, [int(xs.get_shape()[0]), -1])
+        m = tf.reduce_mean(x, 0, True)
+        z = tf.expand_dims(x - m, 2)
+        corr = tf.reduce_mean(tf.matmul(z, tf.transpose(z, perm=[0, 2, 1])), 0)
+        corr_frob_sqr = tf.reduce_sum(tf.square(corr))
+        corr_diag_sqr = tf.reduce_sum(tf.square(tf.diag_part(corr)))
+        loss = 0.5 * (corr_frob_sqr - corr_diag_sqr)
+        return loss
+
+
+def center_loss(features, label, alpha, num_classes, name='center_loss'):
+    """Center loss based on the paper "A Discriminative Feature Learning Approach for Deep Face Recognition"
+       (http://ydwen.github.io/papers/WenECCV16.pdf)
+
+    Args:
+        features: 2-D `tensor` [batch_size, feature_length], input features
+        label: 1-D `tensor` [batch_size], input label
+        alpha: center loss parameter
+        num_classes: a `int` numof classes for training
+
+    Returns:
+        a `float`, center loss
+    """
+    with tf.variable_scope(name):
+        num_features = features.get_shape()[1]
+        centers = tf.get_variable('centers', [num_classes, num_features], dtype=tf.float32,
+                                  initializer=tf.constant_initializer(0), trainable=False)
+        label = tf.reshape(label, [-1])
+        centers_batch = tf.gather(centers, label)
+        diff = (1 - alpha) * (centers_batch - features)
+        centers = tf.scatter_sub(centers, label, diff)
+        loss = tf.nn.l2_loss(features - centers_batch)
+        return loss, centers
