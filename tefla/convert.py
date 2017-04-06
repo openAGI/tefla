@@ -14,7 +14,7 @@ from tefla.da import data
 N_PROC = cpu_count()
 
 
-def convert(fname, target_size):
+def convert(fname, target_size=512):
     img = Image.open(fname)
 
     blurred = img.filter(ImageFilter.BLUR)

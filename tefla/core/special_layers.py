@@ -402,11 +402,11 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
 
 
 def dense_crf(probs, img=None, n_classes=15, n_iters=20,
-              sxy_gaussian=(1, 1), compat_gaussian=4,
+              sxy_gaussian=(2, 2), compat_gaussian=8,
               kernel_gaussian=dcrf.DIAG_KERNEL,
               normalisation_gaussian=dcrf.NORMALIZE_SYMMETRIC,
-              sxy_bilateral=(49, 49), compat_bilateral=5,
-              srgb_bilateral=(13, 13, 13),
+              sxy_bilateral=(98, 98), compat_bilateral=5,
+              srgb_bilateral=(26, 26, 26),
               kernel_bilateral=dcrf.DIAG_KERNEL,
               normalisation_bilateral=dcrf.NORMALIZE_SYMMETRIC):
     """DenseCRF over unnormalised predictions.

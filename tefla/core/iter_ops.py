@@ -62,7 +62,7 @@ def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, paralle
 
 
 def convert_preprocessor(im_size):
-    return functools.partial(convert.convert, crop_size=im_size)
+    return functools.partial(convert.convert, target_size=im_size)
 
 
 def create_prediction_iter(cnf, standardizer, crop_size, preprocessor=None, sync=False):
