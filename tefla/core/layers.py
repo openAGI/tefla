@@ -893,7 +893,7 @@ def subpixel2d(input_, r, color=True, name=None, outputs_collections=None, **unu
 
 def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss,
-                   name='highway_conv2d', activation=None, use_bias=True, outputs_collections=None):
+                   name='highway_conv2d', batch_norm=None, batch_norm_args=None, activation=tf.nn.relu, use_bias=True, outputs_collections=None):
     """Adds a 2D highway convolutional layer.
 
         https://arxiv.org/abs/1505.00387
@@ -948,36 +948,35 @@ def highway_conv2d(x, n_output, is_training, reuse, trainable=True, filter_size=
 
         w_t_shape = [n_output]
         b_shape = [n_output]
-        with tf.name_scope('main_gate'):
-            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init,
-                                      b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
-        with tf.name_scope('transform_gate'):
-            W_t, b_t = helper.weight_bias(
-                w_t_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
-        output = tf.nn.conv2d(
+        W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init,
+                                  b_init=b_init, w_regularizer=w_regularizer, trainable=trainable, name='main_gate/')
+        W_t, b_t = helper.weight_bias(
+            w_t_shape, b_shape, w_init=w_init, b_init=-3.0,
+            w_regularizer=None, trainable=trainable,
+            name='transform_gate/')
+        output_conv2d = tf.nn.conv2d(
             input=x,
             filter=W,
             strides=helper.stride_2d(stride),
             padding=helper.kernel_padding(padding))
-        output = tf.add(output, b)
-        H = activation(output, name='activation')
-        T = tf.sigmoid(tf.matmul(output, W_t) + b_t, name='transform_gate')
-        try:
-            C = tf.sub(1.0, T, name="carry_gate")
-        except Exception:
-            C = tf.subtract(1.0, T, name="carry_gate")
-        try:
-            output = tf.add(tf.mul(H, T), tf.mul(output, C), name='output')
-        except Exception:
-            output = tf.add(tf.multiply(H, T), tf.multiply(
-                output, C), name='output')
+        H = activation(output_conv2d + b, reuse=reuse,
+                       trainable=trainable, name='activation_H')
+        T = tf.sigmoid(tf.multiply(output_conv2d, W_t) +
+                       b_t, name='transform_gate')
+        C = tf.subtract(1.0, T, name="carry_gate")
+        output = tf.add(tf.multiply(H, T), tf.multiply(
+            output_conv2d, C), name='output')
+        if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
 
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
 
         return _collect_named_outputs(outputs_collections, name, output)
-
-    return output
 
 
 def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3, 3),
@@ -1032,12 +1031,10 @@ def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3
     w_shape = [n_input, n_output] if hasattr(w_init, '__call__') else None
     b_shape = [n_output]
     with tf.variable_scope(name, reuse=reuse):
-        with tf.name_scope('main_gate'):
-            W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init,
-                                      b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
-        with tf.name_scope('transform_gate'):
-            W_t, b_t = helper.weight_bias(
-                w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable)
+        W, b = helper.weight_bias(w_shape, b_shape, w_init=w_init,
+                                  b_init=b_init, w_regularizer=w_regularizer, trainable=trainable, name='main_gate')
+        W_t, b_t = helper.weight_bias(
+            w_shape, b_shape, w_init=w_init, b_init=b_init, w_regularizer=w_regularizer, trainable=trainable, name='transform_gate')
         H = activation(tf.matmul(x, W) + b, name='activation')
         T = tf.sigmoid(tf.matmul(x, W_t) + b_t, name='transform_gate')
         try:
@@ -1054,8 +1051,6 @@ def highway_fc2d(x, n_output, is_training, reuse, trainable=True, filter_size=(3
             output = activation(output, reuse=reuse, trainable=trainable)
 
         return _collect_named_outputs(outputs_collections, name, output)
-
-    return output
 
 
 def down_shifted_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(2, 3), stride=(1, 1), **kwargs):

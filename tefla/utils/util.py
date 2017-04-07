@@ -322,10 +322,10 @@ def rms(x, name=None):
     return tf.sqrt(tf.reduce_mean(tf.square(x)), name=name)
 
 
-def weight_bias(W_shape, b_shape, w_init=tf.truncated_normal, b_init=0.0, w_regularizer=tf.nn.l2_loss, trainable=True):
-    W = tf.Variable(name='W', shape=W_shape, initializer=w_init,
-                    regularizer=w_regularizer, trainable=trainable)
-    b = tf.Variable(name='b', shape=b_shape, initializer=tf.constant_initializer(
+def weight_bias(W_shape, b_shape, w_init=tf.truncated_normal, b_init=0.0, w_regularizer=tf.nn.l2_loss, trainable=True, name='maingate'):
+    W = tf.get_variable(name=name + 'W', shape=W_shape, initializer=w_init,
+                        regularizer=w_regularizer, trainable=trainable)
+    b = tf.get_variable(name=name + 'b', shape=b_shape, initializer=tf.constant_initializer(
         b_init), trainable=trainable)
     return W, b
 
