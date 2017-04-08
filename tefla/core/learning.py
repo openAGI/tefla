@@ -281,7 +281,7 @@ class SupervisedLearner(Base, BaseMixin):
         with tf.variable_scope(tf.get_variable_scope()):
             for i in xrange(self.cnf.get('num_gpus', 1)):
                 with tf.device('/gpu:%d' % i):
-                    with tf.name_scope('%s_%d' % (self.cnf['TOWER_NAME'], i)) as scope:
+                    with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
                         loss = self._tower_loss(scope, model, images_gpus[i], labels_gpus[
                                                 i], loss_type=self.loss_type, is_training=is_training, reuse=reuse, is_classification=is_classification, gpu_id=i)
 
