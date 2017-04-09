@@ -647,3 +647,50 @@ def get_hist(predictions, labels, num_classes, batch_size=1):
         hist += fast_hist(labels[i].flatten(),
                           predictions[i].argmax(2).flatten(), num_classes)
     return hist
+
+
+def compute_pairwise_distances(x, y):
+    """Computes the squared pairwise Euclidean distances between x and y.
+
+    Args:
+        x: a tensor of shape [num_x_samples, num_features]
+        y: a tensor of shape [num_y_samples, num_features]
+
+    Returns:
+        a distance matrix of dimensions [num_x_samples, num_y_samples].
+
+    Raises:
+        ValueError: if the inputs do no matched the specified dimensions.
+    """
+
+    if not len(x.get_shape()) == len(y.get_shape()) == 2:
+        raise ValueError('Both inputs should be matrices.')
+
+    if x.get_shape().as_list()[1] != y.get_shape().as_list()[1]:
+        raise ValueError('The number of features should be the same.')
+
+    def norm(x): return tf.reduce_sum(tf.square(x), 1)
+
+    return tf.transpose(norm(tf.expand_dims(x, 2) - tf.transpose(y)))
+
+
+def gaussian_kernel_matrix(x, y, sigmas):
+    """Computes a Guassian Radial Basis Kernel between the samples of x and y.
+    We create a sum of multiple gaussian kernels each having a width sigma_i.
+
+    Args:
+        x: a tensor of shape [num_samples, num_features]
+        y: a tensor of shape [num_samples, num_features]
+        sigmas: a tensor of floats which denote the widths of each of the
+            gaussians in the kernel.
+
+    Returns:
+        A tensor of shape [num_samples{x}, num_samples{y}] with the RBF kernel.
+    """
+    beta = 1. / (2. * (tf.expand_dims(sigmas, 1)))
+
+    dist = compute_pairwise_distances(x, y)
+
+    s = tf.matmul(beta, tf.reshape(dist, (1, -1)))
+
+    return tf.reshape(tf.reduce_sum(tf.exp(-s), 0), tf.shape(dist))
