@@ -5,6 +5,10 @@
 # -------------------------------------------------------------------#
 import numpy as np
 import tensorflow as tf
+from functools import partial
+from tefla.utils import util
+from tefla.core.layers import flatten, fully_connected as fc, relu
+from tefla.core.special_layers import gradient_reverse
 log_loss = tf.losses.log_loss
 
 
@@ -30,6 +34,17 @@ def log_loss_custom(predictions, labels, eps=1e-7, name='log'):
 
 
 def log_loss_tf(predictions, labels, eps=1e-7, weights=1.0, name='log_loss'):
+    """Define a log loss.
+
+    Args:
+        predictions: 2D tensor or array, [batch_size, num_classes] predictions of the network .
+        labels: 2D or array tensor, [batch_size, num_classes]  ground truth labels or target labels.
+        eps: a constant to set upper or lower limit for labels, smoothening factor
+        name: Optional scope/name for op_scope.
+
+    Returns:
+        A tensor with the log loss.
+    """
     with tf.name_scope(name):
         predictions.get_shape().assert_is_compatible_with(labels.get_shape())
         predictions = tf.to_float(predictions)
@@ -227,8 +242,8 @@ def discretized_mix_logistic_loss(inputs, predictions, sum_all=True, name='disre
                         * inputs[:, :, :, 0, :], [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
         m3 = tf.reshape(means[:, :, :, 2, :] + coeffs[:, :, :, 1, :] * inputs[:, :, :, 0, :] +
                         coeffs[:, :, :, 2, :] * inputs[:, :, :, 1, :], [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
-        means = tf.concat(3, [tf.reshape(means[:, :, :, 0, :], [
-                          inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix]), m2, m3])
+        means = tf.concat([tf.reshape(means[:, :, :, 0, :], [
+                          inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix]), m2, m3], axis=3)
         centered_inputs = inputs - means
         inv_stdv = tf.exp(-log_scales)
         plus_in = inv_stdv * (centered_inputs + 1. / 255.)
@@ -422,3 +437,186 @@ def correlation_loss(source_samples, target_samples, weight, name='corr_loss'):
         barrier = tf.no_op(tag)
 
     return corr_loss
+
+
+def maximum_mean_discrepancy(x, y, kernel=util.gaussian_kernel_matrix, name='maximum_mean_discrepancy'):
+    r"""Computes the Maximum Mean Discrepancy (MMD) of two samples: x and y.
+
+    Maximum Mean Discrepancy (MMD) is a distance-measure between the samples of
+    the distributions of x and y. Here we use the kernel two sample estimate
+    using the empirical mean of the two distributions.
+
+    MMD^2(P, Q) = || \E{\phi(x)} - \E{\phi(y)} ||^2
+                = \E{ K(x, x) } + \E{ K(y, y) } - 2 \E{ K(x, y) },
+
+    where K = <\phi(x), \phi(y)>,
+      is the desired kernel function, in this case a radial basis kernel.
+
+    Args:
+        x: a tensor of shape [num_samples, num_features]
+        y: a tensor of shape [num_samples, num_features]
+        kernel: a function which computes the kernel in MMD. Defaults to the
+                GaussianKernelMatrix.
+
+    Returns:
+        a scalar denoting the squared maximum mean discrepancy loss.
+    """
+    with tf.name_scope(name):
+        # \E{ K(x, x) } + \E{ K(y, y) } - 2 \E{ K(x, y) }
+        cost = tf.reduce_mean(kernel(x, x))
+        cost += tf.reduce_mean(kernel(y, y))
+        cost -= 2 * tf.reduce_mean(kernel(x, y))
+
+        # We do not allow the loss to become negative.
+        cost = tf.where(cost > 0, cost, 0, name='value')
+    return cost
+
+
+def mmd_loss(source_samples, target_samples, weight, name='mmd_loss'):
+    """Adds a similarity loss term, the MMD between two representations.
+
+    This Maximum Mean Discrepancy (MMD) loss is calculated with a number of
+    different Gaussian kernels.
+
+    Args:
+      source_samples: a tensor of shape [num_samples, num_features].
+      target_samples: a tensor of shape [num_samples, num_features].
+      weight: the weight of the MMD loss.
+      scope: optional name scope for summary tags.
+
+    Returns:
+      a scalar tensor representing the MMD loss value.
+    """
+    with tf.name_scope(name):
+        sigmas = [
+            1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 15, 20, 25, 30, 35, 100,
+            1e3, 1e4, 1e5, 1e6
+        ]
+        gaussian_kernel = partial(
+            util.gaussian_kernel_matrix, sigmas=tf.constant(sigmas))
+
+        loss_value = maximum_mean_discrepancy(
+            source_samples, target_samples, kernel=gaussian_kernel)
+        loss_value = tf.maximum(1e-4, loss_value) * weight
+    assert_op = tf.Assert(tf.is_finite(loss_value), [loss_value])
+    with tf.control_dependencies([assert_op]):
+        tag = 'MMD Loss'
+        barrier = tf.no_op(tag)
+    return loss_value
+
+
+def dann_loss(source_samples, target_samples, weight, name='dann_loss'):
+    """Adds the domain adversarial (DANN) loss
+
+    Args:
+      source_samples: a tensor of shape [num_samples, num_features].
+      target_samples: a tensor of shape [num_samples, num_features].
+      weight: the weight of the loss.
+      scope: optional name scope for summary tags.
+
+    Returns:
+      a scalar tensor representing the correlation loss value.
+    """
+    with tf.variable_scope(name):
+        batch_size = tf.shape(source_samples)[0]
+        samples = tf.concat(values=[source_samples, target_samples], axis=0)
+        samples = flatten(samples)
+
+        domain_selection_mask = tf.concat(
+            values=[tf.zeros((batch_size, 1)), tf.ones((batch_size, 1))], axis=0)
+
+        grl = gradient_reverse(samples)
+        grl = tf.reshape(grl, (-1, samples.get_shape().as_list()[1]))
+
+        grl = fc(grl, 100, True, None, activation=relu, name='fc1')
+        logits = fc(grl, 1, True, None, activation=None, name='fc2')
+
+        domain_predictions = tf.sigmoid(logits)
+
+    domain_loss = tf.losses.log_loss(
+        domain_selection_mask, domain_predictions, weights=weight)
+
+    domain_accuracy = util.accuracy_tf(domain_selection_mask,
+                                       tf.round(domain_predictions))
+
+    assert_op = tf.Assert(tf.is_finite(domain_loss), [domain_loss])
+    with tf.control_dependencies([assert_op]):
+        tag_loss = 'losses/domain_loss'
+        barrier = tf.no_op(tag_loss)
+
+    return domain_loss
+
+
+def difference_loss(private_samples, shared_samples, weight=1.0, name='difference_loss'):
+    """Adds the difference loss between the private and shared representations.
+
+    Args:
+      private_samples: a tensor of shape [num_samples, num_features].
+      shared_samples: a tensor of shape [num_samples, num_features].
+      weight: the weight of the incoherence loss.
+      name: the name of the tf summary.
+    """
+    with tf.name_scope(name):
+        private_samples -= tf.reduce_mean(private_samples, 0)
+        shared_samples -= tf.reduce_mean(shared_samples, 0)
+
+        private_samples = tf.nn.l2_normalize(private_samples, 1)
+        shared_samples = tf.nn.l2_normalize(shared_samples, 1)
+
+        correlation_matrix = tf.matmul(
+            private_samples, shared_samples, transpose_a=True)
+
+        cost = tf.reduce_mean(tf.square(correlation_matrix)) * weight
+        cost = tf.where(cost > 0, cost, 0, name='value')
+
+    assert_op = tf.Assert(tf.is_finite(cost), [cost])
+    with tf.control_dependencies([assert_op]):
+        barrier = tf.no_op(name)
+    return cost
+
+
+def log_quaternion_loss_batch(predictions, labels, name='log_quaternion_batch_loss'):
+    """A helper function to compute the error between quaternions.
+
+    Args:
+      predictions: A Tensor of size [batch_size, 4].
+      labels: A Tensor of size [batch_size, 4].
+      params: A dictionary of parameters. Expecting 'use_logging', 'batch_size'.
+
+    Returns:
+      A Tensor of size [batch_size], denoting the error between the quaternions.
+    """
+    assertions = []
+    assertions.append(
+        tf.Assert(tf.reduce_all(tf.less(tf.abs(tf.reduce_sum(tf.square(predictions), [1]) - 1), 1e-4)),
+                  ['The l2 norm of each prediction quaternion vector should be 1.']))
+    assertions.append(
+        tf.Assert(tf.reduce_all(tf.less(tf.abs(tf.reduce_sum(tf.square(labels), [1]) - 1), 1e-4)),
+                  ['The l2 norm of each label quaternion vector should be 1.']))
+    with tf.name_scope(name):
+        with tf.control_dependencies(assertions):
+            product = tf.multiply(predictions, labels)
+        internal_dot_products = tf.reduce_sum(product, [1])
+        logcost = tf.log(1e-4 + 1 - tf.abs(internal_dot_products))
+    return logcost
+
+
+def log_quaternion_loss(predictions, labels, batch_size, name='log_quaternion_loss'):
+    """A helper function to compute the mean error between batches of quaternions.
+
+    The caller is expected to add the loss to the graph.
+
+    Args:
+      predictions: A Tensor of size [batch_size, 4].
+      labels: A Tensor of size [batch_size, 4].
+      params: A dictionary of parameters. Expecting 'use_logging', 'batch_size'.
+
+    Returns:
+      A Tensor of size 1, denoting the mean error between batches of quaternions.
+    """
+    with tf.name_scope(name):
+        logcost = log_quaternion_loss_batch(predictions, labels)
+        logcost = tf.reduce_sum(logcost, [0])
+        logcost = tf.multiply(logcost, 1.0 / batch_size,
+                              name='log_quaternion_loss')
+    return logcost
