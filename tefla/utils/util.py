@@ -630,10 +630,7 @@ def kernel_3d(kernel):
 
 
 def accuracy_tf(labels, predictions):
-    try:
-        return tf.contrib.metrics.accuracy(labels, predictions)
-    except Exception:
-        return tf.contrib.metrics.accuracy(labels, predictions)
+    return tf.contrib.metrics.accuracy(labels, predictions)
 
 
 def fast_hist(a, b, n):
