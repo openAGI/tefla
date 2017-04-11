@@ -7,6 +7,7 @@ import tensorflow as tf
 from tefla.da import tta
 from tefla.da import data
 from tefla.utils import util
+from tefla.core.special_layers import dense_crf
 
 
 class PredictSessionMixin(object):
@@ -202,5 +203,40 @@ class SegmentPredictor(PredictSessionMixin):
         X = np.expand_dims(X, 0)
         predictions = self.sess.run(
             self.predictions, feed_dict={self.inputs: X})
+        print('took %6.1f seconds' % (time.time() - tic))
+        return predictions
+
+
+class SegmentPredictor_v2(PredictSessionMixin):
+    """One crop Predictor, it predict network out put from a single crop of an input image
+
+    Args:
+        graph: graph with weights and variables
+        cnf: prediction configs
+        standardizer: standardizer for the  input data for prediction
+        gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
+    """
+
+    def __init__(self, graph, standardizer, preprocessor, input_tensor_name='model/inputs/input:0', predict_tensor_name='model/final_map_logits/BiasAdd:0'):
+        self.standardizer = standardizer
+        self.preprocessor = preprocessor
+        self.inputs = graph.get_tensor_by_name(input_tensor_name)
+        self.predictions = graph.get_tensor_by_name(predict_tensor_name)
+        super(SegmentPredictor_v2, self).__init__(graph)
+
+    def _real_predict(self, X, xform=None, crop_bbox=None):
+        tic = time.time()
+        img_orig = data.load_image(X, preprocessor=self.preprocessor)
+        img_orig = np.asarray(img_orig.transpose(1, 2, 0), dtype=np.uint8)
+        X = data.load_image(X, preprocessor=self.preprocessor)
+        X = self.standardizer(X, False)
+        X = X.transpose(1, 2, 0)
+        X = np.expand_dims(X, 0)
+        raw_output_up = tf.nn.softmax(self.predictions)
+        raw_output_up = tf.py_func(
+            dense_crf, [raw_output_up, tf.expand_dims(img_orig, axis=0)], tf.float32)
+        raw_output_up = tf.argmax(raw_output_up, dimension=3)
+        predictions = self.sess.run(
+            raw_output_up, {self.inputs: X})
         print('took %6.1f seconds' % (time.time() - tic))
         return predictions
