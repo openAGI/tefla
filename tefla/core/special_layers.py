@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.framework import ops
 import pydensecrf.densecrf as dcrf
 from tefla.core.layers import conv2d, max_pool, batch_norm_tf as batch_norm
 from tefla.utils import util
@@ -458,3 +459,26 @@ def dense_crf(probs, img=None, n_classes=15, n_iters=20,
         (n_classes, h, w)).transpose(1, 2, 0)
     preds = np.expand_dims(preds, 0)
     return preds
+
+
+class GradientReverseLayer(object):
+
+    def __init__(self):
+        self.num_calls = 0
+
+    def __call__(self, x, gamma=1.0):
+        grad_name = "GradientReverse%d" % self.num_calls
+
+        @ops.RegisterGradient(grad_name)
+        def _gradients_reverse(op, grad):
+            return [tf.neg(grad) * gamma]
+
+        g = tf.get_default_graph()
+        with g.gradient_override_map({"Identity": grad_name}):
+            y = tf.identity(x)
+
+        self.num_calls += 1
+        return y
+
+
+gradient_reverse = GradientReverseLayer()
