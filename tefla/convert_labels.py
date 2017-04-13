@@ -64,6 +64,22 @@ def palette_demo():
     return palette
 
 
+def convert_labels(label_image, image_height, image_width):
+    arr_3d = label_image
+    arr_2d = np.zeros((arr_3d.shape[0], arr_3d.shape[1]), dtype=np.uint8)
+    palette = pascal_palette()
+
+    for i in range(0, arr_3d.shape[0]):
+        for j in range(0, arr_3d.shape[1]):
+            key = (arr_3d[i, j, 0], arr_3d[i, j, 1], arr_3d[i, j, 2])
+            arr_2d[i, j] = palette.get(key, 0)
+    print(sum(sum(arr_2d)))
+    # import matplotlib.pyplot as plt
+    # plt.imshow(arr_2d)
+    # plt.show()
+    return arr_2d
+
+
 def convert_seg_labels(label_file, image_height, image_width):
     image = scipy.misc.imread(label_file, mode='RGB')
     print(label_file)
