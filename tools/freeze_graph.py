@@ -127,7 +127,7 @@ def freeze_graph(input_graph,
                     continue
                 var_list[key] = tensor
 
-            """ Print ops name
+            # """ Print ops name
             def _node_name(n):
                 if n.startswith("^"):
                     return n[1:]
@@ -139,7 +139,7 @@ def freeze_graph(input_graph,
                 name_to_node_map[n] = node
 
             print(name_to_node_map.keys())
-            """
+            # """
             saver = saver_lib.Saver(var_list=var_list)
             saver.restore(sess, input_checkpoint)
             if initializer_nodes:
