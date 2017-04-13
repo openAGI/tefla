@@ -9,7 +9,7 @@ from functools import partial
 from tefla.utils import util
 from tefla.core.layers import flatten, fully_connected as fc, relu
 from tefla.core.layers import gradient_reverse
-log_loss = tf.losses.log_loss
+log_loss = tf.contrib.losses.log
 
 
 def log_loss_custom(predictions, labels, eps=1e-7, name='log'):
