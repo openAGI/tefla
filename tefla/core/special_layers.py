@@ -515,7 +515,7 @@ def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinali
         4-D Tensor [batch, new height, new width, out_channels].
     """
     resnext = inputs
-    input_shape = helper.get_input_shape(inputs)
+    input_shape = util.get_input_shape(inputs)
     in_channels = input_shape[-1]
 
     card_values = [1, 2, 4, 8, 32]
@@ -531,13 +531,13 @@ def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinali
             if not downsample:
                 downsample_strides = 1
 
-            resnext = conv_2d(resnext, bottleneck_size, is_training, reuse, filter_size=1,
-                              stride=downsample_strides, batch_norm=batch_norm, batch_norm_args=batch_norm_args, activation=activation, padding='valid', **kwargs)
+            resnext = conv2d(resnext, bottleneck_size, is_training, reuse, filter_size=1,
+                             stride=downsample_strides, batch_norm=batch_norm, batch_norm_args=batch_norm_args, activation=activation, padding='valid', name='conv1', **kwargs)
 
-            resnext = depthwise_conv_2d(
+            resnext = depthwise_conv2d(
                 resnext, cardinality, is_training, reuse, filter_size=3, batch_norm=batch_norm, batch_norm_args=batch_norm_args, activation=relu, stride=1, **kwargs)
-            resnext = conv_2d(resnext, out_channels, is_training, reuse, filter_size=1,
-                              stride=1, batch_norm=None, activation=activation, padding='valid', **kwargs)
+            resnext = conv2d(resnext, out_channels, is_training, reuse, filter_size=1,
+                             stride=1, batch_norm=None, activation=activation, padding='valid', name='conv2', **kwargs)
 
             if batch_norm is not None:
                 batch_norm_args = batch_norm_args or {}

@@ -248,105 +248,6 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def depthwise_conv2d(x, channel_multiplier, is_training, reuse, filter_size=(1, 1), strides=1,
-                     padding='SAME', batch_norm=None, batch_norm_args=None, activation=None, use_bias=False, untie_biases=False,
-                     w_init=initz.he_normal(), b_init=0.0,
-                     w_regularizer=tf.nn.l2_loss, weight_decay=0.0001, trainable=True,
-                     name='depthwise_conv2d', outputs_collections=None):
-    """ Depthwise Convolution 2D.
-
-    Given a 4D input tensor ('NHWC' or 'NCHW' data formats), a kernel_size and
-    a channel_multiplier, grouped_conv_2d applies a different filter to each
-    input channel (expanding from 1 channel to channel_multiplier channels
-    for each), then concatenates the results together. The output has
-    in_channels * channel_multiplier channels.
-
-    In detail,
-    ```
-    output[b, i, j, k * channel_multiplier + q] = sum_{di, dj}
-         filter[di, dj, k, q] * input[b, strides[1] * i + rate[0] * di,
-                                         strides[2] * j + rate[1] * dj, k]
-    ```
-
-    Args:
-        x: `Tensor`. Input 4-D Tensor.
-        channel_multiplier: `int`. The number of channels to expand to.
-        is_training: Bool, training or testing
-        reuse: `bool`. If True and 'scope' is provided, this layer variables
-            will be reused (shared).
-        filter_size: `int` or `list of int`. Size of filters.
-        strides: 'int` or list of `int`. Strides of conv operation.
-            Default: [1 1 1 1].
-        padding: `str` from `"same", "valid"`. Padding algo to use.
-            Default: 'same'.
-        batch_norm: normalization function to use. If
-            `batch_norm` is `True` then google original implementation is used and
-            if another function is provided then it is applied.
-            default set to None for no normalizer function
-        batch_norm_args: normalization function parameters.
-        w_init: An initializer for the weights.
-        w_regularizer: Optional regularizer for the weights.
-        untie_biases: spatial dimensions wise baises
-        b_init: An initializer for the biases. If None skip biases.
-        outputs_collections: The collections to which the outputs are added.
-        activation: `str` (name) or `function` (returning a `Tensor`) or None.
-        use_bias: `bool`. If True, a bias is used.
-        weight_decay: `float`. Regularizer decay parameter. Default: 0.001.
-        trainable: `bool`. If True, weights will be trainable.
-        name: A name for this layer (optional). Default: 'Conv2D'.
-
-    Returns:
-        4-D Tensor [batch, new height, new width, in_channels * channel_multiplier].
-
-    """
-    input_shape = helper.get_input_shape(x)
-    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
-
-    n_output_channels = channel_multiplier * input_shape[-1]
-
-    shape = helper.filter_2d(filter_size, x.get_shape()[-1], n_output_channels) if hasattr(w_init,
-                                                                                           '__call__') else None
-
-    with tf.variable_scope(name, reuse=reuse):
-        W = tf.get_variable(
-            name='W',
-            shape=shape,
-            initializer=w_init,
-            regularizer=w_regularizer,
-            trainable=trainable
-        )
-
-        output = tf.nn.depthwise_conv2d(x, W, strides=helper.stride_2d(
-            stride), padding=helper.kernel_padding(padding))
-        if use_bias:
-            if untie_biases:
-                b = tf.get_variable(
-                    name='b',
-                    shape=output.get_shape()[1:],
-                    initializer=tf.constant_initializer(b_init),
-                    trainable=trainable,
-                )
-                output = tf.add(output, b)
-            else:
-                b = tf.get_variable(
-                    name='b',
-                    shape=[n_output_channels],
-                    initializer=tf.constant_initializer(b_init),
-                    trainable=trainable,
-                )
-                output = tf.nn.bias_add(value=output, bias=b)
-        if batch_norm is not None:
-            if isinstance(batch_norm, bool):
-                batch_norm = batch_norm_tf
-            batch_norm_args = batch_norm_args or {}
-            output = batch_norm(output, is_training=is_training,
-                                reuse=reuse, trainable=trainable, **batch_norm_args)
-        if activation:
-            output = activation(output, reuse=reuse, trainable=trainable)
-
-        return _collect_named_outputs(outputs_collections, name, output)
-
-
 def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), dilation=1,
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                    name='dilated_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
@@ -573,7 +474,7 @@ def separable_conv2d(x, n_output_channels, is_training, reuse, trainable=True, f
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1), depth_multiplier=8,
+def depthwise_conv2d(x, depth_multiplier, is_training, reuse, trainable=True, filter_size=(3, 3), stride=(1, 1),
                      padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                      name='depthwise_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                      outputs_collections=None):
@@ -643,8 +544,8 @@ def depthwise_conv2d(x, is_training, reuse, trainable=True, filter_size=(3, 3), 
         )
 
         output = tf.nn.depthwise_conv2d(
-            input=x,
-            filters=W,
+            x,
+            W,
             strides=helper.stride_2d(stride),
             padding=helper.kernel_padding(padding))
 
