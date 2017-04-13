@@ -2247,6 +2247,29 @@ def crop_and_concat(inputs1, inputs2, name='crop_concat'):
         return tf.concat([inputs1_crop, inputs2], axis=3)
 
 
+class GradientReverseLayer(object):
+
+    def __init__(self):
+        self.num_calls = 0
+
+    def __call__(self, x, gamma=1.0):
+        grad_name = "GradientReverse%d" % self.num_calls
+
+        @ops.RegisterGradient(grad_name)
+        def _gradients_reverse(op, grad):
+            return [tf.neg(grad) * gamma]
+
+        g = tf.get_default_graph()
+        with g.gradient_override_map({"Identity": grad_name}):
+            y = tf.identity(x)
+
+        self.num_calls += 1
+        return y
+
+
+gradient_reverse = GradientReverseLayer()
+
+
 def _collect_named_outputs(outputs_collections, name, output):
     if outputs_collections is not None:
         tf.add_to_collection(outputs_collections, NamedOutputs(name, output))

@@ -8,7 +8,7 @@ import tensorflow as tf
 from functools import partial
 from tefla.utils import util
 from tefla.core.layers import flatten, fully_connected as fc, relu
-from tefla.core.special_layers import gradient_reverse
+from tefla.core.layers import gradient_reverse
 log_loss = tf.losses.log_loss
 
 
