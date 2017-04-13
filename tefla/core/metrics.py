@@ -367,3 +367,15 @@ def one_hot(vec, m=None):
     if m is None:
         m = int(np.max(vec)) + 1
     return np.eye(m)[vec].astype('int32')
+
+
+def fast_hist(a, b, n):
+    k = (a >= 0) & (a < n)
+    return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
+
+
+def compute_hist(preds, gt, num_classes=15):
+    hist = np.zeros((num_classes, num_classes))
+    hist += fast_hist(np.reshape(gt, (-1)),
+                      np.reshape(preds, (-1)), num_classes)
+    return hist
