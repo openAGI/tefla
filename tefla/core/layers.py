@@ -5,6 +5,7 @@ from collections import namedtuple
 import numpy as np
 import six
 import tensorflow as tf
+from tensorflow.python.framework import ops
 from tefla.core import initializers as initz
 from tefla.utils import util as helper
 from tensorflow.python.ops import math_ops
