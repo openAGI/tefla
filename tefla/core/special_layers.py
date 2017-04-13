@@ -498,12 +498,12 @@ def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinali
         downsample: `bool`. If True, apply downsampling using
             'downsample_strides' for strides.
         downsample_strides: `int`. The strides to use when downsampling.
-        activation: `str` (name) or `function` (returning a `Tensor`).
+        activation: `function` (returning a `Tensor`).
         batch_norm: `bool`. If True, apply batch normalization.
         use_ bias: `bool`. If True, a bias is used.
-        w_init: `str` (name) or `Tensor`. Weights initialization.
-        b_init: `str` (name) or `tf.Tensor`. Bias initialization.
-        w_regularizer: `str` (name) or `Tensor`. Add a regularizer to this
+        w_init: `function`, Weights initialization.
+        b_init: `tf.Tensor`. Bias initialization.
+        w_regularizer: `function`. Add a regularizer to this
         weight_decay: `float`. Regularizer decay parameter. Default: 0.001.
         trainable: `bool`. If True, weights will be trainable.
         reuse: `bool`. If True and 'scope' is provided, this layer variables
@@ -532,36 +532,21 @@ def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinali
                 downsample_strides = 1
 
             resnext = conv_2d(resnext, bottleneck_size, is_training, reuse, filter_size=1,
-                              stride=downsample_strides, activation=None, padding='valid', **kwargs)
-
-            if batch_norm is not None:
-                batch_norm_args = batch_norm_args or {}
-                resnext = batch_norm(resnext, is_training=is_training,
-                                     reuse=reuse, trainable=trainable, **batch_norm_args)
-            if activation:
-                resnext = activation(resnext, reuse=reuse, trainable=trainable)
+                              stride=downsample_strides, batch_norm=batch_norm, batch_norm_args=batch_norm_args, activation=activation, padding='valid', **kwargs)
 
             resnext = depthwise_conv_2d(
-                resnext, cardinality, is_training, reuse, filter_size=3, activation=None, stride=1, **kwargs)
-            if batch_norm is not None:
-                batch_norm_args = batch_norm_args or {}
-                resnext = batch_norm(resnext, is_training=is_training,
-                                     reuse=reuse, trainable=trainable, **batch_norm_args)
-            if activation:
-                resnext = activation(resnext, reuse=reuse, trainable=trainable)
+                resnext, cardinality, is_training, reuse, filter_size=3, batch_norm=batch_norm, batch_norm_args=batch_norm_args, activation=relu, stride=1, **kwargs)
             resnext = conv_2d(resnext, out_channels, is_training, reuse, filter_size=1,
-                              stride=1, activation=activation, padding='valid', **kwargs)
+                              stride=1, batch_norm=None, activation=activation, padding='valid', **kwargs)
 
             if batch_norm is not None:
                 batch_norm_args = batch_norm_args or {}
                 resnext = batch_norm(resnext, is_training=is_training,
                                      reuse=reuse, trainable=trainable, **batch_norm_args)
-            # Downsampling
             if downsample_strides > 1:
                 identity = avg_pool_2d(
                     identity, filter_size=1, stride=downsample_strides)
 
-            # Projection to new dimension
             if in_channels != out_channels:
                 ch = (out_channels - in_channels) // 2
                 identity = tf.pad(identity,

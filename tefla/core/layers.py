@@ -249,10 +249,10 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
 
 
 def depthwise_conv2d(x, channel_multiplier, is_training, reuse, filter_size=(1, 1), strides=1,
-                     padding='SAME', activation=None, use_bias=False, untie_biases=False,
+                     padding='SAME', batch_norm=None, batch_norm_args=None, activation=None, use_bias=False, untie_biases=False,
                      w_init=initz.he_normal(), b_init=0.0,
                      w_regularizer=tf.nn.l2_loss, weight_decay=0.0001, trainable=True,
-                     name='depthwise_conv2d'):
+                     name='depthwise_conv2d', outputs_collections=None):
     """ Depthwise Convolution 2D.
 
     Given a 4D input tensor ('NHWC' or 'NCHW' data formats), a kernel_size and
@@ -279,12 +279,18 @@ def depthwise_conv2d(x, channel_multiplier, is_training, reuse, filter_size=(1, 
             Default: [1 1 1 1].
         padding: `str` from `"same", "valid"`. Padding algo to use.
             Default: 'same'.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        untie_biases: spatial dimensions wise baises
+        b_init: An initializer for the biases. If None skip biases.
+        outputs_collections: The collections to which the outputs are added.
         activation: `str` (name) or `function` (returning a `Tensor`) or None.
-        bias: `bool`. If True, a bias is used.
-        untie_biases: `bool`. If True, different bias is used for each filter values.
-        w_init: `str` (name) or `Tensor`. Weights initialization.
-        b_init: `str` (name) or `Tensor`. Bias initialization.
-        w_regularizer: `str` (name) or `Tensor`. Add a regularizer to this
+        use_bias: `bool`. If True, a bias is used.
         weight_decay: `float`. Regularizer decay parameter. Default: 0.001.
         trainable: `bool`. If True, weights will be trainable.
         name: A name for this layer (optional). Default: 'Conv2D'.
@@ -329,6 +335,12 @@ def depthwise_conv2d(x, channel_multiplier, is_training, reuse, filter_size=(1, 
                     trainable=trainable,
                 )
                 output = tf.nn.bias_add(value=output, bias=b)
+        if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
         if activation:
             output = activation(output, reuse=reuse, trainable=trainable)
 
