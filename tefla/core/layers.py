@@ -248,6 +248,98 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def depthwise_conv2d(x, channel_multiplier, is_training, reuse, filter_size=(1, 1), strides=1,
+                     padding='SAME', activation=None, use_bias=False, untie_biases=False,
+                     w_init=initz.he_normal(), b_init=0.0,
+                     w_regularizer=tf.nn.l2_loss, weight_decay=0.0001, trainable=True,
+                     name='depthwise_conv2d'):
+    """ Depthwise Convolution 2D.
+
+    Given a 4D input tensor ('NHWC' or 'NCHW' data formats), a kernel_size and
+    a channel_multiplier, grouped_conv_2d applies a different filter to each
+    input channel (expanding from 1 channel to channel_multiplier channels
+    for each), then concatenates the results together. The output has
+    in_channels * channel_multiplier channels.
+
+    In detail,
+    ```
+    output[b, i, j, k * channel_multiplier + q] = sum_{di, dj}
+         filter[di, dj, k, q] * input[b, strides[1] * i + rate[0] * di,
+                                         strides[2] * j + rate[1] * dj, k]
+    ```
+
+    Args:
+        x: `Tensor`. Input 4-D Tensor.
+        channel_multiplier: `int`. The number of channels to expand to.
+        is_training: Bool, training or testing
+        reuse: `bool`. If True and 'scope' is provided, this layer variables
+            will be reused (shared).
+        filter_size: `int` or `list of int`. Size of filters.
+        strides: 'int` or list of `int`. Strides of conv operation.
+            Default: [1 1 1 1].
+        padding: `str` from `"same", "valid"`. Padding algo to use.
+            Default: 'same'.
+        activation: `str` (name) or `function` (returning a `Tensor`) or None.
+            Activation applied to this layer (see tflearn.activations).
+            Default: 'linear'.
+        bias: `bool`. If True, a bias is used.
+        untie_biases: `bool`. If True, different bias is used for each filter values.
+        w_init: `str` (name) or `Tensor`. Weights initialization.
+            (see tflearn.initializations) Default: 'truncated_normal'.
+        b_init: `str` (name) or `Tensor`. Bias initialization.
+            (see tflearn.initializations) Default: 'zeros'.
+        w_regularizer: `str` (name) or `Tensor`. Add a regularizer to this
+            layer weights (see tflearn.regularizers). Default: None.
+        weight_decay: `float`. Regularizer decay parameter. Default: 0.001.
+        trainable: `bool`. If True, weights will be trainable.
+        name: A name for this layer (optional). Default: 'Conv2D'.
+
+    Returns:
+        4-D Tensor [batch, new height, new width, in_channels * channel_multiplier].
+
+    """
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+
+    n_output_channels = channel_multiplier * input_shape[-1]
+
+    shape = helper.filter_2d(filter_size, x.get_shape()[-1], n_output_channels) if hasattr(w_init,
+                                                                                           '__call__') else None
+
+    with tf.variable_scope(name, reuse=reuse):
+        W = tf.get_variable(
+            name='W',
+            shape=shape,
+            initializer=w_init,
+            regularizer=w_regularizer,
+            trainable=trainable
+        )
+
+        output = tf.nn.depthwise_conv2d(x, W, strides=helper.stride_2d(
+            stride), padding=helper.kernel_padding(padding))
+        if use_bias:
+            if untie_biases:
+                b = tf.get_variable(
+                    name='b',
+                    shape=output.get_shape()[1:],
+                    initializer=tf.constant_initializer(b_init),
+                    trainable=trainable,
+                )
+                output = tf.add(output, b)
+            else:
+                b = tf.get_variable(
+                    name='b',
+                    shape=[n_output_channels],
+                    initializer=tf.constant_initializer(b_init),
+                    trainable=trainable,
+                )
+                output = tf.nn.bias_add(value=output, bias=b)
+        if activation:
+            output = activation(output, reuse=reuse, trainable=trainable)
+
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
 def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), dilation=1,
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                    name='dilated_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
@@ -1642,8 +1734,7 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
             tf.add_to_collection(updates_collections, update_moving_inv_std)
             return mean, inv_std
 
-        mean_inv_std_with_relevant_update = \
-            mean_inv_std_with_pending_update if updates_collections is not None else mean_inv_std_with_update
+        mean_inv_std_with_relevant_update = mean_inv_std_with_pending_update if updates_collections is not None else mean_inv_std_with_update
 
         (mean, inv_std) = mean_inv_std_with_relevant_update(
         ) if is_training else (moving_mean, moving_inv_std)
@@ -2089,7 +2180,8 @@ def merge(tensors_list, mode, axis=1, name='merge', outputs_collections=None, **
     Args:
         tensor_list: A list `Tensors` to merge
         mode: str, available modes are
-            ['concat', 'elemwise_sum', 'elemwise_mul', 'sum', 'mean', 'prod', 'max', 'min', 'and', 'or']
+            ['concat', 'elemwise_sum', 'elemwise_mul', 'sum',
+                'mean', 'prod', 'max', 'min', 'and', 'or']
         name: a optional scope/name of the layer
         outputs_collections: The collections to which the outputs are added.
 

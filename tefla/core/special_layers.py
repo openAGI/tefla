@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework import ops
 import pydensecrf.densecrf as dcrf
-from tefla.core.layers import conv2d, max_pool, batch_norm_tf as batch_norm
+from tefla.core.layers import conv2d, depthwise_conv2d, avg_pool_2d, max_pool, relu, batch_norm_tf as batch_norm
 from tefla.utils import util
 from tefla.core import initializers as initz
 
@@ -402,12 +402,12 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
         return hid
 
 
-def dense_crf(probs, img=None, n_classes=15, n_iters=20,
-              sxy_gaussian=(2, 2), compat_gaussian=8,
+def dense_crf(probs, img=None, n_classes=15, n_iters=10,
+              sxy_gaussian=(1, 1), compat_gaussian=4,
               kernel_gaussian=dcrf.DIAG_KERNEL,
               normalisation_gaussian=dcrf.NORMALIZE_SYMMETRIC,
-              sxy_bilateral=(98, 98), compat_bilateral=5,
-              srgb_bilateral=(26, 26, 26),
+              sxy_bilateral=(49, 49), compat_bilateral=2,
+              srgb_bilateral=(13, 13, 13),
               kernel_bilateral=dcrf.DIAG_KERNEL,
               normalisation_bilateral=dcrf.NORMALIZE_SYMMETRIC):
     """DenseCRF over unnormalised predictions.
@@ -482,3 +482,98 @@ class GradientReverseLayer(object):
 
 
 gradient_reverse = GradientReverseLayer()
+
+
+def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinality,
+                  downsample=False, downsample_strides=2, activation=relu, batch_norm=None, batch_norm_args=None, name="ResNeXtBlock", **kwargs):
+    """ ResNeXt Block.
+    resnext paper https://arxiv.org/pdf/1611.05431.pdf
+
+    Args:
+        inputs: `Tensor`. Inputs 4-D Layer.
+        nb_blocks: `int`. Number of layer blocks.
+        out_channels: `int`. The number of convolutional filters of the
+            layers surrounding the bottleneck layer.
+        cardinality: `int`. Number of aggregated residual transformations.
+        downsample: `bool`. If True, apply downsampling using
+            'downsample_strides' for strides.
+        downsample_strides: `int`. The strides to use when downsampling.
+        activation: `str` (name) or `function` (returning a `Tensor`).
+            Activation applied to this layer (see tflearn.activations).
+            Default: 'linear'.
+        batch_norm: `bool`. If True, apply batch normalization.
+        use_ bias: `bool`. If True, a bias is used.
+        w_init: `str` (name) or `Tensor`. Weights initialization.
+            (see tflearn.initializations) Default: 'uniform_scaling'.
+        b_init: `str` (name) or `tf.Tensor`. Bias initialization.
+            (see tflearn.initializations) Default: 'zeros'.
+        w_regularizer: `str` (name) or `Tensor`. Add a regularizer to this
+            layer weights (see tflearn.regularizers). Default: None.
+        weight_decay: `float`. Regularizer decay parameter. Default: 0.001.
+        trainable: `bool`. If True, weights will be trainable.
+        reuse: `bool`. If True and 'scope' is provided, this layer variables
+            will be reused (shared).
+            override name.
+        name: A name for this layer (optional). Default: 'ResNeXtBlock'.
+
+    Returns:
+        4-D Tensor [batch, new height, new width, out_channels].
+    """
+    resnext = inputs
+    input_shape = helper.get_input_shape(inputs)
+    in_channels = input_shape[-1]
+
+    card_values = [1, 2, 4, 8, 32]
+    bottleneck_values = [64, 40, 24, 14, 4]
+    bottleneck_size = bottleneck_values[card_values.index(cardinality)]
+    group_width = [64, 80, 96, 112, 128]
+
+    assert cardinality in card_values, "cardinality must be in [1, 2, 4, 8, 32]"
+
+    with tf.variable_scope(name, reuse=reuse):
+        for i in range(nb_blocks):
+            identity = resnext
+            if not downsample:
+                downsample_strides = 1
+
+            resnext = conv_2d(resnext, bottleneck_size, is_training, reuse, filter_size=1,
+                              stride=downsample_strides, activation=None, padding='valid', **kwargs)
+
+            if batch_norm is not None:
+                batch_norm_args = batch_norm_args or {}
+                resnext = batch_norm(resnext, is_training=is_training,
+                                     reuse=reuse, trainable=trainable, **batch_norm_args)
+            if activation:
+                resnext = activation(resnext, reuse=reuse, trainable=trainable)
+
+            resnext = depthwise_conv_2d(
+                resnext, cardinality, is_training, reuse, filter_size=3, activation=None, stride=1, **kwargs)
+            if batch_norm is not None:
+                batch_norm_args = batch_norm_args or {}
+                resnext = batch_norm(resnext, is_training=is_training,
+                                     reuse=reuse, trainable=trainable, **batch_norm_args)
+            if activation:
+                resnext = activation(resnext, reuse=reuse, trainable=trainable)
+            resnext = conv_2d(resnext, out_channels, is_training, reuse, filter_size=1,
+                              stride=1, activation=activation, padding='valid', **kwargs)
+
+            if batch_norm is not None:
+                batch_norm_args = batch_norm_args or {}
+                resnext = batch_norm(resnext, is_training=is_training,
+                                     reuse=reuse, trainable=trainable, **batch_norm_args)
+            # Downsampling
+            if downsample_strides > 1:
+                identity = avg_pool_2d(
+                    identity, filter_size=1, stride=downsample_strides)
+
+            # Projection to new dimension
+            if in_channels != out_channels:
+                ch = (out_channels - in_channels) // 2
+                identity = tf.pad(identity,
+                                  [[0, 0], [0, 0], [0, 0], [ch, ch]])
+                in_channels = out_channels
+
+            resnext = resnext + identity
+            resnext = activation(resnext)
+
+        return resnext
