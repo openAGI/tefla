@@ -280,16 +280,11 @@ def depthwise_conv2d(x, channel_multiplier, is_training, reuse, filter_size=(1, 
         padding: `str` from `"same", "valid"`. Padding algo to use.
             Default: 'same'.
         activation: `str` (name) or `function` (returning a `Tensor`) or None.
-            Activation applied to this layer (see tflearn.activations).
-            Default: 'linear'.
         bias: `bool`. If True, a bias is used.
         untie_biases: `bool`. If True, different bias is used for each filter values.
         w_init: `str` (name) or `Tensor`. Weights initialization.
-            (see tflearn.initializations) Default: 'truncated_normal'.
         b_init: `str` (name) or `Tensor`. Bias initialization.
-            (see tflearn.initializations) Default: 'zeros'.
         w_regularizer: `str` (name) or `Tensor`. Add a regularizer to this
-            layer weights (see tflearn.regularizers). Default: None.
         weight_decay: `float`. Regularizer decay parameter. Default: 0.001.
         trainable: `bool`. If True, weights will be trainable.
         name: A name for this layer (optional). Default: 'Conv2D'.

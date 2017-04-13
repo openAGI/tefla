@@ -499,16 +499,11 @@ def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinali
             'downsample_strides' for strides.
         downsample_strides: `int`. The strides to use when downsampling.
         activation: `str` (name) or `function` (returning a `Tensor`).
-            Activation applied to this layer (see tflearn.activations).
-            Default: 'linear'.
         batch_norm: `bool`. If True, apply batch normalization.
         use_ bias: `bool`. If True, a bias is used.
         w_init: `str` (name) or `Tensor`. Weights initialization.
-            (see tflearn.initializations) Default: 'uniform_scaling'.
         b_init: `str` (name) or `tf.Tensor`. Bias initialization.
-            (see tflearn.initializations) Default: 'zeros'.
         w_regularizer: `str` (name) or `Tensor`. Add a regularizer to this
-            layer weights (see tflearn.regularizers). Default: None.
         weight_decay: `float`. Regularizer decay parameter. Default: 0.001.
         trainable: `bool`. If True, weights will be trainable.
         reuse: `bool`. If True and 'scope' is provided, this layer variables
