@@ -3,7 +3,7 @@
 [![Build Status](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/n3011/tefla/blob/master/LICENSE)
 # Tefla: Deep Learning library, a Higher level API for TensorFlow
 
-Tefla is built on top of Tensorflow. It provides higher level access to tensorflow's features.  
+Tefla is built on top of Tensorflow. It provides higher level access to tensorflow's features. Inerface, Easy to build complex models. 
 
 Tefla features:
 
