@@ -51,7 +51,7 @@ def log_loss_tf(predictions, labels, eps=1e-7, weights=1.0, name='log_loss'):
         labels = tf.to_float(labels)
         losses = -tf.multiply(labels, tf.log(predictions + eps)) - tf.multiply(
             (1 - labels), tf.log(1 - predictions + eps))
-    return tf.contrib.losses.compute_weighted_loss(losses, weights, scope=name)
+    return tf.contrib.losses.compute_weighted_loss(losses, weights)
 
 
 def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_size=32, name='kappa'):
