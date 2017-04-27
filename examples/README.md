@@ -5,5 +5,6 @@
 3. Spatial transformer network traning.
 4. Unrolled GAN implementation
 5. LSTM RNN example
+6. Common datasets reading examples. 
 
 
