@@ -38,6 +38,7 @@ setup(
     author='Tefla contributors',
     author_email='mrinalhaloi11@gmail.com',
     url='https://github.com/n3011/tefla',
+    download_url='https://github.com/n3011/tefla/tarball/1.0.0',
     keywords=['tensorflow', 'deeplearning', 'cnn', 'deepcnn'],
     classifiers=[],
     install_requires=REQUIREMENTS,
