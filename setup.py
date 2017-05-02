@@ -33,7 +33,7 @@ class PyTest(TestCommand):
 setup(
     name='tefla',
     packages=find_packages(),
-    version='0.1',
+    version='1.0.0',
     description='Simple end-to-end deep learning with tensorflow. Datasets, data-augmentation, models, training, prediction, and metrics',
     author='Tefla contributors',
     author_email='mrinalhaloi11@gmail.com',
