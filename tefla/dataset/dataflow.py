@@ -4,7 +4,7 @@
 # Copyright 2016, Mrinal Haloi
 # -------------------------------------------------------------------#
 import tensorflow as tf
-from tefla.dataset.reader import Reader
+from .reader import Reader
 
 balanced_sample = tf.contrib.training.stratified_sample
 

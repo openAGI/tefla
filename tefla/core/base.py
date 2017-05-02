@@ -8,11 +8,11 @@ from __future__ import division, print_function, absolute_import
 import pprint
 import numpy as np
 
-from tefla.da.iterator import BatchIterator
-from tefla.core.lr_policy import NoDecayPolicy
-from tefla.core.losses import kappa_log_loss_clipped, segment_loss
-import tefla.core.summary as summary
-import tefla.core.logger as log
+from ..da.iterator import BatchIterator
+from .lr_policy import NoDecayPolicy
+from .losses import kappa_log_loss_clipped, segment_loss
+from . import summary
+from . import logger as log
 import tensorflow as tf
 
 

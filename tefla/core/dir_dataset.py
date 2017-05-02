@@ -5,12 +5,13 @@ import logging
 
 import numpy as np
 
-from tefla.core import data_load_ops as data
+from . import data_load_ops as data
 
 logger = logging.getLogger('tefla')
 
 
 class DataSet(object):
+
     def __init__(self, data_dir, img_size):
         self.data_dir = data_dir
         training_images_dir = "%s/training_%d" % (data_dir, img_size)
@@ -21,11 +22,13 @@ class DataSet(object):
 
         self._training_files = data.get_image_files(training_images_dir)
         names = data.get_names(self._training_files)
-        self._training_labels = data.get_labels(names, label_file=training_labels_file).astype(np.int32)
+        self._training_labels = data.get_labels(
+            names, label_file=training_labels_file).astype(np.int32)
 
         self._validation_files = data.get_image_files(validation_images_dir)
         names = data.get_names(self._validation_files)
-        self._validation_labels = data.get_labels(names, label_file=validation_labels_file).astype(np.int32)
+        self._validation_labels = data.get_labels(
+            names, label_file=validation_labels_file).astype(np.int32)
 
     @property
     def training_X(self):
@@ -70,4 +73,5 @@ class DataSet(object):
         logger.info("Data: #Classes: %d" % self.num_classes())
         logger.info("Data: Class frequencies: %s" % self.class_frequencies())
         logger.info("Data: Class balance weights: %s" % self.balance_weights())
-        logger.info("Data: #Validation images: %d" % self.num_validation_files())
+        logger.info("Data: #Validation images: %d" %
+                    self.num_validation_files())

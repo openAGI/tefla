@@ -4,8 +4,8 @@ import time
 from scipy.stats.mstats import gmean
 import numpy as np
 import tensorflow as tf
-from tefla.da import tta
-from tefla.utils import util
+from ..da import tta
+from ..utils import util
 
 
 class PredictSessionMixin(object):

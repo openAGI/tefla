@@ -8,10 +8,10 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from tefla.core.base import Base, BaseMixin
-import tefla.core.summary as summary
-import tefla.core.logger as log
-from tefla.utils import util
+from .base import Base, BaseMixin
+from . import summary as summary
+from . import logger as log
+from ..utils import util
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'

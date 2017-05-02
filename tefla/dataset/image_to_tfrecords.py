@@ -15,7 +15,7 @@ import glob
 import numpy as np
 from PIL import Image
 import random
-from tefla.dataset.decoder import ImageCoder
+from .decoder import ImageCoder
 
 
 class TFRecords(object):
@@ -159,36 +159,44 @@ class TFRecords(object):
         assert not num_shards % num_threads
         num_shards_per_batch = int(num_shards / num_threads)
 
-        shard_ranges = np.linspace(ranges[thread_index][0], ranges[thread_index][1], num_shards_per_batch + 1).astype(int)
+        shard_ranges = np.linspace(ranges[thread_index][0], ranges[thread_index][
+                                   1], num_shards_per_batch + 1).astype(int)
         num_files_in_thread = ranges[thread_index][1] - ranges[thread_index][0]
         counter = 0
         for s in range(num_shards_per_batch):
-            # Generate a sharded version of the file name, e.g. 'train-00002-of-00010'
+            # Generate a sharded version of the file name, e.g.
+            # 'train-00002-of-00010'
             shard = thread_index * num_shards_per_batch + s
             output_filename = '%s-%.5d-of-%.5d' % (name, shard, num_shards)
             output_file = os.path.join(train_dir, output_filename)
             writer = tf.python_io.TFRecordWriter(output_file)
             print('processing')
             shard_counter = 0
-            files_in_shard = np.arange(shard_ranges[s], shard_ranges[s + 1], dtype=int)
+            files_in_shard = np.arange(
+                shard_ranges[s], shard_ranges[s + 1], dtype=int)
             for i in files_in_shard:
                 filename = filenames[i] + '.jpg'
                 label = labels[i]
                 text = texts[i]
-                image_buffer, height, width = self.process_image(filename, coder)
-                example = self.convert_to_example(filename, image_buffer, label, text, height, width)
+                image_buffer, height, width = self.process_image(
+                    filename, coder)
+                example = self.convert_to_example(
+                    filename, image_buffer, label, text, height, width)
                 writer.write(example.SerializeToString())
                 shard_counter += 1
                 counter += 1
                 print('Num of files %d' % (counter))
                 if not counter % 1000:
-                    print('%s [thread %d]: Processed %d of %d images in thread batch.' % (datetime.now(), thread_index, counter, num_files_in_thread))
+                    print('%s [thread %d]: Processed %d of %d images in thread batch.' % (
+                        datetime.now(), thread_index, counter, num_files_in_thread))
                     sys.stdout.flush()
 
-            print('%s [thread %d]: Wrote %d images to %s' % (datetime.now(), thread_index, shard_counter, output_file))
+            print('%s [thread %d]: Wrote %d images to %s' %
+                  (datetime.now(), thread_index, shard_counter, output_file))
             sys.stdout.flush()
             shard_counter = 0
-        print('%s [thread %d]: Wrote %d images to %d shards.' % (datetime.now(), thread_index, counter, num_files_in_thread))
+        print('%s [thread %d]: Wrote %d images to %d shards.' %
+              (datetime.now(), thread_index, counter, num_files_in_thread))
         sys.stdout.flush()
 
     def process_image_files(self, name, filenames, texts, labels, num_shards, num_threads=4):
@@ -216,18 +224,22 @@ class TFRecords(object):
         sys.stdout.flush()
         # Create a mechanism for monitoring when all threads are finished.
         coord = tf.train.Coordinator()
-        # Create a generic TensorFlow-based utility for converting all image codings.
+        # Create a generic TensorFlow-based utility for converting all image
+        # codings.
         coder = ImageCoder()
         threads = []
         for thread_index in range(len(ranges)):
-            args = (coder, thread_index, ranges, name, filenames, texts, labels, num_shards)
-            t = threading.Thread(target=self.process_image_files_batch, args=args)
+            args = (coder, thread_index, ranges, name,
+                    filenames, texts, labels, num_shards)
+            t = threading.Thread(
+                target=self.process_image_files_batch, args=args)
             t.start()
             threads.append(t)
 
         # Wait for all the threads to terminate.
         coord.join(threads)
-        print('%s: Finished writing all %d images in data set.' % (datetime.now(), len(filenames)))
+        print('%s: Finished writing all %d images in data set.' %
+              (datetime.now(), len(filenames)))
         sys.stdout.flush()
 
     def find_image_files(self, data_dir, labels_file):
@@ -256,7 +268,8 @@ class TFRecords(object):
             labels: list of integer; each integer identifies the ground truth.
         """
         print('Determining list of input files and labels from %s.' % data_dir)
-        unique_labels = [l.strip() for l in tf.gfile.FastGFile(labels_file, 'r').readlines()]
+        unique_labels = [l.strip()
+                         for l in tf.gfile.FastGFile(labels_file, 'r').readlines()]
 
         labels = []
         filenames = []
@@ -282,7 +295,8 @@ class TFRecords(object):
         texts = [texts[i] for i in shuffled_index]
         labels = [labels[i] for i in shuffled_index]
 
-        print('Found %d JPEG files across %d labels inside %s.' % (len(filenames), len(unique_labels), data_dir))
+        print('Found %d JPEG files across %d labels inside %s.' %
+              (len(filenames), len(unique_labels), data_dir))
         return filenames, texts, labels
 
     def process_dataset(self, name, directory, num_shards, labels_file):
@@ -299,14 +313,16 @@ class TFRecords(object):
 
     def read_images_from(self, data_dir, imresize=[512, 512]):
         images = []
-        jpeg_files_path = glob.glob(os.path.join(data_dir, '*.[jJ][pP][eE][gG]'))
+        jpeg_files_path = glob.glob(
+            os.path.join(data_dir, '*.[jJ][pP][eE][gG]'))
         for filename in jpeg_files_path[:10]:
             im = Image.open(filename)
             im = im.resize((imresize[0], imresize[1]), Image.ANTIALIAS)
             im = np.asarray(im, np.uint8)
             images.append(im)
 
-        images_only = [np.asarray(image, np.uint8) for image in images]  # Use unint8 or you will be !!!
+        # Use unint8 or you will be !!!
+        images_only = [np.asarray(image, np.uint8) for image in images]
         images_only = np.array(images_only)
 
         print(images_only.shape)
@@ -316,4 +332,5 @@ class TFRecords(object):
 if __name__ == '__main__':
     # Convert Images to tfRecords files
     im2r = TFRecords()
-    im2r.process_dataset('retina_dr_train_256', '/path/to/Data/train', 16, '/path/to/Data/label.txt')
+    im2r.process_dataset('retina_dr_train_256',
+                         '/path/to/Data/train', 16, '/path/to/Data/label.txt')

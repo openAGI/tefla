@@ -4,10 +4,10 @@ import time
 from scipy.stats.mstats import gmean
 import numpy as np
 import tensorflow as tf
-from tefla.da import tta
-from tefla.da import data
-from tefla.utils import util
-from tefla.core.special_layers import dense_crf
+from ..da import tta
+from ..da import data
+from ..utils import util
+from .special_layers import dense_crf
 
 
 class PredictSessionMixin(object):

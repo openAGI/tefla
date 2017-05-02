@@ -2,7 +2,7 @@ import os
 import numpy as np
 import scipy.misc
 import math
-from tefla.da.data_augmentation import distort_color, vggnet_input, seg_input_aug
+from ..da.data_augmentation import distort_color, vggnet_input, seg_input_aug
 import tensorflow as tf
 
 

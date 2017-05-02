@@ -4,9 +4,8 @@
 # Copyright 2016, Mrinal Haloi
 # -------------------------------------------------------------------#
 import os
-
-from tefla.utils.util import rms
 import tensorflow as tf
+from ..utils.util import rms
 
 
 __all__ = ['summary_metric', 'summary_activation', 'create_summary_writer',

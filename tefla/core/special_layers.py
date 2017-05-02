@@ -2,9 +2,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework import ops
 import pydensecrf.densecrf as dcrf
-from tefla.core.layers import conv2d, depthwise_conv2d, avg_pool_2d, max_pool, relu, batch_norm_tf as batch_norm
-from tefla.utils import util
-from tefla.core import initializers as initz
+from .layers import conv2d, depthwise_conv2d, avg_pool_2d, max_pool, relu, batch_norm_tf as batch_norm
+from ..utils import util
+from . import initializers as initz
 
 
 def spatialtransformer(U, theta, batch_size=64, downsample_factor=1.0, num_transform=1, name='SpatialTransformer', **kwargs):

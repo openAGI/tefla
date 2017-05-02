@@ -1,12 +1,14 @@
 # Original code from: https://github.com/sveitser/kaggle_diabetic
-# Original MIT license: https://github.com/sveitser/kaggle_diabetic/blob/master/LICENSE
+# Original MIT license:
+# https://github.com/sveitser/kaggle_diabetic/blob/master/LICENSE
 """Test-time augmentation tools"""
 from __future__ import division, print_function, absolute_import
 
 import ghalton
 import numpy as np
-from tefla.da import data
 from scipy.special import erfinv
+
+from . import data
 
 
 def uniform(sample, lo=-1, hi=1):
@@ -71,7 +73,8 @@ def build_quasirandom_transforms(num_transforms, color_sigma, zoom_range,
             zoom_y = np.exp(uniform(s[7], *log_zoom_range))
         else:
             zoom_x = zoom_y = np.exp(uniform(s[6], *log_zoom_range))
-        # the range should be multiplicatively symmetric, so [1/1.1, 1.1] instead of [0.9, 1.1] makes more sense.
+        # the range should be multiplicatively symmetric, so [1/1.1, 1.1]
+        # instead of [0.9, 1.1] makes more sense.
 
         tfs.append(data.build_augmentation_transform((zoom_x, zoom_y),
                                                      rotation, shear, translation, flip))

@@ -9,7 +9,7 @@ from uuid import uuid4
 
 import numpy as np
 
-from tefla.da import data
+from . import data
 
 
 class BatchIterator(object):

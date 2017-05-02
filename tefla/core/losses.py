@@ -6,9 +6,9 @@
 import numpy as np
 import tensorflow as tf
 from functools import partial
-from tefla.utils import util
-from tefla.core.layers import flatten, fully_connected as fc, relu
-from tefla.core.layers import gradient_reverse
+from ..utils import util
+from .layers import flatten, fully_connected as fc, relu
+from .layers import gradient_reverse
 log_loss = tf.contrib.losses.log_loss
 
 

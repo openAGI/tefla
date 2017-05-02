@@ -17,8 +17,8 @@ import skimage
 import skimage.transform
 from skimage.transform._warps_cy import _warp_fast
 
-from standardizer import *
-from tefla.core.data_load_ops import *
+from .standardizer import *
+from ..core.data_load_ops import *
 
 no_augmentation_params = {
     'zoom_range': (1.0, 1.0),

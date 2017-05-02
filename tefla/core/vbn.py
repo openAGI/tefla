@@ -2,14 +2,16 @@ import tensorflow as tf
 
 
 class Virtual_Batch_Norm(object):
+
     def __init__(self, image_size=108):
-        self.image_size=image_size
+        self.image_size = image_size
 
     def vbn(self, tensor, name, disable_vbn=False, half=None):
         if disable_vbn:
             class Dummy(object):
+
                 def __init__(self, tensor, ignored, half):
-                    self.reference_output=tensor
+                    self.reference_output = tensor
 
                 def __call__(self, x):
                     return x
@@ -26,8 +28,9 @@ class Virtual_Batch_Norm(object):
     def vbnl(self, tensor, name, disable_vbn=False, half=None):
         if disable_vbn:
             class Dummy(object):
+
                 def __init__(self, tensor, ignored, half):
-                    self.reference_output=tensor
+                    self.reference_output = tensor
 
                 def __call__(self, x):
                     return x
@@ -44,8 +47,9 @@ class Virtual_Batch_Norm(object):
     def vbnlp(self, tensor, name, disable_vbn=False, half=None):
         if disable_vbn:
             class Dummy(object):
+
                 def __init__(self, tensor, ignored, half):
-                    self.reference_output=tensor
+                    self.reference_output = tensor
 
                 def __call__(self, x):
                     return x
@@ -96,13 +100,16 @@ class VBNL(object):
             if self.half is None:
                 half = x
             elif self.half == 1:
-                half = tf.slice(x, [0, 0, 0, 0], [shape[0] // 2, shape[1], shape[2], shape[3]])
+                half = tf.slice(x, [0, 0, 0, 0], [
+                                shape[0] // 2, shape[1], shape[2], shape[3]])
             elif self.half == 2:
-                half = tf.slice(x, [shape[0] // 2, 0, 0, 0], [shape[0] // 2, shape[1], shape[2], shape[3]])
+                half = tf.slice(x, [shape[0] // 2, 0, 0, 0],
+                                [shape[0] // 2, shape[1], shape[2], shape[3]])
             else:
                 assert False
             self.mean = tf.reduce_mean(half, [0, 1, 2], keep_dims=True)
-            self.mean_sq = tf.reduce_mean(tf.square(half), [0, 1, 2], keep_dims=True)
+            self.mean_sq = tf.reduce_mean(
+                tf.square(half), [0, 1, 2], keep_dims=True)
             self.batch_size = int(half.get_shape()[0])
             assert x is not None
             assert self.mean is not None
@@ -128,7 +135,8 @@ class VBNL(object):
             new_coeff = 1. / (self.batch_size + 1.)
             old_coeff = 1. - new_coeff
             new_mean = tf.reduce_mean(x, [0, 1, 2], keep_dims=True)
-            new_mean_sq = tf.reduce_mean(tf.square(x), [0, 1, 2], keep_dims=True)
+            new_mean_sq = tf.reduce_mean(
+                tf.square(x), [0, 1, 2], keep_dims=True)
             mean = new_coeff * new_mean + old_coeff * self.mean
             mean_sq = new_coeff * new_mean_sq + old_coeff * self.mean_sq
             out = self._normalize(x, mean, mean_sq)
@@ -143,10 +151,12 @@ class VBNL(object):
         assert mean_sq is not None
         assert mean is not None
         with tf.variable_scope(name):
-            self.gamma_driver = tf.get_variable("gamma_driver", [shape[-1]], initializer=tf.random_normal_initializer(0., 0.02))
+            self.gamma_driver = tf.get_variable(
+                "gamma_driver", [shape[-1]], initializer=tf.random_normal_initializer(0., 0.02))
             gamma = tf.exp(self.gamma_driver)
             gamma = tf.reshape(gamma, [1, 1, 1, -1])
-            self.beta = tf.get_variable("beta", [shape[-1]], initializer=tf.constant_initializer(0.))
+            self.beta = tf.get_variable(
+                "beta", [shape[-1]], initializer=tf.constant_initializer(0.))
             beta = tf.reshape(self.beta, [1, 1, 1, -1])
         std = tf.sqrt(self.epsilon + mean_sq - tf.square(mean))
         out = x - mean
@@ -186,9 +196,11 @@ class VBNLP(object):
             if self.half is None:
                 half = x
             elif self.half == 1:
-                half = tf.slice(x, [0, 0, 0, 0], [shape[0] // 2, shape[1], shape[2], shape[3]])
+                half = tf.slice(x, [0, 0, 0, 0], [
+                                shape[0] // 2, shape[1], shape[2], shape[3]])
             elif self.half == 2:
-                half = tf.slice(x, [shape[0] // 2, 0, 0, 0], [shape[0] // 2, shape[1], shape[2], shape[3]])
+                half = tf.slice(x, [shape[0] // 2, 0, 0, 0],
+                                [shape[0] // 2, shape[1], shape[2], shape[3]])
             else:
                 assert False
             self.mean = tf.reduce_mean(half, [0], keep_dims=True)
@@ -233,10 +245,12 @@ class VBNLP(object):
         assert mean_sq is not None
         assert mean is not None
         with tf.variable_scope(name):
-            self.gamma_driver = tf.get_variable("gamma_driver", shape[1:], initializer=tf.random_normal_initializer(0., 0.02))
+            self.gamma_driver = tf.get_variable(
+                "gamma_driver", shape[1:], initializer=tf.random_normal_initializer(0., 0.02))
             gamma = tf.exp(self.gamma_driver)
             gamma = tf.expand_dims(gamma, 0)
-            self.beta = tf.get_variable("beta", shape[1:], initializer=tf.constant_initializer(0.))
+            self.beta = tf.get_variable(
+                "beta", shape[1:], initializer=tf.constant_initializer(0.))
             beta = tf.expand_dims(self.beta, 0)
         std = tf.sqrt(self.epsilon + mean_sq - tf.square(mean))
         out = x - mean
@@ -276,13 +290,16 @@ class VBN(object):
             if self.half is None:
                 half = x
             elif self.half == 1:
-                half = tf.slice(x, [0, 0, 0, 0], [shape[0] // 2, shape[1], shape[2], shape[3]])
+                half = tf.slice(x, [0, 0, 0, 0], [
+                                shape[0] // 2, shape[1], shape[2], shape[3]])
             elif self.half == 2:
-                half = tf.slice(x, [shape[0] // 2, 0, 0, 0], [shape[0] // 2, shape[1], shape[2], shape[3]])
+                half = tf.slice(x, [shape[0] // 2, 0, 0, 0],
+                                [shape[0] // 2, shape[1], shape[2], shape[3]])
             else:
                 assert False
             self.mean = tf.reduce_mean(half, [0, 1, 2], keep_dims=True)
-            self.mean_sq = tf.reduce_mean(tf.square(half), [0, 1, 2], keep_dims=True)
+            self.mean_sq = tf.reduce_mean(
+                tf.square(half), [0, 1, 2], keep_dims=True)
             self.batch_size = int(half.get_shape()[0])
             assert x is not None
             assert self.mean is not None
@@ -308,7 +325,8 @@ class VBN(object):
             new_coeff = 1. / (self.batch_size + 1.)
             old_coeff = 1. - new_coeff
             new_mean = tf.reduce_mean(x, [1, 2], keep_dims=True)
-            new_mean_sq = tf.reduce_mean(tf.square(x), [0, 1, 2], keep_dims=True)
+            new_mean_sq = tf.reduce_mean(
+                tf.square(x), [0, 1, 2], keep_dims=True)
             mean = new_coeff * new_mean + old_coeff * self.mean
             mean_sq = new_coeff * new_mean_sq + old_coeff * self.mean_sq
             out = self._normalize(x, mean, mean_sq)
@@ -324,9 +342,11 @@ class VBN(object):
         assert mean_sq is not None
         assert mean is not None
         with tf.variable_scope(name):
-            self.gamma = tf.get_variable("gamma", [shape[-1]], initializer=tf.random_normal_initializer(1., 0.02))
+            self.gamma = tf.get_variable(
+                "gamma", [shape[-1]], initializer=tf.random_normal_initializer(1., 0.02))
             gamma = tf.reshape(self.gamma, [1, 1, 1, -1])
-            self.beta = tf.get_variable("beta", [shape[-1]], initializer=tf.constant_initializer(0.))
+            self.beta = tf.get_variable(
+                "beta", [shape[-1]], initializer=tf.constant_initializer(0.))
             beta = tf.reshape(self.beta, [1, 1, 1, -1])
         std = tf.sqrt(self.epsilon + mean_sq - tf.square(mean))
         out = x - mean

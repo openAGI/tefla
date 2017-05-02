@@ -3,10 +3,10 @@ import six
 import numpy as np
 from collections import namedtuple
 # from tensorflow.contrib.rnn.python.ops import core_rnn_cell
-from tefla.core import initializers as initz
-from tefla.core.layers import conv2d, dropout, softmax
-from tefla.core import logger as log
-from tefla.utils import util as helper
+from . import initializers as initz
+from .layers import conv2d, dropout, softmax
+from . import logger as log
+from ..utils import util as helper
 
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 core_rnn_cell = tf.contrib.rnn

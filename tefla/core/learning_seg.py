@@ -10,14 +10,13 @@ import traceback
 import numpy as np
 import matplotlib.pyplot as plt
 
-from tefla.core.base import Base, BaseMixin
-import tefla.core.summary as summary
-import tefla.core.logger as log
-from tefla.utils import util
-from tefla.dataset import seg_input
-from tefla.dataset.pascal_voc import PascalVoc
-from tefla.core.losses import segment_loss
-from tefla.core.metrics import compute_hist
+from .base import Base, BaseMixin
+from . import summary as summary
+from . import logger as log
+from ..utils import util
+from ..dataset.pascal_voc import PascalVoc
+from .losses import segment_loss
+from .metrics import compute_hist
 import tensorflow as tf
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'

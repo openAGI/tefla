@@ -13,10 +13,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import control_flow_ops
 
-from tefla.core import logger as log
-from tefla.core import summary as summary
-from tefla.core.base import Base
-from tefla.utils import util
+from . import logger as log
+from . import summary as summary
+from .base import Base
+from ..utils import util
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'

@@ -8,10 +8,10 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from tefla.da.iterator import BatchIterator
-from tefla.core.lr_policy import NoDecayPolicy
-from tefla.core.losses import kappa_log_loss_clipped
-from tefla.core import summary
+from ..da.iterator import BatchIterator
+from .lr_policy import NoDecayPolicy
+from .losses import kappa_log_loss_clipped
+from . import summary
 
 logger = logging.getLogger('tefla')
 

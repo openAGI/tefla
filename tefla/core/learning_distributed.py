@@ -9,13 +9,13 @@ from datetime import datetime
 import numpy as np
 import tensorflow as tf
 
-from tefla.core.base import Base
+from .base import Base
 # import tefla.core.summary as summary
-import tefla.core.logger as log
-from tefla.utils import util
-from tefla.dataset.base import Dataset
-from tefla.dataset.decoder import Decoder
-from tefla.dataset.dataflow import Dataflow
+from . import logger as log
+from ..utils import util
+from ..dataset.base import Dataset
+from ..dataset.decoder import Decoder
+from ..dataset.dataflow import Dataflow
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -435,7 +435,7 @@ class DistSupervisedTrainer(Base):
                                              total_num_replicas=num_workers, variable_averages=exp_moving_averager, variables_to_average=variables_to_average)
         return total_loss, opt, val_total_loss
 
-    def create_train_op(self, total_loss, optimizer, global_step=None, update_ops=None, variables_to_train=None, clip_grad_global_norm=False, gradient_noise_scale=None, gradient_multipliers=None, gate_gradients=tf.Optimizer.GATE_OP, aggregation_method=None, colocate_gradients_with_ops=False):
+    def create_train_op(self, total_loss, optimizer, global_step=None, update_ops=None, variables_to_train=None, clip_grad_global_norm=False, gradient_noise_scale=None, gradient_multipliers=None, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=None, colocate_gradients_with_ops=False):
         """Creates an `Operation` that evaluates the gradients and returns the loss.
         Args:
             total_loss: A `Tensor` representing the total loss.

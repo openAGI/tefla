@@ -3,8 +3,8 @@ from __future__ import division, print_function, absolute_import
 import functools
 import logging
 
-from tefla import convert
-from tefla.da import iterator
+from .. import convert
+from ..da import iterator
 
 logger = logging.getLogger('tefla')
 

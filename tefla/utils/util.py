@@ -13,7 +13,6 @@ import numpy as np
 from progress.bar import Bar
 from sklearn.metrics import auc, roc_curve
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, accuracy_score
-from quadratic_weighted_kappa import quadratic_weighted_kappa
 from sklearn.preprocessing import label_binarize
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
@@ -21,6 +20,8 @@ from tensorflow.python.framework import tensor_util
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import variables
 import tensorflow as tf
+
+from .quadratic_weighted_kappa import quadratic_weighted_kappa
 
 
 def roc(y_true, y_pred, classes=[0, 1, 2, 3, 4]):

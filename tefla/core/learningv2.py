@@ -8,14 +8,14 @@ import time
 import numpy as np
 import tensorflow as tf
 
-from tefla.core.base import Base, BaseMixin
-import tefla.core.summary as summary
-import tefla.core.logger as log
-from tefla.utils import util
-from tefla.da.data_augmentation import inputs, distorted_inputs
-from tefla.dataset.base import Dataset
-from tefla.dataset.decoder import Decoder
-from tefla.dataset.dataflow import Dataflow
+from .base import Base, BaseMixin
+from . import summary as summary
+from . import logger as log
+from ..utils import util
+from ..da.data_augmentation import inputs, distorted_inputs
+from ..dataset.base import Dataset
+from ..dataset.decoder import Decoder
+from ..dataset.dataflow import Dataflow
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
