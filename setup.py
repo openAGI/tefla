@@ -1,5 +1,6 @@
+#!/usr/bin/env python
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
 
@@ -31,7 +32,7 @@ class PyTest(TestCommand):
 
 setup(
     name='tefla',
-    packages=['tefla'],
+    packages=find_packages(),
     version='0.1',
     description='Simple end-to-end deep learning with tensorflow. Datasets, data-augmentation, models, training, prediction, and metrics',
     author='Tefla contributors',
