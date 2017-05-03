@@ -12,6 +12,9 @@ addons:
     packages:
       - g++-4.8
 
+before_install:
+  - sudo apt-get install -y python-opencv
+  - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7
 install:
   - echo $TRAVIS_PYTHON_VERSION
   - pip install -U pytest-cov
