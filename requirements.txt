@@ -12,6 +12,6 @@ matplotlib==1.5.1
 ghalton==0.6
 Pillow==2.3.0
 progress
-opencv-python
+# opencv-python
 # h5py
 # git+https://github.com/lucasb-eyer/pydensecrf.git
