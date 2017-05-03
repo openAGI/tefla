@@ -28,10 +28,21 @@ Tefla features:
 Tefla requires Tensorflow(version >=r1.0)
 
 **Tefla Installation**
+For the latest stable version:
+``python
+pip install tefla
+```
 
 for current version installation:
 ```python
 pip install git+https://github.com/n3011/tefla.git
+```
+
+TO Work with source and moifying source code:
+```Shell
+git clone https://github.com/n3011/tefla.git
+cd tefla
+export PYTHONPATH=.
 ```
 ## Documentation
 
