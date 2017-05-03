@@ -23,6 +23,7 @@ install:
   - pip install --upgrade pip setuptools wheel
   - pip install entrypoints
   - pip install --only-binary=numpy,scipy numpy scipy
+  - pip install git+https://github.com/lucasb-eyer/pydensecrf.git
   - pip install tensorflow
   - pip install opencv-python
   - python setup.py install
