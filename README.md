@@ -27,6 +27,12 @@ Tefla features:
 
 Tefla requires Tensorflow(version >=r1.0)
 
+## Additional Requirements
+```Shell
+pip install scipy
+pip install git+https://github.com/lucasb-eyer/pydensecrf.git
+```
+
 ## Tefla Installation
 For the latest stable version:
 ```python
