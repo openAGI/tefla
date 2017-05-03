@@ -15,6 +15,7 @@ addons:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y python-opencv
+  - sudo apt-get install -y cython
   - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7
   - sudo apt-get update
 install:
