@@ -38,7 +38,7 @@ for current version installation:
 pip install git+https://github.com/n3011/tefla.git
 ```
 
-TO Work with source and moifying source code:
+For Developer / TO Work with source and modifying source code:
 ```Shell
 git clone https://github.com/n3011/tefla.git
 cd tefla
