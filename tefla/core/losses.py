@@ -9,7 +9,7 @@ from functools import partial
 from ..utils import util
 from .layers import flatten, fully_connected as fc, relu
 from .layers import gradient_reverse
-log_loss = tf.contrib.losses.log_loss
+log_loss = tf.losses.log_loss
 
 
 def log_loss_custom(predictions, labels, eps=1e-7, name='log'):
@@ -51,7 +51,7 @@ def log_loss_tf(predictions, labels, eps=1e-7, weights=1.0, name='log_loss'):
         labels = tf.to_float(labels)
         losses = -tf.multiply(labels, tf.log(predictions + eps)) - tf.multiply(
             (1 - labels), tf.log(1 - predictions + eps))
-    return tf.contrib.losses.compute_weighted_loss(losses, weights)
+    return tf.losses.compute_weighted_loss(losses, weights)
 
 
 def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_size=32, name='kappa'):
