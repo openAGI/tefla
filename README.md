@@ -29,7 +29,7 @@ Tefla requires Tensorflow(version >=r1.0)
 
 **Tefla Installation**
 For the latest stable version:
-``python
+```python
 pip install tefla
 ```
 
