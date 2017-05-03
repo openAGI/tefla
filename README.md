@@ -23,11 +23,11 @@ Tefla features:
 
 
 
-**TensorFlow Installation**
+## TensorFlow Installation
 
 Tefla requires Tensorflow(version >=r1.0)
 
-**Tefla Installation**
+## Tefla Installation
 For the latest stable version:
 ```python
 pip install tefla
