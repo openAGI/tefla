@@ -26,10 +26,15 @@ Tefla features:
 ## TensorFlow Installation
 
 Tefla requires Tensorflow(version >=r1.0)
-
+```Shell
+pip install tensorflow-gpu
+```
 ## Additional Requirements
 ```Shell
+sudo apt-get install -y cython
+sudo apt-get install python-opencv
 pip install scipy
+pip install Cython
 pip install git+https://github.com/lucasb-eyer/pydensecrf.git
 ```
 
@@ -48,6 +53,7 @@ For Developer / TO Work with source and modifying source code:
 ```Shell
 git clone https://github.com/n3011/tefla.git
 cd tefla
+pip install -r requirements.txt
 export PYTHONPATH=.
 ```
 ## Documentation
