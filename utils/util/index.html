@@ -319,6 +319,12 @@
                 <li class="toctree-l3"><a href="#denormalize-a-input-layer">DeNormalize a input layer</a></li>
                 
             
+                <li class="toctree-l3"><a href="#computes-the-squared-pairwise-euclidean-distances-between-x-and-y">Computes the squared pairwise Euclidean distances between x and y</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-a-guassian-radial-basis-kernel-between-the-samples-of-x-and-y">Computes a Guassian Radial Basis Kernel between the samples of x and y</a></li>
+                
+            
             </ul>
         
     </li>
@@ -381,7 +387,7 @@
             <div class="section">
               
                 <h1 id="device-chooser-for-variables">Device chooser for variables</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L388 target="_blank"><b>tefla.utils.util.VariableDeviceChooser</b></a></span>  (num_parameter_servers=0,  ps_device='/job:ps',  placement='CPU:0')</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L389 target="_blank"><b>tefla.utils.util.VariableDeviceChooser</b></a></span>  (num_parameter_servers=0,  ps_device='/job:ps',  placement='CPU:0')</span>
 When using a parameter server it will assign them in a round-robin fashion.
 When not using a parameter server it allows GPU:0 placement otherwise CPU:0.
 Initialize VariableDeviceChooser.</p>
@@ -395,13 +401,13 @@ or GPU:0. When using parameter servers forced to CPU:0.</li>
 </ul>
 <hr />
 <h1 id="valid-types-for-loss-variables-and-gradients">Valid types for loss, variables and gradients</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L202 target="_blank"><b>tefla.utils.util.valid_dtypes</b></a></span>  ()</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L203 target="_blank"><b>tefla.utils.util.valid_dtypes</b></a></span>  ()</span>
 Subclasses should override to allow other float types.
 <h3>Returns</h3></p>
 <p>Valid types for loss, variables and gradients.</p>
 <hr />
 <h1 id="asserts-tensors-are-all-valid-types-see-_valid_dtypes">Asserts tensors are all valid types (see <code>_valid_dtypes</code>)</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L211 target="_blank"><b>tefla.utils.util.assert_valid_dtypes</b></a></span>  (tensors)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L212 target="_blank"><b>tefla.utils.util.assert_valid_dtypes</b></a></span>  (tensors)</span>
 <h3>Args</h3></p>
 <ul>
 <li>
@@ -414,7 +420,7 @@ Subclasses should override to allow other float types.
 </ul>
 <hr />
 <h1 id="returns-value-if-value_or_tensor_or_var-has-a-constant-value">Returns value if value_or_tensor_or_var has a constant value</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L226 target="_blank"><b>tefla.utils.util.constant_value</b></a></span>  (value_or_tensor_or_var,  dtype=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L227 target="_blank"><b>tefla.utils.util.constant_value</b></a></span>  (value_or_tensor_or_var,  dtype=None)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -427,7 +433,7 @@ Subclasses should override to allow other float types.
 <p>The constant value or None if it not constant.</p>
 <hr />
 <h1 id="return-either-fn1-or-fn2-based-on-the-boolean-value-of-pred">Return either fn1() or fn2() based on the boolean value of <code>pred</code></h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L255 target="_blank"><b>tefla.utils.util.static_cond</b></a></span>  (pred,  fn1,  fn2)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L256 target="_blank"><b>tefla.utils.util.static_cond</b></a></span>  (pred,  fn1,  fn2)</span></p>
 <p>Same signature as <code>control_flow_ops.cond()</code> but requires pred to be a bool.</p>
 <h3>Args</h3>
 
@@ -441,7 +447,7 @@ Subclasses should override to allow other float types.
 <p>Tensors returned by the call to either <code>fn1</code> or <code>fn2</code>.</p>
 <hr />
 <h1 id="return-either-fn1-or-fn2-based-on-the-boolean-predicatevalue-pred">Return either fn1() or fn2() based on the boolean predicate/value <code>pred</code></h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L281 target="_blank"><b>tefla.utils.util.smart_cond</b></a></span>  (pred,  fn1,  fn2,  name=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L282 target="_blank"><b>tefla.utils.util.smart_cond</b></a></span>  (pred,  fn1,  fn2,  name=None)</span></p>
 <p>If <code>pred</code> is bool or has a constant value it would use <code>static_cond</code>,
  otherwise it would use <code>tf.cond</code>.</p>
 <h3>Args</h3>
@@ -463,7 +469,7 @@ Subclasses should override to allow other float types.
 <p>Tensors returned by the call to either <code>fn1</code> or <code>fn2</code>.</p>
 <hr />
 <h1 id="transform-numeric-labels-into-onehot_labels">Transform numeric labels into onehot_labels</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L333 target="_blank"><b>tefla.utils.util.one_hot</b></a></span>  (labels,  num_classes,  name='one_hot')</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L334 target="_blank"><b>tefla.utils.util.one_hot</b></a></span>  (labels,  num_classes,  name='one_hot')</span>
 <h3>Args</h3></p>
 <ul>
 <li><strong>labels</strong>: [batch_size] target labels.</li>
@@ -481,7 +487,7 @@ Subclasses should override to allow other float types.
 <p>one hot encoding of the labels.</p>
 <hr />
 <h1 id="returns-a-true-if-its-input-is-a-collectionssequence-except-strings">Returns a true if its input is a collections.Sequence (except strings)</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L353 target="_blank"><b>tefla.utils.util.is_sequence</b></a></span>  (seq)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L354 target="_blank"><b>tefla.utils.util.is_sequence</b></a></span>  (seq)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -492,7 +498,7 @@ Subclasses should override to allow other float types.
 <p>True if the sequence is a not a string and is a collections.Sequence.</p>
 <hr />
 <h1 id="returns-a-flat-sequence-from-a-given-nested-structure">Returns a flat sequence from a given nested structure</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L365 target="_blank"><b>tefla.utils.util.flatten_sq</b></a></span>  (nest_sq)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L366 target="_blank"><b>tefla.utils.util.flatten_sq</b></a></span>  (nest_sq)</span>
 If <code>nest</code> is not a sequence, this returns a single-element list: <code>[nest]</code>.</p>
 <h3>Args</h3>
 
@@ -505,7 +511,7 @@ Note, numpy arrays are considered scalars.</li>
 <p>A Python list, the flattened version of the input.</p>
 <hr />
 <h1 id="returns-the-last-dimension-of-shape-while-checking-it-has-min_rank">Returns the last dimension of shape while checking it has min_rank</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L417 target="_blank"><b>tefla.utils.util.last_dimension</b></a></span>  (shape,  min_rank=1)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L418 target="_blank"><b>tefla.utils.util.last_dimension</b></a></span>  (shape,  min_rank=1)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -517,7 +523,7 @@ Note, numpy arrays are considered scalars.</li>
 <p>The value of the last dimension.</p>
 <hr />
 <h1 id="load-graph-from-frozen-weights-and-model">Load Graph from frozen weights and model</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L443 target="_blank"><b>tefla.utils.util.load_frozen_graph</b></a></span>  (frozen_graph)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L444 target="_blank"><b>tefla.utils.util.load_frozen_graph</b></a></span>  (frozen_graph)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -528,7 +534,7 @@ Note, numpy arrays are considered scalars.</li>
 <p>loaded graph</p>
 <hr />
 <h1 id="normalize-a-input-layer">Normalize a input layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L471 target="_blank"><b>tefla.utils.util.normalize</b></a></span>  (input_layer)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L472 target="_blank"><b>tefla.utils.util.normalize</b></a></span>  (input_layer)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -539,7 +545,7 @@ Note, numpy arrays are considered scalars.</li>
 <p>normalized layer</p>
 <hr />
 <h1 id="denormalize-a-input-layer">DeNormalize a input layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L483 target="_blank"><b>tefla.utils.util.denormalize</b></a></span>  (input_layer)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L484 target="_blank"><b>tefla.utils.util.denormalize</b></a></span>  (input_layer)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -548,6 +554,33 @@ Note, numpy arrays are considered scalars.</li>
 <h3>Returns</h3>
 
 <p>denormalized layer</p>
+<hr />
+<h1 id="computes-the-squared-pairwise-euclidean-distances-between-x-and-y">Computes the squared pairwise Euclidean distances between x and y</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L650 target="_blank"><b>tefla.utils.util.compute_pairwise_distances</b></a></span>  (x,  y)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a tensor of shape [num_x_samples, num_features]</li>
+<li><strong>y</strong>: a tensor of shape [num_y_samples, num_features]</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a distance matrix of dimensions [num_x_samples, num_y_samples].</p>
+<hr />
+<h1 id="computes-a-guassian-radial-basis-kernel-between-the-samples-of-x-and-y">Computes a Guassian Radial Basis Kernel between the samples of x and y</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L675 target="_blank"><b>tefla.utils.util.gaussian_kernel_matrix</b></a></span>  (x,  y,  sigmas)</span>
+We create a sum of multiple gaussian kernels each having a width sigma_i.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>x</strong>: a tensor of shape [num_samples, num_features]</li>
+<li><strong>y</strong>: a tensor of shape [num_samples, num_features]</li>
+<li><strong>sigmas</strong>: a tensor of floats which denote the widths of each of the
+gaussians in the kernel.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>A tensor of shape [num_samples{x}, num_samples{y}] with the RBF kernel.</p>
 <hr />
               
             </div>

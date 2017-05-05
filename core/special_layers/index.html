@@ -111,6 +111,9 @@
                 <li class="toctree-l3"><a href="#densecrf-over-unnormalised-predictions">DenseCRF over unnormalised predictions</a></li>
                 
             
+                <li class="toctree-l3"><a href="#resnext-block">ResNeXt Block</a></li>
+                
+            
             </ul>
         
     </li>
@@ -360,7 +363,7 @@
             <div class="section">
               
                 <h1 id="spatial-transformer-layer">Spatial Transformer Layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L8 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L10 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span></p>
 <p>Implements a spatial transformer layer as described in [1]<em>.
 It's based on lasagne implementation in [2]</em>, modified by Mrinal Haloi</p>
 <h3>Args</h3>
@@ -379,7 +382,7 @@ The output of the localisation network should be [batch_size, num_transform, 6] 
 <p>spatial transformed output of the network</p>
 <hr />
 <h1 id="subsamples-the-input-along-the-spatial-dimensions">Subsamples the input along the spatial dimensions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L162 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L164 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -393,7 +396,7 @@ The output of the localisation network should be [batch_size, num_transform, 6] 
 input, either intact (if factor == 1) or subsampled (if factor &gt; 1).</p>
 <hr />
 <h1 id="strided-2-d-convolution-with-same-padding">Strided 2-D convolution with 'SAME' padding</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L180 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L182 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span></p>
 <p>When stride &gt; 1, then we do explicit zero-padding, followed by conv2d with
 'VALID' padding.</p>
 <p>Note that</p>
@@ -421,7 +424,7 @@ current function. For more details, see ResnetUtilsTest.testConv2DSameEven().</p
 the convolution output.</p>
 <hr />
 <h1 id="bottleneck-residual-unit-variant-with-bn-before-convolutions">Bottleneck residual unit variant with BN before convolutions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L228 target="_blank"><b>tefla.core.special_layers.bottleneck_v1</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L230 target="_blank"><b>tefla.core.special_layers.bottleneck_v1</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
 <p>This is the full preactivation residual unit variant proposed in [2]. See
 Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
 variant which has an extra bottleneck layer.</p>
@@ -444,7 +447,7 @@ the units output compared to its input.</li>
 <p>The ResNet unit's output.</p>
 <hr />
 <h1 id="bottleneck-residual-unit-variant-with-bn-before-convolutions_1">Bottleneck residual unit variant with BN before convolutions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L275 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L277 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
 <p>This is the full preactivation residual unit variant proposed in [2]. See
 Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
 variant which has an extra bottleneck layer.</p>
@@ -467,7 +470,7 @@ the units output compared to its input.</li>
 <p>The ResNet unit's output.</p>
 <hr />
 <h1 id="densecrf-over-unnormalised-predictions">DenseCRF over unnormalised predictions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L403 target="_blank"><b>tefla.core.special_layers.dense_crf</b></a></span>  (probs,  img=None,  n_iters=20,  sxy_gaussian=  (1,  1),  compat_gaussian=4,  kernel_gaussian=<KernelType.DIAG_KERNEL:  1>,  normalisation_gaussian=<NormalizationType.NORMALIZE_SYMMETRIC:  3>,  sxy_bilateral=  (49,  49),  compat_bilateral=5,  srgb_bilateral=  (13,  13,  13),  kernel_bilateral=<KernelType.DIAG_KERNEL:  1>,  normalisation_bilateral=<NormalizationType.NORMALIZE_SYMMETRIC:  3>)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L405 target="_blank"><b>tefla.core.special_layers.dense_crf</b></a></span>  (probs,  img=None,  n_classes=15,  n_iters=10,  sxy_gaussian=  (1,  1),  compat_gaussian=4,  kernel_gaussian=<KernelType.DIAG_KERNEL:  1>,  normalisation_gaussian=<NormalizationType.NORMALIZE_SYMMETRIC:  3>,  sxy_bilateral=  (49,  49),  compat_bilateral=2,  srgb_bilateral=  (13,  13,  13),  kernel_bilateral=<KernelType.DIAG_KERNEL:  1>,  normalisation_bilateral=<NormalizationType.NORMALIZE_SYMMETRIC:  3>)</span>
    More details on the arguments at https://github.com/lucasb-eyer/pydensecrf.</p>
 <h3>Args</h3>
 
@@ -496,6 +499,37 @@ of the colour-dependent term.</li>
 <h3>Returns</h3>
 
 <p>Refined predictions after MAP inference.</p>
+<hr />
+<h1 id="resnext-block">ResNeXt Block</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7ff0da7df8c0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+resnext paper https://arxiv.org/pdf/1611.05431.pdf</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>inputs</strong>: <code>Tensor</code>. Inputs 4-D Layer.</li>
+<li><strong>nb_blocks</strong>: <code>int</code>. Number of layer blocks.</li>
+<li><strong>out_channels</strong>: <code>int</code>. The number of convolutional filters of the
+layers surrounding the bottleneck layer.</li>
+<li><strong>cardinality</strong>: <code>int</code>. Number of aggregated residual transformations.</li>
+<li><strong>downsample</strong>: <code>bool</code>. If True, apply downsampling using
+'downsample_strides' for strides.</li>
+<li><strong>downsample_strides</strong>: <code>int</code>. The strides to use when downsampling.</li>
+<li><strong>activation</strong>: <code>function</code> (returning a <code>Tensor</code>).</li>
+<li><strong>batch_norm</strong>: <code>bool</code>. If True, apply batch normalization.</li>
+<li>use_ bias: <code>bool</code>. If True, a bias is used.</li>
+<li><strong>w_init</strong>: <code>function</code>, Weights initialization.</li>
+<li><strong>b_init</strong>: <code>tf.Tensor</code>. Bias initialization.</li>
+<li><strong>w_regularizer</strong>: <code>function</code>. Add a regularizer to this</li>
+<li><strong>weight_decay</strong>: <code>float</code>. Regularizer decay parameter. Default: 0.001.</li>
+<li><strong>trainable</strong>: <code>bool</code>. If True, weights will be trainable.</li>
+<li><strong>reuse</strong>: <code>bool</code>. If True and 'scope' is provided, this layer variables
+will be reused (shared).
+override name.</li>
+<li><strong>name</strong>: A name for this layer (optional). Default: 'ResNeXtBlock'.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>4-D Tensor [batch, new height, new width, out_channels].</p>
 <hr />
               
             </div>
