@@ -557,3 +557,41 @@ def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinali
             resnext = activation(resnext)
 
         return resnext
+
+
+def embedding(inputs, input_dim, output_dim, reuse, validate_indices=False,
+              w_init=initz.he_normal(), trainable=True, name="Embedding"):
+    """ Embedding.
+    Embedding layer for a sequence of integer ids or floats.
+
+    Args:
+        inputs: a 2-D `Tensor` [samples, ids].
+        input_dim: list of `int`. Vocabulary size (number of ids).
+        output_dim: list of `int`. Embedding size.
+        validate_indices: `bool`. Whether or not to validate gather indices.
+        w_init:  Weights initialization.
+        trainable: `bool`. If True, weights will be trainable.
+        reuse: `bool`. If True and 'scope' is provided, this layer variables
+            will be reused (shared).
+        name: A name for this layer (optional). Default: 'Embedding'.
+
+    Returns:
+        3-D Tensor [samples, embedded_ids, features].
+    """
+
+    input_shape = util.get_input_shape(inputs)
+    assert len(input_shape) == 2, "Incoming Tensor shape must be 2-D"
+
+    with tf.variable_scope(name, reuse=reuse):
+        with tf.device('/cpu:0'):
+            W = tf.get_variable("W", shape=[input_dim, output_dim],
+                                initializer=w_init, trainable=trainable)
+
+        output = tf.cast(inputs, tf.int32)
+        output = tf.nn.embedding_lookup(W, output,
+                                        validate_indices=validate_indices)
+
+    shape = [-1] + output.get_shape().as_list()[1:3] + [1]
+    seq_length = util.retrieve_seq_length(tf.reshape(inputs, shape))
+
+    return output

@@ -692,3 +692,161 @@ def gaussian_kernel_matrix(x, y, sigmas):
     s = tf.matmul(beta, tf.reshape(dist, (1, -1)))
 
     return tf.reshape(tf.reduce_sum(tf.exp(-s), 0), tf.shape(dist))
+
+
+def retrieve_seq_length(data):
+    """ compute the length of a sequence. 0 are masked.
+
+   Args:
+       data: input sequence
+
+   Returns:
+      a `int`, length of the sequence
+    """
+    with tf.name_scope('GetLength'):
+        used = tf.sign(tf.reduce_max(tf.abs(data), axis=2))
+        length = tf.reduce_sum(used, axis=1)
+        length = tf.cast(length, tf.int32)
+    return length
+
+
+def advanced_indexing(inp, index):
+    """ Advanced Indexing for Sequences
+   Args:
+       inp: input sequence
+       index: input index for indexing
+
+   Returns:
+      a indexed sequence
+    """
+    batch_size = tf.shape(inp)[0]
+    max_length = int(inp.get_shape()[1])
+    dim_size = int(inp.get_shape()[2])
+    index = tf.range(0, batch_size) * max_length + (index - 1)
+    flat = tf.reshape(inp, [-1, dim_size])
+    relevant = tf.gather(flat, index)
+    return relevant
+
+
+def pad_sequences(sequences, maxlen=None, dtype='int32', padding='post',
+                  truncating='post', value=0.):
+    """ pad_sequences.
+    Pad each sequence to the same length: the length of the longest sequence.
+    If maxlen is provided, any sequence longer than maxlen is truncated to
+    maxlen. Truncation happens off either the beginning or the end (default)
+    of the sequence. Supports pre-padding and post-padding (default).
+
+    Args:
+        sequences: list of lists where each element is a sequence.
+        maxlen: a `int`, maximum length.
+        dtype: type to cast the resulting sequence.
+        padding: 'pre' or 'post', pad either before or after each sequence.
+        truncating: 'pre' or 'post', remove values from sequences larger than
+            maxlen either in the beginning or in the end of the sequence
+        value: `float`, value to pad the sequences to the desired value.
+
+    Returns:
+        x: `numpy array` with dimensions (number_of_sequences, maxlen)
+    """
+    lengths = [len(s) for s in sequences]
+
+    nb_samples = len(sequences)
+    if maxlen is None:
+        maxlen = np.max(lengths)
+
+    x = (np.ones((nb_samples, maxlen)) * value).astype(dtype)
+    for idx, s in enumerate(sequences):
+        if len(s) == 0:
+            continue  # empty list was found
+        if truncating == 'pre':
+            trunc = s[-maxlen:]
+        elif truncating == 'post':
+            trunc = s[:maxlen]
+        else:
+            raise ValueError("Truncating type '%s' not understood" % padding)
+
+        if padding == 'post':
+            x[idx, :len(trunc)] = trunc
+        elif padding == 'pre':
+            x[idx, -len(trunc):] = trunc
+        else:
+            raise ValueError("Padding type '%s' not understood" % padding)
+    return x
+
+
+def chars_to_dictionary(string):
+    """ Creates a dictionary char:integer for each unique character
+    Args:
+        string: a `string` input
+
+    Returns:
+        dictionary of chars
+    """
+    chars = set(string)
+    char_idx = {c: i for i, c in enumerate(sorted(chars))}
+    return char_idx
+
+
+def string_to_semi_redundant_sequences(string, seq_maxlen=25, redun_step=3, char_idx=None):
+    """ string_to_semi_redundant_sequences.
+    Vectorize a string and returns parsed sequences and targets, along with
+    the associated dictionary.
+
+    Args:
+        string: `str`. Lower-case text from input text file.
+        seq_maxlen: `int`. Maximum length of a sequence. Default: 25.
+        redun_step: `int`. Redundancy step. Default: 3.
+        char_idx: 'dict'. A dictionary to convert chars to positions. Will be automatically generated if None
+
+    Returns:
+        A tuple: (inputs, targets, dictionary)
+    """
+
+    print("Vectorizing text...")
+
+    if char_idx is None:
+        char_idx = chars_to_dictionary(string)
+
+    len_chars = len(char_idx)
+
+    sequences = []
+    next_chars = []
+    for i in range(0, len(string) - seq_maxlen, redun_step):
+        sequences.append(string[i: i + seq_maxlen])
+        next_chars.append(string[i + seq_maxlen])
+
+    X = np.zeros((len(sequences), seq_maxlen, len_chars), dtype=np.bool)
+    Y = np.zeros((len(sequences), len_chars), dtype=np.bool)
+    for i, seq in enumerate(sequences):
+        for t, char in enumerate(seq):
+            X[i, t, char_idx[char]] = 1
+        Y[i, char_idx[next_chars[i]]] = 1
+
+    print("Text total length: {:,}".format(len(string)))
+    print("Distinct chars   : {:,}".format(len_chars))
+    print("Total sequences  : {:,}".format(len(sequences)))
+
+    return X, Y, char_idx
+
+
+def textfile_to_semi_redundant_sequences(path, seq_maxlen=25, redun_step=3,
+                                         to_lower_case=False, pre_defined_char_idx=None):
+    """ Vectorize Text file
+    textfile_to_semi_redundant_sequences.
+    Vectorize a string from a textfile and returns parsed sequences and targets, along with
+    the associated dictionary.
+
+    Args:
+        path: `str`. path of the input text file.
+        seq_maxlen: `int`. Maximum length of a sequence. Default: 25.
+        redun_step: `int`. Redundancy step. Default: 3.
+        to_lower_case: a `bool`, if true, convert to lowercase
+        pre_defined_char_idx: 'dict'. A dictionary to convert chars to positions. Will be automatically generated if None
+
+    Returns:
+        A tuple: (inputs, targets, dictionary)
+    """
+    text = open(path).read()
+    if to_lower_case:
+        text = text.lower()
+    return string_to_semi_redundant_sequences(text, seq_maxlen, redun_step, pre_defined_char_idx)
