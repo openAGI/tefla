@@ -25,7 +25,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 class Base(object):
 
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=0, loss_type='softmax_cross_entropy', label_smoothing=0.009, weights_dir='weights'):
+                 validation_iterator=BatchIterator(128, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=1, loss_type='softmax_cross_entropy', label_smoothing=0.009, weights_dir='weights'):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -452,36 +452,36 @@ class BaseMixin(object):
 
     def _tower_loss(self, scope, model, images, labels, is_training, reuse, loss_type='kappa_log', y_pow=2, is_classification=True, gpu_id=0):
         if is_training:
-            training_end_points = model(
+            self.training_end_points = model(
                 images, is_training=is_training, reuse=reuse)
             if is_classification:
                 if loss_type == 'kappa_log':
                     loss_temp = self._loss_kappa(
-                        training_end_points['predictions'], labels, is_training, y_pow=y_pow)
+                        self.training_end_points['predictions'], labels, is_training, y_pow=y_pow)
                 else:
-                    loss_temp = self._loss_softmax(training_end_points[
+                    loss_temp = self._loss_softmax(self.training_end_points[
                         'logits'], labels, is_training)
             else:
-                loss_temp = self._loss_regression(training_end_points[
+                loss_temp = self._loss_regression(self.training_end_points[
                     'logits'], labels, is_training)
             losses = tf.get_collection('losses', scope)
             total_loss = tf.add_n(losses, name='total_loss')
             if gpu_id == 0:
-                self._print_layer_shapes(training_end_points, log)
+                self._print_layer_shapes(self.training_end_points, log)
         else:
-            validation_end_points = model(
+            self.validation_end_points = model(
                 images, is_training=is_training, reuse=reuse)
             if is_classification:
                 if loss_type == 'kappa_log':
-                    loss = self._loss_kappa(validation_end_points[
+                    loss = self._loss_kappa(self.validation_end_points[
                                             'predictions'], labels, is_training)
                 else:
-                    loss = self._loss_softmax(validation_end_points[
+                    loss = self._loss_softmax(self.validation_end_points[
                         'logits'], labels, is_training)
             else:
-                loss = self._loss_regression(alidation_end_points[
+                loss = self._loss_regression(self.validation_end_points[
                     'logits'], labels, is_training)
-            validation_predictions = validation_end_points['predictions']
+            validation_predictions = self.validation_end_points['predictions']
             total_loss = {'loss': loss, 'predictions': validation_predictions}
 
         return total_loss

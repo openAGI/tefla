@@ -27,11 +27,13 @@ class BasicRNNCell(core_rnn_cell.RNNCell):
             `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
     """
 
-    def __init__(self, num_units, reuse, trainable=True, input_size=None, activation=tf.tanh, layer_norm=None, layer_norm_args=None):
+    def __init__(self, num_units, reuse, trainable=True, w_init=initz.he_normal(), use_bias=False, input_size=None, activation=tf.tanh, layer_norm=None, layer_norm_args=None):
         if input_size is not None:
             log.warn("%s: The input_size parameter is deprecated.", self)
         self._num_units = num_units
         self._activation = activation
+        self._w_init = w_init
+        self._use_bias = use_bias
         self.reuse = reuse
         self.trainable = trainable
         self.layer_norm = layer_norm
@@ -49,7 +51,7 @@ class BasicRNNCell(core_rnn_cell.RNNCell):
         """Most basic RNN: output = new_state = act(W * input + U * state + B)."""
         with tf.variable_scope(scope):
             output = self._activation(_linear(
-                [inputs, state], self._num_units, self.reuse, trainable=self.trainable, name=scope))
+                [inputs, state], self._num_units, self.reuse, w_init=self._w_init, use_bias=self._use_bias, trainable=self.trainable, name=scope))
             if self.layer_norm is not None:
                 output = self.layer_norm(
                     output, self.reuse, trainable=self.trainable, **self.layer_norm_args)
@@ -89,11 +91,13 @@ class LSTMCell(core_rnn_cell.RNNCell):
             `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
     """
 
-    def __init__(self, num_units, reuse, trainable=True, forget_bias=1.0, input_size=None, activation=tf.tanh, inner_activation=tf.sigmoid, keep_prob=1.0, dropout_seed=None, cell_clip=None, layer_norm=None, layer_norm_args=None):
+    def __init__(self, num_units, reuse, trainable=True, w_init=initz.he_normal(), forget_bias=1.0, use_bias=False, input_size=None, activation=tf.tanh, inner_activation=tf.sigmoid, keep_prob=1.0, dropout_seed=None, cell_clip=None, layer_norm=None, layer_norm_args=None):
         if input_size is not None:
             ValueError("%s: the input_size parameter is deprecated." % self)
         self._num_units = num_units
         self._forget_bias = forget_bias
+        self._use_bias = use_bias
+        self._w_init = w_init
         self.layer_norm = layer_norm
         self.layer_norm_args = layer_norm_args or {}
         self._cell_clip = cell_clip
@@ -117,7 +121,7 @@ class LSTMCell(core_rnn_cell.RNNCell):
         with tf.variable_scope(scope):
             c, h = state
             concat = _linear([inputs, h], 4 * self._num_units, self.reuse,
-                             trainable=self.trainable, use_bias=False, name=scope)
+                             trainable=self.trainable, w_init=self._w_init, use_bias=self._use_bias, name=scope)
 
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
             try:
@@ -190,7 +194,7 @@ class AttentionCell(core_rnn_cell.RNNCell):
         ValueError: Cell state should be tuple of states
     """
 
-    def __init__(self, cell, attn_length, reuse, trainable=True, attn_size=None, attn_vec_size=None, input_size=None, layer_norm=None, layer_norm_args=None):
+    def __init__(self, cell, attn_length, reuse, w_init=initz.he_normal(), use_bias=False, trainable=True, attn_size=None, attn_vec_size=None, input_size=None, layer_norm=None, layer_norm_args=None):
         if not isinstance(cell, core_rnn_cell.RNNCell):
             raise TypeError("The parameter cell is not RNNCell.")
         if not helper.is_sequence(cell.state_size):
@@ -207,6 +211,8 @@ class AttentionCell(core_rnn_cell.RNNCell):
         self._input_size = input_size
         self._attn_size = attn_size
         self._attn_length = attn_length
+        self._w_init = w_init
+        self._use_bias = use_bias
         self.layer_norm = layer_norm
         self.layer_norm_args = layer_norm_args or {}
         self.reuse = reuse
@@ -230,14 +236,14 @@ class AttentionCell(core_rnn_cell.RNNCell):
             if input_size is None:
                 input_size = inputs.get_shape().as_list()[1]
             inputs = _linear([inputs, attns], input_size,
-                             self.reuse, trainable=self.trainable, name=scope)
+                             self.reuse, w_init=self._w_init, use_bias=self._use_bias, trainable=self.trainable, name=scope)
             lstm_output, new_state = self._cell(inputs, state)
             new_state_cat = tf.concat(helper.flatten_sq(new_state), 1)
             new_attns, new_attn_states = _attention(
                 new_state_cat, attn_states, True, self.reuse, self._attn_size, self._attn_vec_size, self._attn_length, trainable=self.trainable)
             with tf.variable_scope("attn_output_projection"):
                 output = _linear([lstm_output, new_attns], self._attn_size,
-                                 self.reuse, trainable=self.trainable, name=scope)
+                                 self.reuse, w_init=self._w_init, use_bias=self._use_bias, trainable=self.trainable, name=scope)
             new_attn_states = tf.concat(
                 [new_attn_states, tf.expand_dims(output, 1)], 1)
             new_attn_states = tf.reshape(
@@ -268,7 +274,7 @@ class GRUCell(core_rnn_cell.RNNCell):
             `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
     """
 
-    def __init__(self, num_units, reuse, trainable=True, input_size=None, activation=tf.tanh, inner_activation=tf.sigmoid, b_init=1.0, layer_norm=None, layer_norm_args=None):
+    def __init__(self, num_units, reuse, w_init=initz.he_normal(), use_bias=False, trainable=True, input_size=None, activation=tf.tanh, inner_activation=tf.sigmoid, b_init=1.0, layer_norm=None, layer_norm_args=None):
         if input_size is not None:
             log.warn("%s: The input_size parameter is deprecated.", self)
         self._num_units = num_units
@@ -276,6 +282,8 @@ class GRUCell(core_rnn_cell.RNNCell):
         self.trainable = trainable
         self._activation = activation
         self._b_init = b_init
+        self._w_init = w_init
+        self._use_bias = use_bias
         self._inner_activation = inner_activation
         self.layer_norm = layer_norm
         self.layer_norm_args = layer_norm_args or {}
@@ -295,12 +303,12 @@ class GRUCell(core_rnn_cell.RNNCell):
                 # We start with bias of 1.0 to not reset and not update.
                 try:
                     r, u = tf.split(2, 1, value=_linear(
-                        [inputs, state], 2 * self._num_units, self.reuse, b_init=self._b_init, trainable=self.trainable, name=scope))
+                        [inputs, state], 2 * self._num_units, self.reuse, w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, trainable=self.trainable, name=scope))
                 except Exception as e:
                     print('Upgrade to recent version >= r.12 %s' %
                           str(e.message))
                     r, u = tf.split(_linear([inputs, state], 2 * self._num_units, self.reuse,
-                                            b_init=self._b_init, trainable=self.trainable, name=scope), 2, 1)
+                                            w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, trainable=self.trainable, name=scope), 2, 1)
                 r, u = self._inner_activation(r), self._inner_activation(u)
                 if self.layer_norm is not None:
                     u = self.layer_norm(
@@ -309,7 +317,7 @@ class GRUCell(core_rnn_cell.RNNCell):
                         r, self.reuse, trainable=self.trainable, **self.layer_norm_args)
             with tf.variable_scope("candidate"):
                 c = self._activation(
-                    _linear([inputs, r * state], self._num_units, True, name=scope))
+                    _linear([inputs, r * state], self._num_units, True, w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, name=scope))
             new_h = u * state + (1 - u) * c
             if self.layer_norm is not None:
                 c = self.layer_norm(
@@ -373,7 +381,7 @@ class GLSTMCell(core_rnn_cell.RNNCell):
     "Factorization Tricks for LSTM Networks", ICLR 2017 workshop.
     """
 
-    def __init__(self, num_units, reuse, initializer=None, num_proj=None, number_of_groups=1, forget_bias=1.0, activation=tf.tanh):
+    def __init__(self, num_units, reuse, w_init=initz.he_normal(), b_init=0.0, use_bias=False, initializer=None, num_proj=None, number_of_groups=1, forget_bias=1.0, activation=tf.tanh):
         """Initialize the parameters of G-LSTM cell.
 
         Args:
@@ -402,6 +410,9 @@ class GLSTMCell(core_rnn_cell.RNNCell):
         self._forget_bias = forget_bias
         self._activation = activation
         self._number_of_groups = number_of_groups
+        self._w_init = w_init
+        self._b_init = b_init
+        self._use_bias = use_bias
         self.reuse = reuse
 
         if self._num_units % self._number_of_groups != 0:
@@ -482,7 +493,7 @@ class GLSTMCell(core_rnn_cell.RNNCell):
                     x_g_id = tf.concat([self._get_input_for_group(inputs, group_id, self._group_shape[
                                        0]), self._get_input_for_group(m_prev, group_id, self._group_shape[0])], axis=1)
                     R_k = _linear(
-                        x_g_id, 4 * self._group_shape[1], self.reuse, use_bias=False, name=scope + "group%d" % group_id)
+                        x_g_id, 4 * self._group_shape[1], self.reuse, w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, name=scope + "group%d" % group_id)
                     i_k, j_k, f_k, o_k = tf.split(R_k, 4, 1)
 
                 i_parts.append(i_k)
@@ -518,8 +529,8 @@ class GLSTMCell(core_rnn_cell.RNNCell):
 
         if self._num_proj is not None:
             with tf.variable_scope("projection"):
-                m = _linear(m, self._num_proj, self.reuse,
-                            use_bias=False, name=scope + 'projection')
+                m = _linear(m, self._num_proj, self.reuse, w_init=self._w_init,
+                            b_init=self._b_init, use_bias=self._use_bias, name=scope + 'projection')
 
         new_state = core_rnn_cell.LSTMStateTuple(c, m)
         return m, new_state
@@ -762,3 +773,158 @@ def _collect_named_outputs(outputs_collections, name, output):
     if outputs_collections is not None:
         tf.add_to_collection(outputs_collections, NamedOutputs(name, output))
     return output
+
+
+def _rnn_wrapper(inputs, cell, reuse, is_training, dropout=None, return_seq=False,
+                 return_state=False, initial_state=None, dynamic=False,
+                 scope="rnn_wrapper"):
+    """ RNN cell Wrapper. """
+    sequence_length = None
+    if dynamic:
+        sequence_length = helper.retrieve_seq_length(
+            inputs if isinstance(inputs, tf.Tensor) else tf.stack(inputs))
+
+    input_shape = helper.get_input_shape(inputs)
+
+    with tf.variable_scope(scope, reuse=reuse) as scope:
+        name = scope.name
+        if dropout:
+            if type(dropout) in [tuple, list]:
+                input_keep_prob = dropout[0]
+                output_keep_prob = dropout[1]
+            elif isinstance(dropout, float):
+                input_keep_prob, output_keep_prob = dropout, dropout
+            else:
+                raise Exception("Invalid dropout type (must be a 2-D tuple of "
+                                "float)")
+            cell = DropoutWrapper(
+                cell, is_training, input_keep_prob, output_keep_prob)
+
+        outputs = inputs
+        if type(outputs) not in [list, np.array]:
+            ndim = len(input_shape)
+            assert ndim >= 3, "Input dim should be at least 3."
+            axes = [1, 0] + list(range(2, ndim))
+            outputs = tf.transpose(outputs, (axes))
+            outputs = tf.unstack(outputs)
+
+        outputs, state = core_rnn_cell.static_rnn(cell, outputs, dtype=tf.float32,
+                                                  initial_state=initial_state, scope=name,
+                                                  sequence_length=sequence_length)
+
+    if dynamic:
+        if return_seq:
+            o = outputs
+        else:
+            outputs = tf.transpose(tf.stack(outputs), [1, 0, 2])
+            o = helper.advanced_indexing(outputs, sequence_length)
+    else:
+        o = outputs if return_seq else outputs[-1]
+
+    return (o, state) if return_state else o
+
+
+def lstm(inputs, n_units, reuse, is_training, activation=tf.tanh, inner_activation=tf.sigmoid,
+         dropout=None, use_bias=True, w_init=initz.he_normal(), forget_bias=1.0,
+         return_seq=False, return_state=False, initial_state=None,
+         dynamic=True, trainable=True, scope='lstm'):
+    """ LSTM.
+    Long Short Term Memory Recurrent Layer.
+
+    Args:
+        inputs: `Tensor`. Inputs 3-D Tensor [samples, timesteps, input_dim].
+        n_units: `int`, number of units for this layer.
+        reuse: `bool`. If True and 'scope' is provided, this layer variables
+            will be reused (shared).
+        is_training: `bool`, training if True
+        activation: `function` (returning a `Tensor`).
+        inner_activation: `function` (returning a `Tensor`).
+        dropout: `tuple` of `float`: (input_keep_prob, output_keep_prob). The
+            input and output keep probability.
+        use_bias: `bool`. If True, a bias is used.
+        w_init: `function` (returning a `Tensor`). Weights initialization.
+        forget_bias: `float`. Bias of the forget gate. Default: 1.0.
+        return_seq: `bool`. If True, returns the full sequence instead of
+            last sequence output only.
+        return_state: `bool`. If True, returns a tuple with output and
+            states: (output, states).
+        initial_state: `Tensor`. An initial state for the RNN.  This must be
+            a tensor of appropriate type and shape [batch_size x cell.state_size].
+        dynamic: `bool`. If True, dynamic computation is performed. It will not
+            compute RNN steps above the sequence length. Note that because TF
+            requires to feed sequences of same length, 0 is used as a mask.
+            So a sequence padded with 0 at the end must be provided. When
+            computation is performed, it will stop when it meets a step with
+            a value of 0.
+        trainable: `bool`. If True, weights will be trainable.
+        scope: `str`. Define this layer scope (optional). A scope can be
+            used to share variables between layers. Note that scope will
+            override name.
+
+    Returns:
+        if `return_seq`: 3-D Tensor [samples, timesteps, output dim].
+        else: 2-D Tensor [samples, output dim].
+    """
+    cell = LSTMCell(n_units, reuse, activation=activation,
+                    inner_activation=inner_activation,
+                    forget_bias=forget_bias, use_bias=use_bias,
+                    w_init=w_init, trainable=trainable)
+    x = _rnn_wrapper(inputs, cell, reuse, is_training, dropout=dropout,
+                     return_seq=return_seq, return_state=return_state,
+                     initial_state=initial_state, dynamic=dynamic,
+                     scope=scope)
+
+    return x
+
+
+def gru(inputs, n_units, reuse, is_training, activation=tf.tanh, inner_activation=tf.sigmoid,
+        dropout=None, use_bias=True, w_init=initz.he_normal(), forget_bias=1.0,
+        return_seq=False, return_state=False, initial_state=None,
+        dynamic=True, trainable=True, scope='gru'):
+    """ GRU.
+    Gated Recurrent Layer.
+
+    Args:
+        inputs: `Tensor`. Inputs 3-D Tensor [samples, timesteps, input_dim].
+        n_units: `int`, number of units for this layer.
+        reuse: `bool`. If True and 'scope' is provided, this layer variables
+            will be reused (shared).
+        is_training: `bool`, training if True
+        activation: `function` (returning a `Tensor`).
+        inner_activation: `function` (returning a `Tensor`).
+        dropout: `tuple` of `float`: (input_keep_prob, output_keep_prob). The
+            input and output keep probability.
+        use_bias: `bool`. If True, a bias is used.
+        w_init: `function` (returning a `Tensor`). Weights initialization.
+        forget_bias: `float`. Bias of the forget gate. Default: 1.0.
+        return_seq: `bool`. If True, returns the full sequence instead of
+            last sequence output only.
+        return_state: `bool`. If True, returns a tuple with output and
+            states: (output, states).
+        initial_state: `Tensor`. An initial state for the RNN.  This must be
+            a tensor of appropriate type and shape [batch_size x cell.state_size].
+        dynamic: `bool`. If True, dynamic computation is performed. It will not
+            compute RNN steps above the sequence length. Note that because TF
+            requires to feed sequences of same length, 0 is used as a mask.
+            So a sequence padded with 0 at the end must be provided. When
+            computation is performed, it will stop when it meets a step with
+            a value of 0.
+        trainable: `bool`. If True, weights will be trainable.
+        scope: `str`. Define this layer scope (optional). A scope can be
+            used to share variables between layers. Note that scope will
+            override name.
+
+    Returns:
+        if `return_seq`: 3-D Tensor [samples, timesteps, output dim].
+        else: 2-D Tensor [samples, output dim].
+    """
+    cell = GRUCell(n_units, reuse, activation=activation,
+                   inner_activation=inner_activation,
+                   forget_bias=forget_bias, use_bias=use_bias,
+                   w_init=w_init, trainable=trainable)
+    x = _rnn_wrapper(inputs, cell, reuse, is_training, dropout=dropout,
+                     return_seq=return_seq, return_state=return_state,
+                     initial_state=initial_state, dynamic=dynamic,
+                     scope=scope)
+
+    return x
