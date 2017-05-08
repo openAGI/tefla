@@ -868,6 +868,177 @@ def upsample3d(input_, output_shape, is_training, reuse, trainable=True, filter_
             return _collect_named_outputs(outputs_collections, name, output)
 
 
+def conv1d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=3, stride=1,
+           padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
+           name='conv1d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
+           outputs_collections=None):
+    """Adds a 1D convolutional layer.
+
+        `convolutional layer` creates a variable called `weights`, representing a conv
+        weight matrix, which is multiplied by the `x` to produce a
+        `Tensor` of hidden units. If a `batch_norm` is provided (such as
+        `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
+        None and a `b_init` and `use_bias` is provided then a `biases` variable would be
+        created and added the hidden units. Finally, if `activation` is not `None`,
+        it is applied to the hidden units as well.
+        Note: that if `x` have a rank 4
+
+    Args:
+        x: A 3-D `Tensor` of with at least rank 2 and value for the last dimension,
+            i.e. `[batch_size, in_width, depth]`,
+        is_training: Bool, training or testing
+        n_output: Integer or long, the number of output units in the layer.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        filter_size: a `int specifying the spatial
+            dimensions of of the filters.
+        stride: a `int` specifying the stride at which to
+            compute output.
+        padding: one of `"VALID"` or `"SAME"`.
+        activation: activation function, set to None to skip it and maintain
+            a linear activation.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        untie_biases: spatial dimensions wise baises
+        b_init: An initializer for the biases. If None skip biases.
+        outputs_collections: The collections to which the outputs are added.
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+        name: Optional name or scope for variable_scope/name_scope.
+        use_bias: Whether to add bias or not
+
+    Returns:
+        The 3-D `Tensor` variable representing the result of the series of operations.
+        e.g.: 3-D `Tensor` [batch, new_width, n_output].
+
+    Raises:
+        ValueError: if `x` has rank less than 4 or if its last dimension is not set.
+    """
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 3, "Input Tensor shape must be 4-D"
+    with tf.variable_scope(name, reuse=reuse):
+        shape = (filter_size, x.get_shape()
+                 [-1], n_output_channels) if hasattr(w_init, '__call__') else None
+        W = tf.get_variable(
+            name='W',
+            shape=shape,
+            initializer=w_init,
+            regularizer=w_regularizer,
+            trainable=trainable
+        )
+
+        output = tf.nn.conv1d(
+            x,
+            W,
+            stride,
+            padding=helper.kernel_padding(padding))
+
+        if use_bias:
+            if untie_biases:
+                b = tf.get_variable(
+                    name='b',
+                    shape=output.get_shape()[1:],
+                    initializer=tf.constant_initializer(b_init),
+                    trainable=trainable,
+                )
+                output = tf.add(output, b)
+            else:
+                b = tf.get_variable(
+                    name='b',
+                    shape=[n_output_channels],
+                    initializer=tf.constant_initializer(b_init),
+                    trainable=trainable,
+                )
+                output = tf.nn.bias_add(value=output, bias=b)
+
+        if batch_norm is not None:
+            if isinstance(batch_norm, bool):
+                batch_norm = batch_norm_tf
+            batch_norm_args = batch_norm_args or {}
+            output = batch_norm(output, is_training=is_training,
+                                reuse=reuse, trainable=trainable, **batch_norm_args)
+
+        if activation:
+            output = activation(output, reuse=reuse, trainable=trainable)
+
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def max_pool_1d(x, filter_size=3, stride=2, padding='SAME', name='maxpool1d', outputs_collections=None, **unused):
+    """ Max Pooling 1D.
+
+    Args:
+        x: a 3-D `Tensor` [batch_size, steps, in_channels].
+        kernel_size: `int` or `list of int`. Pooling kernel size.
+        strides: `int` or `list of int`. Strides of conv operation.
+            Default: same as kernel_size.
+        padding: `str` from `"same", "valid"`. Padding algo to use.
+            Default: 'same'.
+        name: A name for this layer (optional). Default: 'maxpool1d'.
+
+    Returns:
+        3-D Tensor [batch, pooled steps, in_channels].
+    """
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 3, "Input Tensor shape must be 3-D"
+
+    filter_size = helper.kernel_2d(filter_size)
+    filter_size = [1, filter_size[1], 1, 1]
+    stride = helper.stride_2d(stride)
+    stride = [1, stride[1], 1, 1]
+
+    with tf.name_scope(name):
+        x = tf.expand_dims(x, 2)
+        output = tf.nn.max_pool(
+            value=x,
+            ksize=filter_size,
+            strides=stride,
+            padding=helper.kernel_padding(padding),
+        )
+        output = tf.squeeze(output, [2])
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def avg_pool_1d(x, filter_size=3, stride=2, padding='SAME', name='avgpool1d', outputs_collections=None, **unused):
+    """ Avg Pooling 1D.
+
+    Args:
+        x: a 3-D `Tensor` [batch_size, steps, in_channels].
+        kernel_size: `int` or `list of int`. Pooling kernel size.
+        strides: `int` or `list of int`. Strides of conv operation.
+            Default: same as kernel_size.
+        padding: `str` from `"same", "valid"`. Padding algo to use.
+            Default: 'same'.
+        name: A name for this layer (optional). Default: 'avgpool1d'.
+
+    Returns:
+        3-D Tensor [batch, pooled steps, in_channels].
+    """
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 3, "Input Tensor shape must be 3-D"
+
+    filter_size = helper.kernel_2d(filter_size)
+    filter_size = [1, filter_size[1], 1, 1]
+    stride = helper.stride_2d(stride)
+    stride = [1, stride[1], 1, 1]
+
+    with tf.name_scope(name):
+        x = tf.expand_dims(x, 2)
+        output = tf.nn.avg_pool(
+            value=x,
+            ksize=filter_size,
+            strides=stride,
+            padding=helper.kernel_padding(padding),
+        )
+        output = tf.squeeze(output, [2])
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
 def _phase_shift(input_, r):
     bsize, a, b, c = helper.get_input_shape(input_)
     X = tf.reshape(input_, (bsize, a, b, r, r))
@@ -1404,6 +1575,30 @@ def global_avg_pool(x, name="global_avg_pool", outputs_collections=None, **unuse
     assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
     with tf.name_scope(name):
         output = tf.reduce_mean(x, [1, 2])
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def global_max_pool(x, name="global_max_pool", outputs_collections=None, **unused):
+    """
+    Gloabl max pooling layer
+
+    Args:
+        x: A 4-D `Tensor` of shape `[batch_size, height, width, channels]`
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+
+    Returns:
+        A 4-D `Tensor` representing the results of the pooling operation.
+        e.g.: 4-D `Tensor` [batch, 1, 1, channels].
+
+    Raises:
+        ValueError: If 'kernel_size' is not a 2-D list
+    """
+    _check_unused(unused, name)
+    input_shape = helper.get_input_shape(x)
+    assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
+    with tf.name_scope(name):
+        output = tf.reduce_max(x, [1, 2])
         return _collect_named_outputs(outputs_collections, name, output)
 
 
