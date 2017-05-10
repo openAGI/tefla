@@ -580,7 +580,7 @@ def embedding(inputs, input_dim, output_dim, reuse, validate_indices=False,
     """
 
     input_shape = util.get_input_shape(inputs)
-    assert len(input_shape) == 2, "Incoming Tensor shape must be 2-D"
+    assert len(input_shape) == 2, "Input Tensor shape must be 2-D"
 
     with tf.variable_scope(name, reuse=reuse):
         with tf.device('/cpu:0'):
@@ -595,3 +595,33 @@ def embedding(inputs, input_dim, output_dim, reuse, validate_indices=False,
     seq_length = util.retrieve_seq_length(tf.reshape(inputs, shape))
 
     return output
+
+
+def gated_layer(inputs, layer, num_units, is_training, reuse, name='gated_layer', **kwargs):
+    """ Gated unit for language modelling
+
+    Args:
+        inputs: a 3-D/4-D `Tensor`, input [samples, timesteps, input_dim]
+        layer: a `layer`, layer to pass the inputs
+            e.g. `tefla.core.layers`
+        num_units: a `int`, number of units for each layer
+        is_training: a `boolean`, Training if its true
+        reuse: `bool`. If True and 'scope' is provided, this layer variables
+            will be reused (shared).
+        name: A name for this layer (optional). Default: 'gated_layer'.
+
+    Returns:
+        a 3-D/4-D `Tensor`, output of the gated unit
+
+    """
+    activation = kwargs.get('activation')
+    with tf.name_scope(name):
+        inputs = activation(inputs)
+        inputs_shortcut = layer(inputs, num_units, is_training, reuse, filter_size=1,
+                                name=name + '_shortcut', **kwargs)
+        output1 = layer(inputs, num_units, is_training, reuse,
+                        name=name + '_layer1', **kwargs)
+        output2 = layer(inputs, num_units, is_training, reuse,
+                        name=name + '_layer2', **kwargs)
+        output = tf.multiply(output1, tf.sigmoid(output2))
+        return output + inputs_shortcut
