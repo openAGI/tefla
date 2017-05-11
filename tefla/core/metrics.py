@@ -379,3 +379,19 @@ def compute_hist(preds, gt, num_classes=15):
     hist += fast_hist(np.reshape(gt, (-1)),
                       np.reshape(preds, (-1)), num_classes)
     return hist
+
+
+def dice_coef(y_true, y_pred):
+    """ Compute dice coef
+
+    Args:
+        y_true: a 2-D `array`, ground truth label
+        y_pred: q 2-D `array`, prediction
+
+    Returns:
+        a `float`, dice value
+    """
+    y_true_f = y_true.flatten()
+    y_pred_f = y_pred.flatten()
+    intersection = np.sum(y_true_f * y_pred_f)
+    return (2. * intersection + 100) / (np.sum(y_true_f) + np.sum(y_pred_f) + 100)

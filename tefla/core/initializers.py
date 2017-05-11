@@ -180,3 +180,11 @@ def bilinear(f_shape):
     init = tf.constant_initializer(value=weights,
                                    dtype=tf.float32)
     return init
+
+
+def random_orthonormal_initializer(shape, dtype=tf.float32, partition_info=None):
+    """Variable initializer that produces a random orthonormal matrix."""
+    if len(shape) != 2 or shape[0] != shape[1]:
+        raise ValueError("Expecting square shape, got %s" % shape)
+    _, u, _ = tf.svd(tf.random_normal(shape, dtype=dtype), full_matrices=True)
+    return u
