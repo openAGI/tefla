@@ -559,15 +559,15 @@ def resnext_block(inputs, nb_blocks, out_channels, is_training, reuse, cardinali
         return resnext
 
 
-def embedding(inputs, input_dim, output_dim, reuse, validate_indices=False,
-              w_init=initz.he_normal(), trainable=True, name="Embedding"):
+def embedding(inputs, vocab_dim, embedding_dim, reuse, validate_indices=False,
+              w_init=tf.random_uniform_initializer(-1., 1.), trainable=True, normalize=False, vocab_freqs=None, name="Embedding"):
     """ Embedding.
     Embedding layer for a sequence of integer ids or floats.
 
     Args:
         inputs: a 2-D `Tensor` [samples, ids].
-        input_dim: list of `int`. Vocabulary size (number of ids).
-        output_dim: list of `int`. Embedding size.
+        vocab_dim: list of `int`. Vocabulary size (number of ids).
+        embedding_dim: list of `int`. Embedding size.
         validate_indices: `bool`. Whether or not to validate gather indices.
         w_init:  Weights initialization.
         trainable: `bool`. If True, weights will be trainable.
@@ -584,8 +584,13 @@ def embedding(inputs, input_dim, output_dim, reuse, validate_indices=False,
 
     with tf.variable_scope(name, reuse=reuse):
         with tf.device('/cpu:0'):
-            W = tf.get_variable("W", shape=[input_dim, output_dim],
+            W = tf.get_variable("W", shape=[vocab_dim, embedding_dim],
                                 initializer=w_init, trainable=trainable)
+        if normalize:
+            assert vocab_freqs is not None
+            vocab_freqs = tf.constant(
+                vocab_freqs, dtype=tf.float32, shape=(vocab_dim, 1))
+            W = _normalize(W, vocab_freqs)
 
         output = tf.cast(inputs, tf.int32)
         output = tf.nn.embedding_lookup(W, output,
@@ -595,6 +600,14 @@ def embedding(inputs, input_dim, output_dim, reuse, validate_indices=False,
     seq_length = util.retrieve_seq_length(tf.reshape(inputs, shape))
 
     return output
+
+
+def _normalize(emb, vocab_freqs):
+    weights = vocab_freqs / tf.reduce_sum(vocab_freqs)
+    mean = tf.reduce_sum(weights * emb, 0, keep_dims=True)
+    var = tf.reduce_sum(weights * tf.pow(emb - mean, 2.), 0, keep_dims=True)
+    stddev = tf.sqrt(1e-6 + var)
+    return (emb - mean) / stddev
 
 
 def gated_layer(inputs, layer, num_units, is_training, reuse, name='gated_layer', **kwargs):
