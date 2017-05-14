@@ -620,3 +620,235 @@ def log_quaternion_loss(predictions, labels, batch_size, name='log_quaternion_lo
         logcost = tf.multiply(logcost, 1.0 / batch_size,
                               name='log_quaternion_loss')
     return logcost
+
+
+def random_perturbation_loss(embedded, length, loss_fn, perturb_norm_length=0.1):
+    """Adds noise to embeddings and recomputes classification loss
+
+    Args:
+        embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+        length: a `int`, length of the mask
+        loss_fn: a callable, that returns loss
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+    Returns:
+        perturbation loss
+    """
+    noise = tf.random_normal(shape=tf.shape(embedded))
+    perturb = _scale_l2(_mask_by_length(noise, length), perturb_norm_length)
+    return loss_fn(embedded + perturb)
+
+
+def adversarial_loss(embedded, loss, loss_fn, perturb_norm_length=0.1):
+    """Adds gradient to embedding and recomputes classification loss
+
+    Args:
+        embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+        loss: `float`, loss
+        loss_fn: a callable, that returns loss
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+    Returns:
+        adversial loss
+    """
+    grad, = tf.gradients(
+        loss,
+        embedded,
+        aggregation_method=tf.AggregationMethod.EXPERIMENTAL_ACCUMULATE_N)
+    grad = tf.stop_gradient(grad)
+    perturb = _scale_l2(grad, perturb_norm_length)
+    return loss_fn(embedded + perturb)
+
+
+def virtual_adversarial_loss(logits, embedded, labels, length,
+                             logits_from_embedding_fn, num_classes, num_power_iteration=1, small_constant_for_finite_diff=1e-3, perturb_norm_length=0.1):
+    """Virtual adversarial loss.
+    Computes virtual adversarial perturbation by finite difference method and
+    power iteration, adds it to the embedding, and computes the KL divergence
+    between the new logits and the original logits.
+
+    Args:
+        logits: 2-D float `Tensor`, [num_timesteps*batch_size, m], where m=1 if
+            num_classes=2, otherwise m=num_classes.
+        embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim].
+        labels: 1-D `Tensor`, input labels
+        length: a `int`, input length
+        logits_from_embedding_fn: callable that takes embeddings and returns
+            classifier logits.
+        num_classes: num_classes for training
+        vocab_size: a `int`, vocabular size of the problem
+        num_power_iteration: a `int`, the number of power iteration
+        small_constant_for_finite_diff: a `float`, Small constant for finite difference method
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+    Returns:
+        a `float` `scalar`, KL divergence.
+    """
+    logits = tf.stop_gradient(logits)
+    weights = _end_of_seq_mask(labels, vocab_size)
+
+    d = _mask_by_length(tf.random_normal(
+        shape=tf.shape(embedded)), length)
+
+    for _ in xrange(num_power_iteration):
+        d = _scale_l2(d, small_constant_for_finite_diff)
+        d_logits = logits_from_embedding_fn(embedded + d)
+        kl = _kl_divergence_with_logits(logits, d_logits, weights, num_classes)
+        d, = tf.gradients(
+            kl, d, aggregation_method=tf.AggregationMethod.EXPERIMENTAL_ACCUMULATE_N)
+        d = tf.stop_gradient(d)
+
+    perturb = _scale_l2(_mask_by_length(d, length),
+                        perturb_norm_length)
+    vadv_logits = logits_from_embedding_fn(embedded + perturb)
+    return _kl_divergence_with_logits(logits, vadv_logits, weights, num_classes)
+
+
+def random_perturbation_loss_brnn(embedded, length, loss_fn, perturb_norm_length=0.1):
+    """Adds noise to embeddings and recomputes classification loss fir bidirectional rnn models
+
+    Args:
+        embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+        length: a `int`, length of the mask
+        loss_fn: a callable, that returns loss
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+    Returns:
+        perturbation loss
+    """
+    noise = [tf.random_normal(shape=tf.shape(emb)) for emb in embedded]
+    masked = [_mask_by_length(n, length) for n in noise]
+    scaled = [_scale_l2(m, perturb_norm_length) for m in masked]
+    return loss_fn([e + s for (e, s) in zip(embedded, scaled)])
+
+
+def adversarial_loss_brnn(embedded, loss, loss_fn, perurb_norm_length=0.1):
+    """Adds gradient to embeddings and recomputes classification loss for bidirectional rnn models
+
+    Args:
+        embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+        loss: `float`, loss
+        loss_fn: a callable, that returns loss
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+    Returns:
+        adversial loss
+    """
+    grads = tf.gradients(
+        loss, embedded, aggregation_method=tf.AggregationMethod.EXPERIMENTAL_ACCUMULATE_N)
+    adv_exs = [emb + _scale_l2(tf.stop_gradient(g), perturb_norm_length)
+               for emb, g in zip(embedded, grads)]
+    return loss_fn(adv_exs)
+
+
+def virtual_adversarial_loss_brnn(logits, embedded, labels, length,
+                                  logits_from_embedding_fn, vocab_size, num_classes, num_power_iteration=1, small_constant_for_finite_diff=1e-3, perturb_norm_length=0.1):
+    """Virtual adversarial loss for bidirectional models
+    Computes virtual adversarial perturbation by finite difference method and
+    power iteration, adds it to the embedding, and computes the KL divergence
+    between the new logits and the original logits.
+
+    Args:
+        logits: 2-D float `Tensor`, [num_timesteps*batch_size, m], where m=1 if
+            num_classes=2, otherwise m=num_classes.
+        embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim].
+        labels: 1-D `Tensor`, input labels
+        length: a `int`, input length
+        logits_from_embedding_fn: callable that takes embeddings and returns
+            classifier logits.
+        num_classes: num_classes for training
+        vocab_size: a `int`, vocabular size of the problem
+        num_power_iteration: a `int`, the number of power iteration
+        small_constant_for_finite_diff: a `float`, Small constant for finite difference method
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+    Returns:
+        a `float` `scalar`, KL divergence.
+    """
+    logits = tf.stop_gradient(logits)
+    weights = _end_of_seq_mask(labels, vocab_size)
+
+    perturbs = [_mask_by_length(tf.random_normal(
+        shape=tf.shape(emb)), length) for emb in embedded]
+    for _ in xrange(num_power_iteration):
+        perturbs = [_scale_l2(d, small_constant_for_finite_diff)
+                    for d in perturbs]
+        d_logits = logits_from_embedding_fn(
+            [emb + d for (emb, d) in zip(embedded, perturbs)])
+        kl = _kl_divergence_with_logits(logits, d_logits, weights, num_classes)
+    perturbs = tf.gradients(
+        kl, perturbs, aggregation_method=tf.AggregationMethod.EXPERIMENTAL_ACCUMULATE_N)
+    perturbs = [tf.stop_gradient(d) for d in perturbs]
+
+    perturbs = [_scale_l2(_mask_by_length(d, length),
+                          perturb_norm_length) for d in perturbs]
+    vadv_logits = logits_from_embedding_fn(
+        [emb + d for (emb, d) in zip(embedded, perturbs)])
+    return _kl_divergence_with_logits(logits, vadv_logits, weights)
+
+
+def _mask_by_length(t, length):
+    maxlen = t.get_shape().as_list()[1]
+    mask = tf.sequence_mask(length, maxlen=maxlen)
+    mask = tf.expand_dims(tf.cast(mask, tf.float32), -1)
+    return t * mask
+
+
+def _scale_l2(x, norm_length):
+    alpha = tf.reduce_max(tf.abs(x), (1, 2), keep_dims=True) + 1e-12
+    l2_norm = alpha * tf.sqrt(tf.reduce_sum(tf.pow(x / alpha, 2), (1, 2),
+                                            keep_dims=True) + 1e-6)
+    x_unit = x / l2_norm
+    return norm_length * x_unit
+
+
+def _end_of_seq_mask(tokens, vocab_size):
+    """Generate a mask for the EOS token (1.0 on EOS, 0.0 otherwise).
+
+    Args:
+        tokens: 1-D integer `Tensor` [num_timesteps*batch_size]. Each element is an
+            id from the vocab.
+        vocab_size: a `int`, vocabular size of the problem
+
+    Returns:
+        Float 1-D `Tensor` same shape as tokens, whose values are 1.0 on the end of
+            sequence and 0.0 on the others.
+    """
+    eos_id = vocab_size - 1
+    return tf.cast(tf.equal(tokens, eos_id), tf.float32)
+
+
+def _kl_divergence_with_logits(q_logits, p_logits, weights, num_classes):
+    """Returns weighted KL divergence between distributions q and p.
+
+    Args:
+        q_logits: logits for 1st argument of KL divergence shape
+              [num_timesteps * batch_size, num_classes] if num_classes > 2, and
+              [num_timesteps * batch_size] if num_classes == 2.
+        p_logits: logits for 2nd argument of KL divergence with same shape q_logits.
+        weights: 1-D `float` tensor with shape [num_timesteps * batch_size].
+             Elements should be 1.0 only on end of sequences
+        num_classes: a `int`, number of training classes
+
+    Returns:
+        a `float` `scalar`, KL divergence.
+    """
+    if num_classes == 2:
+        q = tf.nn.sigmoid(q_logits)
+        p = tf.nn.sigmoid(p_logits)
+        kl = (-tf.nn.sigmoid_cross_entropy_with_logits(logits=q_logits, labels=q) +
+              f.nn.sigmoid_cross_entropy_with_logits(logits=p_logits, labels=q))
+
+    else:
+        q = tf.nn.softmax(q_logits)
+        p = tf.nn.softmax(p_logits)
+        kl = tf.reduce_sum(q * (tf.log(q) - tf.log(p)), 1)
+
+    num_labels = tf.reduce_sum(weights)
+    num_labels = tf.where(tf.equal(num_labels, 0.), 1., num_labels)
+
+    kl.get_shape().assert_has_rank(2)
+    weights.get_shape().assert_has_rank(1)
+    loss = tf.identity(tf.reduce_sum(tf.expand_dims(
+        weights, -1) * kl) / num_labels, name='kl')
+    return loss
