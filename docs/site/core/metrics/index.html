@@ -179,6 +179,15 @@
                 <li class="toctree-l3"><a href="#retruns-one-hot-vector">Retruns one hot vector</a></li>
                 
             
+                <li class="toctree-l3"><a href="#compute-dice-coef">Compute dice coef</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-character-level-accuracy">Computes character level accuracy</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#computes-sequence-level-accuracy">Computes sequence level accuracy</a></li>
+                
+            
             </ul>
         
     </li>
@@ -368,6 +377,51 @@
 <li><strong>vec</strong>: a vector</li>
 <li><strong>m</strong>: num_classes</li>
 </ul>
+<hr />
+<h1 id="compute-dice-coef">Compute dice coef</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L384 target="_blank"><b>tefla.core.metrics.dice_coef</b></a></span>  (y_true,  y_pred)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>y_true</strong>: a 2-D <code>array</code>, ground truth label</li>
+<li><strong>y_pred</strong>: q 2-D <code>array</code>, prediction</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a <code>float</code>, dice value</p>
+<hr />
+<h1 id="computes-character-level-accuracy">Computes character level accuracy</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L400 target="_blank"><b>tefla.core.metrics.char_accuracy</b></a></span>  (predictions,  targets,  rej_char,  streaming=False)</span>
+Both predictions and targets should have the same shape
+[batch_size x seq_length].</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>predictions</strong>: predicted characters ids.</li>
+<li><strong>targets</strong>: ground truth character ids.</li>
+<li><strong>rej_char</strong>: the character id used to mark an empty element (end of sequence).</li>
+<li><strong>streaming</strong>: if True, uses the streaming mean from the slim.metric module.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a update_ops for execution and value tensor whose value on evaluation
+returns the total character accuracy.</p>
+<hr />
+<h1 id="computes-sequence-level-accuracy">Computes sequence level accuracy</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L430 target="_blank"><b>tefla.core.metrics.sequence_accuracy</b></a></span>  (predictions,  targets,  rej_char,  streaming=False)</span>
+Both input tensors should have the same shape: [batch_size x seq_length].</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>predictions</strong>: predicted character classes.</li>
+<li><strong>targets</strong>: ground truth character classes.</li>
+<li><strong>rej_char</strong>: the character id used to mark empty element (end of sequence).</li>
+<li><strong>streaming</strong>: if True, uses the streaming mean from the slim.metric module.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a update_ops for execution and value tensor whose value on evaluation
+returns the total sequence accuracy.</p>
 <hr />
               
             </div>

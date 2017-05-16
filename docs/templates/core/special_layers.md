@@ -182,7 +182,7 @@ Refined predictions after MAP inference.
 
 # ResNeXt Block
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7ff0da7df8c0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f303811bf50>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
 resnext paper https://arxiv.org/pdf/1611.05431.pdf
 
 <h3>Args</h3>
@@ -213,6 +213,54 @@ override name.
 
 
 4-D Tensor [batch, new height, new width, out_channels].
+
+ ---------- 
+
+# Embedding
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f3002edefd0>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
+Embedding layer for a sequence of integer ids or floats.
+
+<h3>Args</h3>
+
+
+ - **inputs**: a 2-D `Tensor` [samples, ids].
+ - **vocab_dim**: list of `int`. Vocabulary size (number of ids).
+ - **embedding_dim**: list of `int`. Embedding size.
+ - **validate_indices**: `bool`. Whether or not to validate gather indices.
+ - **w_init**:  Weights initialization.
+ - **trainable**: `bool`. If True, weights will be trainable.
+ - **reuse**: `bool`. If True and 'scope' is provided, this layer variables
+will be reused (shared).
+ - **name**: A name for this layer (optional). Default: 'Embedding'.
+
+<h3>Returns</h3>
+
+
+3-D Tensor [samples, embedded_ids, features].
+
+ ---------- 
+
+# Gated unit for language modelling
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L613 target="_blank"><b>tefla.core.special_layers.gated_layer</b></a></span>  (inputs,  layer,  num_units,  is_training,  reuse,  name='gated_layer',  **kwargs)</span>
+
+<h3>Args</h3>
+
+
+ - **inputs**: a 3-D/4-D `Tensor`, input [samples, timesteps, input_dim]
+ - **layer**: a `layer`, layer to pass the inputs
+e.g. `tefla.core.layers`
+ - **num_units**: a `int`, number of units for each layer
+ - **is_training**: a `boolean`, Training if its true
+ - **reuse**: `bool`. If True and 'scope' is provided, this layer variables
+will be reused (shared).
+ - **name**: A name for this layer (optional). Default: 'gated_layer'.
+
+<h3>Returns</h3>
+
+
+a 3-D/4-D `Tensor`, output of the gated unit
 
  ---------- 
 

@@ -110,6 +110,15 @@
                 <li class="toctree-l3"><a href="#adds-a-layer-normalization-layer-from-httpsarxivorgabs160706450">Adds a Layer Normalization layer from https://arxiv.org/abs/1607.06450</a></li>
                 
             
+                <li class="toctree-l3"><a href="#lstm">LSTM</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#gru">GRU</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#bidirectional-rnn">Bidirectional RNN</a></li>
+                
+            
             </ul>
         
     </li>
@@ -366,7 +375,7 @@
             <div class="section">
               
                 <h1 id="the-most-basic-rnn-cell">The most basic RNN cell</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7ff138497d70>,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f3002ee79b0>,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7f3044797f50>,  layer_norm=None,  layer_norm_args=None)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -379,7 +388,6 @@ able to reuse the layer scope must be given.</li>
 <li><strong>layer_norm_args</strong>: optional dict, layer_norm arguments</li>
 <li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
 <code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
-<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
 </ul>
 <h2>Methods</h2>
 
@@ -395,7 +403,7 @@ able to reuse the layer scope must be given.</li>
   <code>N-D</code> tensor of shape <code>[batch_size x state_size]</code> filled with zeros.</p>
 <hr />
 <h1 id="lstm-unit">LSTM unit</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L63 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  forget_bias=1.0,  input_size=None,  activation=<function  tanh  at  0x7ff138497d70>,  inner_activation=<function  sigmoid  at  0x7ff138497cf8>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L61 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f3002ee7c08>,  forget_bias=1.0,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7f3044797f50>,  inner_activation=<function  sigmoid  at  0x7f3044797ed8>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None)</span></p>
 <p>This class adds layer normalization and recurrent dropout to a
 basic LSTM unit. Layer normalization implementation is based on:
 https://arxiv.org/abs/1607.06450.
@@ -425,11 +433,10 @@ be applied.</li>
 <li><strong>dropout_seed</strong>: (optional) integer, the randomness seed.</li>
 <li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
 <code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
-<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
 </ul>
 <hr />
 <h1 id="basic-attention-cell">Basic attention cell</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L174 target="_blank"><b>tefla.core.rnn_cell.AttentionCell</b></a></span>  (cell,  attn_length,  reuse,  trainable=True,  attn_size=None,  attn_vec_size=None,  input_size=None,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L168 target="_blank"><b>tefla.core.rnn_cell.AttentionCell</b></a></span>  (cell,  attn_length,  reuse,  w_init=<function  _initializer  at  0x7f3002ee7e60>,  use_bias=False,  trainable=True,  attn_size=None,  attn_vec_size=None,  input_size=None,  layer_norm=None,  layer_norm_args=None)</span></p>
 <p>Implementation based on https://arxiv.org/abs/1409.0473.
 Create a cell with attention.</p>
 <h3>Args</h3>
@@ -451,11 +458,10 @@ base cell state. Equal attn_size to by default.</li>
 built from inputs and attention. Derived from the input tensor by default.</li>
 <li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
 <code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
-<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
 </ul>
 <hr />
 <h1 id="gated-recurrent-unit-cell-cf-httparxivorgabs14061078">Gated Recurrent Unit cell (cf. http://arxiv.org/abs/1406.1078)</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L271 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7ff138497d70>,  inner_activation=<function  sigmoid  at  0x7ff138497cf8>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None,  outputs_collections=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L261 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  w_init=<function  _initializer  at  0x7f3002df51b8>,  use_bias=False,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7f3044797f50>,  inner_activation=<function  sigmoid  at  0x7f3044797ed8>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -469,11 +475,10 @@ able to reuse the layer scope must be given.</li>
 <li><strong>layer_norm_args</strong>: optional dict, layer_norm arguments</li>
 <li><strong>trainable</strong>: If <code>True</code> also add variables to the graph collection
 <code>GraphKeys.TRAINABLE_VARIABLES</code> (see tf.Variable).</li>
-<li><strong>outputs_collections</strong>: The collections to which the outputs are added.</li>
 </ul>
 <hr />
 <h1 id="rnn-cell-composed-sequentially-of-multiple-simple-cells">RNN cell composed sequentially of multiple simple cells</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L342 target="_blank"><b>tefla.core.rnn_cell.MultiRNNCell</b></a></span>  (cells,  state_is_tuple=True)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L331 target="_blank"><b>tefla.core.rnn_cell.MultiRNNCell</b></a></span>  (cells,  state_is_tuple=True)</span></p>
 <p>Create a RNN cell composed sequentially of a number of RNNCells.
 <h3>Args</h3></p>
 <ul>
@@ -481,7 +486,7 @@ able to reuse the layer scope must be given.</li>
 </ul>
 <hr />
 <h1 id="operator-adding-dropout-to-inputs-and-outputs-of-the-given-cell">Operator adding dropout to inputs and outputs of the given cell</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L386 target="_blank"><b>tefla.core.rnn_cell.DropoutWrapper</b></a></span>  (cell,  is_training,  input_keep_prob=1.0,  output_keep_prob=1.0,  seed=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L539 target="_blank"><b>tefla.core.rnn_cell.DropoutWrapper</b></a></span>  (cell,  is_training,  input_keep_prob=1.0,  output_keep_prob=1.0,  seed=None)</span></p>
 <p>Create a cell with added input and/or output dropout.
 Dropout is never used on the state.</p>
 <h3>Args</h3>
@@ -497,7 +502,7 @@ probability; if it is float and 1, no output dropout will be added.</li>
 </ul>
 <hr />
 <h1 id="adds-a-fully-connected-layer">Adds a fully connected layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L439 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7ff0da780848>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7ff13835fe60>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L592 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f3002ee75f0>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f30445e9d70>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span></p>
 <p><code>fully_connected</code> creates a variable called <code>weights</code>, representing a fully
 connected weight matrix, which is multiplied by the <code>x</code> to produce a
 <code>Tensor</code> of hidden units. If a <code>layer_norm</code> is provided (such as
@@ -537,7 +542,7 @@ default set to None for no normalizer function</li>
 e.g: 2-D <code>Tensor</code> [batch, n_output].</p>
 <hr />
 <h1 id="adds-a-layer-normalization-layer-from-httpsarxivorgabs160706450">Adds a Layer Normalization layer from https://arxiv.org/abs/1607.06450</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L537 target="_blank"><b>tefla.core.rnn_cell.layer_norm</b></a></span>  (x,  reuse,  center=True,  scale=True,  trainable=True,  epsilon=1e-12,  name='bn',  outputs_collections=None)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L690 target="_blank"><b>tefla.core.rnn_cell.layer_norm</b></a></span>  (x,  reuse,  center=True,  scale=True,  trainable=True,  epsilon=1e-12,  name='bn',  outputs_collections=None)</span>
 "Layer Normalization" Jimmy Lei Ba, Jamie Ryan Kiros, Geoffrey E. Hinton
 Can be used as a normalizer function for conv2d and fully_connected.</p>
 <h3>Args</h3>
@@ -562,6 +567,130 @@ able to reuse the layer scope must be given.</li>
 <h3>Returns</h3>
 
 <p>A <code>Tensor</code> representing the output of the operation.</p>
+<hr />
+<h1 id="lstm">LSTM</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L827 target="_blank"><b>tefla.core.rnn_cell.lstm</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7f3044797f50>,  inner_activation=<function  sigmoid  at  0x7f3044797ed8>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7f3002df5e60>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='lstm')</span>
+Long Short Term Memory Recurrent Layer.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>inputs</strong>: <code>Tensor</code>. Inputs 3-D Tensor [samples, timesteps, input_dim].</li>
+<li><strong>n_units</strong>: <code>int</code>, number of units for this layer.</li>
+<li><strong>reuse</strong>: <code>bool</code>. If True and 'scope' is provided, this layer variables
+will be reused (shared).</li>
+<li><strong>is_training</strong>: <code>bool</code>, training if True</li>
+<li><strong>activation</strong>: <code>function</code> (returning a <code>Tensor</code>).</li>
+<li><strong>inner_activation</strong>: <code>function</code> (returning a <code>Tensor</code>).</li>
+<li><strong>dropout</strong>: <code>tuple</code> of <code>float</code>: (input_keep_prob, output_keep_prob). The
+input and output keep probability.</li>
+<li><strong>use_bias</strong>: <code>bool</code>. If True, a bias is used.</li>
+<li><strong>w_init</strong>: <code>function</code> (returning a <code>Tensor</code>). Weights initialization.</li>
+<li><strong>forget_bias</strong>: <code>float</code>. Bias of the forget gate. Default: 1.0.</li>
+<li><strong>return_seq</strong>: <code>bool</code>. If True, returns the full sequence instead of
+last sequence output only.</li>
+<li><strong>return_state</strong>: <code>bool</code>. If True, returns a tuple with output and
+states: (output, states).</li>
+<li><strong>initial_state</strong>: <code>Tensor</code>. An initial state for the RNN.  This must be
+a tensor of appropriate type and shape [batch_size x cell.state_size].</li>
+<li><strong>dynamic</strong>: <code>bool</code>. If True, dynamic computation is performed. It will not
+compute RNN steps above the sequence length. Note that because TF
+requires to feed sequences of same length, 0 is used as a mask.
+So a sequence padded with 0 at the end must be provided. When
+computation is performed, it will stop when it meets a step with
+a value of 0.</li>
+<li><strong>trainable</strong>: <code>bool</code>. If True, weights will be trainable.</li>
+<li><strong>scope</strong>: <code>str</code>. Define this layer scope (optional). A scope can be
+used to share variables between layers. Note that scope will
+override name.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>if <code>return_seq</code>: 3-D Tensor [samples, timesteps, output dim].
+else: 2-D Tensor [samples, output dim].</p>
+<hr />
+<h1 id="gru">GRU</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L880 target="_blank"><b>tefla.core.rnn_cell.gru</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7f3044797f50>,  inner_activation=<function  sigmoid  at  0x7f3044797ed8>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7f3002df5f50>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='gru')</span>
+Gated Recurrent Layer.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>inputs</strong>: <code>Tensor</code>. Inputs 3-D Tensor [samples, timesteps, input_dim].</li>
+<li><strong>n_units</strong>: <code>int</code>, number of units for this layer.</li>
+<li><strong>reuse</strong>: <code>bool</code>. If True and 'scope' is provided, this layer variables
+will be reused (shared).</li>
+<li><strong>is_training</strong>: <code>bool</code>, training if True</li>
+<li><strong>activation</strong>: <code>function</code> (returning a <code>Tensor</code>).</li>
+<li><strong>inner_activation</strong>: <code>function</code> (returning a <code>Tensor</code>).</li>
+<li><strong>dropout</strong>: <code>tuple</code> of <code>float</code>: (input_keep_prob, output_keep_prob). The
+input and output keep probability.</li>
+<li><strong>use_bias</strong>: <code>bool</code>. If True, a bias is used.</li>
+<li><strong>w_init</strong>: <code>function</code> (returning a <code>Tensor</code>). Weights initialization.</li>
+<li><strong>forget_bias</strong>: <code>float</code>. Bias of the forget gate. Default: 1.0.</li>
+<li><strong>return_seq</strong>: <code>bool</code>. If True, returns the full sequence instead of
+last sequence output only.</li>
+<li><strong>return_state</strong>: <code>bool</code>. If True, returns a tuple with output and
+states: (output, states).</li>
+<li><strong>initial_state</strong>: <code>Tensor</code>. An initial state for the RNN.  This must be
+a tensor of appropriate type and shape [batch_size x cell.state_size].</li>
+<li><strong>dynamic</strong>: <code>bool</code>. If True, dynamic computation is performed. It will not
+compute RNN steps above the sequence length. Note that because TF
+requires to feed sequences of same length, 0 is used as a mask.
+So a sequence padded with 0 at the end must be provided. When
+computation is performed, it will stop when it meets a step with
+a value of 0.</li>
+<li><strong>trainable</strong>: <code>bool</code>. If True, weights will be trainable.</li>
+<li><strong>scope</strong>: <code>str</code>. Define this layer scope (optional). A scope can be
+used to share variables between layers. Note that scope will
+override name.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>if <code>return_seq</code>: 3-D Tensor [samples, timesteps, output dim].
+else: 2-D Tensor [samples, output dim].</p>
+<hr />
+<h1 id="bidirectional-rnn">Bidirectional RNN</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L933 target="_blank"><b>tefla.core.rnn_cell.bidirectional_rnn</b></a></span>  (inputs,  rnncell_fw,  rnncell_bw,  reuse,  is_training,  dropout_fw=None,  dropout_bw=None,  return_seq=False,  return_states=False,  initial_state_fw=None,  initial_state_bw=None,  dynamic=False,  scope='BiRNN',  outputs_collections=None)</span>
+Build a bidirectional recurrent neural network, it requires 2 RNN Cells
+to process sequence in forward and backward order. Any RNN Cell can be
+used i.e. SimpleRNN, LSTM, GRU... with its own parameters. But the two
+cells number of units must match.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>inputs</strong>: <code>Tensor</code>. The 3D inputs Tensor [samples, timesteps, input_dim].</li>
+<li><strong>rnncell_fw</strong>: <code>RNNCell</code>. The RNN Cell to use for foward computation.</li>
+<li><strong>rnncell_bw</strong>: <code>RNNCell</code>. The RNN Cell to use for backward computation.</li>
+<li><strong>reuse</strong>: <code>bool</code>. If True and 'scope' is provided, this layer variables
+will be reused (shared).</li>
+<li><strong>is_training</strong>: <code>bool</code>, training if True</li>
+<li><strong>dropout_fw</strong>: <code>tuple</code> of <code>float</code>: (input_keep_prob, output_keep_prob). the
+input and output keep probability.</li>
+<li><strong>dropout_bw</strong>: <code>tuple</code> of <code>float</code>: (input_keep_prob, output_keep_prob). the
+input and output keep probability.</li>
+<li><strong>return_seq</strong>: <code>bool</code>. If True, returns the full sequence instead of
+last sequence output only.</li>
+<li><strong>return_states</strong>: <code>bool</code>. If True, returns a tuple with output and
+states: (output, states).</li>
+<li><strong>initial_state_fw</strong>: <code>Tensor</code>. An initial state for the forward RNN.
+This must be a tensor of appropriate type and shape [batch_size
+x cell.state_size].</li>
+<li><strong>initial_state_bw</strong>: <code>Tensor</code>. An initial state for the backward RNN.
+This must be a tensor of appropriate type and shape [batch_size
+x cell.state_size].</li>
+<li><strong>dynamic</strong>: <code>bool</code>. If True, dynamic computation is performed. It will not
+compute RNN steps above the sequence length. Note that because TF
+requires to feed sequences of same length, 0 is used as a mask.
+So a sequence padded with 0 at the end must be provided. When
+computation is performed, it will stop when it meets a step with
+a value of 0.</li>
+<li><strong>scope</strong>: <code>str</code>. Define this layer scope (optional). A scope can be
+used to share variables between layers. Note that scope will
+override name.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>if <code>return_seq</code>: 3-D Tensor [samples, timesteps, output dim].
+else: 2-D Tensor Layer [samples, output dim].</p>
 <hr />
               
             </div>

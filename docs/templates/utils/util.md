@@ -261,3 +261,124 @@ A tensor of shape [num_samples{x}, num_samples{y}] with the RBF kernel.
 
  ---------- 
 
+# compute the length of a sequence. 0 are masked
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L697 target="_blank"><b>tefla.utils.util.retrieve_seq_length</b></a></span>  (data)</span>
+
+<h3>Args</h3>
+
+
+ - **data**: input sequence
+
+<h3>Returns</h3>
+
+
+   a `int`, length of the sequence
+ 
+
+ ---------- 
+
+# Advanced Indexing for Sequences
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L713 target="_blank"><b>tefla.utils.util.advanced_indexing</b></a></span>  (inp,  index)</span>
+<h3>Args</h3>
+
+
+ - **inp**: input sequence
+ - **index**: input index for indexing
+
+<h3>Returns</h3>
+
+
+   a indexed sequence
+ 
+
+ ---------- 
+
+# pad_sequences
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L731 target="_blank"><b>tefla.utils.util.pad_sequences</b></a></span>  (sequences,  maxlen=None,  dtype='int32',  padding='post',  truncating='post',  value=0.0)</span>
+Pad each sequence to the same length: the length of the longest sequence.
+If maxlen is provided, any sequence longer than maxlen is truncated to
+maxlen. Truncation happens off either the beginning or the end (default)
+of the sequence. Supports pre-padding and post-padding (default).
+
+<h3>Args</h3>
+
+
+ - **sequences**: list of lists where each element is a sequence.
+ - **maxlen**: a `int`, maximum length.
+ - **dtype**: type to cast the resulting sequence.
+ - **padding**: 'pre' or 'post', pad either before or after each sequence.
+ - **truncating**: 'pre' or 'post', remove values from sequences larger than
+maxlen either in the beginning or in the end of the sequence
+ - **value**: `float`, value to pad the sequences to the desired value.
+
+<h3>Returns</h3>
+
+
+<h3>x</h3>
+
+ `numpy array` with dimensions (number_of_sequences, maxlen)
+
+ ---------- 
+
+# Creates a dictionary char:integer for each unique character
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L777 target="_blank"><b>tefla.utils.util.chars_to_dictionary</b></a></span>  (string)</span>
+<h3>Args</h3>
+
+
+ - **string**: a `string` input
+
+<h3>Returns</h3>
+
+
+dictionary of chars
+
+ ---------- 
+
+# string_to_semi_redundant_sequences
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L790 target="_blank"><b>tefla.utils.util.string_to_semi_redundant_sequences</b></a></span>  (string,  seq_maxlen=25,  redun_step=3,  char_idx=None)</span>
+Vectorize a string and returns parsed sequences and targets, along with
+the associated dictionary.
+
+<h3>Args</h3>
+
+
+ - **string**: `str`. Lower-case text from input text file.
+ - **seq_maxlen**: `int`. Maximum length of a sequence. Default: 25.
+ - **redun_step**: `int`. Redundancy step. Default: 3.
+ - **char_idx**: 'dict'. A dictionary to convert chars to positions. Will be automatically generated if None
+
+<h3>Returns</h3>
+
+
+A tuple: (inputs, targets, dictionary)
+
+ ---------- 
+
+# Vectorize Text file
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L832 target="_blank"><b>tefla.utils.util.textfile_to_semi_redundant_sequences</b></a></span>  (path,  seq_maxlen=25,  redun_step=3,  to_lower_case=False,  pre_defined_char_idx=None)</span>
+textfile_to_semi_redundant_sequences.
+Vectorize a string from a textfile and returns parsed sequences and targets, along with
+the associated dictionary.
+
+<h3>Args</h3>
+
+
+ - **path**: `str`. path of the input text file.
+ - **seq_maxlen**: `int`. Maximum length of a sequence. Default: 25.
+ - **redun_step**: `int`. Redundancy step. Default: 3.
+ - **to_lower_case**: a `bool`, if true, convert to lowercase
+ - **pre_defined_char_idx**: 'dict'. A dictionary to convert chars to positions. Will be automatically generated if None
+
+<h3>Returns</h3>
+
+
+A tuple: (inputs, targets, dictionary)
+
+ ---------- 
+

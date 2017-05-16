@@ -276,7 +276,7 @@ a scalar tensor representing the correlation loss value.
 
 # Computes the Maximum Mean Discrepancy (MMD) of two samples: x and y
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L442 target="_blank"><b>tefla.core.losses.maximum_mean_discrepancy</b></a></span>  (x,  y,  kernel=<function  gaussian_kernel_matrix  at  0x7ff0df5747d0>,  name='maximum_mean_discrepancy')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L442 target="_blank"><b>tefla.core.losses.maximum_mean_discrepancy</b></a></span>  (x,  y,  kernel=<function  gaussian_kernel_matrix  at  0x7f303e2d21b8>,  name='maximum_mean_discrepancy')</span>
 
 Maximum Mean Discrepancy (MMD) is a distance-measure between the samples of
 the distributions of x and y. Here we use the kernel two sample estimate
@@ -391,6 +391,183 @@ The caller is expected to add the loss to the graph.
 
 
   A Tensor of size 1, denoting the mean error between batches of quaternions.
+
+ ---------- 
+
+# Adds noise to embeddings and recomputes classification loss
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L625 target="_blank"><b>tefla.core.losses.random_perturbation_loss</b></a></span>  (embedded,  length,  loss_fn,  perturb_norm_length=0.1)</span>
+
+<h3>Args</h3>
+
+
+ - **embedded**: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+ - **length**: a `int`, length of the mask
+ - **loss_fn**: a callable, that returns loss
+ - **perturb_norm_length**: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+<h3>Returns</h3>
+
+
+perturbation loss
+
+ ---------- 
+
+# Adds gradient to embedding and recomputes classification loss
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L642 target="_blank"><b>tefla.core.losses.adversarial_loss</b></a></span>  (embedded,  loss,  loss_fn,  perturb_norm_length=0.1)</span>
+
+<h3>Args</h3>
+
+
+ - **embedded**: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+ - **loss**: `float`, loss
+ - **loss_fn**: a callable, that returns loss
+ - **perturb_norm_length**: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+<h3>Returns</h3>
+
+
+adversial loss
+
+ ---------- 
+
+# Virtual adversarial loss
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L663 target="_blank"><b>tefla.core.losses.virtual_adversarial_loss</b></a></span>  (logits,  embedded,  labels,  length,  logits_from_embedding_fn,  num_classes,  num_power_iteration=1,  small_constant_for_finite_diff=0.001,  perturb_norm_length=0.1)</span>
+Computes virtual adversarial perturbation by finite difference method and
+power iteration, adds it to the embedding, and computes the KL divergence
+between the new logits and the original logits.
+
+<h3>Args</h3>
+
+
+ - **logits**: 2-D float `Tensor`, [num_timesteps*batch_size, m], where m=1 if
+num_classes=2, otherwise m=num_classes.
+ - **embedded**: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim].
+ - **labels**: 1-D `Tensor`, input labels
+ - **length**: a `int`, input length
+ - **logits_from_embedding_fn**: callable that takes embeddings and returns
+classifier logits.
+ - **num_classes**: num_classes for training
+ - **vocab_size**: a `int`, vocabular size of the problem
+ - **num_power_iteration**: a `int`, the number of power iteration
+ - **small_constant_for_finite_diff**: a `float`, Small constant for finite difference method
+ - **perturb_norm_length**: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+<h3>Returns</h3>
+
+
+a `float` `scalar`, KL divergence.
+
+ ---------- 
+
+# Adds noise to embeddings and recomputes classification loss fir bidirectional rnn models
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L707 target="_blank"><b>tefla.core.losses.random_perturbation_loss_brnn</b></a></span>  (embedded,  length,  loss_fn,  perturb_norm_length=0.1)</span>
+
+<h3>Args</h3>
+
+
+ - **embedded**: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+ - **length**: a `int`, length of the mask
+ - **loss_fn**: a callable, that returns loss
+ - **perturb_norm_length**: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+<h3>Returns</h3>
+
+
+perturbation loss
+
+ ---------- 
+
+# Adds gradient to embeddings and recomputes classification loss for bidirectional rnn models
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L725 target="_blank"><b>tefla.core.losses.adversarial_loss_brnn</b></a></span>  (embedded,  loss,  loss_fn,  perurb_norm_length=0.1)</span>
+
+<h3>Args</h3>
+
+
+ - **embedded**: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
+ - **loss**: `float`, loss
+ - **loss_fn**: a callable, that returns loss
+ - **perturb_norm_length**: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+<h3>Returns</h3>
+
+
+adversial loss
+
+ ---------- 
+
+# Virtual adversarial loss for bidirectional models
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L744 target="_blank"><b>tefla.core.losses.virtual_adversarial_loss_brnn</b></a></span>  (logits,  embedded,  labels,  length,  logits_from_embedding_fn,  vocab_size,  num_classes,  num_power_iteration=1,  small_constant_for_finite_diff=0.001,  perturb_norm_length=0.1)</span>
+Computes virtual adversarial perturbation by finite difference method and
+power iteration, adds it to the embedding, and computes the KL divergence
+between the new logits and the original logits.
+
+<h3>Args</h3>
+
+
+ - **logits**: 2-D float `Tensor`, [num_timesteps*batch_size, m], where m=1 if
+num_classes=2, otherwise m=num_classes.
+ - **embedded**: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim].
+ - **labels**: 1-D `Tensor`, input labels
+ - **length**: a `int`, input length
+ - **logits_from_embedding_fn**: callable that takes embeddings and returns
+classifier logits.
+ - **num_classes**: num_classes for training
+ - **vocab_size**: a `int`, vocabular size of the problem
+ - **num_power_iteration**: a `int`, the number of power iteration
+ - **small_constant_for_finite_diff**: a `float`, Small constant for finite difference method
+ - **perturb_norm_length**: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+
+<h3>Returns</h3>
+
+
+a `float` `scalar`, KL divergence.
+
+ ---------- 
+
+# Generate a mask for the EOS token (1.0 on EOS, 0.0 otherwise)
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L805 target="_blank"><b>tefla.core.losses._end_of_seq_mask</b></a></span>  (tokens,  vocab_size)</span>
+
+<h3>Args</h3>
+
+
+ - **tokens**: 1-D integer `Tensor` [num_timesteps*batch_size]. Each element is an
+id from the vocab.
+ - **vocab_size**: a `int`, vocabular size of the problem
+
+<h3>Returns</h3>
+
+
+Float 1-D `Tensor` same shape as tokens, whose values are 1.0 on the end of
+sequence and 0.0 on the others.
+
+ ---------- 
+
+# Returns weighted KL divergence between distributions q and p
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L821 target="_blank"><b>tefla.core.losses._kl_divergence_with_logits</b></a></span>  (q_logits,  p_logits,  weights,  num_classes)</span>
+
+<h3>Args</h3>
+
+
+ - **q_logits**: logits for 1st argument of KL divergence shape
+  [num_timesteps * batch_size, num_classes] if num_classes > 2, and
+  [num_timesteps * batch_size] if num_classes == 2.
+ - **p_logits**: logits for 2nd argument of KL divergence with same shape q_logits.
+ - **weights**: 1-D `float` tensor with shape [num_timesteps * batch_size].
+ Elements should be 1.0 only on end of sequences
+ - **num_classes**: a `int`, number of training classes
+
+<h3>Returns</h3>
+
+
+a `float` `scalar`, KL divergence.
 
  ---------- 
 
