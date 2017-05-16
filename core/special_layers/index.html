@@ -114,6 +114,12 @@
                 <li class="toctree-l3"><a href="#resnext-block">ResNeXt Block</a></li>
                 
             
+                <li class="toctree-l3"><a href="#embedding">Embedding</a></li>
+                
+            
+                <li class="toctree-l3"><a href="#gated-unit-for-language-modelling">Gated unit for language modelling</a></li>
+                
+            
             </ul>
         
     </li>
@@ -501,7 +507,7 @@ of the colour-dependent term.</li>
 <p>Refined predictions after MAP inference.</p>
 <hr />
 <h1 id="resnext-block">ResNeXt Block</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7ff0da7df8c0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f303811bf50>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
 resnext paper https://arxiv.org/pdf/1611.05431.pdf</p>
 <h3>Args</h3>
 
@@ -530,6 +536,44 @@ override name.</li>
 <h3>Returns</h3>
 
 <p>4-D Tensor [batch, new height, new width, out_channels].</p>
+<hr />
+<h1 id="embedding">Embedding</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f3002edefd0>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
+Embedding layer for a sequence of integer ids or floats.</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>inputs</strong>: a 2-D <code>Tensor</code> [samples, ids].</li>
+<li><strong>vocab_dim</strong>: list of <code>int</code>. Vocabulary size (number of ids).</li>
+<li><strong>embedding_dim</strong>: list of <code>int</code>. Embedding size.</li>
+<li><strong>validate_indices</strong>: <code>bool</code>. Whether or not to validate gather indices.</li>
+<li><strong>w_init</strong>:  Weights initialization.</li>
+<li><strong>trainable</strong>: <code>bool</code>. If True, weights will be trainable.</li>
+<li><strong>reuse</strong>: <code>bool</code>. If True and 'scope' is provided, this layer variables
+will be reused (shared).</li>
+<li><strong>name</strong>: A name for this layer (optional). Default: 'Embedding'.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>3-D Tensor [samples, embedded_ids, features].</p>
+<hr />
+<h1 id="gated-unit-for-language-modelling">Gated unit for language modelling</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L613 target="_blank"><b>tefla.core.special_layers.gated_layer</b></a></span>  (inputs,  layer,  num_units,  is_training,  reuse,  name='gated_layer',  **kwargs)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>inputs</strong>: a 3-D/4-D <code>Tensor</code>, input [samples, timesteps, input_dim]</li>
+<li><strong>layer</strong>: a <code>layer</code>, layer to pass the inputs
+e.g. <code>tefla.core.layers</code></li>
+<li><strong>num_units</strong>: a <code>int</code>, number of units for each layer</li>
+<li><strong>is_training</strong>: a <code>boolean</code>, Training if its true</li>
+<li><strong>reuse</strong>: <code>bool</code>. If True and 'scope' is provided, this layer variables
+will be reused (shared).</li>
+<li><strong>name</strong>: A name for this layer (optional). Default: 'gated_layer'.</li>
+</ul>
+<h3>Returns</h3>
+
+<p>a 3-D/4-D <code>Tensor</code>, output of the gated unit</p>
 <hr />
               
             </div>
