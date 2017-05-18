@@ -10,7 +10,6 @@ import numpy as np
 import tensorflow as tf
 
 from .base import Base
-# import tefla.core.summary as summary
 from . import logger as log
 from ..utils import util
 from ..dataset.base import Dataset
@@ -57,15 +56,10 @@ class DistSupervisedTrainer(Base):
         self.gradient_multipliers = gradient_multipliers
         self.aggregation_method = aggregation_method
         self.colocate_gradients_with_ops = colocate_gradients_with_ops
-        self.dataset_name = self.cnf.get('dataset_name', 'imagenet')
-        self.num_readers = self.cnf.get('num_readers', 8)
-        self.min_queue_examples = self.cnf.get('min_queue_examples', 1000)
-        self.capacity = self.cnf.get('capacity', 2000)
-        self.feature_keys = self.cnf.get('feature_keys')
         super(DistSupervisedTrainer, self).__init__(
             model, cnf, **kwargs)
 
-    def fit(self, task_id, target, dataset, datadir, cluster_spec, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+    def fit(self, task_id, target, datadir, datadir_val, cluster_spec, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
         """
         Train the model on the specified dataset
 
@@ -74,7 +68,6 @@ class DistSupervisedTrainer(Base):
             target: name of the TensorFlow target to use. See the tf.Session constructor for
                 how this is interpreted.
             datadir: datadir, training / val dataset
-            dataset: dataset instance to use to access data for training/validation
             cluster_spec: cluster specifications
             reuse: whether to resue variables
             weights_from: str, if not None, initializes model from exisiting weights
@@ -88,15 +81,16 @@ class DistSupervisedTrainer(Base):
         """
         if self.is_summary:
             self._setup_summaries()
-        dataflow = self._setup_data_ops(datadir, dataset_name=self.dataset_name, feature_keys=self.feature_keys,
-                                        num_readers=self.num_readers, min_queue_examples=self.min_queue_examples, capacity=self.capacity)
+        dataflow_train, dataflow_val = self._data_ops(
+            datadir, datadir_val, features_keys=features_keys, training_set_size=training_set_size, val_set_size=val_set_size, dataset_name=dataset_name)
         self._setup_misc()
         self._print_info(dataset)
-        self.train(task_id, target, dataset, dataflow, cluster_spec, is_training,
+        self.train(task_id, target, dataflow, dataflow_val, cluster_spec, is_training,
                    start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None)
 
-    def _setup_data_ops(self, datadir, dataset_name='imagenet', feature_keys=None, num_readers=8, min_queue_examples=1000, capacity=2000):
-        if feature_keys is None:
+    def _setup_data_ops(self, data_dir, data_dir_val, features_keys=None, training_set_size=50000, val_set_size=10000, dataset_name='datarandom'):
+        num_readers = self.cnf.get('num_readers', 8)
+        if features_keys is None:
             features_keys = {
                 'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),
                 'image/format': tf.FixedLenFeature((), tf.string, default_value='jpg'),
@@ -105,11 +99,20 @@ class DistSupervisedTrainer(Base):
 
         decoder = Decoder(features_keys)
 
-        dataset = Dataset(dataset_name, decoder, datadir)
+        dataset = Dataset(dataset_name, decoder, data_dir,
+                          num_examples_per_epoch=training_set_size, batch_size=self.cnf['batch_size_train'])
 
-        dataflow = Dataflow(dataset, num_readers=num_readers, shuffle=True,
-                            min_queue_examples=min_queue_examples, capacity=capacity)
-        return dataflow
+        dataflow_train = Dataflow(dataset, num_readers=num_readers,
+                                  shuffle=True, min_queue_examples=self.cnf.get('min_queue_examples', 1000), capacity=self.cnf.get('capacity', 2000))
+        if data_dir_val is not None:
+            dataset_val = Dataset(dataset_name, decoder, data_dir_val,
+                                  num_examples_per_epoch=val_set_size, batch_size=self.cnf['batch_size_train'])
+
+            dataflow_val = Dataflow(dataset_val, num_readers=num_readers,
+                                    shuffle=False, min_queue_examples=self.cnf.get('min_queue_examples', 1000), capacity=self.cnf.get('capacity', 2000))
+            return dataflow_train, dataflow_val
+        else:
+            return dataflow_train, None
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
@@ -146,7 +149,7 @@ class DistSupervisedTrainer(Base):
 
         self._print_layer_shapes(self.training_end_points, log)
 
-    def train(self, task_id, target, dataset, dataflow, cluster_spec, is_training, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+    def train(self, task_id, target, dataset, dataflow_val, cluster_spec, is_training, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
         num_workers = len(cluster_spec.as_dict()['worker'])
         num_parameter_servers = len(cluster_spec.as_dict()['ps'])
         if num_replicas_to_aggregate == -1:
@@ -174,7 +177,7 @@ class DistSupervisedTrainer(Base):
                 images, labels = dataflow.batch_inputs(self.cnf.get('batch_size', 32), True, self.cnf.get('tfrecords_image_size'), self.cnf.get(
                     'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
                 labels = self._adjust_ground_truth(labels)
-                val_images, val_labels = dataflow.batch_inputs(self.cnf.get('batch_size_test', 32), False, self.cnf.get('tfrecords_image_size'), self.cnf.get(
+                val_images, val_labels = dataflow_val.batch_inputs(self.cnf.get('batch_size_test', 32), False, self.cnf.get('tfrecords_image_size'), self.cnf.get(
                     'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
                 val_labels = self._adjust_ground_truth(val_labels)
 
