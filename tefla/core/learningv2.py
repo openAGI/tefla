@@ -78,7 +78,7 @@ class SupervisedLearner(Base, BaseMixin):
             dataflow_train, dataflow_val = self._data_ops(
                 data_dir, data_dir_val, features_keys=features_keys, training_set_size=training_set_size, val_set_size=val_set_size, dataset_name=dataset_name)
             self._setup_model_loss(
-                dataflow_train, dataflow_val=dataflow_val, keep_moving_averages=keep_moving_averages)
+                dataflow_train, dataflow_val=dataflow_val, keep_moving_averages=keep_moving_averages, loss_type=self.loss_type)
             if self.is_summary:
                 self._setup_summaries(self.grads_and_vars)
             self._setup_misc()
@@ -111,7 +111,7 @@ class SupervisedLearner(Base, BaseMixin):
         dataflow_train = Dataflow(dataset, num_readers=num_readers,
                                   shuffle=True, min_queue_examples=self.cnf.get('min_queue_examples', 1000), capacity=self.cnf.get('capacity', 2000))
         if data_dir_val is not None:
-            dataset_val = Dataset(dataset_name, decoder, data_dir,
+            dataset_val = Dataset(dataset_name, decoder, data_dir_val,
                                   num_examples_per_epoch=val_set_size, batch_size=self.cnf['batch_size_train'])
 
             dataflow_val = Dataflow(dataset_val, num_readers=num_readers,
@@ -309,7 +309,7 @@ class SupervisedLearner(Base, BaseMixin):
         coord.request_stop()
         coord.join(stop_grace_period_secs=0.05)
 
-    def _process_towers_grads(self, dataset, opt, model, is_training=True, reuse=None, is_classification=True):
+    def _process_towers_grads(self, dataset, opt, model, is_training=True, reuse=None, loss_type='cross_entropy', is_classification=True):
         tower_grads = []
         tower_loss = []
         with tf.variable_scope(tf.get_variable_scope()):
@@ -320,7 +320,7 @@ class SupervisedLearner(Base, BaseMixin):
                             'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
                         labels = self._adjust_ground_truth(labels)
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
-                                                reuse=reuse, is_classification=is_classification, gpu_id=i)
+                                                reuse=reuse, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
 
                         tf.get_variable_scope().reuse_variables()
                         if self.clip_by_global_norm:
@@ -335,7 +335,7 @@ class SupervisedLearner(Base, BaseMixin):
 
         return grads_and_vars, sum(tower_loss)
 
-    def _process_towers_loss(self, dataset, opt, model, is_training=False, reuse=True, is_classification=True, num_classes=10):
+    def _process_towers_loss(self, dataset, opt, model, is_training=False, reuse=True, is_classification=True, loss_type='cross_entropy', num_classes=10):
         tower_loss = []
         predictions = []
         validation_metric = []
@@ -347,7 +347,7 @@ class SupervisedLearner(Base, BaseMixin):
                         'crop_size'), batch_size=self.cnf['batch_size_test'], num_preprocess_threads=32, num_readers=8)
                     labels = self._adjust_ground_truth(labels)
                     loss_pred = self._tower_loss(
-                        scope, model, images, labels, is_training=is_training, reuse=reuse, is_classification=is_classification)
+                        scope, model, images, labels, is_training=is_training, reuse=reuse, is_classification=is_classification, loss_type=loss_type)
                     tower_loss.append(loss_pred['loss'])
                     predictions.append(loss_pred['predictions'])
                     for i, (_, metric_function) in enumerate(self.validation_metrics_def):
@@ -360,7 +360,7 @@ class SupervisedLearner(Base, BaseMixin):
             validation_metric.append(sum(validation_metric_tmp[i]))
         return sum(tower_loss), predictions, validation_metric
 
-    def _setup_model_loss(self, dataflow, dataflow_val=None, keep_moving_averages=False, num_classes=10):
+    def _setup_model_loss(self, dataflow, dataflow_val=None, keep_moving_averages=False, num_classes=10, loss_type='cross_entropy'):
         self.learning_rate = tf.placeholder(
             tf.float32, shape=[], name="learning_rate_placeholder")
         # Keep old variable around to load old params, till we need this
@@ -369,10 +369,10 @@ class SupervisedLearner(Base, BaseMixin):
         optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get(
             'optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
         self.grads_and_vars, self.training_loss = self._process_towers_grads(
-            dataflow, optimizer, self.model, is_classification=self.classification)
+            dataflow, optimizer, self.model, is_classification=self.classification, loss_type=loss_type)
         if dataflow_val is not None:
             self.validation_loss, self.validation_predictions, self.validation_metric = self._process_towers_loss(
-                dataflow_val, optimizer, self.model, is_classification=self.classification, num_classes=num_classes)
+                dataflow_val, optimizer, self.model, is_classification=self.classification, num_classes=num_classes, loss_type=loss_type)
             self.validation_metric.append(self.validation_loss)
 
         if self.clip_norm and not self.clip_by_global_norm:
