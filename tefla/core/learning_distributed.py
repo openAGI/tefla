@@ -12,6 +12,7 @@ import tensorflow as tf
 from .base import Base
 from . import logger as log
 from ..utils import util
+from ..da.data_augmentation import inputs, distorted_inputs
 from ..dataset.base import Dataset
 from ..dataset.decoder import Decoder
 from ..dataset.dataflow import Dataflow
@@ -23,7 +24,7 @@ VALIDATION_BATCH_SUMMARIES = 'validation_batch_summaries'
 VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 
 
-class DistSupervisedTrainer(Base):
+class DistSupervisedLearner(Base):
     """
     Supervised Trainer, support data parallelism, multi GPU
 
@@ -56,10 +57,10 @@ class DistSupervisedTrainer(Base):
         self.gradient_multipliers = gradient_multipliers
         self.aggregation_method = aggregation_method
         self.colocate_gradients_with_ops = colocate_gradients_with_ops
-        super(DistSupervisedTrainer, self).__init__(
+        super(DistSupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
-    def fit(self, task_id, target, datadir, datadir_val, cluster_spec, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+    def fit(self, task_id, target, cluster_spec, datadir, datadir_val, features_keys=None, weights_from=None, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=1, variables_to_train=None, training_set_size=None, val_set_size=None, dataset_name='imagenet', summary_every=None, keep_moving_averages=None):
         """
         Train the model on the specified dataset
 
@@ -81,11 +82,11 @@ class DistSupervisedTrainer(Base):
         """
         if self.is_summary:
             self._setup_summaries()
-        dataflow_train, dataflow_val = self._data_ops(
+        dataflow_train, dataflow_val = self._setup_data_ops(
             datadir, datadir_val, features_keys=features_keys, training_set_size=training_set_size, val_set_size=val_set_size, dataset_name=dataset_name)
         self._setup_misc()
-        self._print_info(dataset)
-        self.train(task_id, target, dataflow, dataflow_val, cluster_spec, is_training,
+        self._print_info(datadir)
+        self.train(task_id, target, dataflow_train, dataflow_val, cluster_spec, is_training, weights_from=weights_from,
                    start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None)
 
     def _setup_data_ops(self, data_dir, data_dir_val, features_keys=None, training_set_size=50000, val_set_size=10000, dataset_name='datarandom'):
@@ -122,35 +123,9 @@ class DistSupervisedTrainer(Base):
             # if update_ops is not None:
             #     self.regularized_training_loss = tf.with_dependencies(update_ops, self.regularized_training_loss)
 
-    def _print_info(self, data_set):
-        log.info('Config:')
-        log.info(pprint.pformat(self.cnf))
-        data_set.print_info()
-        log.info('Max epochs: %d' % self.num_epochs)
-        all_vars = set(tf.all_variables())
-        trainable_vars = set(tf.trainable_variables())
-        non_trainable_vars = all_vars.difference(trainable_vars)
-        log.info("\n---Trainable vars in model:")
-        name_shapes = map(lambda v: (v.name, v.get_shape()), trainable_vars)
-        for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
-            log.info('%s %s' % (n, s))
-
-        log.info("\n---Non Trainable vars in model:")
-        name_shapes = map(lambda v: (v.name, v.get_shape()),
-                          non_trainable_vars)
-        for n, s in sorted(name_shapes, key=lambda ns: ns[0]):
-            log.info('%s %s' % (n, s))
-
-        all_ops = tf.get_default_graph().get_operations()
-        log.debug("\n---All ops in graph")
-        names = map(lambda v: v.name, all_ops)
-        for n in sorted(names):
-            log.debug(n)
-
-        self._print_layer_shapes(self.training_end_points, log)
-
-    def train(self, task_id, target, dataset, dataflow_val, cluster_spec, is_training, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+    def train(self, task_id, target, dataflow, dataflow_val, cluster_spec, is_training, weights_from=None, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
         num_workers = len(cluster_spec.as_dict()['worker'])
+        print(num_workers)
         num_parameter_servers = len(cluster_spec.as_dict()['ps'])
         if num_replicas_to_aggregate == -1:
             num_replicas_to_aggregate = num_workers
@@ -162,189 +137,178 @@ class DistSupervisedTrainer(Base):
 
         is_chief = (task_id == 0)
 
-        # Ops are assigned to worker by default.
-        with tf.device('/job:worker/task:%d' % task_id) as scope:
-            with tf.device(tf.replica_device_setter(cluster=cluster_spec)):
-                # with
-                # tf.device(tf.replica_device_setter(ps_device='/job:ps/task:%d'
-                # % task_id)):
-                global_step = tf.get_variable('global_step', shape=[
-                ], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
-                learning_rate = self.lr_policy.initial_lr
-                n_iters_per_epoch = dataset.n_iters_per_epoch
-                n_val_iters_per_epoch = dataset.n_val_iters_per_epoch
-                self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
-                images, labels = dataflow.batch_inputs(self.cnf.get('batch_size', 32), True, self.cnf.get('tfrecords_image_size'), self.cnf.get(
-                    'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
-                labels = self._adjust_ground_truth(labels)
-                val_images, val_labels = dataflow_val.batch_inputs(self.cnf.get('batch_size_test', 32), False, self.cnf.get('tfrecords_image_size'), self.cnf.get(
-                    'crop_size'), im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=self.cnf.get('num_preprocess_threads', 8), input_queue_memory_factor=1)
-                val_labels = self._adjust_ground_truth(val_labels)
+	with tf.device(tf.train.replica_device_setter(worker_device="/job:worker/replica:0/task:%d/gpu:0" % (task_id), cluster=cluster_spec)) as scope:
+	    global_step = tf.get_variable('global_step', shape=[
+	    ], dtype=tf.int64, initializer=tf.zeros_initializer(), trainable=False)
+	    learning_rate = self.lr_policy.initial_lr
+	    n_iters_per_epoch = dataflow.n_iters_per_epoch
+	    n_val_iters_per_epoch = dataflow_val.n_iters_per_epoch
+	    self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
+	    images, labels = distorted_inputs(dataflow, self.cnf['tfrecords_im_size'], self.cnf.get(
+		'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
+	    labels = self._adjust_ground_truth(labels)
+	    val_images, val_labels = inputs(dataflow_val, self.cnf['tfrecords_im_size'], self.cnf.get('crop_size'), batch_size=self.cnf['batch_size_test'], num_preprocess_threads=32, num_readers=8)
+	    val_labels = self._adjust_ground_truth(val_labels)
 
-                total_loss, opt, val_total_loss = self._setup_model_loss(images, labels, val_images, val_labels,
-                                                                         is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=None, num_replicas_to_aggregate=-1)
-                train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_grad_global_norm=self.clip_grad_global_norm, gradient_noise_scale=self.gradient_noise_scale,
-                                                gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
+	    total_loss, opt, val_total_loss = self._setup_model_loss(images, labels, val_images, val_labels,
+								     is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=global_step, num_replicas_to_aggregate=num_replicas_to_aggregate)
+	    train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_by_global_norm=self.clip_by_global_norm, gradient_noise_scale=self.gradient_noise_scale,
+					    gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
 
-                chief_queue_runners = [opt.get_chief_queue_runner()]
-                init_tokens_op = opt.get_init_tokens_op()
-                clean_up_op = opt.get_clean_up_op()
+	    chief_queue_runners = [opt.get_chief_queue_runner()]
+	    init_tokens_op = opt.get_init_tokens_op()
 
-                saver = tf.train.Saver()
-                init_op = tf.initialize_all_variables()
+	    saver = tf.train.Saver()
+	    init_op = tf.global_variables_initializer()
 
-                sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, summary_op=None,
-                                         global_step=global_step, saver=saver, save_model_secs=self.cnf.get('save_interval_secs', 600))
+	    sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, summary_op=None,
+				     global_step=global_step, saver=saver, save_model_secs=self.cnf.get('save_interval_secs', 600))
 
-                log.info('%s Supervisor' % datetime.now())
+	    log.info('%s Supervisor' % datetime.now())
 
-                sess_config = tf.ConfigProto(
-                    allow_soft_placement=True, log_device_placement=self.cnf('log_device_placement', False))
+	    sess_config = tf.ConfigProto(
+		allow_soft_placement=True, log_device_placement=self.cnf.get('log_device_placement', False))
 
-                sess = sv.prepare_or_wait_for_session(
-                    target, config=sess_config)
+	    sess = sv.prepare_or_wait_for_session(
+		target, config=sess_config)
 
-                coord = tf.train.Coordinator()
-                queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
-                sv.start_queue_runners(sess, queue_runners, coord=coord)
-                tf.logging.info(
-                    'Started %d queues for processing input data.', len(queue_runners))
+	    queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
+	    sv.start_queue_runners(sess, queue_runners)
 
-                if is_chief:
-                    sv.start_queue_runners(sess, chief_queue_runners)
-                    sess.run(init_tokens_op)
-                    if start_epoch > 1:
-                        weights_from = "weights/model-epoch-%d.ckpt" % (
-                            start_epoch - 1)
+	    if is_chief:
+		sv.start_queue_runners(sess, chief_queue_runners)
+		sess.run(init_tokens_op)
+		if start_epoch > 1:
+		    weights_from = "weights/model-epoch-%d.ckpt" % (
+			start_epoch - 1)
 
-                    if weights_from:
-                        self._load_weights(sess, saver, weights_from)
+		if weights_from:
+		    self._load_weights(sess, saver, weights_from)
 
-                next_summary_time = time.time() + self.cnf.get('save_summaries_secs', 180000000)
-                batch_iter_idx = 1
-                epoch = 1
-                training_history = []
-                while not sv.should_stop():
-                    try:
-                        training_losses = []
-                        batch_train_sizes = []
-                        epoch_start_time = time.time()
-                        for iteration in range(n_iters_per_epoch):
-                            feed_dict_train = {
-                                self.learning_rate: learning_rate}
-                            start_time = time.time()
-                            loss_value, step = sess.run(
-                                [train_op, global_step], feed_dict=feed_dict_train)
-                            assert not np.isnan(
-                                loss_value), 'Model diverged with loss = NaN'
-                            if step > self.cnf.get('max_steps', 10000000):
-                                break
-                            duration = time.time() - start_time
+	    next_summary_time = time.time() + self.cnf.get('save_summaries_secs', 180000000)
+	    batch_iter_idx = 1
+	    epoch = 1
+	    training_history = []
+	    while not sv.should_stop():
+		try:
+		    training_losses = []
+		    batch_train_sizes = []
+		    epoch_start_time = time.time()
+		    for iteration in range(n_iters_per_epoch):
+			feed_dict_train = {
+			    self.learning_rate: learning_rate}
+			start_time = time.time()
+			loss_value, step = sess.run(
+			    [train_op, global_step], feed_dict=feed_dict_train)
+			assert not np.isnan(
+			    loss_value), 'Model diverged with loss = NaN'
+			if step > self.cnf.get('max_steps', 10000000):
+			    break
+			duration = time.time() - start_time
 
-                            if step % 30 == 0:
-                                examples_per_sec = self.cnf.get(
-                                    'batch_size', 32) / float(duration)
-                                format_str = (
-                                    'Worker %d: %s: step %d, loss = %.2f (%.1f examples/sec; %.3f  sec/batch)')
-                            log.info(format_str % (task_id, datetime.now(
-                            ), step, loss_value, examples_per_sec, duration))
+			if step % 30 == 0:
+			    examples_per_sec = self.cnf.get(
+				'batch_size', 32) / float(duration)
+			    format_str = (
+				'Worker %d: %s: step %d, loss = %.2f (%.1f examples/sec; %.3f  sec/batch)')
+			    log.info(format_str % (task_id, datetime.now(
+			    ), step, loss_value, examples_per_sec, duration))
 
-                            if is_chief and next_summary_time < time.time():
-                                log.info(
-                                    'Running Summary operation on the chief.')
-                                # summary_str = sess.run(summary_op)
-                                # sv.summary_computed(sess, summary_str)
-                                log.info('Finished running Summary operation.')
+			if is_chief and next_summary_time < time.time():
+			    log.info(
+				'Running Summary operation on the chief.')
+			    # summary_str = sess.run(summary_op)
+			    # sv.summary_computed(sess, summary_str)
+			    log.info('Finished running Summary operation.')
 
-                            # Determine the next time for running the summary.
-                            next_summary_time += self.cnf.get(
-                                'save_summaries_secs', 180)
+			# Determine the next time for running the summary.
+			next_summary_time += self.cnf.get(
+			    'save_summaries_secs', 180)
 
-                            training_losses.append(loss_value)
-                            batch_train_sizes.append(len(images))
-                            learning_rate = self.lr_policy.batch_update(
-                                learning_rate, batch_iter_idx)
-                            batch_iter_idx += 1
-                            log.debug('4. Training batch %d done.' % iteration)
-                        epoch_training_loss = np.average(
-                            training_losses, weights=batch_train_sizes)
-                        # epoch_duration = time.time() - epoch_start_time
-                        # Validation prediction and metrics
-                        validation_losses = []
-                        batch_validation_metrics = [
-                            [] for _, _ in self.validation_metrics_def]
-                        epoch_validation_metrics = []
-                        batch_validation_sizes = []
-                        for iteration in range(n_val_iters_per_epoch):
-                            feed_dict_val = {self.learning_rate: learning_rate}
-                            log.debug(
-                                '6. Loading batch %d validation data done.' % iteration)
-                            log.debug(
-                                '7. Running validation steps without summary...')
-                            validation_predictions_e, validation_loss_e = sess.run(
-                                [self.validation_predictions, val_total_loss],
-                                feed_dict=feed_dict_val)
-                            log.debug(
-                                '7. Running validation steps without summary done.')
-                            validation_losses.append(validation_loss_e)
-                            batch_validation_sizes.append(len(val_images))
+			training_losses.append(loss_value)
+			batch_train_sizes.append(self.cnf.get('batch_size_train'))
+			learning_rate = self.lr_policy.batch_update(
+			    learning_rate, batch_iter_idx)
+			batch_iter_idx += 1
+			log.debug('4. Training batch %d done.' % iteration)
+		    epoch_training_loss = np.average(
+			training_losses, weights=batch_train_sizes)
+		    # epoch_duration = time.time() - epoch_start_time
+		    # Validation prediction and metrics
+		    validation_losses = []
+		    batch_validation_metrics = [
+			[] for _, _ in self.validation_metrics_def]
+		    epoch_validation_metrics = []
+		    batch_validation_sizes = []
+		    for iteration in range(n_val_iters_per_epoch):
+			feed_dict_val = {self.learning_rate: learning_rate}
+			log.debug(
+			    '6. Loading batch %d validation data done.' % iteration)
+			log.debug(
+			    '7. Running validation steps without summary...')
+			validation_predictions_e, validation_loss_e = sess.run(
+			    [self.validation_predictions, val_total_loss],
+			    feed_dict=feed_dict_val)
+			log.debug(
+			    '7. Running validation steps without summary done.')
+			validation_losses.append(validation_loss_e)
+			batch_validation_sizes.append(self.cnf.get('batch_size_test'))
 
-                            for i, (_, metric_function) in enumerate(self.validation_metrics_def):
-                                metric_score = metric_function(
-                                    val_labels, validation_predictions_e)
-                                batch_validation_metrics[
-                                    i].append(metric_score)
-                            log.debug('8. Validation batch %d done' %
-                                      iteration)
+			for i, (_, metric_function) in enumerate(self.validation_metrics_def):
+			    metric_score = metric_function(
+				val_labels, validation_predictions_e)
+			    batch_validation_metrics[
+				i].append(metric_score)
+			log.debug('8. Validation batch %d done' %
+				  iteration)
 
-                        epoch_validation_loss = np.average(
-                            validation_losses, weights=batch_validation_sizes)
-                        for i, (_, _) in enumerate(self.validation_metrics_def):
-                            epoch_validation_metrics.append(
-                                np.average(batch_validation_metrics[i], weights=batch_validation_sizes))
+		    epoch_validation_loss = np.average(
+			validation_losses, weights=batch_validation_sizes)
+		    for i, (_, _) in enumerate(self.validation_metrics_def):
+			epoch_validation_metrics.append(
+			    np.average(batch_validation_metrics[i], weights=batch_validation_sizes))
 
-                        custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[i]) for i, (name, _) in
-                                                 enumerate(self.validation_metrics_def)]
-                        custom_metrics_string = ''.join(custom_metrics_string)
+		    custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[i]) for i, (name, _) in
+					     enumerate(self.validation_metrics_def)]
+		    custom_metrics_string = ''.join(custom_metrics_string)
 
-                        log.info(
-                            "Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
-                            (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - epoch_start_time,
-                             epoch_training_loss,
-                             epoch_validation_loss,
-                             custom_metrics_string)
-                        )
+		    log.info(
+			"Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
+			(epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - epoch_start_time,
+			 epoch_training_loss,
+			 epoch_validation_loss,
+			 custom_metrics_string)
+		    )
 
-                        if is_chief:
-                            saver.save(sess, os.path.join(self.weights_dir,
-                                                          'model.ckpt'), global_step=step)
+		    if is_chief:
+			saver.save(sess, os.path.join(self.weights_dir,
+						      'model.ckpt'), global_step=step)
 
-                        epoch_info = dict(
-                            epoch=epoch,
-                            training_loss=epoch_training_loss,
-                            validation_loss=epoch_validation_loss
-                        )
+		    epoch_info = dict(
+			epoch=epoch,
+			training_loss=epoch_training_loss,
+			validation_loss=epoch_validation_loss
+		    )
 
-                        training_history.append(epoch_info)
+		    training_history.append(epoch_info)
 
-                        log.debug('10. Epoch done. [%d]' % epoch)
-                        epoch += 1
-                    except Exception as e:
-                        print(e.message)
-                        if is_chief:
-                            log.info('About to execute sync_clean_up_op!')
-                        sess.run(clean_up_op)
-                        raise
+		    log.debug('10. Epoch done. [%d]' % epoch)
+		    epoch += 1
+		except Exception as e:
+		    print(e.message)
+		    if is_chief:
+			log.info('About to execute sync_clean_up_op!')
+			raise
 
-                sv.stop()
-                coord.request_stop()
-                coord.join(stop_grace_period_secs=0.05)
+	    sv.stop()
+	    sv.coord.request_stop()
+	    sv.coord.join(stop_grace_period_secs=0.05)
 
-                if is_chief:
-                    if not os.path.exists(self.weights_dir):
-                        os.mkdir(self.weights_dir)
-                    saver.save(sess, os.path.join(self.weights_dir,
-                                                  'model.ckpt'), global_step=global_step)
+	    if is_chief:
+		if not os.path.exists(self.weights_dir):
+		    os.mkdir(self.weights_dir)
+		saver.save(sess, os.path.join(self.weights_dir,
+					      'model.ckpt'), global_step=global_step)
 
     def _loss_regression(self, logits, labels, is_training):
         labels = tf.cast(labels, tf.int64)
@@ -365,7 +329,7 @@ class DistSupervisedTrainer(Base):
     def _loss_softmax(self, logits, labels, is_training):
         labels = tf.cast(labels, tf.int64)
         ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            logits, labels, name='cross_entropy_loss')
+            labels=labels, logits=logits, name='cross_entropy_loss')
         ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
         if is_training:
             tf.add_to_collection('losses', ce_loss_mean)
@@ -379,26 +343,25 @@ class DistSupervisedTrainer(Base):
         else:
             return ce_loss_mean
 
-    def _tower_loss(self, scope, model, images, labels, is_training, resue, is_classification=True):
+    def _tower_loss(self, scope, model, images, labels, is_training, reuse, is_classification=True):
         if is_training:
             self.training_end_points = model(
-                images, is_training=is_training, reuse=resue)
+                images, is_training=is_training, reuse=reuse)
             if is_classification:
-                _, = self._loss_softmax(self.training_end_points[
+                loss_temp = self._loss_softmax(self.training_end_points[
                                         'logits'], labels, is_training)
             else:
-                _, = self._loss_regression(self.training_end_points[
+                loss_temp = self._loss_regression(self.training_end_points[
                                            'logits'], labels, is_training)
             losses = tf.get_collection('losses', scope)
             total_loss = tf.add_n(losses, name='total_loss')
             for l in losses + [total_loss]:
                 loss_name = re.sub('%s_[0-9]*/' %
                                    self.cnf['TOWER_NAME'], '', l.op.name)
-                tf.scalar_summary(loss_name, l)
             return losses, total_loss
         else:
             self.validation_end_points = model(
-                images, is_training=is_training, reuse=resue)
+                images, is_training=is_training, reuse=reuse)
             if is_classification:
                 total_loss = self._loss_softmax(self.validation_end_points[
                                                 'logits'], labels, is_training)
@@ -411,11 +374,13 @@ class DistSupervisedTrainer(Base):
             return total_loss
 
     def _setup_model_loss(self, inputs, labels, validation_inputs, validation_labels, is_chief, task_id, num_workers, is_training, scope, initial_lr=0.1, reuse=None, global_step=None, num_replicas_to_aggregate=-1):
+        self.learning_rate = tf.placeholder(
+            tf.float32, shape=[], name="learning_rate_placeholder")
 
         losses, total_loss = self._tower_loss(
             scope, self.model, inputs, labels, is_training, reuse, is_classification=True)
         val_total_loss = self._tower_loss(
-            scope, self.model, validation_inputs, validation_labels, is_training=False, reuse=True, is_classification=True)
+            scope, self.model, validation_inputs, validation_labels, False, True, is_classification=True)
 
         if is_chief:
             loss_averages = tf.train.ExponentialMovingAverage(0.9, name='avg')
@@ -431,14 +396,14 @@ class DistSupervisedTrainer(Base):
             tf.trainable_variables() + tf.moving_average_variables())
 
         # Create synchronous replica optimizer.
-        learning_rate = self.lr_policy.batch_update(initial_lr, global_step)
+        learning_rate = self.lr_policy.batch_update(initial_lr, 0)
         opt = self._optimizer(learning_rate, optname=self.cnf.get(
             'optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
-        opt = tf.train.SyncReplicasOptimizer(opt, replicas_to_aggregate=num_replicas_to_aggregate, replica_id=task_id,
+        opt = tf.train.SyncReplicasOptimizer(opt, replicas_to_aggregate=num_replicas_to_aggregate,
                                              total_num_replicas=num_workers, variable_averages=exp_moving_averager, variables_to_average=variables_to_average)
         return total_loss, opt, val_total_loss
 
-    def create_train_op(self, total_loss, optimizer, global_step=None, update_ops=None, variables_to_train=None, clip_grad_global_norm=False, gradient_noise_scale=None, gradient_multipliers=None, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=None, colocate_gradients_with_ops=False):
+    def create_train_op(self, total_loss, optimizer, global_step=None, update_ops=None, variables_to_train=None, clip_by_global_norm=False, gradient_noise_scale=None, gradient_multipliers=None, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=None, colocate_gradients_with_ops=False):
         """Creates an `Operation` that evaluates the gradients and returns the loss.
         Args:
             total_loss: A `Tensor` representing the total loss.
@@ -492,7 +457,7 @@ class DistSupervisedTrainer(Base):
                 assert v in tf.trainable_variables()
 
         assert variables_to_train
-        if clip_grad_global_norm:
+        if clip_by_global_norm:
             grads_and_vars = self. _clip_grad_global_norms(variables_to_train, total_loss, optimizer, global_norm=8, gate_gradients=gate_gradients,
                                                            gradient_noise_scale=gradient_noise_scale, GATE_GRAPH=2, grad_loss=None, agre_method=aggregation_method, col_grad_ops=colocate_gradients_with_ops)
         else:
@@ -513,4 +478,6 @@ class DistSupervisedTrainer(Base):
                 total_loss, 'LossTensor is inf or nan')
 
         # Ensure the train_tensor computes grad_updates.
-        return tf.with_dependencies([grad_updates], total_loss)
+        with tf.control_dependencies([grad_updates]):
+            total_loss = tf.identity(total_loss)
+        return total_loss
