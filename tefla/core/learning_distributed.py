@@ -60,13 +60,13 @@ class DistSupervisedLearner(Base):
         super(DistSupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
-    def fit(self, task_id, target, cluster_spec, datadir, datadir_val, features_keys=None, weights_from=None, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=1, variables_to_train=None, training_set_size=None, val_set_size=None, dataset_name='imagenet', summary_every=None, keep_moving_averages=None):
+    def fit(self, task_id, server, cluster_spec, datadir, datadir_val, features_keys=None, weights_from=None, is_training=True, start_epoch=1, reuse=None, num_replicas_to_aggregate=1, variables_to_train=None, training_set_size=None, val_set_size=None, dataset_name='imagenet', summary_every=None, keep_moving_averages=None):
         """
         Train the model on the specified dataset
 
         Args:
             task_id: int, id of the task
-            target: name of the TensorFlow target to use. See the tf.Session constructor for
+            server: name of the TensorFlow server for dc to use. See the tf.Session constructor for
                 how this is interpreted.
             datadir: datadir, training / val dataset
             cluster_spec: cluster specifications
@@ -86,7 +86,7 @@ class DistSupervisedLearner(Base):
             datadir, datadir_val, features_keys=features_keys, training_set_size=training_set_size, val_set_size=val_set_size, dataset_name=dataset_name)
         self._setup_misc()
         self._print_info(datadir)
-        self.train(task_id, target, dataflow_train, dataflow_val, cluster_spec, is_training, weights_from=weights_from,
+        self.train(task_id, server, dataflow_train, dataflow_val, cluster_spec, is_training, weights_from=weights_from,
                    start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None)
 
     def _setup_data_ops(self, data_dir, data_dir_val, features_keys=None, training_set_size=50000, val_set_size=10000, dataset_name='datarandom'):
@@ -123,7 +123,7 @@ class DistSupervisedLearner(Base):
             # if update_ops is not None:
             #     self.regularized_training_loss = tf.with_dependencies(update_ops, self.regularized_training_loss)
 
-    def train(self, task_id, target, dataflow, dataflow_val, cluster_spec, is_training, weights_from=None, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+    def train(self, task_id, server, dataflow, dataflow_val, cluster_spec, is_training, weights_from=None, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
         num_workers = len(cluster_spec.as_dict()['worker'])
         print(num_workers)
         num_parameter_servers = len(cluster_spec.as_dict()['ps'])
@@ -136,7 +136,6 @@ class DistSupervisedLearner(Base):
             ' num_workers and num_parameter_servers must be > 0.')
 
         is_chief = (task_id == 0)
-
 	with tf.device(tf.train.replica_device_setter(worker_device="/job:worker/replica:0/task:%d/gpu:0" % (task_id), cluster=cluster_spec)) as scope:
 	    global_step = tf.get_variable('global_step', shape=[
 	    ], dtype=tf.int64, initializer=tf.zeros_initializer(), trainable=False)
@@ -166,14 +165,13 @@ class DistSupervisedLearner(Base):
 
 	    log.info('%s Supervisor' % datetime.now())
 
+	    gpu_options = tf.GPUOptions(
+		per_process_gpu_memory_fraction=self.gpu_memory_fraction)
 	    sess_config = tf.ConfigProto(
-		allow_soft_placement=True, log_device_placement=self.cnf.get('log_device_placement', False))
+		gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=self.cnf.get('log_device_placement', False))
 
 	    sess = sv.prepare_or_wait_for_session(
-		target, config=sess_config)
-
-	    queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
-	    sv.start_queue_runners(sess, queue_runners)
+		server.target, config=sess_config)
 
 	    if is_chief:
 		sv.start_queue_runners(sess, chief_queue_runners)
@@ -185,6 +183,9 @@ class DistSupervisedLearner(Base):
 		if weights_from:
 		    self._load_weights(sess, saver, weights_from)
 
+	    queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
+	    sv.start_queue_runners(sess, queue_runners)
+
 	    next_summary_time = time.time() + self.cnf.get('save_summaries_secs', 180000000)
 	    batch_iter_idx = 1
 	    epoch = 1
@@ -195,6 +196,7 @@ class DistSupervisedLearner(Base):
 		    batch_train_sizes = []
 		    epoch_start_time = time.time()
 		    for iteration in range(n_iters_per_epoch):
+                        print(str(iteration))
 			feed_dict_train = {
 			    self.learning_rate: learning_rate}
 			start_time = time.time()
