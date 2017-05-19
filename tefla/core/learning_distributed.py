@@ -149,7 +149,7 @@ class DistSupervisedLearner(Base):
 	    val_images, val_labels = inputs(dataflow_val, self.cnf['tfrecords_im_size'], self.cnf.get('crop_size'), batch_size=self.cnf['batch_size_test'], num_preprocess_threads=32, num_readers=8)
 	    val_labels = self._adjust_ground_truth(val_labels)
 
-	    total_loss, opt, val_total_loss = self._setup_model_loss(images, labels, val_images, val_labels,
+	    total_loss, opt, validation_metric = self._setup_model_loss(images, labels, val_images, val_labels,
 								     is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=global_step, num_replicas_to_aggregate=num_replicas_to_aggregate)
 	    train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_by_global_norm=self.clip_by_global_norm, gradient_noise_scale=self.gradient_noise_scale,
 					    gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
@@ -243,24 +243,20 @@ class DistSupervisedLearner(Base):
 		    epoch_validation_metrics = []
 		    batch_validation_sizes = []
 		    for iteration in range(n_val_iters_per_epoch):
-			feed_dict_val = {self.learning_rate: learning_rate}
+			# feed_dict_val = {self.learning_rate: learning_rate}
 			log.debug(
 			    '6. Loading batch %d validation data done.' % iteration)
 			log.debug(
 			    '7. Running validation steps without summary...')
-			validation_predictions_e, validation_loss_e = sess.run(
-			    [self.validation_predictions, val_total_loss],
-			    feed_dict=feed_dict_val)
+			_validation_metric = sess.run(validation_metric)
 			log.debug(
 			    '7. Running validation steps without summary done.')
-			validation_losses.append(validation_loss_e)
+			validation_losses.append(_validation_metric[-1])
 			batch_validation_sizes.append(self.cnf.get('batch_size_test'))
-
 			for i, (_, metric_function) in enumerate(self.validation_metrics_def):
-			    metric_score = metric_function(
-				val_labels, validation_predictions_e)
-			    batch_validation_metrics[
-				i].append(metric_score)
+			    batch_validation_metrics[i].append(
+				_validation_metric[i])
+
 			log.debug('8. Validation batch %d done' %
 				  iteration)
 
@@ -376,6 +372,8 @@ class DistSupervisedLearner(Base):
             return total_loss
 
     def _setup_model_loss(self, inputs, labels, validation_inputs, validation_labels, is_chief, task_id, num_workers, is_training, scope, initial_lr=0.1, reuse=None, global_step=None, num_replicas_to_aggregate=-1):
+        validation_metric = []
+        validation_metric_tmp = [[] for _, _ in self.validation_metrics_def]
         self.learning_rate = tf.placeholder(
             tf.float32, shape=[], name="learning_rate_placeholder")
 
@@ -383,6 +381,13 @@ class DistSupervisedLearner(Base):
             scope, self.model, inputs, labels, is_training, reuse, is_classification=True)
         val_total_loss = self._tower_loss(
             scope, self.model, validation_inputs, validation_labels, False, True, is_classification=True)
+	for i, (_, metric_function) in enumerate(self.validation_metrics_def):
+	    metric_score = metric_function(
+		validation_labels, tf.argmax(self.validation_predictions, 1))
+	    validation_metric_tmp[i].append(metric_score)
+        for i, (_, _) in enumerate(self.validation_metrics_def):
+            validation_metric.append(sum(validation_metric_tmp[i]))
+        validation_metric.append(val_total_loss)
 
         if is_chief:
             loss_averages = tf.train.ExponentialMovingAverage(0.9, name='avg')
@@ -403,7 +408,7 @@ class DistSupervisedLearner(Base):
             'optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
         opt = tf.train.SyncReplicasOptimizer(opt, replicas_to_aggregate=num_replicas_to_aggregate,
                                              total_num_replicas=num_workers, variable_averages=exp_moving_averager, variables_to_average=variables_to_average)
-        return total_loss, opt, val_total_loss
+        return total_loss, opt, validation_metric
 
     def create_train_op(self, total_loss, optimizer, global_step=None, update_ops=None, variables_to_train=None, clip_by_global_norm=False, gradient_noise_scale=None, gradient_multipliers=None, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=None, colocate_gradients_with_ops=False):
         """Creates an `Operation` that evaluates the gradients and returns the loss.
