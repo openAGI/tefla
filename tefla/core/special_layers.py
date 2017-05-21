@@ -638,3 +638,50 @@ def gated_layer(inputs, layer, num_units, is_training, reuse, name='gated_layer'
                         name=name + '_layer2', **kwargs)
         output = tf.multiply(output1, tf.sigmoid(output2))
         return output + inputs_shortcut
+
+
+def glimpseSensor(img, normLoc, minRadius=4, depth=1, sensorBandwidth=12):
+    """ Returns glimpses at the locations
+
+    Args:
+        img: a 4-D `Tensor`, [batch_size, width, height, channels]
+        normloc: a `float`, [0, 1] normalized location
+        minRadius: a `int`, min radius for zooming
+        depth: a `int`, number of zooms
+        sensorbandwidth: a `int`, output glimpse size, width/height
+
+    Returns:
+        a 5-D `tensor` of glimpses
+    """
+    input_shape = img.get_shape().as_list()
+    img_size = input_shape[1]
+    loc = tf.round(((normLoc + 1) / 2.0) * img_size)
+    loc = tf.cast(loc, tf.int32)
+    zooms = []
+    for k in range(batch_size):
+        imgZooms = []
+        one_img = img[k, :, :, :]
+        max_radius = minRadius * (2 ** (depth - 1))
+        offset = 2 * max_radius
+        one_img = tf.image.pad_to_bounding_box(one_img, offset, offset,
+                                               max_radius * 4 + img_size, max_radius * 4 + img_size)
+
+        for i in range(depth):
+            r = int(minRadius * (2 ** (i)))
+            d_raw = 2 * r
+            d = tf.constant(d_raw, shape=[1])
+            d = tf.tile(d, [2])
+            loc_k = loc[k, :]
+            adjusted_loc = offset + loc_k - r
+            one_img2 = tf.reshape(one_img, (one_img.get_shape()[
+                                  0].value, one_img.get_shape()[1].value, input_shape[3]))
+            zoom = tf.slice(one_img2, adjusted_loc, d)
+            zoom = tf.image.resize_bilinear(tf.reshape(
+                zoom, (1, d_raw, d_raw, nput_shape[3])), (sensorBandwidth, sensorBandwidth))
+            zoom = tf.reshape(
+                zoom, (sensorBandwidth, sensorBandwidth, input_shape[3]))
+            imgZooms.append(zoom)
+
+        zooms.append(tf.stack(imgZooms))
+
+    return tf.stack(zooms)
