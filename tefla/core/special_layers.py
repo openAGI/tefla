@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework import ops
 import pydensecrf.densecrf as dcrf
-from .layers import conv2d, depthwise_conv2d, avg_pool_2d, max_pool, relu, batch_norm_tf as batch_norm
+from .layers import conv2d, depthwise_conv2d, avg_pool_2d, max_pool, relu, crelu, batch_norm_tf as batch_norm
 from ..utils import util
 from . import initializers as initz
 
@@ -685,3 +685,117 @@ def glimpseSensor(img, normLoc, minRadius=4, depth=1, sensorBandwidth=12):
         zooms.append(tf.stack(imgZooms))
 
     return tf.stack(zooms)
+
+
+def pva_block_v1(x, num_units, name='pva_block_v1', **kwargs):
+    """Adds a PVA block layer.
+    convolution followed by crelu and scaling
+
+    Args:
+        x: A 4-D `Tensor` of with at least rank 2 and value for the last dimension,
+            i.e. `[batch_size, in_height, in_width, depth]`,
+        is_training: Bool, training or testing
+        num_units: Integer or long, the number of output units in the layer.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
+            dimensions of of the filters.
+        stride: a int or tuple/list of 2 positive integers specifying the stride at which to
+            compute output.
+        padding: one of `"VALID"` or `"SAME"`.
+        activation: activation function, set to None to skip it and maintain
+            a linear activation.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        untie_biases: spatial dimensions wise baises
+        b_init: An initializer for the biases. If None skip biases.
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+        name: Optional name or scope for variable_scope/name_scope.
+        use_bias: Whether to add bias or not
+
+    Returns:
+        The 4-D `Tensor` variable representing the result of the series of operations.
+        e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
+
+    Raises:
+        ValueError: if `x` has rank less than 4 or if its last dimension is not set.
+    """
+    trainable = kwargs.get('trainable')
+    regularizer = kwargs.get('w_regularizer')
+    activation = kwargs.get('activation')
+    kwargs.update({'activation': None})
+    with tf.variable_scope(name):
+        output = conv2d(x, num_units, **kwargs)
+        output = crelu(output)
+        alpha = tf.get_variable('scale/alpha', shape=[2 * num_units, ], dtype=tf.float32,
+                                initializer=tf.constant_initializer(1.0), trainable=trainable, regularizer=regularizer)
+        beta = tf.get_variable('scale/beta', shape=[2 * num_units, ], dtype=tf.float32,
+                               initializer=tf.constant_initializer(0.0), trainable=trainable, regularizer=regularizer)
+        output = tf.add(tf.multiply(output, alpha), beta)
+        return activation(output)
+
+
+def pva_block_v2(x, num_units, name='pva_block_v2', **kwargs):
+    """Adds a PVA block v2 layer.
+    first batch normalization followed by crelu and scaling, convolution is applied after scalling
+
+    Args:
+        x: A 4-D `Tensor` of with at least rank 2 and value for the last dimension,
+            i.e. `[batch_size, in_height, in_width, depth]`,
+        is_training: Bool, training or testing
+        num_units: Integer or long, the number of output units in the layer.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
+            dimensions of of the filters.
+        stride: a int or tuple/list of 2 positive integers specifying the stride at which to
+            compute output.
+        padding: one of `"VALID"` or `"SAME"`.
+        activation: activation function, set to None to skip it and maintain
+            a linear activation.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        untie_biases: spatial dimensions wise baises
+        b_init: An initializer for the biases. If None skip biases.
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+        name: Optional name or scope for variable_scope/name_scope.
+        use_bias: Whether to add bias or not
+
+    Returns:
+        The 4-D `Tensor` variable representing the result of the series of operations.
+        e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
+
+    Raises:
+        ValueError: if `x` has rank less than 4 or if its last dimension is not set.
+    """
+    trainable = kwargs.get('trainable')
+    reuse = kwargs.get('reuse')
+    is_training = kwargs.get('is_training')
+    regularizer = kwargs.get('w_regularizer')
+    activation = kwargs.get('activation')
+    kwargs.update({'activation': None})
+    kwargs.update({'batch_norm': None})
+    with tf.variable_scope(name, reuse=reuse):
+        output = batch_norm(x, activation_fn=tf.nn.relu,
+                            name='batch_norm', is_training=is_training, reuse=reuse)
+        output = crelu(output)
+        alpha = tf.get_variable('scale/alpha', shape=[2 * num_units, ], dtype=tf.float32,
+                                initializer=tf.constant_initializer(1.0), trainable=trainable, regularizer=regularizer)
+        beta = tf.get_variable('scale/beta', shape=[2 * num_units, ], dtype=tf.float32,
+                               initializer=tf.constant_initializer(0.0), trainable=trainable, regularizer=regularizer)
+        output = tf.add(tf.multiply(output, alpha), beta)
+        output = activation(output)
+        output = conv2d(x, num_units, **kwargs)
+        return output
