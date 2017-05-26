@@ -120,6 +120,7 @@ class SupervisedLearner(Base, BaseMixin):
             n_iters_per_epoch = len(
                 data_set.training_X) // self.training_iterator.batch_size
             self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
+            self.total_network_params()
             for epoch in xrange(start_epoch, self.num_epochs + 1):
                 np.random.seed(epoch + seed_delta)
                 tf.set_random_seed(epoch + seed_delta)

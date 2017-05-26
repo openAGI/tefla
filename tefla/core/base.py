@@ -393,6 +393,13 @@ class Base(object):
         except Exception:
             log.info('Multi GPU setup')
 
+    def total_network_params(self):
+        def variable_params(v):
+            return reduce(
+                lambda x, y: x * y, v.get_shape().as_list())
+        n = sum(variable_params(v) for v in tf.trainable_variables())
+        print("Number of trainable network params: %dK" % (n / 1000,))
+
 
 class BaseMixin(object):
 
