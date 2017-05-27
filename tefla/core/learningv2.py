@@ -158,6 +158,7 @@ class SupervisedLearner(Base, BaseMixin):
         batch_iter_idx = 1
         n_iters_per_epoch = dataset.n_iters_per_epoch
         self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
+        self.total_network_params()
         coord = tf.train.Coordinator()
         tf.train.start_queue_runners(sess=sess, coord=coord)
         for epoch in xrange(start_epoch, self.num_epochs + 1):

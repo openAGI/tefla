@@ -124,6 +124,7 @@ class DistSupervisedLearner(Base):
             #     self.regularized_training_loss = tf.with_dependencies(update_ops, self.regularized_training_loss)
 
     def train(self, task_id, server, dataflow, dataflow_val, cluster_spec, is_training, weights_from=None, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+        self.total_network_params()
         num_workers = len(cluster_spec.as_dict()['worker'])
         print(num_workers)
         num_parameter_servers = len(cluster_spec.as_dict()['ps'])
@@ -136,177 +137,180 @@ class DistSupervisedLearner(Base):
             ' num_workers and num_parameter_servers must be > 0.')
 
         is_chief = (task_id == 0)
-	with tf.device(tf.train.replica_device_setter(worker_device="/job:worker/replica:0/task:%d/gpu:0" % (task_id), cluster=cluster_spec)) as scope:
-	    global_step = tf.get_variable('global_step', shape=[
-	    ], dtype=tf.int64, initializer=tf.zeros_initializer(), trainable=False)
-	    learning_rate = self.lr_policy.initial_lr
-	    n_iters_per_epoch = dataflow.n_iters_per_epoch
-	    n_val_iters_per_epoch = dataflow_val.n_iters_per_epoch
-	    self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
-	    images, labels = distorted_inputs(dataflow, self.cnf['tfrecords_im_size'], self.cnf.get(
-		'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
-	    labels = self._adjust_ground_truth(labels)
-	    val_images, val_labels = inputs(dataflow_val, self.cnf['tfrecords_im_size'], self.cnf.get('crop_size'), batch_size=self.cnf['batch_size_test'], num_preprocess_threads=32, num_readers=8)
-	    val_labels = self._adjust_ground_truth(val_labels)
+        with tf.device(tf.train.replica_device_setter(worker_device="/job:worker/replica:0/task:%d/gpu:0" % (task_id), cluster=cluster_spec)) as scope:
+            global_step = tf.get_variable('global_step', shape=[
+            ], dtype=tf.int64, initializer=tf.zeros_initializer(), trainable=False)
+            learning_rate = self.lr_policy.initial_lr
+            n_iters_per_epoch = dataflow.n_iters_per_epoch
+            n_val_iters_per_epoch = dataflow_val.n_iters_per_epoch
+            self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
+            images, labels = distorted_inputs(dataflow, self.cnf['tfrecords_im_size'], self.cnf.get(
+                'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
+            labels = self._adjust_ground_truth(labels)
+            val_images, val_labels = inputs(dataflow_val, self.cnf['tfrecords_im_size'], self.cnf.get(
+                'crop_size'), batch_size=self.cnf['batch_size_test'], num_preprocess_threads=32, num_readers=8)
+            val_labels = self._adjust_ground_truth(val_labels)
 
-	    total_loss, opt, validation_metric = self._setup_model_loss(images, labels, val_images, val_labels,
-								     is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=global_step, num_replicas_to_aggregate=num_replicas_to_aggregate)
-	    train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_by_global_norm=self.clip_by_global_norm, gradient_noise_scale=self.gradient_noise_scale,
-					    gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
+            total_loss, opt, validation_metric = self._setup_model_loss(images, labels, val_images, val_labels,
+                                                                        is_chief, task_id, num_workers, is_training, scope, initial_lr=learning_rate, reuse=None, global_step=global_step, num_replicas_to_aggregate=num_replicas_to_aggregate)
+            train_op = self.create_train_op(total_loss, opt, global_step=global_step, update_ops=None, variables_to_train=None, clip_by_global_norm=self.clip_by_global_norm, gradient_noise_scale=self.gradient_noise_scale,
+                                            gradient_multipliers=self.gradient_multipliers, gate_gradients=tf.train.Optimizer.GATE_OP, aggregation_method=self.aggregation_method, colocate_gradients_with_ops=self.colocate_gradients_with_ops)
 
-	    chief_queue_runners = [opt.get_chief_queue_runner()]
-	    init_tokens_op = opt.get_init_tokens_op()
+            chief_queue_runners = [opt.get_chief_queue_runner()]
+            init_tokens_op = opt.get_init_tokens_op()
 
-	    saver = tf.train.Saver()
-	    init_op = tf.global_variables_initializer()
+            saver = tf.train.Saver()
+            init_op = tf.global_variables_initializer()
 
-	    sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, summary_op=None,
-				     global_step=global_step, saver=saver, save_model_secs=self.cnf.get('save_interval_secs', 600))
+            sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, summary_op=None,
+                                     global_step=global_step, saver=saver, save_model_secs=self.cnf.get('save_interval_secs', 600))
 
-	    log.info('%s Supervisor' % datetime.now())
+            log.info('%s Supervisor' % datetime.now())
 
-	    gpu_options = tf.GPUOptions(
-		per_process_gpu_memory_fraction=self.gpu_memory_fraction)
-	    sess_config = tf.ConfigProto(
-		gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=self.cnf.get('log_device_placement', False))
+            gpu_options = tf.GPUOptions(
+                per_process_gpu_memory_fraction=self.gpu_memory_fraction)
+            sess_config = tf.ConfigProto(
+                gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=self.cnf.get('log_device_placement', False))
 
-	    sess = sv.prepare_or_wait_for_session(
-		server.target, config=sess_config)
+            sess = sv.prepare_or_wait_for_session(
+                server.target, config=sess_config)
 
-	    if is_chief:
-		sv.start_queue_runners(sess, chief_queue_runners)
-		sess.run(init_tokens_op)
-		if start_epoch > 1:
-		    weights_from = "weights/model-epoch-%d.ckpt" % (
-			start_epoch - 1)
+            if is_chief:
+                sv.start_queue_runners(sess, chief_queue_runners)
+                sess.run(init_tokens_op)
+                if start_epoch > 1:
+                    weights_from = "weights/model-epoch-%d.ckpt" % (
+                        start_epoch - 1)
 
-		if weights_from:
-		    self._load_weights(sess, saver, weights_from)
+                if weights_from:
+                    self._load_weights(sess, saver, weights_from)
 
-	    queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
-	    sv.start_queue_runners(sess, queue_runners)
+            queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
+            sv.start_queue_runners(sess, queue_runners)
 
-	    next_summary_time = time.time() + self.cnf.get('save_summaries_secs', 180000000)
-	    batch_iter_idx = 1
-	    epoch = 1
-	    training_history = []
-	    while not sv.should_stop():
-		try:
-		    training_losses = []
-		    batch_train_sizes = []
-		    epoch_start_time = time.time()
-		    for iteration in range(n_iters_per_epoch):
+            next_summary_time = time.time() + self.cnf.get('save_summaries_secs', 180000000)
+            batch_iter_idx = 1
+            epoch = 1
+            training_history = []
+            while not sv.should_stop():
+                try:
+                    training_losses = []
+                    batch_train_sizes = []
+                    epoch_start_time = time.time()
+                    for iteration in range(n_iters_per_epoch):
                         print(str(iteration))
-			feed_dict_train = {
-			    self.learning_rate: learning_rate}
-			start_time = time.time()
-			loss_value, step = sess.run(
-			    [train_op, global_step], feed_dict=feed_dict_train)
-			assert not np.isnan(
-			    loss_value), 'Model diverged with loss = NaN'
-			if step > self.cnf.get('max_steps', 10000000):
-			    break
-			duration = time.time() - start_time
+                        feed_dict_train = {
+                            self.learning_rate: learning_rate}
+                        start_time = time.time()
+                        loss_value, step = sess.run(
+                            [train_op, global_step], feed_dict=feed_dict_train)
+                        assert not np.isnan(
+                            loss_value), 'Model diverged with loss = NaN'
+                        if step > self.cnf.get('max_steps', 10000000):
+                            break
+                        duration = time.time() - start_time
 
-			if step % 30 == 0:
-			    examples_per_sec = self.cnf.get(
-				'batch_size', 32) / float(duration)
-			    format_str = (
-				'Worker %d: %s: step %d, loss = %.2f (%.1f examples/sec; %.3f  sec/batch)')
-			    log.info(format_str % (task_id, datetime.now(
-			    ), step, loss_value, examples_per_sec, duration))
+                        if step % 30 == 0:
+                            examples_per_sec = self.cnf.get(
+                                'batch_size', 32) / float(duration)
+                            format_str = (
+                                'Worker %d: %s: step %d, loss = %.2f (%.1f examples/sec; %.3f  sec/batch)')
+                            log.info(format_str % (task_id, datetime.now(
+                            ), step, loss_value, examples_per_sec, duration))
 
-			if is_chief and next_summary_time < time.time():
-			    log.info(
-				'Running Summary operation on the chief.')
-			    # summary_str = sess.run(summary_op)
-			    # sv.summary_computed(sess, summary_str)
-			    log.info('Finished running Summary operation.')
+                        if is_chief and next_summary_time < time.time():
+                            log.info(
+                                'Running Summary operation on the chief.')
+                            # summary_str = sess.run(summary_op)
+                            # sv.summary_computed(sess, summary_str)
+                            log.info('Finished running Summary operation.')
 
-			# Determine the next time for running the summary.
-			next_summary_time += self.cnf.get(
-			    'save_summaries_secs', 180)
+                        # Determine the next time for running the summary.
+                        next_summary_time += self.cnf.get(
+                            'save_summaries_secs', 180)
 
-			training_losses.append(loss_value)
-			batch_train_sizes.append(self.cnf.get('batch_size_train'))
-			learning_rate = self.lr_policy.batch_update(
-			    learning_rate, batch_iter_idx)
-			batch_iter_idx += 1
-			log.debug('4. Training batch %d done.' % iteration)
-		    epoch_training_loss = np.average(
-			training_losses, weights=batch_train_sizes)
-		    # epoch_duration = time.time() - epoch_start_time
-		    # Validation prediction and metrics
-		    validation_losses = []
-		    batch_validation_metrics = [
-			[] for _, _ in self.validation_metrics_def]
-		    epoch_validation_metrics = []
-		    batch_validation_sizes = []
-		    for iteration in range(n_val_iters_per_epoch):
-			# feed_dict_val = {self.learning_rate: learning_rate}
-			log.debug(
-			    '6. Loading batch %d validation data done.' % iteration)
-			log.debug(
-			    '7. Running validation steps without summary...')
-			_validation_metric = sess.run(validation_metric)
-			log.debug(
-			    '7. Running validation steps without summary done.')
-			validation_losses.append(_validation_metric[-1])
-			batch_validation_sizes.append(self.cnf.get('batch_size_test'))
-			for i, (_, metric_function) in enumerate(self.validation_metrics_def):
-			    batch_validation_metrics[i].append(
-				_validation_metric[i])
+                        training_losses.append(loss_value)
+                        batch_train_sizes.append(
+                            self.cnf.get('batch_size_train'))
+                        learning_rate = self.lr_policy.batch_update(
+                            learning_rate, batch_iter_idx)
+                        batch_iter_idx += 1
+                        log.debug('4. Training batch %d done.' % iteration)
+                    epoch_training_loss = np.average(
+                        training_losses, weights=batch_train_sizes)
+                    # epoch_duration = time.time() - epoch_start_time
+                    # Validation prediction and metrics
+                    validation_losses = []
+                    batch_validation_metrics = [
+                        [] for _, _ in self.validation_metrics_def]
+                    epoch_validation_metrics = []
+                    batch_validation_sizes = []
+                    for iteration in range(n_val_iters_per_epoch):
+                        # feed_dict_val = {self.learning_rate: learning_rate}
+                        log.debug(
+                            '6. Loading batch %d validation data done.' % iteration)
+                        log.debug(
+                            '7. Running validation steps without summary...')
+                        _validation_metric = sess.run(validation_metric)
+                        log.debug(
+                            '7. Running validation steps without summary done.')
+                        validation_losses.append(_validation_metric[-1])
+                        batch_validation_sizes.append(
+                            self.cnf.get('batch_size_test'))
+                        for i, (_, metric_function) in enumerate(self.validation_metrics_def):
+                            batch_validation_metrics[i].append(
+                                _validation_metric[i])
 
-			log.debug('8. Validation batch %d done' %
-				  iteration)
+                        log.debug('8. Validation batch %d done' %
+                                  iteration)
 
-		    epoch_validation_loss = np.average(
-			validation_losses, weights=batch_validation_sizes)
-		    for i, (_, _) in enumerate(self.validation_metrics_def):
-			epoch_validation_metrics.append(
-			    np.average(batch_validation_metrics[i], weights=batch_validation_sizes))
+                    epoch_validation_loss = np.average(
+                        validation_losses, weights=batch_validation_sizes)
+                    for i, (_, _) in enumerate(self.validation_metrics_def):
+                        epoch_validation_metrics.append(
+                            np.average(batch_validation_metrics[i], weights=batch_validation_sizes))
 
-		    custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[i]) for i, (name, _) in
-					     enumerate(self.validation_metrics_def)]
-		    custom_metrics_string = ''.join(custom_metrics_string)
+                    custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[i]) for i, (name, _) in
+                                             enumerate(self.validation_metrics_def)]
+                    custom_metrics_string = ''.join(custom_metrics_string)
 
-		    log.info(
-			"Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
-			(epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - epoch_start_time,
-			 epoch_training_loss,
-			 epoch_validation_loss,
-			 custom_metrics_string)
-		    )
+                    log.info(
+                        "Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
+                        (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - epoch_start_time,
+                         epoch_training_loss,
+                         epoch_validation_loss,
+                         custom_metrics_string)
+                    )
 
-		    if is_chief:
-			saver.save(sess, os.path.join(self.weights_dir,
-						      'model.ckpt'), global_step=step)
+                    if is_chief:
+                        saver.save(sess, os.path.join(self.weights_dir,
+                                                      'model.ckpt'), global_step=step)
 
-		    epoch_info = dict(
-			epoch=epoch,
-			training_loss=epoch_training_loss,
-			validation_loss=epoch_validation_loss
-		    )
+                    epoch_info = dict(
+                        epoch=epoch,
+                        training_loss=epoch_training_loss,
+                        validation_loss=epoch_validation_loss
+                    )
 
-		    training_history.append(epoch_info)
+                    training_history.append(epoch_info)
 
-		    log.debug('10. Epoch done. [%d]' % epoch)
-		    epoch += 1
-		except Exception as e:
-		    print(e.message)
-		    if is_chief:
-			log.info('About to execute sync_clean_up_op!')
-			raise
+                    log.debug('10. Epoch done. [%d]' % epoch)
+                    epoch += 1
+                except Exception as e:
+                    print(e.message)
+                    if is_chief:
+                        log.info('About to execute sync_clean_up_op!')
+                        raise
 
-	    sv.stop()
-	    sv.coord.request_stop()
-	    sv.coord.join(stop_grace_period_secs=0.05)
+            sv.stop()
+            sv.coord.request_stop()
+            sv.coord.join(stop_grace_period_secs=0.05)
 
-	    if is_chief:
-		if not os.path.exists(self.weights_dir):
-		    os.mkdir(self.weights_dir)
-		saver.save(sess, os.path.join(self.weights_dir,
-					      'model.ckpt'), global_step=global_step)
+            if is_chief:
+                if not os.path.exists(self.weights_dir):
+                    os.mkdir(self.weights_dir)
+                saver.save(sess, os.path.join(self.weights_dir,
+                                              'model.ckpt'), global_step=global_step)
 
     def _loss_regression(self, logits, labels, is_training):
         labels = tf.cast(labels, tf.int64)
@@ -347,10 +351,10 @@ class DistSupervisedLearner(Base):
                 images, is_training=is_training, reuse=reuse)
             if is_classification:
                 loss_temp = self._loss_softmax(self.training_end_points[
-                                        'logits'], labels, is_training)
+                    'logits'], labels, is_training)
             else:
                 loss_temp = self._loss_regression(self.training_end_points[
-                                           'logits'], labels, is_training)
+                    'logits'], labels, is_training)
             losses = tf.get_collection('losses', scope)
             total_loss = tf.add_n(losses, name='total_loss')
             for l in losses + [total_loss]:
@@ -381,10 +385,10 @@ class DistSupervisedLearner(Base):
             scope, self.model, inputs, labels, is_training, reuse, is_classification=True)
         val_total_loss = self._tower_loss(
             scope, self.model, validation_inputs, validation_labels, False, True, is_classification=True)
-	for i, (_, metric_function) in enumerate(self.validation_metrics_def):
-	    metric_score = metric_function(
-		validation_labels, tf.argmax(self.validation_predictions, 1))
-	    validation_metric_tmp[i].append(metric_score)
+        for i, (_, metric_function) in enumerate(self.validation_metrics_def):
+            metric_score = metric_function(
+                validation_labels, tf.argmax(self.validation_predictions, 1))
+            validation_metric_tmp[i].append(metric_score)
         for i, (_, _) in enumerate(self.validation_metrics_def):
             validation_metric.append(sum(validation_metric_tmp[i]))
         validation_metric.append(val_total_loss)
