@@ -5,6 +5,7 @@
 # -------------------------------------------------------------------#
 import numpy as np
 import tensorflow as tf
+import numbers
 from functools import partial
 from ..utils import util
 from .layers import flatten, fully_connected as fc, relu
