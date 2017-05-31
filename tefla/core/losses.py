@@ -214,6 +214,77 @@ def l1_l2_regularizer(var, weight_l1=1.0, weight_l2=1.0, name='l1_l2_regularizer
         return tf.add(reg_l1, reg_l2, name='value')
 
 
+def l1_regularizer(scale, name='l1_regularizer'):
+    """Returns a function that can be used to apply L1 regularization to weights.
+    L1 regularization encourages sparsity.
+
+    Args:
+      scale: A scalar multiplier `Tensor`. 0.0 disables the regularizer.
+      name: An optional name/scope name.
+
+    Returns:
+      A function with signature `l1(weights)` that apply L1 regularization.
+
+    Raises:
+      ValueError: If scale is negative or if scale is not a float.
+    """
+    if isinstance(scale, numbers.Integral):
+        raise ValueError('scale cannot be an integer: %s' % scale)
+    if isinstance(scale, numbers.Real):
+        if scale < 0.:
+            raise ValueError('Setting a scale less than 0 on a regularizer: %g' %
+                             scale)
+        if scale == 0.:
+            return lambda _: None
+
+    def l1(weights, name='l1_regularizer'):
+        """Applies L1 regularization to weights."""
+        with tf.name_scope(name):
+            my_scale = tf.convert_to_tensor(scale,
+                                            dtype=weights.dtype.base_dtype,
+                                            name='scale')
+            return tf.multiply(
+                my_scale,
+                tf.reduce_sum(tf.abs(weights)),
+                name=name)
+
+    return l1
+
+
+def l2_regularizer(scale, name='l2_regularizer'):
+    """Returns a function that can be used to apply L2 regularization to weights.
+    Small values of L2 can help prevent overfitting the training data.
+
+    Args:
+      scale: A scalar multiplier `Tensor`. 0.0 disables the regularizer.
+      name: An optional name/scope name.
+
+    Returns:
+      A function with signature `l2(weights)` that applies L2 regularization.
+
+    Raises:
+      ValueError: If scale is negative or if scale is not a float.
+    """
+    if isinstance(scale, numbers.Integral):
+        raise ValueError('scale cannot be an integer: %s' % (scale,))
+    if isinstance(scale, numbers.Real):
+        if scale < 0.:
+            raise ValueError('Setting a scale less than 0 on a regularizer: %g.' %
+                             scale)
+        if scale == 0.:
+            return lambda _: None
+
+    def l2(weights, name='l2_regularizer'):
+        """Applies l2 regularization to weights."""
+        with tf.name_scope(name):
+            my_scale = tf.convert_to_tensor(scale,
+                                            dtype=weights.dtype.base_dtype,
+                                            name='scale')
+            return tf.multiply(my_scale, nn.l2_loss(weights), name=name)
+
+    return l2
+
+
 def discretized_mix_logistic_loss(inputs, predictions, sum_all=True, name='disretized_mix_logistic_loss'):
     """ log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval
 
