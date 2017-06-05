@@ -182,7 +182,7 @@ Refined predictions after MAP inference.
 
 # ResNeXt Block
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f303811bf50>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f0e29505488>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
 resnext paper https://arxiv.org/pdf/1611.05431.pdf
 
 <h3>Args</h3>
@@ -218,7 +218,7 @@ override name.
 
 # Embedding
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f3002edefd0>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f0e280d5290>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
 Embedding layer for a sequence of integer ids or floats.
 
 <h3>Args</h3>
@@ -261,6 +261,112 @@ will be reused (shared).
 
 
 a 3-D/4-D `Tensor`, output of the gated unit
+
+ ---------- 
+
+# Returns glimpses at the locations
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L643 target="_blank"><b>tefla.core.special_layers.glimpseSensor</b></a></span>  (img,  normLoc,  minRadius=4,  depth=1,  sensorBandwidth=12)</span>
+
+<h3>Args</h3>
+
+
+ - **img**: a 4-D `Tensor`, [batch_size, width, height, channels]
+ - **normloc**: a `float`, [0, 1] normalized location
+ - **minRadius**: a `int`, min radius for zooming
+ - **depth**: a `int`, number of zooms
+ - **sensorbandwidth**: a `int`, output glimpse size, width/height
+
+<h3>Returns</h3>
+
+
+a 5-D `tensor` of glimpses
+
+ ---------- 
+
+# Adds a PVA block layer
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L690 target="_blank"><b>tefla.core.special_layers.pva_block_v1</b></a></span>  (x,  num_units,  name='pva_block_v1',  **kwargs)</span>
+convolution followed by crelu and scaling
+
+<h3>Args</h3>
+
+
+ - **x**: A 4-D `Tensor` of with at least rank 2 and value for the last dimension,
+i.e. `[batch_size, in_height, in_width, depth]`,
+ - **is_training**: Bool, training or testing
+ - **num_units**: Integer or long, the number of output units in the layer.
+ - **reuse**: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.
+ - **filter_size**: a int or list/tuple of 2 positive integers specifying the spatial
+dimensions of of the filters.
+ - **stride**: a int or tuple/list of 2 positive integers specifying the stride at which to
+compute output.
+ - **padding**: one of `"VALID"` or `"SAME"`.
+ - **activation**: activation function, set to None to skip it and maintain
+a linear activation.
+ - **batch_norm**: normalization function to use. If
+`batch_norm` is `True` then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function
+ - **batch_norm_args**: normalization function parameters.
+ - **w_init**: An initializer for the weights.
+ - **w_regularizer**: Optional regularizer for the weights.
+ - **untie_biases**: spatial dimensions wise baises
+ - **b_init**: An initializer for the biases. If None skip biases.
+ - **trainable**: If `True` also add variables to the graph collection
+`GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+ - **name**: Optional name or scope for variable_scope/name_scope.
+ - **use_bias**: Whether to add bias or not
+
+<h3>Returns</h3>
+
+
+The 4-D `Tensor` variable representing the result of the series of operations.
+e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
+
+ ---------- 
+
+# Adds a PVA block v2 layer
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L744 target="_blank"><b>tefla.core.special_layers.pva_block_v2</b></a></span>  (x,  num_units,  name='pva_block_v2',  **kwargs)</span>
+first batch normalization followed by crelu and scaling, convolution is applied after scalling
+
+<h3>Args</h3>
+
+
+ - **x**: A 4-D `Tensor` of with at least rank 2 and value for the last dimension,
+i.e. `[batch_size, in_height, in_width, depth]`,
+ - **is_training**: Bool, training or testing
+ - **num_units**: Integer or long, the number of output units in the layer.
+ - **reuse**: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.
+ - **filter_size**: a int or list/tuple of 2 positive integers specifying the spatial
+dimensions of of the filters.
+ - **stride**: a int or tuple/list of 2 positive integers specifying the stride at which to
+compute output.
+ - **padding**: one of `"VALID"` or `"SAME"`.
+ - **activation**: activation function, set to None to skip it and maintain
+a linear activation.
+ - **batch_norm**: normalization function to use. If
+`batch_norm` is `True` then google original implementation is used and
+if another function is provided then it is applied.
+default set to None for no normalizer function
+ - **batch_norm_args**: normalization function parameters.
+ - **w_init**: An initializer for the weights.
+ - **w_regularizer**: Optional regularizer for the weights.
+ - **untie_biases**: spatial dimensions wise baises
+ - **b_init**: An initializer for the biases. If None skip biases.
+ - **trainable**: If `True` also add variables to the graph collection
+`GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+ - **name**: Optional name or scope for variable_scope/name_scope.
+ - **use_bias**: Whether to add bias or not
+
+<h3>Returns</h3>
+
+
+The 4-D `Tensor` variable representing the result of the series of operations.
+e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
  ---------- 
 

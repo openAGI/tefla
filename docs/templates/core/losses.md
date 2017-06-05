@@ -1,6 +1,6 @@
 # Define a log loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L15 target="_blank"><b>tefla.core.losses.log_loss_custom</b></a></span>  (predictions,  labels,  eps=1e-07,  name='log')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L16 target="_blank"><b>tefla.core.losses.log_loss_custom</b></a></span>  (predictions,  labels,  eps=1e-07,  name='log')</span>
 
 <h3>Args</h3>
 
@@ -19,7 +19,7 @@ A tensor with the log loss.
 
 # Define a log loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L36 target="_blank"><b>tefla.core.losses.log_loss_tf</b></a></span>  (predictions,  labels,  eps=1e-07,  weights=1.0,  name='log_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L37 target="_blank"><b>tefla.core.losses.log_loss_tf</b></a></span>  (predictions,  labels,  eps=1e-07,  weights=1.0,  name='log_loss')</span>
 
 <h3>Args</h3>
 
@@ -38,7 +38,7 @@ A tensor with the log loss.
 
 # Define a kappa loss, Its a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L57 target="_blank"><b>tefla.core.losses.kappa_loss</b></a></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L58 target="_blank"><b>tefla.core.losses.kappa_loss</b></a></span>  (predictions,  labels,  y_pow=1,  eps=1e-15,  num_ratings=5,  batch_size=32,  name='kappa')</span>
 
 <h3>Args</h3>
 
@@ -60,7 +60,7 @@ A tensor with the kappa loss.
 
 # Define a joint kappa and log loss, Kappa is a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L102 target="_blank"><b>tefla.core.losses.kappa_log_loss</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L103 target="_blank"><b>tefla.core.losses.kappa_log_loss</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_offset=0.5,  name='kappa_log')</span>
 
 <h3>Args</h3>
 
@@ -84,7 +84,7 @@ A tensor with the kappa log loss.
 
 # Define a joint kappa and log loss; log loss is clipped by a defined min value; Kappa is a continuous differentiable approximation of discrete kappa loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L133 target="_blank"><b>tefla.core.losses.kappa_log_loss_clipped</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  num_classes=5,  name='kappa_log_clipped')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L134 target="_blank"><b>tefla.core.losses.kappa_log_loss_clipped</b></a></span>  (predictions,  labels,  label_smoothing=0.0,  y_pow=1,  batch_size=32,  log_scale=0.5,  log_cutoff=0.8,  num_classes=5,  name='kappa_log_clipped')</span>
 
 <h3>Args</h3>
 
@@ -108,7 +108,7 @@ A tensor with the clipped kappa log loss.
 
 # Define a cross entropy loss with label smoothing
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L164 target="_blank"><b>tefla.core.losses.cross_entropy_loss</b></a></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L165 target="_blank"><b>tefla.core.losses.cross_entropy_loss</b></a></span>  (logits,  labels,  label_smoothing=0.0,  weight=1.0,  name='cross_entropy_loss')</span>
 
 <h3>Args</h3>
 
@@ -128,7 +128,7 @@ A tensor with the cross entropy loss.
 
 # Define a L2Loss, useful for regularize, i.e. weight decay
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L194 target="_blank"><b>tefla.core.losses.l1_l2_regularizer</b></a></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L195 target="_blank"><b>tefla.core.losses.l1_l2_regularizer</b></a></span>  (var,  weight_l1=1.0,  weight_l2=1.0,  name='l1_l2_regularizer')</span>
 
 <h3>Args</h3>
 
@@ -145,9 +145,45 @@ the l1+L2 loss op.
 
  ---------- 
 
+# Returns a function that can be used to apply L1 regularization to weights
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L218 target="_blank"><b>tefla.core.losses.l1_regularizer</b></a></span>  (scale,  name='l1_regularizer')</span>
+L1 regularization encourages sparsity.
+
+<h3>Args</h3>
+
+
+  scale: A scalar multiplier `Tensor`. 0.0 disables the regularizer.
+  name: An optional name/scope name.
+
+<h3>Returns</h3>
+
+
+  A function with signature `l1(weights)` that apply L1 regularization.
+
+ ---------- 
+
+# Returns a function that can be used to apply L2 regularization to weights
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L255 target="_blank"><b>tefla.core.losses.l2_regularizer</b></a></span>  (scale,  name='l2_regularizer')</span>
+Small values of L2 can help prevent overfitting the training data.
+
+<h3>Args</h3>
+
+
+  scale: A scalar multiplier `Tensor`. 0.0 disables the regularizer.
+  name: An optional name/scope name.
+
+<h3>Returns</h3>
+
+
+  A function with signature `l2(weights)` that applies L2 regularization.
+
+ ---------- 
+
 # log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L217 target="_blank"><b>tefla.core.losses.discretized_mix_logistic_loss</b></a></span>  (inputs,  predictions,  sum_all=True,  name='disretized_mix_logistic_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L289 target="_blank"><b>tefla.core.losses.discretized_mix_logistic_loss</b></a></span>  (inputs,  predictions,  sum_all=True,  name='disretized_mix_logistic_loss')</span>
 
 <h3>Args</h3>
 
@@ -165,7 +201,7 @@ A tensor with the discretized mix logistic loss.
 
 # Pull Away loss calculation
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L279 target="_blank"><b>tefla.core.losses.pullaway_loss</b></a></span>  (embeddings,  name='pullaway_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L351 target="_blank"><b>tefla.core.losses.pullaway_loss</b></a></span>  (embeddings,  name='pullaway_loss')</span>
 
 <h3>Args</h3>
 
@@ -176,7 +212,7 @@ A tensor with the discretized mix logistic loss.
 
 # Calculate the loss from the logits and the labels
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L313 target="_blank"><b>tefla.core.losses.segment_loss</b></a></span>  (logits,  labels,  num_classes,  head=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L385 target="_blank"><b>tefla.core.losses.segment_loss</b></a></span>  (logits,  labels,  num_classes,  head=None)</span>
 <h3>Args</h3>
 
 
@@ -201,7 +237,7 @@ A tensor with the discretized mix logistic loss.
 
 # Calculate the triplet loss according to the FaceNet paper
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L346 target="_blank"><b>tefla.core.losses.triplet_loss</b></a></span>  (anchor,  positive,  negative,  alpha=0.2,  name='triplet_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L418 target="_blank"><b>tefla.core.losses.triplet_loss</b></a></span>  (anchor,  positive,  negative,  alpha=0.2,  name='triplet_loss')</span>
 
 <h3>Args</h3>
 
@@ -220,7 +256,7 @@ A tensor with the discretized mix logistic loss.
 
 # Decov loss as described in https://arxiv.org/pdf/1511.06068.pdf
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L366 target="_blank"><b>tefla.core.losses.decov_loss</b></a></span>  (xs,  name='decov_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L438 target="_blank"><b>tefla.core.losses.decov_loss</b></a></span>  (xs,  name='decov_loss')</span>
 'Reducing Overfitting In Deep Networks by Decorrelating Representation'
 
 <h3>Args</h3>
@@ -237,7 +273,7 @@ a `float` decov loss
 
 # Center loss based on the paper "A Discriminative Feature Learning Approach for Deep Face Recognition"
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L387 target="_blank"><b>tefla.core.losses.center_loss</b></a></span>  (features,  label,  alpha,  num_classes,  name='center_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L459 target="_blank"><b>tefla.core.losses.center_loss</b></a></span>  (features,  label,  alpha,  num_classes,  name='center_loss')</span>
    (http://ydwen.github.io/papers/WenECCV16.pdf)
 
 <h3>Args</h3>
@@ -257,7 +293,7 @@ a `float`, center loss
 
 # Adds a similarity loss term, the correlation between two representations
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L412 target="_blank"><b>tefla.core.losses.correlation_loss</b></a></span>  (source_samples,  target_samples,  weight,  name='corr_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L484 target="_blank"><b>tefla.core.losses.correlation_loss</b></a></span>  (source_samples,  target_samples,  weight,  name='corr_loss')</span>
 
 <h3>Args</h3>
 
@@ -276,7 +312,7 @@ a scalar tensor representing the correlation loss value.
 
 # Computes the Maximum Mean Discrepancy (MMD) of two samples: x and y
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L442 target="_blank"><b>tefla.core.losses.maximum_mean_discrepancy</b></a></span>  (x,  y,  kernel=<function  gaussian_kernel_matrix  at  0x7f303e2d21b8>,  name='maximum_mean_discrepancy')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L514 target="_blank"><b>tefla.core.losses.maximum_mean_discrepancy</b></a></span>  (x,  y,  kernel=<function  gaussian_kernel_matrix  at  0x7f0e3bc57230>,  name='maximum_mean_discrepancy')</span>
 
 Maximum Mean Discrepancy (MMD) is a distance-measure between the samples of
 the distributions of x and y. Here we use the kernel two sample estimate
@@ -303,7 +339,7 @@ a scalar denoting the squared maximum mean discrepancy loss.
 
 # Adds a similarity loss term, the MMD between two representations
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L475 target="_blank"><b>tefla.core.losses.mmd_loss</b></a></span>  (source_samples,  target_samples,  weight,  name='mmd_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L547 target="_blank"><b>tefla.core.losses.mmd_loss</b></a></span>  (source_samples,  target_samples,  weight,  name='mmd_loss')</span>
 
 This Maximum Mean Discrepancy (MMD) loss is calculated with a number of
 different Gaussian kernels.
@@ -325,7 +361,7 @@ different Gaussian kernels.
 
 # Adds the domain adversarial (DANN) loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L508 target="_blank"><b>tefla.core.losses.dann_loss</b></a></span>  (source_samples,  target_samples,  weight,  name='dann_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L580 target="_blank"><b>tefla.core.losses.dann_loss</b></a></span>  (source_samples,  target_samples,  weight,  name='dann_loss')</span>
 
 <h3>Args</h3>
 
@@ -344,7 +380,7 @@ different Gaussian kernels.
 
 # Adds the difference loss between the private and shared representations
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L550 target="_blank"><b>tefla.core.losses.difference_loss</b></a></span>  (private_samples,  shared_samples,  weight=1.0,  name='difference_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L622 target="_blank"><b>tefla.core.losses.difference_loss</b></a></span>  (private_samples,  shared_samples,  weight=1.0,  name='difference_loss')</span>
 
 <h3>Args</h3>
 
@@ -358,7 +394,7 @@ different Gaussian kernels.
 
 # A helper function to compute the error between quaternions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L578 target="_blank"><b>tefla.core.losses.log_quaternion_loss_batch</b></a></span>  (predictions,  labels,  name='log_quaternion_batch_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L650 target="_blank"><b>tefla.core.losses.log_quaternion_loss_batch</b></a></span>  (predictions,  labels,  name='log_quaternion_batch_loss')</span>
 
 <h3>Args</h3>
 
@@ -376,7 +412,7 @@ different Gaussian kernels.
 
 # A helper function to compute the mean error between batches of quaternions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L604 target="_blank"><b>tefla.core.losses.log_quaternion_loss</b></a></span>  (predictions,  labels,  batch_size,  name='log_quaternion_loss')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L676 target="_blank"><b>tefla.core.losses.log_quaternion_loss</b></a></span>  (predictions,  labels,  batch_size,  name='log_quaternion_loss')</span>
 
 The caller is expected to add the loss to the graph.
 
@@ -396,7 +432,7 @@ The caller is expected to add the loss to the graph.
 
 # Adds noise to embeddings and recomputes classification loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L625 target="_blank"><b>tefla.core.losses.random_perturbation_loss</b></a></span>  (embedded,  length,  loss_fn,  perturb_norm_length=0.1)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L697 target="_blank"><b>tefla.core.losses.random_perturbation_loss</b></a></span>  (embedded,  length,  loss_fn,  perturb_norm_length=0.1)</span>
 
 <h3>Args</h3>
 
@@ -415,7 +451,7 @@ perturbation loss
 
 # Adds gradient to embedding and recomputes classification loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L642 target="_blank"><b>tefla.core.losses.adversarial_loss</b></a></span>  (embedded,  loss,  loss_fn,  perturb_norm_length=0.1)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L714 target="_blank"><b>tefla.core.losses.adversarial_loss</b></a></span>  (embedded,  loss,  loss_fn,  perturb_norm_length=0.1)</span>
 
 <h3>Args</h3>
 
@@ -434,7 +470,7 @@ adversial loss
 
 # Virtual adversarial loss
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L663 target="_blank"><b>tefla.core.losses.virtual_adversarial_loss</b></a></span>  (logits,  embedded,  labels,  length,  logits_from_embedding_fn,  num_classes,  num_power_iteration=1,  small_constant_for_finite_diff=0.001,  perturb_norm_length=0.1)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L735 target="_blank"><b>tefla.core.losses.virtual_adversarial_loss</b></a></span>  (logits,  embedded,  labels,  length,  logits_from_embedding_fn,  num_classes,  num_power_iteration=1,  small_constant_for_finite_diff=0.001,  perturb_norm_length=0.1)</span>
 Computes virtual adversarial perturbation by finite difference method and
 power iteration, adds it to the embedding, and computes the KL divergence
 between the new logits and the original logits.
@@ -464,7 +500,7 @@ a `float` `scalar`, KL divergence.
 
 # Adds noise to embeddings and recomputes classification loss fir bidirectional rnn models
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L707 target="_blank"><b>tefla.core.losses.random_perturbation_loss_brnn</b></a></span>  (embedded,  length,  loss_fn,  perturb_norm_length=0.1)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L779 target="_blank"><b>tefla.core.losses.random_perturbation_loss_brnn</b></a></span>  (embedded,  length,  loss_fn,  perturb_norm_length=0.1)</span>
 
 <h3>Args</h3>
 
@@ -483,7 +519,7 @@ perturbation loss
 
 # Adds gradient to embeddings and recomputes classification loss for bidirectional rnn models
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L725 target="_blank"><b>tefla.core.losses.adversarial_loss_brnn</b></a></span>  (embedded,  loss,  loss_fn,  perurb_norm_length=0.1)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L797 target="_blank"><b>tefla.core.losses.adversarial_loss_brnn</b></a></span>  (embedded,  loss,  loss_fn,  perurb_norm_length=0.1)</span>
 
 <h3>Args</h3>
 
@@ -502,7 +538,7 @@ adversial loss
 
 # Virtual adversarial loss for bidirectional models
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L744 target="_blank"><b>tefla.core.losses.virtual_adversarial_loss_brnn</b></a></span>  (logits,  embedded,  labels,  length,  logits_from_embedding_fn,  vocab_size,  num_classes,  num_power_iteration=1,  small_constant_for_finite_diff=0.001,  perturb_norm_length=0.1)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L816 target="_blank"><b>tefla.core.losses.virtual_adversarial_loss_brnn</b></a></span>  (logits,  embedded,  labels,  length,  logits_from_embedding_fn,  vocab_size,  num_classes,  num_power_iteration=1,  small_constant_for_finite_diff=0.001,  perturb_norm_length=0.1)</span>
 Computes virtual adversarial perturbation by finite difference method and
 power iteration, adds it to the embedding, and computes the KL divergence
 between the new logits and the original logits.
@@ -532,7 +568,7 @@ a `float` `scalar`, KL divergence.
 
 # Generate a mask for the EOS token (1.0 on EOS, 0.0 otherwise)
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L805 target="_blank"><b>tefla.core.losses._end_of_seq_mask</b></a></span>  (tokens,  vocab_size)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L877 target="_blank"><b>tefla.core.losses._end_of_seq_mask</b></a></span>  (tokens,  vocab_size)</span>
 
 <h3>Args</h3>
 
@@ -551,7 +587,7 @@ sequence and 0.0 on the others.
 
 # Returns weighted KL divergence between distributions q and p
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L821 target="_blank"><b>tefla.core.losses._kl_divergence_with_logits</b></a></span>  (q_logits,  p_logits,  weights,  num_classes)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L893 target="_blank"><b>tefla.core.losses._kl_divergence_with_logits</b></a></span>  (q_logits,  p_logits,  weights,  num_classes)</span>
 
 <h3>Args</h3>
 
@@ -568,6 +604,26 @@ sequence and 0.0 on the others.
 
 
 a `float` `scalar`, KL divergence.
+
+ ---------- 
+
+# Calculates the per-example cross-entropy loss for a sequence of logits and
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L929 target="_blank"><b>tefla.core.losses.cross_entropy_sequence_loss</b></a></span>  (logits,  targets,  sequence_length)</span>
+masks out all losses passed the sequence length.
+
+<h3>Args</h3>
+
+
+ - **logits**: Logits of shape `[T, B, vocab_size]`
+ - **targets**: Target classes of shape `[T, B]`
+ - **sequence_length**: An int32 tensor of shape `[B]` corresponding
+ -to the length of each input
+
+<h3>Returns</h3>
+
+
+A tensor of shape [T, B] that contains the loss per example, per time step.
 
  ---------- 
 
