@@ -323,7 +323,7 @@ class SupervisedLearner(Base, BaseMixin):
                             'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
                         labels = self._adjust_ground_truth(labels)
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
-                                                reuse=reuse, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
+                                                reuse=i>0, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
 
                         tf.get_variable_scope().reuse_variables()
                         if self.clip_by_global_norm:
