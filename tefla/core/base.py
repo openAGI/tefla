@@ -51,7 +51,7 @@ class Base(object):
         except Exception:
             super(Base, self).__init__()
 
-    def _setup_summaries(self, d_grads_and_var, g_grads_and_var=None):
+    def _setup_summaries(self, d_grads_and_var, input_summary=False, g_grads_and_var=None):
         with tf.name_scope('summaries'):
             self.epoch_loss = tf.placeholder(
                 tf.float32, shape=[], name="epoch_loss")
@@ -66,8 +66,9 @@ class Base(object):
                     tf.float32, shape=[], name="epoch_loss_g")
                 tf.summary.scalar('training (cross entropy) loss', self.epoch_loss_g,
                                   collections=[TRAINING_EPOCH_SUMMARIES])
-            if len(self.inputs.get_shape()) == 4:
-                summary.summary_image(self.inputs, 'inputs', max_images=10, collections=[
+            if input_summary:
+                if len(self.inputs.get_shape()) == 4:
+                    summary.summary_image(self.inputs, 'inputs', max_images=10, collections=[
                                       TRAINING_BATCH_SUMMARIES])
             for key, val in self.training_end_points.iteritems():
                 summary.summary_activation(val, name=key, collections=[

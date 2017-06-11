@@ -126,13 +126,13 @@ class SupervisedLearner(Base, BaseMixin):
         if not os.path.exists(weights_dir):
             os.mkdir(weights_dir)
         if self.is_summary:
-            training_batch_summary_op = tf.merge_all_summaries(
+            training_batch_summary_op = tf.summary.merge_all(
                 key=TRAINING_BATCH_SUMMARIES)
-            training_epoch_summary_op = tf.merge_all_summaries(
+            training_epoch_summary_op = tf.summary.merge_all(
                 key=TRAINING_EPOCH_SUMMARIES)
-            validation_batch_summary_op = tf.merge_all_summaries(
+            validation_batch_summary_op = tf.summary.merge_all(
                 key=VALIDATION_BATCH_SUMMARIES)
-            validation_epoch_summary_op = tf.merge_all_summaries(
+            validation_epoch_summary_op = tf.summary.merge_all(
                 key=VALIDATION_EPOCH_SUMMARIES)
 
         gpu_options = tf.GPUOptions(
@@ -150,8 +150,10 @@ class SupervisedLearner(Base, BaseMixin):
         learning_rate_value = self.lr_policy.initial_lr
         log.info("Initial learning rate: %f " % learning_rate_value)
         if self.is_summary:
-            train_writer, validation_writer = summary.create_summary_writer(
-                self.cnf.get('summary_dir', '/tmp/tefla-summary'), sess)
+            summary_dir = self.cnf.get('summary_dir', '/tmp/tefla-summary')
+            if not os.path.exists(summary_dir):
+                tf.gfile.MakeDirs(summary_dir)
+            train_writer, validation_writer = summary.create_summary_writer(summary_dir, sess)
 
         seed_delta = 100
         training_history = []
@@ -244,9 +246,9 @@ class SupervisedLearner(Base, BaseMixin):
                         log.debug(
                             '7. Running validation steps with summary done.')
                         log.debug(
-                            "Epoch %d, Batch %d validation loss: %s" % (epoch, batch_num, validation_loss_e))
+                            "Epoch %d, Batch %d validation loss: %s" % (epoch, batch_num, _validation_metric[-1]))
                         log.debug("Epoch %d, Batch %d validation predictions: %s" % (
-                            epoch, batch_num, validation_predictions_e))
+                            epoch, batch_num, _validation_metric[0]))
                     else:
                         log.debug(
                             '7. Running validation steps without summary...')
@@ -321,7 +323,7 @@ class SupervisedLearner(Base, BaseMixin):
                             'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
                         labels = self._adjust_ground_truth(labels)
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
-                                                reuse=reuse, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
+                                                reuse=i>0, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
 
                         tf.get_variable_scope().reuse_variables()
                         if self.clip_by_global_norm:
