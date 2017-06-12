@@ -173,7 +173,7 @@ class AdaptiveDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
         return self._base_lr
 
     def __str__(self):
-        return 'AdaptiveDecayPolicy(schedule=%s)' % str(self.schedule)
+        return 'AdaptiveDecayPolicy(schedule=%s)' % str(self.initial_lr)
 
     def __repr__(self):
         return str(self)
@@ -223,7 +223,7 @@ class AdaptiveUpDownDecayPolicy(InitialLrMixin, NoBatchUpdateMixin):
         return self._base_lr
 
     def __str__(self):
-        return 'AdaptiveUpDownDecayPolicy(schedule=%s)' % str(self.schedule)
+        return 'AdaptiveUpDownDecayPolicy(schedule=%s)' % str(self.initial_lr)
 
     def __repr__(self):
         return str(self)
