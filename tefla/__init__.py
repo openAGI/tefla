@@ -10,7 +10,7 @@ from . import convert_seg
 from . import eval_seg
 from . import generate_images
 from . import predict
-from . import predict_seg_v2
+from . import predict_seg
 from . import train
 from . import train_generative
 from . import train_seg
