@@ -162,7 +162,17 @@ class DistSupervisedLearner(Base):
             saver = tf.train.Saver()
             init_op = tf.global_variables_initializer()
 
-            sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, summary_op=None,
+            local_init_op = tf.group(tf.local_variables_initializer(), tf.tables_initializer())
+
+            with tf.control_dependencies([local_init_op] if local_init_op is not None else []):
+                if is_chief:
+                    local_init_op = opt.chief_init_op
+                else:
+                    local_init_op = opt.local_step_init_op
+            ready_for_local_init_op = opt.ready_for_local_init_op
+
+
+            sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, local_init_op=local_init_op                 , ready_for_local_init_op=ready_for_local_init_op, summary_op=None,
                                      global_step=global_step, saver=saver, save_model_secs=self.cnf.get('save_interval_secs', 600))
 
             log.info('%s Supervisor' % datetime.now())
@@ -189,7 +199,7 @@ class DistSupervisedLearner(Base):
                 threads = sv.start_queue_runners(sess)
                 log.info('Starting Queues.')
                 if is_chief:
-                    sv.start_queue_runners(sess, [chief_queue_runners])
+                    sv.start_queue_runners(sess, chief_queue_runners)
                     sess.run(init_tokens_op)
 
                     if weights_from:
@@ -242,9 +252,9 @@ class DistSupervisedLearner(Base):
                                 self.cnf.get('batch_size_train'))
                             learning_rate = self.lr_policy.batch_update(
                                 learning_rate, batch_iter_idx)
-                            log.info('Learning rate value: %f.' % learning_rate)
                             batch_iter_idx += 1
                             log.debug('4. Training batch %d done.' % iteration)
+		        log.info('Learning rate value: %f.' % learning_rate)
                         epoch_training_loss = np.average(
                             training_losses, weights=batch_train_sizes)
                         # epoch_duration = time.time() - epoch_start_time
