@@ -191,21 +191,23 @@ class DistSupervisedLearner(Base):
             training_history = []
 	    self.total_network_params()
             self.write_params()
-
+            coord = tf.train.Coordinator()
             with sv.managed_session(server.target, config=sess_config) as sess:
                 log.info('Starting Session.')
                 if is_chief:
                     if logdir:
                         sv.start_standard_services(sess)
-                threads = sv.start_queue_runners(sess)
                 log.info('Starting Queues.')
                 if is_chief:
                     sv.start_queue_runners(sess, chief_queue_runners)
+                    chief_queue_runners[0].create_threads(sess, coord=coord, daemon=True, start=True)
                     sess.run(init_tokens_op)
 
                     if weights_from:
                         self._load_weights(sess, saver, weights_from)
 
+                # threads = sv.start_queue_runners(sess)
+                tf.train.start_queue_runners(sess, coord=coord)
                 try:
                     while not sv.should_stop():
                         training_losses = []
