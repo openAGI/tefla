@@ -7,6 +7,7 @@ from __future__ import division, print_function, absolute_import
 
 import pprint
 import numpy as np
+import os
 
 from ..da.iterator import BatchIterator
 from .lr_policy import NoDecayPolicy
@@ -400,6 +401,14 @@ class Base(object):
                 lambda x, y: x * y, v.get_shape().as_list())
         n = sum(variable_params(v) for v in tf.trainable_variables())
         print("Number of trainable network params: %dK" % (n / 1000,))
+
+    def write_params(self):
+        opts = tf.contrib.tfprof.model_analyzer.TRAINABLE_VARS_PARAMS_STAT_OPTIONS
+        opts['dump_to_file'] = os.path.abspath(self.cnf.get('model_graph_file', '/tmp/graph.log'))
+        tf.contrib.tfprof.model_analyzer.print_model_analysis(tf.get_default_graph(), tfprof_options=opts)
+
+        with tf.gfile.GFile(self.cnf.get('model_graph_file', '/tmp/graph.log')) as file:
+            tf.logging.info(file.read())
 
 
 class BaseMixin(object):

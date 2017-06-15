@@ -124,7 +124,6 @@ class DistSupervisedLearner(Base):
             #     self.regularized_training_loss = tf.with_dependencies(update_ops, self.regularized_training_loss)
 
     def train(self, task_id, server, dataflow, dataflow_val, cluster_spec, is_training, logdir=None, weights_from=None, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
-        self.total_network_params()
         num_workers = len(cluster_spec.as_dict()['worker'])
         print(num_workers)
         num_parameter_servers = len(cluster_spec.as_dict()['ps'])
@@ -190,6 +189,8 @@ class DistSupervisedLearner(Base):
             batch_iter_idx = 1
             epoch = 1
             training_history = []
+	    self.total_network_params()
+            self.write_params()
 
             with sv.managed_session(server.target, config=sess_config) as sess:
                 log.info('Starting Session.')
