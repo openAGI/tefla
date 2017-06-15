@@ -60,7 +60,7 @@ class SupervisedTrainer(object):
         self.num_classes = 5
         self.label_smoothing = 0.009
 
-    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, verbose=0):
+    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, weights_dir='weights', verbose=0):
         """
         Train the model on the specified dataset
 
@@ -80,7 +80,7 @@ class SupervisedTrainer(object):
         self._setup_misc()
         self._print_info(data_set, verbose)
         self._train_loop(data_set, weights_from, start_epoch, summary_every,
-                         verbose)
+                         verbose, weights_dir=weights_dir)
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
@@ -123,14 +123,12 @@ class SupervisedTrainer(object):
 
         _print_layer_shapes(self.training_end_points)
 
-    def _train_loop(self, data_set, weights_from, start_epoch, summary_every, verbose):
+    def _train_loop(self, data_set, weights_from, start_epoch, summary_every, verbose, weights_dir='weights'):
         training_X, training_y, validation_X, validation_y = \
             data_set.training_X, data_set.training_y, data_set.validation_X, data_set.validation_y
-        print(training_y)
         saver = tf.train.Saver(max_to_keep=None)
-        weights_dir = "weights"
         if not os.path.exists(weights_dir):
-            os.mkdir(weights_dir)
+            tf.gfile.MakeDirs(weights_dir)
         if self.is_summary:
             training_batch_summary_op = tf.summary.merge_all(
                 key=TRAINING_BATCH_SUMMARIES)

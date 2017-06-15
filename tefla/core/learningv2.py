@@ -50,7 +50,7 @@ class SupervisedLearner(Base, BaseMixin):
         super(SupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
-    def fit(self, data_dir, data_dir_val=None, features_keys=None, weights_from=None, start_epoch=1, summary_every=10, training_set_size=None, val_set_size=None, dataset_name='cifar10', keep_moving_averages=False):
+    def fit(self, data_dir, data_dir_val=None, features_keys=None, weights_from=None, max_to_keep=None, start_epoch=1, summary_every=10, training_set_size=None, val_set_size=None, dataset_name='cifar10', keep_moving_averages=False):
         """
         Train the model on the specified dataset
 
@@ -83,8 +83,10 @@ class SupervisedLearner(Base, BaseMixin):
                 self._setup_summaries(self.grads_and_vars)
             self._setup_misc()
             self._print_info(data_dir)
+            if max_to_keep is not None:
+                max_to_keep = int(max_to_keep)
             self._train_loop(dataflow_train, dataflow_val, weights_from,
-                             start_epoch, summary_every)
+                             start_epoch, summary_every, max_to_keep=max_to_keep)
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
@@ -120,8 +122,8 @@ class SupervisedLearner(Base, BaseMixin):
         else:
             return dataflow_train, None
 
-    def _train_loop(self, dataset, dataset_val, weights_from, start_epoch, summary_every):
-        saver = tf.train.Saver(max_to_keep=None)
+    def _train_loop(self, dataset, dataset_val, weights_from, start_epoch, summary_every, max_to_keep=None):
+        saver = tf.train.Saver(max_to_keep=max_to_keep)
         weights_dir = "weights"
         if not os.path.exists(weights_dir):
             os.mkdir(weights_dir)
@@ -153,7 +155,8 @@ class SupervisedLearner(Base, BaseMixin):
             summary_dir = self.cnf.get('summary_dir', '/tmp/tefla-summary')
             if not os.path.exists(summary_dir):
                 tf.gfile.MakeDirs(summary_dir)
-            train_writer, validation_writer = summary.create_summary_writer(summary_dir, sess)
+            train_writer, validation_writer = summary.create_summary_writer(
+                summary_dir, sess)
 
         seed_delta = 100
         training_history = []
@@ -324,7 +327,7 @@ class SupervisedLearner(Base, BaseMixin):
                             'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
                         labels = self._adjust_ground_truth(labels)
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
-                                                reuse=i>0, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
+                                                reuse=i > 0, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
 
                         tf.get_variable_scope().reuse_variables()
                         if self.clip_by_global_norm:
