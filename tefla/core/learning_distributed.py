@@ -123,7 +123,7 @@ class DistSupervisedLearner(Base):
             # if update_ops is not None:
             #     self.regularized_training_loss = tf.with_dependencies(update_ops, self.regularized_training_loss)
 
-    def train(self, task_id, server, dataflow, dataflow_val, cluster_spec, is_training, weights_from=None, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
+    def train(self, task_id, server, dataflow, dataflow_val, cluster_spec, is_training, logdir=None, weights_from=None, start_epoch=1, reuse=None, num_replicas_to_aggregate=-1, variables_to_train=None):
         self.total_network_params()
         num_workers = len(cluster_spec.as_dict()['worker'])
         print(num_workers)
@@ -172,145 +172,142 @@ class DistSupervisedLearner(Base):
             sess_config = tf.ConfigProto(
                 gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=self.cnf.get('log_device_placement', False))
 
-            sess = sv.prepare_or_wait_for_session(
-                server.target, config=sess_config)
-
-            if is_chief:
-                sv.start_queue_runners(sess, chief_queue_runners)
-                sess.run(init_tokens_op)
-                if start_epoch > 1:
-                    weights_from = "weights/model-epoch-%d.ckpt" % (
-                        start_epoch - 1)
-
-                if weights_from:
-                    self._load_weights(sess, saver, weights_from)
-
-            queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
-            sv.start_queue_runners(sess, queue_runners)
+            if start_epoch > 1:
+                weights_from = "weights/model-epoch-%d.ckpt" % (
+                    start_epoch - 1)
 
             next_summary_time = time.time() + self.cnf.get('save_summaries_secs', 180000000)
             batch_iter_idx = 1
             epoch = 1
             training_history = []
-            while not sv.should_stop():
+
+            with sv.managed_session(server.target, config=sess_config) as sess:
+                log.info('Starting Session.')
+                if is_chief:
+                    if logdir:
+                        sv.start_standard_services(sess)
+                threads = sv.start_queue_runners(sess)
+                log.info('Starting Queues.')
+                if is_chief:
+                    sv.start_queue_runners(sess, [chief_queue_runners])
+                    sess.run(init_tokens_op)
+
+                    if weights_from:
+                        self._load_weights(sess, saver, weights_from)
+
                 try:
-                    training_losses = []
-                    batch_train_sizes = []
-                    epoch_start_time = time.time()
-                    for iteration in range(n_iters_per_epoch):
-                        print(str(iteration))
-                        feed_dict_train = {
-                            self.learning_rate: learning_rate}
-                        start_time = time.time()
-                        loss_value, step = sess.run(
-                            [train_op, global_step], feed_dict=feed_dict_train)
-                        assert not np.isnan(
-                            loss_value), 'Model diverged with loss = NaN'
-                        if step > self.cnf.get('max_steps', 10000000):
-                            break
-                        duration = time.time() - start_time
+                    while not sv.should_stop():
+                        training_losses = []
+                        batch_train_sizes = []
+                        epoch_start_time = time.time()
+                        for iteration in range(n_iters_per_epoch):
+                            print(str(iteration))
+                            feed_dict_train = {
+                                self.learning_rate: learning_rate}
+                            start_time = time.time()
+                            loss_value, step = sess.run(
+                                [train_op, global_step], feed_dict=feed_dict_train)
+                            assert not np.isnan(
+                                loss_value), 'Model diverged with loss = NaN'
+                            if step > self.cnf.get('max_steps', 10000000):
+                                log.info(
+                                    'Completed max iterations; Stopping Training.')
+                                sv.request_stop()
+                                break
 
-                        if step % 30 == 0:
-                            examples_per_sec = self.cnf.get(
-                                'batch_size', 32) / float(duration)
-                            format_str = (
-                                'Worker %d: %s: step %d, loss = %.2f (%.1f examples/sec; %.3f  sec/batch)')
-                            log.info(format_str % (task_id, datetime.now(
-                            ), step, loss_value, examples_per_sec, duration))
+                            duration = time.time() - start_time
 
-                        if is_chief and next_summary_time < time.time():
-                            log.info(
-                                'Running Summary operation on the chief.')
-                            # summary_str = sess.run(summary_op)
-                            # sv.summary_computed(sess, summary_str)
-                            log.info('Finished running Summary operation.')
+                            if step % 30 == 0:
+                                examples_per_sec = self.cnf.get(
+                                    'batch_size', 32) / float(duration)
+                                format_str = (
+                                    'Worker %d: %s: step %d, loss = %.2f (%.1f examples/sec; %.3f  sec/batch)')
+                                log.info(format_str % (task_id, datetime.now(
+                                ), step, loss_value, examples_per_sec, duration))
 
-                        # Determine the next time for running the summary.
-                        next_summary_time += self.cnf.get(
-                            'save_summaries_secs', 180)
+                            if is_chief and next_summary_time < time.time():
+                                log.info(
+                                    'Running Summary operation on the chief.')
+                                # summary_str = sess.run(summary_op)
+                                # sv.summary_computed(sess, summary_str)
+                                log.info('Finished running Summary operation.')
 
-                        training_losses.append(loss_value)
-                        batch_train_sizes.append(
-                            self.cnf.get('batch_size_train'))
-                        learning_rate = self.lr_policy.batch_update(
-                            learning_rate, batch_iter_idx)
-                        batch_iter_idx += 1
-                        log.debug('4. Training batch %d done.' % iteration)
-                    epoch_training_loss = np.average(
-                        training_losses, weights=batch_train_sizes)
-                    # epoch_duration = time.time() - epoch_start_time
-                    # Validation prediction and metrics
-                    validation_losses = []
-                    batch_validation_metrics = [
-                        [] for _, _ in self.validation_metrics_def]
-                    epoch_validation_metrics = []
-                    batch_validation_sizes = []
-                    for iteration in range(n_val_iters_per_epoch):
-                        # feed_dict_val = {self.learning_rate: learning_rate}
-                        log.debug(
-                            '6. Loading batch %d validation data done.' % iteration)
-                        log.debug(
-                            '7. Running validation steps without summary...')
-                        _validation_metric = sess.run(validation_metric)
-                        log.debug(
-                            '7. Running validation steps without summary done.')
-                        validation_losses.append(_validation_metric[-1])
-                        batch_validation_sizes.append(
-                            self.cnf.get('batch_size_test'))
-                        for i, (_, metric_function) in enumerate(self.validation_metrics_def):
-                            batch_validation_metrics[i].append(
-                                _validation_metric[i])
+                                # Determine the next time for running the
+                                # summary.
+                                next_summary_time += self.cnf.get(
+                                    'save_summaries_secs', 180)
 
-                        log.debug('8. Validation batch %d done' %
-                                  iteration)
+                            training_losses.append(loss_value)
+                            batch_train_sizes.append(
+                                self.cnf.get('batch_size_train'))
+                            learning_rate = self.lr_policy.batch_update(
+                                learning_rate, batch_iter_idx)
+                            log.info('Learning rate value: %f.' % learning_rate)
+                            batch_iter_idx += 1
+                            log.debug('4. Training batch %d done.' % iteration)
+                        epoch_training_loss = np.average(
+                            training_losses, weights=batch_train_sizes)
+                        # epoch_duration = time.time() - epoch_start_time
+                        # Validation prediction and metrics
+                        validation_losses = []
+                        batch_validation_metrics = [
+                            [] for _, _ in self.validation_metrics_def]
+                        epoch_validation_metrics = []
+                        batch_validation_sizes = []
+                        for iteration in range(n_val_iters_per_epoch):
+                            log.debug(
+                                '6. Loading batch %d validation data done.' % iteration)
+                            log.debug(
+                                '7. Running validation steps without summary...')
+                            _validation_metric = sess.run(validation_metric)
+                            log.debug(
+                                '7. Running validation steps without summary done.')
+                            validation_losses.append(_validation_metric[-1])
+                            batch_validation_sizes.append(
+                                self.cnf.get('batch_size_test'))
+                            for i, (_, metric_function) in enumerate(self.validation_metrics_def):
+                                batch_validation_metrics[i].append(
+                                    _validation_metric[i])
 
-                    epoch_validation_loss = np.average(
-                        validation_losses, weights=batch_validation_sizes)
-                    for i, (_, _) in enumerate(self.validation_metrics_def):
-                        epoch_validation_metrics.append(
-                            np.average(batch_validation_metrics[i], weights=batch_validation_sizes))
+                            log.debug('8. Validation batch %d done' % iteration)
 
-                    custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[i]) for i, (name, _) in
-                                             enumerate(self.validation_metrics_def)]
-                    custom_metrics_string = ''.join(custom_metrics_string)
+                        epoch_validation_loss = np.average(
+                            validation_losses, weights=batch_validation_sizes)
+                        for i, (_, _) in enumerate(self.validation_metrics_def):
+                            epoch_validation_metrics.append(np.average(batch_validation_metrics[
+                                                            i], weights=batch_validation_sizes))
 
-                    log.info(
-                        "Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
-                        (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - epoch_start_time,
-                         epoch_training_loss,
-                         epoch_validation_loss,
-                         custom_metrics_string)
-                    )
+                        custom_metrics_string = [', %s: %.3f' % (name, epoch_validation_metrics[
+                                                                 i]) for i, (name, _) in enumerate(self.validation_metrics_def)]
+                        custom_metrics_string = ''.join(custom_metrics_string)
 
-                    if is_chief:
-                        saver.save(sess, os.path.join(self.weights_dir,
-                                                      'model.ckpt'), global_step=step)
+                        log.info("Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
+                                 (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - epoch_start_time,
+                                  epoch_training_loss, epoch_validation_loss, custom_metrics_string))
 
-                    epoch_info = dict(
-                        epoch=epoch,
-                        training_loss=epoch_training_loss,
-                        validation_loss=epoch_validation_loss
-                    )
+                        epoch_info = dict(
+                            epoch=epoch,
+                            training_loss=epoch_training_loss,
+                            validation_loss=epoch_validation_loss
+                        )
 
-                    training_history.append(epoch_info)
+                        training_history.append(epoch_info)
 
-                    log.debug('10. Epoch done. [%d]' % epoch)
-                    epoch += 1
+                        log.debug('10. Epoch done. [%d]' % epoch)
+                        epoch += 1
+                        if is_chief and logdir:
+                            if not os.path.exists(logdir):
+                                tf.gfile.MakeDirs(logdir)
+                            sv.saver.save(
+                                sess, logdir, global_step=sv.global_step)
+                    sv.stop(threads)
+                    sv.coord.request_stop()
+                    sv.coord.join(stop_grace_period_secs=0.05)
                 except Exception as e:
                     print(e.message)
                     if is_chief:
                         log.info('About to execute sync_clean_up_op!')
                         raise
-
-            sv.stop()
-            sv.coord.request_stop()
-            sv.coord.join(stop_grace_period_secs=0.05)
-
-            if is_chief:
-                if not os.path.exists(self.weights_dir):
-                    os.mkdir(self.weights_dir)
-                saver.save(sess, os.path.join(self.weights_dir,
-                                              'model.ckpt'), global_step=global_step)
 
     def _loss_regression(self, logits, labels, is_training):
         labels = tf.cast(labels, tf.int64)
