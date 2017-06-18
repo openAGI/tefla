@@ -14,7 +14,7 @@ from skimage.util import img_as_float
 from collections import defaultdict
 
 from tefla.core.iter_ops import create_prediction_iter, convert_preprocessor
-from tefla.core.prediction_v3 import SegmentPredictor_v2 as SegmentPredictor
+from tefla.core.prediction_v2 import SegmentPredictor_v2 as SegmentPredictor
 from tefla.da import data
 from tefla.utils import util
 from tefla.convert import convert
