@@ -1,5 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
+import abc
+import six
 import time
 from scipy.stats.mstats import gmean
 import numpy as np
@@ -10,7 +12,8 @@ from ..utils import util
 from .special_layers import dense_crf
 
 
-class PredictSessionMixin(object):
+@six.add_metaclass(abc.ABCMeta)
+class PredictSession(object):
     """
     base mixin class for prediction
 
@@ -33,14 +36,12 @@ class PredictSessionMixin(object):
         with self.graph.as_default():
             return self._real_predict(X)
 
+    @abc.abstractmethod
     def _real_predict(self, X):
-        pass
-
-    def _build_model(self):
-        pass
+        raise NotImplementedError
 
 
-class OneCropPredictor(PredictSessionMixin):
+class OneCropPredictor(PredictSession):
     """One crop Predictor, it predict network out put from a single crop of an input image
 
     Args:
@@ -69,7 +70,7 @@ class OneCropPredictor(PredictSessionMixin):
         return data_predictions
 
 
-class QuasiPredictor(PredictSessionMixin):
+class QuasiPredictor(PredictSession):
     """Quasi transform predictor
 
     Args:
@@ -106,7 +107,7 @@ class QuasiPredictor(PredictSessionMixin):
         return np.mean(multiple_predictions, axis=0)
 
 
-class CropPredictor(PredictSessionMixin):
+class CropPredictor(PredictSession):
     """Multiples non Data augmented crops predictor
 
     Args:
@@ -178,7 +179,7 @@ def _ensemble(en_type, x):
     }[en_type]
 
 
-class SegmentPredictor(PredictSessionMixin):
+class SegmentPredictor(PredictSession):
     """One crop Predictor, it predict network out put from a single crop of an input image
 
     Args:
@@ -207,7 +208,7 @@ class SegmentPredictor(PredictSessionMixin):
         return predictions
 
 
-class SegmentPredictor_v2(PredictSessionMixin):
+class SegmentPredictor_v2(PredictSession):
     """One crop Predictor, it predict network out put from a single crop of an input image
 
     Args:
