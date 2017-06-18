@@ -3,16 +3,22 @@
 # Contact: mrinal.haloi11@gmail.com
 # Enhancement Copyright 2016, Mrinal Haloi
 # -------------------------------------------------------------------#
+import abc
+import six
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support, roc_auc_score, accuracy_score
+from ..convert import convert
+from ..convert_labels import convert_labels
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Metric(object):
 
     def __init__(self, name=None):
         self.name = name
 
+    @abc.abstractmethod
     def metric(self, predictions, targets, **kwargs):
         raise NotImplementedError
 
@@ -88,7 +94,7 @@ class Top_k(Metric):
 
 class IOU(Metric, MetricMixin):
     """
-    Class to compute Top_k accuracy metric for predictions and labels
+    Class to compute IOU metric for predictions and labels
     """
 
     def __init__(self, name='IOU'):
@@ -118,6 +124,68 @@ class IOU(Metric, MetricMixin):
             for i in range(k):
                 t.append(sum([conf_mat[i][j] for j in range(k)]))
             return (1.0 / k) * sum([float(conf_mat[i][i]) / (t[i] - conf_mat[i][i] + sum([conf_mat[j][i] for j in range(k)])) for i in range(k)])
+
+
+class IOUSeg(object):
+
+    def __init__(self, name='IOU'):
+        self.name = name
+        super(IOUSeg, self).__init__()
+
+    def meaniou(self, predictor, predict_dir, image_size):
+        segparams = util.SegParams()
+        classes = segparams.feature_classes().values()
+        num_classes = len(classes) + 1
+        hist = np.zeros((num_classes, num_classes))
+        image_names = [filename.strip() for filename in os.listdir(
+            predict_dir) if filename.endswith('.jpg')]
+        for image_filename in image_names:
+            final_prediction_map = predictor.predict(
+                os.path.join(predict_dir, image_filename))
+            final_prediction_map = final_prediction_map.transpose(
+                0, 2, 1).squeeze()
+            gt_name = os.path.join(predict_dir,
+                                   image_filename[:-4] + '_final_mask' + '.png')
+            gt = convert(gt_name, image_size)
+            gt = np.asarray(gt)
+            gt = convert_labels(gt, image_size, image_size)
+            hist += compute_hist(gt, final_prediction_map,
+                                 num_classes=num_classes)
+        iou = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
+        meaniou = np.nanmean(iou)
+
+        return meaniou
+
+    def per_class_iou(self, predictor, predict_dir, image_size):
+        image_names = [filename.strip() for filename in os.listdir(
+            predict_dir) if filename.endswith('.jpg')]
+        per_class_iou_hist = defaultdict(np.ndarray)
+        per_class_iou_dict = defaultdict(float)
+        segparams = util.SegParams()
+        classes = segparams.feature_classes().values()
+        num_classes = len(classes) + 1
+        for class_id, class_name in enumerate(classes, 1):
+            per_class_iou_hist[class_name] = np.zeros(
+                (num_classes, num_classes))
+
+        for image_filename in image_names:
+            final_prediction_map = predictor.predict(
+                os.path.join(predict_dir, image_filename))
+            final_prediction_map = final_prediction_map.transpose(
+                0, 2, 1).squeeze()
+            gt_name = os.path.join(predict_dir,
+                                   image_filename[:-4] + '_final_mask' + '.png')
+            gt = convert(gt_name, image_size)
+            gt = np.asarray(gt)
+            gt = convert_labels(gt, image_size, image_size)
+            for class_id, class_name in enumerate(classes, 1):
+                per_class_iou_hist[class_name] += compute_hist(np.asarray(gt == class_id, dtype=np.int32), np.asarray(
+                    final_prediction_map == class_id, dtype=np.int32), num_classes=num_classes)
+
+        for class_id, class_name in enumerate(classes, 1):
+            per_class_iou_dict[class_name] = np.nanmean(np.diag(per_class_iou_hist[class_name]) / (per_class_iou_hist[
+                                                        class_name].sum(1) + per_class_iou_hist[class_name].sum(0) - np.diag(per_class_iou_hist[class_name])))
+        return per_class_iou_dict
 
 
 class Kappa(Metric, MetricMixin):
