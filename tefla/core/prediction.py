@@ -35,7 +35,7 @@ class PredictSession(object):
         with self.graph.as_default():
             return self._real_predict(X)
 
-    @abc, abstractmethod
+    @abc.abstractmethod
     def _real_predict(self, X):
         raise NotImplementedError
 
