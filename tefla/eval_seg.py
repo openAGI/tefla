@@ -11,13 +11,15 @@ from skimage.segmentation import mark_boundaries
 from skimage import io
 from skimage import transform
 from skimage.util import img_as_float
+from collections import defaultdict
 
 from tefla.core.iter_ops import create_prediction_iter, convert_preprocessor
-from tefla.core.prediction_v2 import SegmentPredictor_v2 as SegmentPredictor
+from tefla.core.prediction_v3 import SegmentPredictor_v2 as SegmentPredictor
 from tefla.da import data
 from tefla.utils import util
 from tefla.convert import convert
 from tefla.convert_labels import convert_labels
+from tefla.core.metrics import IOUSeg as IOU
 
 import tensorflow as tf
 
@@ -39,8 +41,8 @@ def compute_hist(gt, preds, num_classes=15):
               help='Relative path to model.')
 @click.option('--training_cnf', default=None, show_default=True,
               help='Relative path to training config file.')
-@click.option('--predict_dir', help='Directory with Test Images')
-@click.option('--image_size', default=None, show_default=True,
+@click.option('--predict_dir', help='Directory with Test Images and Labls (_final_mask.png)')
+@click.option('--image_size', default=448, show_default=True,
               help='image size for conversion.')
 @click.option('--num_classes', default=15, show_default=True,
               help='Number of classes.')
@@ -57,19 +59,11 @@ def predict(frozen_model, training_cnf, predict_dir, image_size, output_path, nu
     # images = data.get_image_files(predict_dir)
     image_names = [filename.strip() for filename in os.listdir(
         predict_dir) if filename.endswith('.jpg')]
-    hist = np.zeros((num_classes, num_classes))
-    for image_filename in image_names:
-        final_prediction_map = predictor.predict(
-            os.path.join(predict_dir, image_filename))
-        final_prediction_map = final_prediction_map.transpose(0, 2, 1).squeeze()
-        gt_name = os.path.join(predict_dir,
-                               image_filename[:-4] + '_final_mask' + '.png')
-        gt = convert(gt_name, image_size)
-        gt = np.asarray(gt)
-        gt = convert_labels(gt, image_size, image_size)
-        hist += compute_hist(gt, final_prediction_map, num_classes=num_classes)
-    iou = np.diag(hist) / (hist.sum(1) + hist.sum(0) - np.diag(hist))
-    meaniou = np.nanmean(iou)
+
+    iou = IOU()
+    per_class_iou = iou.per_class_iou(predictor, predict_dir, image_size)
+    meaniou = iou.meaniou(predictor, predict_dir, image_size)
+    print(per_class_iou)
     print('Mean IOU %5.5f' % meaniou)
 
 
