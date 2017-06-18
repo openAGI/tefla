@@ -3,10 +3,7 @@ import numbers
 import tensorflow as tf
 from tensorflow import random_normal, shape
 from tensorflow.python.training import optimizer
-from tensorflow.python.ops import math_ops
-from tensorflow.python.framework import ops
-from tensorflow.python.ops import state_ops
-from tensorflow.python.ops import control_flow_ops
+from tensorflow.python.training import training_ops
 
 
 class RMSPropunroll(optimizer.Optimizer):
@@ -23,18 +20,18 @@ class RMSPropunroll(optimizer.Optimizer):
         if isinstance(self._learning_rate, numbers.Number):
             self._eps_placeholder = None
             self._eps_op = None
-            self._eps_t = ops.convert_to_tensor(
+            self._eps_t = tf.convert_to_tensor(
                 self._learning_rate, name="epsilon")
         else:
             self._eps_placeholder = tf.placeholder(
                 self._learning_rate.dtype, [1], name='eps_placeholder')
-            self._eps_op = state_ops.assign(
+            self._eps_op = tf.assign(
                 self._learning_rate, self._eps_placeholder)
             self._eps_t = self._learning_rate
 
     def _create_slots(self, var_list):
         if self._g2 is None:
-            with ops.colocate_with(var_list[0]):
+            with tf.Graph.colocate_with(var_list[0]):
                 for v in var_list:
                     self._xi = self._zeros_slot(v, "xi", self._name)
                     self._g = self._zeros_slot(v, "g", self._name)
@@ -57,14 +54,14 @@ class RMSPropunroll(optimizer.Optimizer):
         var_t, xi_t, g_t, g2_t = self._optimizer_step(grad, var, xi, g, g2)
 
         # update helper variables
-        xi_update = state_ops.assign(xi, xi_t, use_locking=self._use_locking)
-        g_update = state_ops.assign(g, g_t, use_locking=self._use_locking)
-        g2_update = state_ops.assign(g2, g2_t, use_locking=self._use_locking)
-        var_update = state_ops.assign(
+        xi_update = tf.assign(xi, xi_t, use_locking=self._use_locking)
+        g_update = tf.assign(g, g_t, use_locking=self._use_locking)
+        g2_update = tf.assign(g2, g2_t, use_locking=self._use_locking)
+        var_update = tf.assign(
             var, var_t, use_locking=self._use_locking)
 
         all_updates = [xi_update, g_update, g2_update, var_update]
-        return control_flow_ops.group(*all_updates)
+        return tf.group(*all_updates)
 
     def _apply_sparse(self, grad, var):
         raise NotImplementedError("apply_sparse not yet implemented")
@@ -87,3 +84,145 @@ class RMSPropunroll(optimizer.Optimizer):
             next_opt_vars.append([xi_t, g_t, g2_t])
             next_vars.append(var_t)
         return next_vars, next_opt_vars
+
+
+class AdagradDAOptimizer(optimizer.Optimizer):
+    """Adagrad Dual Averaging algorithm for sparse linear models.
+    See this [paper](http://www.jmlr.org/papers/volume12/duchi11a/duchi11a.pdf).
+    This optimizer takes care of regularization of unseen features in a mini batch
+    by updating them when they are seen with a closed form update rule that is
+    equivalent to having updated them on every mini-batch.
+    AdagradDA is typically used when there is a need for large sparsity in the
+    trained model. This optimizer only guarantees sparsity for linear models. Be
+    careful when using AdagradDA for deep networks as it will require careful
+    initialization of the gradient accumulators for it to train.
+    """
+
+    def __init__(self,
+                 learning_rate,
+                 global_step,
+                 initial_gradient_squared_accumulator_value=0.1,
+                 l1_regularization_strength=0.0,
+                 l2_regularization_strength=0.0,
+                 use_locking=False,
+                 name="AdagradDA"):
+        """Construct a new AdagradDA optimizer.
+        Args:
+          learning_rate: A `Tensor` or a floating point value.  The learning rate.
+          global_step: A `Tensor` containing the current training step number.
+          initial_gradient_squared_accumulator_value: A floating point value.
+            Starting value for the accumulators, must be positive.
+          l1_regularization_strength: A float value, must be greater than or
+            equal to zero.
+          l2_regularization_strength: A float value, must be greater than or
+            equal to zero.
+          use_locking: If `True` use locks for update operations.
+          name: Optional name prefix for the operations created when applying
+            gradients.  Defaults to "AdagradDA".
+        Raises:
+          ValueError: If the `initial_gradient_squared_accumulator_value` is
+          invalid.
+        """
+        if initial_gradient_squared_accumulator_value <= 0.0:
+            raise ValueError("initial_gradient_squared_accumulator_value must be"
+                             "positive: %s" %
+                             initial_gradient_squared_accumulator_value)
+        super(AdagradDAOptimizer, self).__init__(use_locking, name)
+        self._learning_rate = learning_rate
+        self._initial_gradient_squared_accumulator_value = (
+            initial_gradient_squared_accumulator_value)
+        # Created in Initialize.
+        self._learning_rate_tensor = None
+        self._l1_regularization_strength = l1_regularization_strength
+        self._l2_regularization_strength = l2_regularization_strength
+        self._global_step = global_step
+
+    def _create_slots(self, var_list):
+        for v in var_list:
+            with tf.Graph.colocate_with(v):
+                g_val = tf.constant(
+                    0.0, shape=v.get_shape(), dtype=v.dtype.base_dtype)
+                gg_val = tf.constant(
+                    self._initial_gradient_squared_accumulator_value,
+                    shape=v.get_shape(),
+                    dtype=v.dtype.base_dtype)
+            self._get_or_make_slot(
+                v, g_val, "gradient_accumulator", self._name)
+            self._get_or_make_slot(v, gg_val, "gradient_squared_accumulator",
+                                   self._name)
+
+    def _prepare(self):
+        self._learning_rate_tensor = tf.convert_to_tensor(
+            self._learning_rate, name="learning_rate")
+
+    def _apply_dense(self, grad, var):
+        g_acc = self.get_slot(var, "gradient_accumulator")
+        gg_acc = self.get_slot(var, "gradient_squared_accumulator")
+        with tf.device(grad[0].device):
+            global_step = tf.identity(self._global_step) + 1
+        return training_tf.apply_adagrad_da(
+            var,
+            g_acc,
+            gg_acc,
+            grad,
+            tf.cast(self._learning_rate_tensor, var.dtype.base_dtype),
+            tf.cast(self._l1_regularization_strength,
+                    var.dtype.base_dtype),
+            tf.cast(self._l2_regularization_strength,
+                    var.dtype.base_dtype),
+            global_step,
+            use_locking=self._use_locking)
+
+    def _resource_apply_dense(self, grad, var):
+        g_acc = self.get_slot(var, "gradient_accumulator")
+        gg_acc = self.get_slot(var, "gradient_squared_accumulator")
+        with tf.device(grad[0].device):
+            global_step = tf.identity(self._global_step) + 1
+        return training_tf.resource_apply_adagrad_da(
+            var.handle,
+            g_acc.handle,
+            gg_acc.handle,
+            grad,
+            tf.cast(self._learning_rate_tensor, grad.dtype.base_dtype),
+            tf.cast(self._l1_regularization_strength,
+                    grad.dtype.base_dtype),
+            tf.cast(self._l2_regularization_strength,
+                    grad.dtype.base_dtype),
+            global_step,
+            use_locking=self._use_locking)
+
+    def _apply_sparse(self, grad, var):
+        g_acc = self.get_slot(var, "gradient_accumulator")
+        gg_acc = self.get_slot(var, "gradient_squared_accumulator")
+        with tf.device(grad[0].device):
+            global_step = tf.identity(self._global_step) + 1
+        return training_ops.sparse_apply_adagrad_da(
+            var,
+            g_acc,
+            gg_acc,
+            grad.values,
+            grad.indices,
+            tf.cast(self._learning_rate_tensor, var.dtype.base_dtype),
+            tf.cast(self._l1_regularization_strength,
+                    var.dtype.base_dtype),
+            tf.cast(self._l2_regularization_strength,
+                    var.dtype.base_dtype),
+            global_step,
+            use_locking=self._use_locking)
+
+    def _resource_apply_sparse(self, grad, var, indices):
+        g_acc = self.get_slot(var, "gradient_accumulator")
+        gg_acc = self.get_slot(var, "gradient_squared_accumulator")
+        with tf.device(grad[0].device):
+            global_step = tf.identity(self._global_step) + 1
+        return training_ops.resource_sparse_apply_adagrad_da(
+            var.handle,
+            g_acc.handle,
+            gg_acc.handle,
+            grad,
+            indices,
+            tf.cast(self._learning_rate_tensor, grad.dtype),
+            tf.cast(self._l1_regularization_strength, grad.dtype),
+            tf.cast(self._l2_regularization_strength, grad.dtype),
+            global_step,
+            use_locking=self._use_locking)
