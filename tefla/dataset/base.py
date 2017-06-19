@@ -7,12 +7,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from abc import ABCMeta
+from abc
+import six
 import os
 import math
 import tensorflow as tf
 
 
+@six.add_metalass(abc.ABCMeta)
 class Dataset(object):
     """A simple class for handling data sets,
 
@@ -25,8 +27,6 @@ class Dataset(object):
         items_to_description: a string descriving the items of the dataset
 
     """
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, name, decoder, data_dir=None, num_classes=10, num_examples_per_epoch=1, batch_size=1, items_to_descriptions=None, **kwargs):
         self.name = name
