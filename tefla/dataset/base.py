@@ -7,14 +7,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from abc
+import abc
 import six
 import os
 import math
 import tensorflow as tf
 
 
-@six.add_metalass(abc.ABCMeta)
+@six.add_metaclass(abc.ABCMeta)
 class Dataset(object):
     """A simple class for handling data sets,
 
