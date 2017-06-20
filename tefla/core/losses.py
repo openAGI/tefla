@@ -100,7 +100,7 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
             return -(1 - nom / (denom + eps))
 
 
-def kappa_log_loss(predictions, labels, label_smoothing=0.0, y_pow=1, batch_size=32, log_scale=0.5, log_offset=0.50, name='kappa_log'):
+def kappa_log_loss(predictions, labels, label_smoothing=0.0, y_pow=1, batch_size=32, log_scale=0.5, num_classes=5, log_offset=0.50, name='kappa_log'):
     """Define a joint kappa and log loss, Kappa is a continuous differentiable approximation of discrete kappa loss.
 
     Args:
@@ -127,7 +127,7 @@ def kappa_log_loss(predictions, labels, label_smoothing=0.0, y_pow=1, batch_size
             labels = labels * smooth_positives + smooth_negatives
         log_loss_res = log_loss(predictions, labels)
         kappa_loss_res = kappa_loss(
-            predictions, labels, y_pow=y_pow, batch_size=batch_size)
+            predictions, labels, y_pow=y_pow, num_ratings=num_classes, batch_size=batch_size)
         return kappa_loss_res + log_scale * (log_loss_res - log_offset)
 
 
@@ -158,7 +158,7 @@ def kappa_log_loss_clipped(predictions, labels, label_smoothing=0.0, y_pow=1, ba
             labels = labels * smooth_positives + smooth_negatives
         log_loss_res = log_loss_tf(predictions, labels)
         kappa_loss_res = kappa_loss(
-            predictions, labels, y_pow=y_pow, batch_size=batch_size)
+            predictions, labels, y_pow=y_pow, num_ratings=num_classes, batch_size=batch_size)
         return kappa_loss_res + log_scale * tf.clip_by_value(log_loss_res, log_cutoff, 10 ** 3)
 
 

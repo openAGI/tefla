@@ -42,7 +42,7 @@ class SupervisedTrainer(object):
     """
 
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, loss_type='softmax_cross_entropy'):
+                 validation_iterator=BatchIterator(128, False), start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, n_iters_per_epoch=1094, num_classes=5,  gpu_memory_fraction=0.94, is_summary=False, loss_type='softmax_cross_entropy'):
         self.model = model
         self.cnf = cnf
         self.training_iterator = training_iterator
@@ -57,7 +57,7 @@ class SupervisedTrainer(object):
         self.gpu_memory_fraction = gpu_memory_fraction
         self.is_summary = is_summary
         self.loss_type = loss_type
-        self.num_classes = 5
+        self.num_classes = num_classes
         self.label_smoothing = 0.009
 
     def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, weights_dir='weights', verbose=0):
@@ -418,9 +418,9 @@ class SupervisedTrainer(object):
                     self.target = tf.placeholder(
                         tf.int32, shape=(None, self.num_classes))
                 training_loss = kappa_log_loss_clipped(self.training_predictions, self.target, y_pow=2,
-                                                       label_smoothing=self.label_smoothing, batch_size=self.training_iterator.batch_size)
+                                                       label_smoothing=self.label_smoothing, num_classes=self.num_classes, batch_size=self.training_iterator.batch_size)
                 self.validation_loss = kappa_log_loss_clipped(
-                    self.validation_predictions, self.target, batch_size=self.training_iterator.batch_size)
+                    self.validation_predictions, self.target, num_classes=self.num_classes, batch_size=self.training_iterator.batch_size)
             else:
                 with tf.name_scope('predictions'):
                     self.target = tf.placeholder(tf.int32, shape=(None,))
