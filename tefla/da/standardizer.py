@@ -57,6 +57,34 @@ class SamplewiseStandardizer(NoDAMixin):
         return img
 
 
+class SamplewiseStandardizerTF(NoDAMixin):
+    """Samplewise Standardizer
+
+    Args:
+        clip: max/min allowed value in the output image
+            e.g.: 6
+        channel_wise: perform standarization separately accross channels
+
+    """
+
+    def __init__(self, clip, channel_wise=False):
+        self.clip = clip
+        self.channel_wise = channel_wise
+        super(SamplewiseStandardizerTF, self).__init__()
+
+    def __call__(self, img, is_training):
+        if self.channel_wise:
+            img_mean, img_var = tf.nn.moments(img, axes=[0, 1])
+            img = tf.div(tf.subtract(img, img_mean),
+                         tf.sqrt(img_var) + tf.constant(1e-4))
+        else:
+            img_mean, img_var = tf.nn.moments(img, axes=[0, 1, 2])
+            img = tf.div(tf.subtract(img, img_mean),
+                         tf.sqrt(img_var) + tf.constant(1e-4))
+        img = tf.clip_by_value(img, -self.clip, self.clip)
+        return img
+
+
 class AggregateStandardizer(object):
     """Aggregate Standardizer
 
