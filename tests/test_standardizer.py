@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal
 from tefla.da.standardizer import AggregateStandardizer, AggregateStandardizerTF
+from tefla.da.standardizer import SamplewiseStandardizer, SamplewiseStandardizerTF
 
 
 @pytest.fixture(autouse=True)
@@ -50,6 +51,23 @@ def test_np_tf_aggregate():
     # print(im_st[188, 113, :])
     # print(im_[188, 113, :])
     assert_array_almost_equal(im_st, im_)
+
+
+def test_np_tf_samplewise():
+    sttf = SamplewiseStandardizerTF(clip=6)
+    st = SamplewiseStandardizer(clip=6)
+    sess = tf.Session()
+    im_np = np.random.normal(50.0, 2.5,
+                             size=(200, 200, 3))
+    im_np = np.clip(im_np, 0.0, 255.0)
+    im_tf = im_np
+    im_np = np.asarray(im_np.transpose(2, 1, 0), dtype=np.float32)
+    im_st = st(im_np, False)
+    im_st = im_st.transpose(1, 2, 0)
+    im_tf = tf.transpose(im_tf, perm=[1, 0, 2])
+    im_sttf = sttf(tf.to_float(im_tf), False)
+    im_ = im_sttf.eval(session=sess)
+    assert_array_almost_equal(im_st, im_, decimal=4)
 
 
 if __name__ == '__main__':
