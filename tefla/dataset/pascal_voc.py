@@ -2,16 +2,18 @@ import os
 import numpy as np
 import scipy.misc
 import math
-from ..da.data_augmentation import distort_color, vggnet_input, seg_input_aug
+from ..da.preprocessor import SegPreprocessor
+from ..da.standardizer import SamplewiseStandardizer
 import tensorflow as tf
 
 
 class PascalVoc(object):
 
-    def __init__(self, name='pascal_voc', data_dir=None, is_label_filename=None, standardizer=None, is_train=None, batch_size=1, extension='.jpg', capacity=1024, min_queue_examples=256, num_preprocess_threads=8):
+    def __init__(self, name='pascal_voc', data_dir=None, is_label_filename=None, is_train=None, standardizer=SamplewiseStandardizer(clip=6), batch_size=1, extension='.jpg', capacity=1024, min_queue_examples=256, num_preprocess_threads=8):
         self.name = name
         self.data_dir = data_dir
         self.is_train = is_train
+        self.preprocessor = SegPreprocessor()
         self.standardizer = standardizer
         self.label_filename = is_label_filename
         self.batch_size = batch_size
@@ -29,6 +31,16 @@ class PascalVoc(object):
     @property
     def n_iters_per_epoch(self):
         return int(math.ceil(self._num_examples_per_epoch / float(self.batch_size)))
+
+    def per_image_standardizer(self, image):
+        stand = SamplewiseStandardizer(clip=6)
+        image = tf.py_func(stand, [tf.to_double(image), False], tf.float64)
+        return image
+
+    def decode_file_v2(self, filename_queue, height, width):
+        img = cv2.imread(filename_queue[0])
+        label = cv2.imread(filename_queue[1])
+        return img, label
 
     def decode_file(self, filename_queue, height, width):
         imageValue = tf.read_file(filename_queue[0])
@@ -77,7 +89,7 @@ class PascalVoc(object):
             [image_files, label_files], shuffle=True)
         return filename_queue
 
-    def get_batch(self, batch_size=1, height=None, width=None):
+    def get_batch(self, batch_size=1, height=None, width=None, output_height=None, output_width=None):
         """Construct a queued batch of images and labels.
         Args:
             image: 3-D Tensor of [height, width, 3] of type.float32.
@@ -93,14 +105,10 @@ class PascalVoc(object):
         if self.is_train:
             filename_queue = self.datafiles(height)
             image, label = self.decode_file(filename_queue, height, width)
-            # image = vggnet_input(image)
-            # image = distort_color(image)
-            # image = tf.image.per_image_standardization(image)
-            if self.standardizer is not None:
-                image = self.standardizer(image, True)
+            image, label = self.preprocessor.preprocess_image(
+                image, label, output_height, output_width, True, standardizer=self.standardizer)
             image = tf.transpose(image, perm=[1, 0, 2])
             label = tf.transpose(label, perm=[1, 0])
-            image, label = seg_input_aug(image, label)
             image_batch, label_batch = tf.train.shuffle_batch(
                 [image, label],
                 batch_size=batch_size,
@@ -111,8 +119,8 @@ class PascalVoc(object):
             filename_queue = self.datafiles(height)
             image, label = self.decode_file(
                 filename_queue, height=height, width=width)
-            if self.standardizer is not None:
-                image = self.standardizer(image, True)
+            image, label = self.preprocessor.preprocess_image(
+                image, label, output_height, output_width, False, standardizer=self.standardizer)
             image = tf.transpose(image, perm=[1, 0, 2])
             label = tf.transpose(label, perm=[1, 0])
             image, label = seg_input_aug(image, label)
