@@ -14,7 +14,7 @@ from .base import Base, BaseMixin
 from . import summary as summary
 from . import logger as log
 from ..utils import util
-from ..dataset.pascal_voc_v2 import PascalVoc
+from ..dataset.pascal_voc import PascalVoc
 from .losses import segment_loss
 from .metrics import compute_hist
 import tensorflow as tf
