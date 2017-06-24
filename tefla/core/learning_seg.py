@@ -14,7 +14,7 @@ from .base import Base, BaseMixin
 from . import summary as summary
 from . import logger as log
 from ..utils import util
-from ..dataset.pascal_voc import PascalVoc
+from ..dataset.pascal_voc_v2 import PascalVoc
 from .losses import segment_loss
 from .metrics import compute_hist
 import tensorflow as tf
@@ -70,8 +70,7 @@ class SupervisedLearner(Base, BaseMixin):
                 of summary writing
             keep_moving_averages: a bool, keep moving averages of trainable variables
         """
-        self._data_ops(data_dir,
-                       standardizer=self.cnf['standardizer'])
+        self._data_ops(data_dir, standardizer=self.cnf.get('standardizer'))
         self._setup_model_loss(
             keep_moving_averages=keep_moving_averages, num_classes=num_classes)
         if self.is_summary:
@@ -90,16 +89,18 @@ class SupervisedLearner(Base, BaseMixin):
             # self.training_loss = tf.with_dependencies(update_ops,
             # self.training_loss)
 
-    def _data_ops(self, data_dir, standardizer=None, dataset_name='datarandom'):
-        self.data_voc = PascalVoc(name='pascal_voc', data_dir=data_dir, is_label_filename=True, standardizer=standardizer, is_train=True, batch_size=1,
+    def _data_ops(self, data_dir, data_dir_val=None, standardizer=None, dataset_name='datarandom'):
+        self.data_voc = PascalVoc(name='pascal_voc', data_dir=data_dir, standardizer=standardizer, is_label_filename=True, is_train=True, batch_size=1,
                                   extension='.jpg', capacity=2048, min_queue_examples=512, num_preprocess_threads=8)
+        if data_dir_val is None:
+            self.data_voc_val = None
 
     def _train_loop(self, weights_from, start_epoch, summary_every, num_checkpoint_to_keep=None, weights_dir=None):
         saver = tf.train.Saver(max_to_keep=num_checkpoint_to_keep)
         if weights_dir is None:
             weights_dir = "/home/artelus_server/data/tefla/skipunet_v3"
         if not os.path.exists(weights_dir):
-            os.mkdir(weights_dir)
+            tf.gfile.MakeDirs(weights_dir)
         if self.is_summary:
             training_batch_summary_op = tf.merge_all_summaries(
                 key=TRAINING_BATCH_SUMMARIES)
@@ -180,12 +181,15 @@ class SupervisedLearner(Base, BaseMixin):
                     learning_rate_value = self.lr_policy.batch_update(
                         learning_rate_value, batch_iter_idx)
                     batch_iter_idx += 1
+                    log.info("Learning rate: %f " % learning_rate_value)
                     log.debug('4. Training batch %d done.' % batch_num)
 
                 epoch_training_loss = np.average(
                     training_losses, weights=batch_train_sizes)
                 log.info("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" %
                          (epoch, np.sum(batch_train_sizes), time.time() - tic, epoch_training_loss))
+                if self.data_voc_val is None:
+                    epoch_validation_loss = 0.0
 
                 # Plot training loss every epoch
                 log.debug('5. Writing epoch summary...')
@@ -203,6 +207,16 @@ class SupervisedLearner(Base, BaseMixin):
                     (epoch, np.sum(batch_train_sizes), time.time() - tic,
                      epoch_training_loss)
                 )
+                epoch_info = dict(
+                    epoch=epoch,
+                    training_loss=epoch_training_loss,
+                    validation_loss=epoch_validation_loss
+                )
+
+                training_history.append(epoch_info)
+                learning_rate_value = self.lr_policy.epoch_update(
+                    learning_rate_value, training_history)
+                log.info("Learning rate: %f " % learning_rate_value)
             if self.is_summary:
                 train_writer.close()
                 validation_writer.close()
@@ -220,10 +234,10 @@ class SupervisedLearner(Base, BaseMixin):
                 with tf.device('/gpu:%d' % i):
                     with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
                         images, labels = self.data_voc.get_batch(batch_size=self.cnf['batch_size_train'], height=self.cnf.get(
-                            'im_height', 224), width=self.cnf.get('im_width', 224))
+                            'im_height', 512), width=self.cnf.get('im_width', 512), output_height=self.cnf.get('output_height', 448), output_width=self.cnf.get('output_width', 448))
                         labels = tf.reshape(labels, shape=(-1,))
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
-                                                reuse=reuse, loss_type=loss_type, is_classification=is_classification, gpu_id=i)
+                                                reuse=i > 0, loss_type=loss_type, is_classification=is_classification, gpu_id=i)
 
                         tf.get_variable_scope().reuse_variables()
                         if self.clip_by_global_norm:
@@ -253,7 +267,5 @@ class SupervisedLearner(Base, BaseMixin):
             variables_averages_op = self._moving_averages_op()
             with tf.control_dependencies([apply_gradients_op, variables_averages_op]):
                 self.train_op = tf.no_op(name='train_op')
-            # self.train_op = tf.group(apply_gradients_op,
-            # variables_averages_op):
         else:
             self.train_op = apply_gradients_op
