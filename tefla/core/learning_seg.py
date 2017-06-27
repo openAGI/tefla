@@ -257,7 +257,7 @@ class SupervisedLearner(Base, BaseMixin):
         optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get(
             'optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
         self.grads_and_vars, self.training_loss = self._process_towers_grads(
-            optimizer, self.model, is_classification=self.classification)
+            optimizer, self.model, is_classification=self.classification, loss_type=self.loss_type)
 
         if self.clip_norm and not self.clip_by_global_norm:
             self.grads_and_vars = self._clip_grad_norms(
