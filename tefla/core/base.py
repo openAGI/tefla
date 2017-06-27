@@ -436,6 +436,7 @@ class BaseMixin(object):
             return sq_loss_mean
 
     def _loss_softmax(self, logits, labels, is_training):
+        log.info('Using softmax loss')
         labels = tf.cast(labels, tf.int64)
         ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
             labels=labels, logits=logits, name='cross_entropy_loss')
@@ -453,6 +454,7 @@ class BaseMixin(object):
             return ce_loss_mean
 
     def _loss_dice(self, predictions, labels, is_training):
+        log.info('Using DICE loss')
         labels = tf.cast(labels, tf.int64)
         dc_loss = dice_loss(predictions, labels)
         dc_loss_mean = tf.reduce_mean(dc_loss, name='dice_loss_')
@@ -469,6 +471,7 @@ class BaseMixin(object):
             return dc_loss_mean
 
     def _loss_kappa(self, predictions, labels, is_training, y_pow=2):
+        log.info('Using KAPPA loss')
         labels = tf.cast(labels, tf.int64)
         if is_training:
             kappa_loss = kappa_log_loss_clipped(
