@@ -11,7 +11,7 @@ import os
 
 from ..da.iterator import BatchIterator
 from .lr_policy import NoDecayPolicy
-from .losses import kappa_log_loss_clipped, segment_loss
+from .losses import kappa_log_loss_clipped, segment_loss, dice_loss
 from . import summary
 from . import logger as log
 import tensorflow as tf
@@ -456,6 +456,8 @@ class BaseMixin(object):
     def _loss_dice(self, predictions, labels, is_training):
         log.info('Using DICE loss')
         labels = tf.cast(labels, tf.int64)
+        num_classes = predictions.get_shape().as_list()[-1]
+        labels = tf.one_hot(labels, num_classes)
         dc_loss = dice_loss(predictions, labels)
         dc_loss_mean = tf.reduce_mean(dc_loss, name='dice_loss_')
         if is_training:

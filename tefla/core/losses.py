@@ -951,10 +951,11 @@ def cross_entropy_sequence_loss(logits, targets, sequence_length):
     return losses
 
 
-def dice_loss(predictions, targets, name='dice_loss'):
+def dice_loss(predictions, targets, weights=1., name='dice_loss'):
     with tf.name_scope(name):
-        eps = 1e-5
-        intersection = tf.reduce_sum(predictions * targets) + eps
-        union = eps + tf.reduce_sum(predictions) + tf.reduce_sum(targets)
-        loss = -(2 * intersection / (union))
+        # predictions = tf.to_float(predictions)
+        targets = tf.to_float(targets)
+        intersection = 2 * tf.reduce_sum(predictions * targets) + weights
+        union = weights + tf.reduce_sum(predictions) + tf.reduce_sum(targets)
+        loss = -(intersection / (union))
     return loss

@@ -149,8 +149,8 @@ class SegPreprocessor(Preprocessor):
     def preprocess_for_train(self, image, label, output_height, output_width, standardizer=None):
         image, label = self.random_flip_left_right(image, label)
         image, label = self.random_flip_up_down(image, label)
-        crop_h = output_height + 10
-        crop_w = output_width + 10
+        # crop_h = output_height + 10
+        # crop_w = output_width + 10
         # image, label = self.random_crop_and_pad_image_and_label(
         #    image, label, crop_h, crop_w)
         image = tf.image.resize_images(
