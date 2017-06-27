@@ -70,7 +70,7 @@ class Base(object):
             if input_summary:
                 if len(self.inputs.get_shape()) == 4:
                     summary.summary_image(self.inputs, 'inputs', max_images=10, collections=[
-                                      TRAINING_BATCH_SUMMARIES])
+                        TRAINING_BATCH_SUMMARIES])
             for key, val in self.training_end_points.iteritems():
                 summary.summary_activation(val, name=key, collections=[
                                            TRAINING_BATCH_SUMMARIES])
@@ -404,8 +404,10 @@ class Base(object):
 
     def write_params(self):
         opts = tf.contrib.tfprof.model_analyzer.TRAINABLE_VARS_PARAMS_STAT_OPTIONS
-        opts['dump_to_file'] = os.path.abspath(self.cnf.get('model_graph_file', '/tmp/graph.log'))
-        tf.contrib.tfprof.model_analyzer.print_model_analysis(tf.get_default_graph(), tfprof_options=opts)
+        opts['dump_to_file'] = os.path.abspath(
+            self.cnf.get('model_graph_file', '/tmp/graph.log'))
+        tf.contrib.tfprof.model_analyzer.print_model_analysis(
+            tf.get_default_graph(), tfprof_options=opts)
 
         with tf.gfile.GFile(self.cnf.get('model_graph_file', '/tmp/graph.log')) as file:
             tf.logging.info(file.read())
@@ -450,6 +452,22 @@ class BaseMixin(object):
         else:
             return ce_loss_mean
 
+    def _loss_dice(self, predictions, labels, is_training):
+        labels = tf.cast(labels, tf.int64)
+        dc_loss = dice_loss(predictions, labels)
+        dc_loss_mean = tf.reduce_mean(dc_loss, name='dice_loss_')
+        if is_training:
+            tf.add_to_collection('losses', dc_loss_mean)
+
+            l2_loss = tf.add_n(tf.get_collection(
+                tf.GraphKeys.REGULARIZATION_LOSSES))
+            l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+            tf.add_to_collection('losses', l2_loss)
+
+            return tf.add_n(tf.get_collection('losses'), name='total_loss')
+        else:
+            return dc_loss_mean
+
     def _loss_kappa(self, predictions, labels, is_training, y_pow=2):
         labels = tf.cast(labels, tf.int64)
         if is_training:
@@ -475,6 +493,9 @@ class BaseMixin(object):
                 if loss_type == 'kappa_log':
                     loss_temp = self._loss_kappa(
                         self.training_end_points['predictions'], labels, is_training, y_pow=y_pow)
+                elif loss_type == 'dice_loss':
+                    loss_temp = self._loss_dice(
+                        self.training_end_points['predictions'], labels, is_training)
                 else:
                     loss_temp = self._loss_softmax(self.training_end_points[
                         'logits'], labels, is_training)
