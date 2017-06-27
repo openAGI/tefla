@@ -384,6 +384,7 @@ def log_prob_from_logits(x):
 
 def segment_loss(logits, labels, num_classes, head=None):
     """Calculate the loss from the logits and the labels.
+
     Args:
       logits: tensor, float - [batch_size * width * height, num_classes].
           Use vgg_fcn.up as logits.
@@ -392,6 +393,7 @@ def segment_loss(logits, labels, num_classes, head=None):
       head: numpy array - [num_classes]
           Weighting the loss of each class
           Optional: Prioritize some classes
+
     Returns:
       loss: Loss tensor of type float.
     """
@@ -947,3 +949,12 @@ def cross_entropy_sequence_loss(logits, targets, sequence_length):
         losses = losses * tf.transpose(tf.to_float(loss_mask), [1, 0])
 
     return losses
+
+
+def dice_loss(predictions, targets, name='dice_loss'):
+    with tf.name_scope(name):
+        eps = 1e-5
+        intersection = tf.reduce_sum(predictions * targets) + eps
+        union = eps + tf.reduce_sum(predictions) + tf.reduce_sum(targets)
+        loss = -(2 * intersection / (union))
+    return loss
