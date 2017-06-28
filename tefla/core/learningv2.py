@@ -342,7 +342,7 @@ class SupervisedLearner(Base, BaseMixin):
 
         return grads_and_vars, sum(tower_loss)
 
-    def _process_towers_loss(self, dataset, opt, model, is_training=False, reuse=True, is_classification=True, loss_type='cross_entropy', num_classes=10):
+    def _process_towers_loss(self, dataset, opt, model, is_training=False, reuse=True, is_classification=True, loss_type='cross_entropy'):
         tower_loss = []
         predictions = []
         validation_metric = []
@@ -362,12 +362,12 @@ class SupervisedLearner(Base, BaseMixin):
                             labels, tf.argmax(loss_pred['predictions'], 1))
                         validation_metric_tmp[i].append(metric_score)
         predictions = tf.convert_to_tensor(predictions)
-        predictions = tf.reshape(predictions, [-1, num_classes])
+        predictions = tf.reshape(predictions, [-1, self.num_classes])
         for i, (_, _) in enumerate(self.validation_metrics_def):
             validation_metric.append(sum(validation_metric_tmp[i]))
         return sum(tower_loss), predictions, validation_metric
 
-    def _setup_model_loss(self, dataflow, dataflow_val=None, keep_moving_averages=False, num_classes=10, loss_type='cross_entropy'):
+    def _setup_model_loss(self, dataflow, dataflow_val=None, keep_moving_averages=False, loss_type='cross_entropy'):
         self.learning_rate = tf.placeholder(
             tf.float32, shape=[], name="learning_rate_placeholder")
         # Keep old variable around to load old params, till we need this
@@ -379,7 +379,7 @@ class SupervisedLearner(Base, BaseMixin):
             dataflow, optimizer, self.model, is_classification=self.classification, loss_type=loss_type)
         if dataflow_val is not None:
             self.validation_loss, self.validation_predictions, self.validation_metric = self._process_towers_loss(
-                dataflow_val, optimizer, self.model, is_classification=self.classification, num_classes=num_classes, loss_type=loss_type)
+                dataflow_val, optimizer, self.model, is_classification=self.classification, loss_type=loss_type)
             self.validation_metric.append(self.validation_loss)
 
         if self.clip_norm and not self.clip_by_global_norm:

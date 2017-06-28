@@ -28,7 +28,7 @@ import logging
 @click.option('--start_epoch', default=1, show_default=True,
               help='Epoch number from which to resume training.')
 @click.option('--num_classes', default=5, show_default=True,
-              help='Epoch number from which to resume training.')
+              help='Number of classes to use for training.')
 @click.option('--gpu_memory_fraction', default=0.92, show_default=True,
               help='Epoch number from which to resume training.')
 @click.option('--weights_from', default=None, show_default=True,

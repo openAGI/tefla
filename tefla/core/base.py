@@ -493,7 +493,7 @@ class BaseMixin(object):
     def _tower_loss(self, scope, model, images, labels, is_training, reuse, loss_type='kappa_log', y_pow=2, is_classification=True, gpu_id=0):
         if is_training:
             self.training_end_points = model(
-                images, is_training=is_training, reuse=reuse)
+                images, is_training=is_training, reuse=reuse, num_classes=self.num_classes)
             if is_classification:
                 if loss_type == 'kappa_log':
                     loss_temp = self._loss_kappa(
@@ -513,7 +513,7 @@ class BaseMixin(object):
                 self._print_layer_shapes(self.training_end_points, log)
         else:
             self.validation_end_points = model(
-                images, is_training=is_training, reuse=reuse)
+                images, is_training=is_training, reuse=reuse, num_classes=self.num_classes)
             if is_classification:
                 if loss_type == 'kappa_log':
                     loss = self._loss_kappa(self.validation_end_points[
