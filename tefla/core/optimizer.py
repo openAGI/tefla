@@ -160,7 +160,7 @@ class AdagradDAOptimizer(optimizer.Optimizer):
         gg_acc = self.get_slot(var, "gradient_squared_accumulator")
         with tf.device(grad[0].device):
             global_step = tf.identity(self._global_step) + 1
-        return training_tf.apply_adagrad_da(
+        return training_ops.apply_adagrad_da(
             var,
             g_acc,
             gg_acc,
@@ -178,7 +178,7 @@ class AdagradDAOptimizer(optimizer.Optimizer):
         gg_acc = self.get_slot(var, "gradient_squared_accumulator")
         with tf.device(grad[0].device):
             global_step = tf.identity(self._global_step) + 1
-        return training_tf.resource_apply_adagrad_da(
+        return training_ops.resource_apply_adagrad_da(
             var.handle,
             g_acc.handle,
             gg_acc.handle,
