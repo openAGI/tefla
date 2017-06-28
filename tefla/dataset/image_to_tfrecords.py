@@ -134,7 +134,7 @@ class TFRecords(object):
             'image/class/label': self._int64_feature(label),
             'image/class/text': self._bytes_feature(text),
             'image/format': self._bytes_feature(image_format),
-            'image/filename': self._bytes_feature(os.path.basename(filename)),
+            'image/filename': self._bytes_feature(bytes(os.path.basename(filename))),
             'image/encoded/image': self._bytes_feature(image_buffer)}))
         return example
 
@@ -199,7 +199,7 @@ class TFRecords(object):
               (datetime.now(), thread_index, counter, num_files_in_thread))
         sys.stdout.flush()
 
-    def process_image_files(self, name, filenames, texts, labels, num_shards, num_threads=4):
+    def process_image_files(self, name, filenames, texts, labels, num_shards, output_dir, num_threads=4):
         """Process and save list of images as TFRecord of Example protos.
 
         Args:
@@ -230,7 +230,7 @@ class TFRecords(object):
         threads = []
         for thread_index in range(len(ranges)):
             args = (coder, thread_index, ranges, name,
-                    filenames, texts, labels, num_shards)
+                    filenames, texts, labels, num_shards, output_dir)
             t = threading.Thread(
                 target=self.process_image_files_batch, args=args)
             t.start()
@@ -299,7 +299,7 @@ class TFRecords(object):
               (len(filenames), len(unique_labels), data_dir))
         return filenames, texts, labels
 
-    def process_dataset(self, name, directory, num_shards, labels_file):
+    def process_dataset(self, name, directory, output_directory, num_shards, labels_file):
         """Process a complete data set and save it as a TFRecord.
 
         Args:
@@ -309,7 +309,7 @@ class TFRecords(object):
             labels_file: string, path to the labels file.
         """
         filenames, texts, labels = self.find_image_files(directory, labels_file)
-        self.process_image_files(name, filenames, texts, labels, num_shards)
+        self.process_image_files(name, filenames, texts, labels, num_shards, output_directory)
 
     def read_images_from(self, data_dir, imresize=[512, 512]):
         images = []
@@ -333,4 +333,4 @@ if __name__ == '__main__':
     # Convert Images to tfRecords files
     im2r = TFRecords()
     im2r.process_dataset('retina_dr_train_256',
-                         '/path/to/Data/train', 16, '/path/to/Data/label.txt')
+                         '/path/to/Data/train', 'path/to/output/dir', 16, '/path/to/Data/label.txt')
