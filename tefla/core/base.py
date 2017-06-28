@@ -405,11 +405,11 @@ class Base(object):
     def write_params(self):
         opts = tf.contrib.tfprof.model_analyzer.TRAINABLE_VARS_PARAMS_STAT_OPTIONS
         opts['dump_to_file'] = os.path.abspath(
-            self.cnf.get('model_graph_file', '/tmp/graph.log'))
+            self.cnf.get('model_params_file', '/tmp/graph_params.log'))
         tf.contrib.tfprof.model_analyzer.print_model_analysis(
             tf.get_default_graph(), tfprof_options=opts)
 
-        with tf.gfile.GFile(self.cnf.get('model_graph_file', '/tmp/graph.log')) as file:
+        with tf.gfile.GFile(self.cnf.get('model_params_file', '/tmp/graph_params.log')) as file:
             tf.logging.info(file.read())
 
 
