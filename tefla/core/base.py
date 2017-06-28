@@ -26,8 +26,9 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 class Base(object):
 
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=1, loss_type='softmax_cross_entropy', label_smoothing=0.009, weights_dir='weights'):
+                 validation_iterator=BatchIterator(128, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=1, loss_type='softmax_cross_entropy', label_smoothing=0.009, model_name='graph.pbtxt'):
         self.model = model
+        self.model_name = model_name
         self.cnf = cnf
         self.training_iterator = training_iterator
         self.validation_iterator = validation_iterator
@@ -44,7 +45,6 @@ class Base(object):
         self.is_summary = is_summary
         self.loss_type = loss_type
         self.num_classes = num_classes
-        self.weights_dir = weights_dir
         log.setFileHandler(log_file_name)
         log.setVerbosity(str(verbosity))
         try:
@@ -411,6 +411,10 @@ class Base(object):
 
         with tf.gfile.GFile(self.cnf.get('model_params_file', '/tmp/graph_params.log')) as file:
             tf.logging.info(file.read())
+
+    def write_graph(self, graph_def, output_dir='/tmp'):
+        log.info('Writing model graph .pbtxt to %s' % output_dir)
+        tf.train.write_graph(graph_def, output_dir, self.model_name)
 
 
 class BaseMixin(object):
