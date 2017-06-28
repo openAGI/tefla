@@ -132,6 +132,7 @@ class SupervisedLearner(Base, BaseMixin):
         n_iters_per_epoch = self.data_voc.n_iters_per_epoch
         self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
         self.total_network_params()
+        self.write_graph(sess.graph_def, weights_dir)
         coord = tf.train.Coordinator()
         tf.train.start_queue_runners(sess=sess, coord=coord)
         try:

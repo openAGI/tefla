@@ -50,7 +50,7 @@ class SupervisedLearner(Base, BaseMixin):
         super(SupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
-    def fit(self, data_dir, data_dir_val=None, features_keys=None, weights_from=None, max_to_keep=None, start_epoch=1, summary_every=10, training_set_size=None, val_set_size=None, dataset_name='cifar10', keep_moving_averages=False):
+    def fit(self, data_dir, data_dir_val=None, features_keys=None, weights_from=None, weights_dir='weights', max_to_keep=None, start_epoch=1, summary_every=10, training_set_size=None, val_set_size=None, dataset_name='cifar10', keep_moving_averages=False):
         """
         Train the model on the specified dataset
 
@@ -85,7 +85,7 @@ class SupervisedLearner(Base, BaseMixin):
             self._print_info(data_dir)
             if max_to_keep is not None:
                 max_to_keep = int(max_to_keep)
-            self._train_loop(dataflow_train, dataflow_val, weights_from,
+            self._train_loop(dataflow_train, dataflow_val, weights_from, weights_dir,
                              start_epoch, summary_every, max_to_keep=max_to_keep)
 
     def _setup_misc(self):
@@ -122,11 +122,11 @@ class SupervisedLearner(Base, BaseMixin):
         else:
             return dataflow_train, None
 
-    def _train_loop(self, dataset, dataset_val, weights_from, start_epoch, summary_every, max_to_keep=None):
+    def _train_loop(self, dataset, dataset_val, weights_from, weights_dir, start_epoch, summary_every, max_to_keep=None):
         saver = tf.train.Saver(max_to_keep=max_to_keep)
         weights_dir = "weights"
         if not os.path.exists(weights_dir):
-            os.mkdir(weights_dir)
+            tf.gfile.MakeDirs(weights_dir)
         if self.is_summary:
             training_batch_summary_op = tf.summary.merge_all(
                 key=TRAINING_BATCH_SUMMARIES)
@@ -165,6 +165,7 @@ class SupervisedLearner(Base, BaseMixin):
         self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
         self.total_network_params()
         self.write_params()
+        self.write_graph(sess.graph_def, weights_dir)
         coord = tf.train.Coordinator()
         tf.train.start_queue_runners(sess=sess, coord=coord)
         for epoch in xrange(start_epoch, self.num_epochs + 1):

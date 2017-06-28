@@ -46,7 +46,7 @@ class SupervisedLearner(Base, BaseMixin):
         super(SupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
-    def fit(self, data_set, weights_from=None, start_epoch=1, summary_every=10, num_classes=10, keep_moving_averages=False):
+    def fit(self, data_set, weights_from=None, weights_dir='weights', start_epoch=1, summary_every=10, num_classes=10, keep_moving_averages=False):
         """
         Train the model on the specified dataset
 
@@ -66,7 +66,7 @@ class SupervisedLearner(Base, BaseMixin):
                 self._setup_summaries(self.grads_and_vars)
             self._setup_misc()
             self._print_info(data_set)
-            self._train_loop(data_set, weights_from,
+            self._train_loop(data_set, weights_from, weights_dir,
                              start_epoch, summary_every)
 
     def _setup_misc(self):
@@ -79,14 +79,13 @@ class SupervisedLearner(Base, BaseMixin):
             # control_flow_ops.with_dependencies(update_ops,
             # regularized_training_loss)
 
-    def _train_loop(self, data_set, weights_from, start_epoch, summary_every):
+    def _train_loop(self, data_set, weights_from, weights_dir, start_epoch, summary_every):
         training_X, training_y, validation_X, validation_y = \
             data_set.training_X, data_set.training_y, data_set.validation_X, data_set.validation_y
         print(training_y)
         saver = tf.train.Saver(max_to_keep=None)
-        weights_dir = "weights"
         if not os.path.exists(weights_dir):
-            os.mkdir(weights_dir)
+            tf.gfile.MakeDirs(weights_dir)
         if self.is_summary:
             training_batch_summary_op = tf.summary.merge_all(
                 key=TRAINING_BATCH_SUMMARIES)
@@ -121,6 +120,7 @@ class SupervisedLearner(Base, BaseMixin):
                 data_set.training_X) // self.training_iterator.batch_size
             self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
             self.total_network_params()
+            self.write_graph(sess.graph_def, weights_dir)
             for epoch in xrange(start_epoch, self.num_epochs + 1):
                 np.random.seed(epoch + seed_delta)
                 tf.set_random_seed(epoch + seed_delta)
