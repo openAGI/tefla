@@ -164,6 +164,9 @@ def variance_scaling_initializer_v2(factor=2.0, mode='FAN_IN', uniform=False,
 
 
 def bilinear(f_shape):
+    """Bilinear initialization for up sampling operation
+
+    """
     width = f_shape[0]
     heigh = f_shape[1]
     f = math.ceil(width / 2.0)
