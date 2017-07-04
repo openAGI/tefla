@@ -365,7 +365,7 @@ class SupervisedLearner(Base, BaseMixin):
         predictions = tf.convert_to_tensor(predictions)
         predictions = tf.reshape(predictions, [-1, self.num_classes])
         for i, (_, _) in enumerate(self.validation_metrics_def):
-            validation_metric.append(sum(validation_metric_tmp[i]))
+            validation_metric.append(tf.divide(sum(validation_metric_tmp[i]), self.cnf.get('num_gpus')))
         return sum(tower_loss), predictions, validation_metric
 
     def _setup_model_loss(self, dataflow, dataflow_val=None, keep_moving_averages=False, loss_type='cross_entropy'):
