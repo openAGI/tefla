@@ -1,6 +1,6 @@
 # base mixin class for prediction
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L11 target="_blank"><b>tefla.core.prediction.PredictSessionMixin</b></a></span>  (weights_from,  gpu_memory_fraction=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L14 target="_blank"><b>tefla.core.prediction.PredictSession</b></a></span>  (weights_from,  gpu_memory_fraction=None)</span>
 
 <h3>Args</h3>
 
@@ -12,7 +12,7 @@
 
 # One crop Predictor, it predict network out put from a single crop of an input image
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L42 target="_blank"><b>tefla.core.prediction.OneCropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L46 target="_blank"><b>tefla.core.prediction.OneCropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator)</span>
 
 <h3>Args</h3>
 
@@ -27,7 +27,7 @@
 
 # Quasi transform predictor
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L82 target="_blank"><b>tefla.core.prediction.QuasiPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  number_of_transforms)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L86 target="_blank"><b>tefla.core.prediction.QuasiPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  number_of_transforms)</span>
 
 <h3>Args</h3>
 
@@ -44,7 +44,7 @@ resulted predictions are averaged over the augmentated transformation prediction
 
 # Multiples non Data augmented crops predictor
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L120 target="_blank"><b>tefla.core.prediction.CropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  im_size,  crop_size)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L124 target="_blank"><b>tefla.core.prediction.CropPredictor</b></a></span>  (model,  cnf,  weights_from,  prediction_iterator,  im_size,  crop_size)</span>
 
 <h3>Args</h3>
 
@@ -63,7 +63,7 @@ resulted predictions are averaged over the augmentated transformation prediction
 
 # Returns predcitions from multiples models
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L155 target="_blank"><b>tefla.core.prediction.EnsemblePredictor</b></a></span>  (predictors)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L159 target="_blank"><b>tefla.core.prediction.EnsemblePredictor</b></a></span>  (predictors)</span>
 
 Ensembled predictions from multiples models using ensemble type
 
@@ -78,7 +78,7 @@ Ensembled predictions from multiples models using ensemble type
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L167 target="_blank"><b>predict</b></a></span>  (X,  ensemble_type='mean')</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/prediction.py#L171 target="_blank"><b>predict</b></a></span>  (X,  ensemble_type='mean')</span>
 
 <h5>Args</h5>
 

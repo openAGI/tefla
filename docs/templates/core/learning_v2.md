@@ -26,7 +26,7 @@ e.g: total_training_samples/batch_size
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L53 target="_blank"><b>fit</b></a></span>  (data_dir,  data_dir_val=None,  features_keys=None,  weights_from=None,  start_epoch=1,  summary_every=10,  training_set_size=None,  val_set_size=None,  dataset_name='cifar10',  keep_moving_averages=False)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L53 target="_blank"><b>fit</b></a></span>  (data_dir,  data_dir_val=None,  features_keys=None,  weights_from=None,  weights_dir='weights',  max_to_keep=None,  start_epoch=1,  summary_every=10,  training_set_size=None,  val_set_size=None,  dataset_name='cifar10',  keep_moving_averages=False)</span>
 
 <h5>Args</h5>
 
