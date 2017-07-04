@@ -1,6 +1,6 @@
 # A simple class for handling data sets,
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/base.py#L16 target="_blank"><b>tefla.dataset.base.Dataset</b></a></span>  (name,  decoder,  data_dir=None,  num_classes=10,  num_examples_per_epoch=1,  batch_size=1,  items_to_descriptions=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/base.py#L18 target="_blank"><b>tefla.dataset.base.Dataset</b></a></span>  (name,  decoder,  data_dir=None,  num_classes=10,  num_examples_per_epoch=1,  batch_size=1,  items_to_descriptions=None,  **kwargs)</span>
 
 <h3>Args</h3>
 

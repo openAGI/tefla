@@ -11,9 +11,22 @@ e.g.: 6
 
  --------- 
 
+# Samplewise Standardizer
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L60 target="_blank"><b>tefla.da.standardizer.SamplewiseStandardizerTF</b></a></span>  (clip,  channel_wise=False)</span>
+
+<h3>Args</h3>
+
+
+ - **clip**: max/min allowed value in the output image
+e.g.: 6
+ - **channel_wise**: perform standarization separately accross channels
+
+ --------- 
+
 # Aggregate Standardizer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L60 target="_blank"><b>tefla.da.standardizer.AggregateStandardizer</b></a></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L88 target="_blank"><b>tefla.da.standardizer.AggregateStandardizer</b></a></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span>
 
 Creates a standardizer based on whole training dataset
 
@@ -35,7 +48,7 @@ e.g.: std is calculated for each color channel, R, G, B
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L100 target="_blank"><b>augment_color</b></a></span>  (img,  sigma=0.0,  color_vec=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L128 target="_blank"><b>augment_color</b></a></span>  (img,  sigma=0.0,  color_vec=None)</span>
 
 <h5>Args</h5>
 
@@ -48,7 +61,7 @@ e.g.: std is calculated for each color channel, R, G, B
 
 # Aggregate Standardizer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L120 target="_blank"><b>tefla.da.standardizer.AggregateStandardizerTF</b></a></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L148 target="_blank"><b>tefla.da.standardizer.AggregateStandardizerTF</b></a></span>  (mean,  std,  u,  ev,  sigma=0.0,  color_vec=None)</span>
 
 Creates a standardizer based on whole training dataset
 
@@ -70,7 +83,7 @@ e.g.: std is calculated for each color channel, R, G, B
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L160 target="_blank"><b>augment_color</b></a></span>  (img,  sigma=0.0,  color_vec=None)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/standardizer.py#L188 target="_blank"><b>augment_color</b></a></span>  (img,  sigma=0.0,  color_vec=None)</span>
 
 <h5>Args</h5>
 
