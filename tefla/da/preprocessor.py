@@ -31,13 +31,13 @@ class Preprocessor(object):
           selector as a python integer, but sel is sampled dynamically.
         """
         sel = tf.random_uniform([], maxval=num_cases, dtype=tf.int32)
-        return tf.merge([
+        return control_flow_ops.merge([
             func(control_flow_ops.switch(x, tf.equal(sel, case))[1], case)
             for case in range(num_cases)])[0]
 
     def preprocess_image(self, image, output_height, output_width, is_training,
                          resize_side_min=256,
-                         resize_side_max=512):
+                         resize_side_max=512, **kwargs):
         """Preprocesses the given image.
 
         Args:
@@ -59,10 +59,10 @@ class Preprocessor(object):
         """
         if is_training:
             return self.preprocess_for_train(image, output_height, output_width,
-                                             resize_side_min, resize_side_max)
+                                             resize_side_min=resize_side_min, resize_side_max=resize_side_max, **kwargs)
         else:
             return self.preprocess_for_eval(image, output_height, output_width,
-                                            resize_side_min)
+                                            resize_side_min=resize_side_min, **kwargs)
 
 
 class SegPreprocessor(Preprocessor):
@@ -605,9 +605,22 @@ class InceptionPreprocessor(Preprocessor):
             cropped_image = tf.slice(image, bbox_begin, bbox_size)
             return cropped_image, distort_bbox
 
-    def preprocess_for_train(self, image, height, width, bbox,
+    def random_rotate(self, image, theta=80):
+        angle = tf.random_uniform(
+            [], minval=-theta, maxval=theta, name='random_angle')
+        image = tf.contrib.image.rotate(image, angle)
+        return image
+
+    def random_translate(self, image, shift=5):
+        final_shift = tf.random_uniform(
+            [], minval=-shift, maxval=shift, name='random_translation')
+        image = tf.contrib.image.transform(
+            image, [1, 1, final_shift, 1, 1, final_shift, 0, 0])
+        return image
+
+    def preprocess_for_train(self, image, height, width, bbox=None,
                              fast_mode=True,
-                             scope=None):
+                             scope=None, **kwargs):
         """Distort one image for training a network.
 
         Distorting images provides a useful technique for augmenting the data
@@ -655,17 +668,20 @@ class InceptionPreprocessor(Preprocessor):
                 num_cases=num_resize_cases)
 
             distorted_image = tf.image.random_flip_left_right(distorted_image)
+            distorted_image = tf.image.random_flip_up_down(distorted_image)
+            distorted_image = self.random_rotate(distorted_image)
+            # distorted_image = self.random_translate(distorted_image)
             distorted_image = self.apply_with_random_selector(
                 distorted_image,
-                lambda x, ordering: distort_color(x, ordering, fast_mode),
+                lambda x, ordering: self.distort_color(x, ordering, fast_mode),
                 num_cases=4)
 
             distorted_image = tf.subtract(distorted_image, 0.5)
             distorted_image = tf.multiply(distorted_image, 2.0)
             return distorted_image
 
-    def preprocess_for_eval(image, height, width,
-                            central_fraction=0.875, scope=None):
+    def preprocess_for_eval(self, image, height, width,
+                            central_fraction=0.875, scope=None, **kwargs):
         """Prepare one image for evaluation.
 
         If height and width are specified it would output an image with that size by
@@ -687,8 +703,7 @@ class InceptionPreprocessor(Preprocessor):
           3-D float Tensor of prepared image.
         """
         with tf.name_scope(scope, 'eval_image', [image, height, width]):
-            if image.dtype != tf.float32:
-                image = tf.image.convert_image_dtype(image, dtype=tf.float32)
+            image = tf.image.convert_image_dtype(image, dtype=tf.float32)
             if central_fraction:
                 image = tf.image.central_crop(
                     image, central_fraction=central_fraction)
