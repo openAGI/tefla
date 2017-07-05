@@ -51,7 +51,7 @@ class Dataflow(object):
         self._validate_items(items, valid_items)
         return [outputs[item] for item in items]
 
-    def get_batch(self, batch_size, target_probs, image_size, resize_size=None,  crop_size=[32, 32, 3], init_probs=None, enqueue_many=True, queue_capacity=2048, threads_per_queue=1, name='balancing_op'):
+    def get_batch(self, batch_size, target_probs, image_size, resize_size=None,  crop_size=[32, 32, 3], image_preprocessing=None, num_preprocess_threads=32, init_probs=None, enqueue_many=True, queue_capacity=2048, threads_per_queue=4, name='balancing_op'):
         """ Get a batch of examplea from the dataset
 
         Stochastically creates batches based on per-class probabilities.
@@ -75,7 +75,7 @@ class Dataflow(object):
         """
         if enqueue_many:
             image, label = self.batch_inputs(batch_size, True, image_size, crop_size,
-                                             im_size=resize_size, bbox=None, image_preprocessing=None, num_preprocess_threads=4)
+                                             im_size=resize_size, bbox=None, image_preprocessing=image_preprocessing, num_preprocess_threads=num_preprocess_threads)
         else:
             image, label = self.get(['image', 'label'], image_size, resize_size)
         [data_batch], label_batch = balanced_sample([image], label, target_probs, batch_size, init_probs=init_probs,
@@ -114,7 +114,7 @@ class Dataflow(object):
                     ['image', 'label'], tfrecords_image_size, im_size)
                 if image_preprocessing is not None:
                     image = image_preprocessing(
-                        image, train, crop_size, im_size, thread_id, bbox)
+                        image, crop_size[0], crop_size[1], train, bbox=bbox)
                 images_and_labels.append([image, label])
             images, label_index_batch = tf.train.batch_join(images_and_labels, batch_size=batch_size,
                                                             capacity=2 * num_preprocess_threads * batch_size)
