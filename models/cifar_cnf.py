@@ -18,6 +18,7 @@ cnf = {
     'crop_size': (28, 28),
     'tfrecords_im_size': (32, 32, 3),
     'num_gpus': 1,
+    'init_probs': [0.1, 0.1, 0.1, 0.1, 0.2, 0.05, 0.05, 0.1, 0.1, 0.1],
     'TOWER_NAME': 'tower',
     'standardizer': SamplewiseStandardizer(clip=6),
     # 'balance_weights' via data_set
