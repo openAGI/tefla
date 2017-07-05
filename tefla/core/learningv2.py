@@ -166,7 +166,7 @@ class SupervisedLearner(Base, BaseMixin):
         current_probs = np.array([1 / float(self.num_classes)
                                   for _ in range(0, self.num_classes)])
         print(current_probs.shape)
-        diff_probs = self._get_diff_prob()
+        diff_probs = self._get_diff_prob(current_probs)
         batch_iter_idx = 1
         n_iters_per_epoch = dataset.n_iters_per_epoch
         self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
@@ -327,12 +327,16 @@ class SupervisedLearner(Base, BaseMixin):
         coord.request_stop()
         coord.join(stop_grace_period_secs=0.05)
 
-    def _get_diff_prob(self):
+    def _get_diff_prob(self, target_probs):
         init_probs = np.array(self.cnf['init_probs'])
-        target_probs = np.array([1 / float(self.num_classes)
-                                 for _ in range(0, self.num_classes)])
         diff_probs = (init_probs - target_probs) / float(self.cnf['num_epochs'])
         return diff_probs
+
+    def _adjust_ground_truth(self, labels):
+        if self.loss_type == 'kappa_log':
+            return tf.to_float(tf.one_hot(labels, self.num_classes))
+        else:
+            return labels if self.classification else tf.reshape(labels, shape=(-1, 1))
 
     def _process_towers_grads(self, dataset, opt, model, is_training=True, reuse=None, loss_type='cross_entropy', is_classification=True):
         tower_grads = []
@@ -377,6 +381,8 @@ class SupervisedLearner(Base, BaseMixin):
                         scope, model, images, labels, is_training=is_training, reuse=reuse, is_classification=is_classification, loss_type=loss_type)
                     tower_loss.append(loss_pred['loss'])
                     predictions.append(loss_pred['predictions'])
+                    if self.loss_type == 'kappa_log':
+                        labels = tf.argmax(labels, axis=1)
                     for i, (_, metric_function) in enumerate(self.validation_metrics_def):
                         metric_score = metric_function(
                             labels, tf.argmax(loss_pred['predictions'], 1))
