@@ -16,6 +16,7 @@ from ..da.data_augmentation import inputs, distorted_inputs
 from ..dataset.base import Dataset
 from ..dataset.decoder import Decoder
 from ..dataset.dataflow import Dataflow
+from ..da.preprocessor import InceptionPreprocessor
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -74,6 +75,7 @@ class SupervisedLearner(Base, BaseMixin):
                 of summary writing
             keep_moving_averages: a bool, keep moving averages of trainable variables
         """
+        tf.reset_default_graph()
         with tf.Graph().as_default():
             dataflow_train, dataflow_val = self._data_ops(
                 data_dir, data_dir_val, features_keys=features_keys, training_set_size=training_set_size, val_set_size=val_set_size, dataset_name=dataset_name)
@@ -98,6 +100,7 @@ class SupervisedLearner(Base, BaseMixin):
 
     def _data_ops(self, data_dir, data_dir_val, features_keys=None, training_set_size=50000, val_set_size=10000, dataset_name='datarandom'):
         num_readers = self.cnf.get('num_readers', 8)
+        self.preprocessor = InceptionPreprocessor()
         if features_keys is None:
             features_keys = {
                 'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),
@@ -160,6 +163,10 @@ class SupervisedLearner(Base, BaseMixin):
 
         seed_delta = 100
         training_history = []
+        current_probs = np.array([1 / float(self.num_classes)
+                                  for _ in range(0, self.num_classes)])
+        print(current_probs.shape)
+        diff_probs = self._get_diff_prob()
         batch_iter_idx = 1
         n_iters_per_epoch = dataset.n_iters_per_epoch
         self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
@@ -176,7 +183,8 @@ class SupervisedLearner(Base, BaseMixin):
             batch_train_sizes = []
 
             for batch_num in xrange(1, n_iters_per_epoch + 1):
-                feed_dict_train = {self.learning_rate: learning_rate_value}
+                feed_dict_train = {
+                    self.learning_rate: learning_rate_value, self.target_probs: list(current_probs)}
 
                 log.debug('1. Loading batch %d data done.' % batch_num)
                 if epoch % summary_every == 0 and self.is_summary:
@@ -214,6 +222,8 @@ class SupervisedLearner(Base, BaseMixin):
                 batch_iter_idx += 1
                 log.debug('4. Training batch %d done.' % batch_num)
 
+            current_probs += diff_probs
+            log.debug('The value of current_probs {}'.format(current_probs))
             epoch_training_loss = np.average(
                 training_losses, weights=batch_train_sizes)
             print("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" %
@@ -317,15 +327,24 @@ class SupervisedLearner(Base, BaseMixin):
         coord.request_stop()
         coord.join(stop_grace_period_secs=0.05)
 
+    def _get_diff_prob(self):
+        init_probs = np.array(self.cnf['init_probs'])
+        target_probs = np.array([1 / float(self.num_classes)
+                                 for _ in range(0, self.num_classes)])
+        diff_probs = (init_probs - target_probs) / float(self.cnf['num_epochs'])
+        return diff_probs
+
     def _process_towers_grads(self, dataset, opt, model, is_training=True, reuse=None, loss_type='cross_entropy', is_classification=True):
         tower_grads = []
         tower_loss = []
+        self.target_probs = tf.placeholder_with_default(tf.convert_to_tensor([1 / float(self.num_classes) for _ in range(0, self.num_classes)]),
+                                                        shape=[self.num_classes, ], name="target_probs")
         with tf.variable_scope(tf.get_variable_scope()):
             for i in xrange(self.cnf.get('num_gpus', 1)):
                 with tf.device('/gpu:%d' % i):
                     with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
                         images, labels = distorted_inputs(dataset, self.cnf['tfrecords_im_size'], self.cnf.get(
-                            'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8)
+                            'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8, target_probs=self.target_probs, init_probs=tf.convert_to_tensor(self.cnf['init_probs']), image_preprocessing=self.preprocessor.preprocess_image)
                         labels = self._adjust_ground_truth(labels)
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
                                                 reuse=i > 0, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
@@ -352,7 +371,7 @@ class SupervisedLearner(Base, BaseMixin):
             with tf.device('/gpu:%d' % i):
                 with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
                     images, labels = inputs(dataset, self.cnf['tfrecords_im_size'], self.cnf.get(
-                        'crop_size'), batch_size=self.cnf['batch_size_test'], num_preprocess_threads=32, num_readers=8)
+                        'crop_size'), batch_size=self.cnf['batch_size_test'], num_preprocess_threads=32, num_readers=8, image_preprocessing=self.preprocessor.preprocess_image)
                     labels = self._adjust_ground_truth(labels)
                     loss_pred = self._tower_loss(
                         scope, model, images, labels, is_training=is_training, reuse=reuse, is_classification=is_classification, loss_type=loss_type)
@@ -365,7 +384,8 @@ class SupervisedLearner(Base, BaseMixin):
         predictions = tf.convert_to_tensor(predictions)
         predictions = tf.reshape(predictions, [-1, self.num_classes])
         for i, (_, _) in enumerate(self.validation_metrics_def):
-            validation_metric.append(tf.divide(sum(validation_metric_tmp[i]), self.cnf.get('num_gpus')))
+            validation_metric.append(
+                tf.divide(sum(validation_metric_tmp[i]), self.cnf.get('num_gpus')))
         return sum(tower_loss), predictions, validation_metric
 
     def _setup_model_loss(self, dataflow, dataflow_val=None, keep_moving_averages=False, loss_type='cross_entropy'):
