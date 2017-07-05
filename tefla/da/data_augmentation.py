@@ -29,9 +29,10 @@ import numpy as np
 import random
 import scipy.ndimage
 import tensorflow as tf
+from ..core import logger as log
 
 
-def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1):
+def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1, image_preprocessing=None):
     """Generate batches of ImageNet images for evaluation.
 
     Args:
@@ -51,7 +52,7 @@ def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=N
     return images, labels
 
 
-def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1):
+def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1, target_probs=None, init_probs=None, image_preprocessing=None):
     """Generate batches of distorted versions of Training images.
 
     Args:
@@ -65,8 +66,8 @@ def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, ba
         labels: 1-D integer Tensor of [cfg.TRAIN.batch_size].
     """
     with tf.device('/cpu:0'):
-        images, labels = dataflow.batch_inputs(batch_size, True, tfrecords_image_size, crop_size,
-                                               im_size=im_size, num_preprocess_threads=num_preprocess_threads, image_preprocessing=image_preprocessing)
+        images, labels = dataflow.get_batch(batch_size, target_probs, tfrecords_image_size, crop_size=crop_size,
+                                            resize_size=im_size, num_preprocess_threads=num_preprocess_threads, image_preprocessing=image_preprocessing, init_probs=init_probs)
     return images, labels
 
 
@@ -250,8 +251,10 @@ def distort_image(image, crop_size, im_size=None, thread_id=0, scope=None):
             if not isinstance(im_size, tf.Tensor):
                 im_size = tf.convert_to_tensor(im_size)
             resize_method = thread_id % 4
+            image = tf.expand_dims(image, axis=0)
             image = tf.image.resize_images(
                 image, im_size, resize_method)
+            image = tf.squeeze(image)
 
         distorted_image = tf.random_crop(
             image, [crop_size[0], crop_size[1], 3], 12345)
@@ -284,8 +287,10 @@ def eval_image(image, crop_size, im_size=None, thread_id=0, scope=None):
             if not isinstance(im_size, tf.Tensor):
                 im_size = tf.convert_to_tensor(im_size)
             resize_method = thread_id % 4
+            image = tf.expand_dims(image, axis=0)
             image = tf.image.resize_images(
                 image, im_size, resize_method)
+            image = tf.squeeze(image)
         image = tf.image.central_crop(image, central_fraction=0.875)
 
         if isinstance(crop_size, int):
