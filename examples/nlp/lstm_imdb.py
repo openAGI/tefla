@@ -42,6 +42,8 @@ def main():
                        testX, testY)
     training_cnf = {
         'classification': True,
+        'batch_size_train': 32,
+        'batch_size_test': 32,
         'validation_scores': [('validation accuracy', util.accuracy_tf)],
         'num_epochs': 50,
         'input_size': (100, ),
