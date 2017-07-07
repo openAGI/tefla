@@ -26,7 +26,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 class Base(object):
 
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(128, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=1, loss_type='softmax_cross_entropy', label_smoothing=0.009, model_name='graph.pbtxt'):
+                 validation_iterator=BatchIterator(32, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=1, loss_type='softmax_cross_entropy', label_smoothing=0.009, model_name='graph.pbtxt'):
         self.model = model
         self.model_name = model_name
         self.cnf = cnf
@@ -164,25 +164,25 @@ class Base(object):
         return variables_averages_op
 
     def _tensors_in_checkpoint_file(self, file_name, tensor_name=None, all_tensors=True):
-        list_variables = []
         try:
             reader = tf.train.NewCheckpointReader(file_name)
             if all_tensors:
                 var_to_shape_map = reader.get_variable_to_shape_map()
-                for key in var_to_shape_map:
-                    list_variables.append(key)
+                list_variables = var_to_shape_map.keys()
             else:
-                list_variables.append(tensor_name)
+                list_variables = [tensor_name]
         except Exception as e:  # pylint: disable=broad-except
-            print(str(e))
             if "corrupted compressed block contents" in str(e):
-                print(
+                log.debug(
                     "It's likely that your checkpoint file has been compressed with SNAPPY.")
         return list_variables
 
-    def _load_weights(self, sess, weights_from):
+    def _load_weights(self, sess, saver, weights_from):
         log.info("Loading session/weights from %s..." % weights_from)
-        if weights_from:
+        try:
+            saver.restore(sess, weights_from)
+        except Exception as e:
+            log.info("Partial restoring session.")
             try:
                 names_to_restore = self._tensors_in_checkpoint_file(
                     weights_from)
@@ -193,19 +193,23 @@ class Base(object):
                             0]
                         variables_to_restore.append(temp)
                     except Exception:
-                        print(v_name)
                         log.info(
-                            "Unable to get corect variables Error: %s.")
+                            'Variable %s doesnt exist in new model' % v_name)
+                for var in variables_to_restore:
+                    log.info("Loading: %s %s)" %
+                             (var.name, var.get_shape()))
+                    restorer = tf.train.Saver([var])
+                    try:
+                        restorer.restore(sess, weights_from)
+                    except Exception as e:
+                        log.info("Problem loading: %s -- %s" %
+                                 (var.name, e.message))
                         continue
-                new_saver = tf.train.Saver(variables_to_restore)
-                new_saver.restore(sess, weights_from)
-                print("Loaded weights from %s" % weights_from)
+                log.info("Loaded weights from %s" % weights_from)
             except ValueError:
                 log.debug(
                     "Couldn't load weights from %s; starting from scratch" % weights_from)
                 sess.run(tf.global_variables_initializer())
-        else:
-            sess.run(tf.global_variables_initializer())
 
     def _print_layer_shapes(self, end_points, log):
         log.info("\nModel layer output shapes:")
