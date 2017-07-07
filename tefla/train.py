@@ -10,7 +10,7 @@ tf.set_random_seed(127)
 
 from tefla.core.dir_dataset import DataSet
 from tefla.core.iter_ops import create_training_iters
-from tefla.core.training import SupervisedTrainer
+from tefla.core.learning import SupervisedLearner
 from tefla.da.standardizer import NoOpStandardizer
 from tefla.utils import util
 import logging
@@ -56,10 +56,10 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
 
     training_iter, validation_iter = create_training_iters(
         cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=parallel)
-    trainer = SupervisedTrainer(model, cnf, training_iter, validation_iter, resume_lr=resume_lr, classification=cnf[
+    learner = SupervisedLearner(model, cnf, training_iterator=training_iter, validation_iterator=validation_iter, resume_lr=resume_lr, classification=cnf[
                                 'classification'], gpu_memory_fraction=gpu_memory_fraction, num_classes=num_classes, is_summary=is_summary, loss_type=loss_type)
-    trainer.fit(data_set, weights_from, start_epoch,
-                verbose=1, weights_dir=weights_dir, summary_every=399)
+    learner.fit(data_set, weights_from, start_epoch=start_epoch,
+                weights_dir=weights_dir, summary_every=399)
 
 
 if __name__ == '__main__':
