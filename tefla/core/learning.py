@@ -82,7 +82,6 @@ class SupervisedLearner(Base, BaseMixin):
     def _train_loop(self, data_set, weights_from, weights_dir, start_epoch, summary_every):
         training_X, training_y, validation_X, validation_y = \
             data_set.training_X, data_set.training_y, data_set.validation_X, data_set.validation_y
-        print(training_y)
         saver = tf.train.Saver(max_to_keep=None)
         if not os.path.exists(weights_dir):
             tf.gfile.MakeDirs(weights_dir)
