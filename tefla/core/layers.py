@@ -4,6 +4,7 @@ from collections import namedtuple
 
 import numpy as np
 import six
+import numbers
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import math_ops
@@ -2041,7 +2042,6 @@ def relu(x, name='relu', outputs_collections=None, **unused):
 
     Args:
         x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
-        aplha: the conatant fro scalling the activation
         name: a optional scope/name of the layer
         outputs_collections: The collections to which the outputs are added.
 
@@ -2143,6 +2143,89 @@ def softmax(x, name='softmax', outputs_collections=None, **unused):
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def selu(x, alpha=None, scale=None, name='selu', outputs_collections=None, **unused):
+    """
+    Computes selu
+
+    Args:
+        x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+        alpha: float, selu parameters calculated from fixed points
+        scale: float, selu parameters calculated from fixed points
+        name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A `Tensor` representing the results of the selu activation operation.
+    """
+    _check_unused(unused, name)
+    with tf.name_scope(name):
+        if None in (alpha, scale):
+            # using parameters from 0 mean, unit variance points
+            alpha = 1.6732632423543772848170429916717
+            scale = 1.0507009873554804934193349852946
+        output = scale * tf.where(x >= 0.0, x, alpha * tf.nn.elu(x))
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
+def dropout_selu(x, is_training, drop_p=0.2, alpha=-1.7580993408473766, fixedPointMean=0.0, fixedPointVar=1.0,
+                 noise_shape=None, seed=None, name='dropout_selu', outputs_collections=None, **unused):
+    """
+    Dropout layer for self normalizing networks
+    Args:
+        x: a `Tensor`.
+        is_training: a bool, training or validation
+        drop_p: probability of droping unit
+        fixedPointsMean: float, the mean used to calculate the selu parameters
+        fixedPointsVar: float, the Variance used to calculate the selu parameters
+        alpha: float, product of the two selu parameters
+        name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A `Tensor` representing the results of the dropout operation.
+    """
+    _check_unused(unused, name)
+
+    def dropout_selu_impl(x, drop_p, alpha, noise_shape, seed, name):
+        keep_prob = 1.0 - drop_p
+        if isinstance(keep_prob, numbers.Real) and not 0 < keep_prob <= 1:
+            raise ValueError("keep_prob must be a scalar tensor or a float in the "
+                             "range (0, 1], got %g" % keep_prob)
+        keep_prob = tf.convert_to_tensor(
+            keep_prob, dtype=x.dtype, name="keep_prob")
+        keep_prob.get_shape().assert_has_rank(0)
+
+        alpha = tf.convert_to_tensor(alpha, dtype=x.dtype, name="alpha")
+        alpha.get_shape().assert_has_rank(0)
+
+        if tf.contrib.util.constant_value(keep_prob) == 1:
+            return x
+
+        noise_shape = noise_shape if noise_shape is not None else x.get_shape().as_list()
+        random_tensor = keep_prob
+        random_tensor += tf.random_uniform(noise_shape,
+                                           seed=seed, dtype=x.dtype)
+        binary_tensor = tf.floor(random_tensor)
+        ret = x * binary_tensor + alpha * (1 - binary_tensor)
+
+        a = tf.sqrt(fixedPointVar / (keep_prob * ((1 - keep_prob) *
+                                                  math_ops.pow(alpha - fixedPointMean, 2) + fixedPointVar)))
+
+        b = fixedPointMean - a * \
+            (keep_prob * fixedPointMean + (1 - keep_prob) * alpha)
+        ret = a * ret + b
+        ret.set_shape(x.get_shape())
+        return ret
+
+    with tf.name_scope(name, [x]):
+        if is_training:
+            output = dropout_selu_impl(
+                x, drop_p, alpha, noise_shape, seed, name)
+        else:
+            output = x
+        return _collect_named_outputs(outputs_collections, name, output)
+
+
 def sample_gumbel(shape, eps=1e-20):
     """Sample from Gumbel(0, 1)"""
     U = tf.random_uniform(shape, minval=0, maxval=1)
@@ -2216,9 +2299,9 @@ def dropout(x, is_training, drop_p=0.5, seed=None, name='dropout', outputs_colle
         keep_p = 1. - drop_p
         if is_training:
             output = tf.nn.dropout(x, keep_p, seed=seed)
-            return _collect_named_outputs(outputs_collections, name, output)
         else:
-            return _collect_named_outputs(outputs_collections, name, x)
+            output = x
+        return _collect_named_outputs(outputs_collections, name, output)
 
 
 def _flatten(x, name='flatten'):
