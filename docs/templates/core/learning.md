@@ -26,7 +26,7 @@ e.g: total_training_samples/batch_size
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L49 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  weights_dir='weights',  start_epoch=1,  summary_every=10,  num_classes=10,  keep_moving_averages=False)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L49 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  weights_dir='weights',  start_epoch=1,  summary_every=10,  keep_moving_averages=False)</span>
 
 <h5>Args</h5>
 
