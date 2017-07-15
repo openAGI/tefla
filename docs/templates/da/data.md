@@ -348,7 +348,7 @@ PIL formatted image
 
 # Load batch of images
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L480 target="_blank"><b>tefla.da.data.load_images</b></a></span>  (imgs,  preprocessor=<function  image_no_preprocessing  at  0x7f4c7d27bed8>)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L480 target="_blank"><b>tefla.da.data.load_images</b></a></span>  (imgs,  preprocessor=<function  image_no_preprocessing  at  0x7fd41c23bed8>)</span>
 
 <h3>Args</h3>
 
@@ -365,7 +365,7 @@ a `ndarray` with a batch of images
 
 # Load image
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L494 target="_blank"><b>tefla.da.data.load_image</b></a></span>  (img,  preprocessor=<function  image_no_preprocessing  at  0x7f4c7d27bed8>)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/da/data.py#L494 target="_blank"><b>tefla.da.data.load_image</b></a></span>  (img,  preprocessor=<function  image_no_preprocessing  at  0x7fd41c23bed8>)</span>
 
 <h3>Args</h3>
 
