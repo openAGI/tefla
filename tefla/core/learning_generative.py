@@ -290,7 +290,7 @@ class GenerativeLearner(Base):
         kl_loss = tf.reduce_mean(-end_points_E['e_logits2'] + .5 * (-1 + tf.exp(
             2. * end_points_E['e_logits2']) + tf.square(end_points_E['e_logits1'])))
 
-        d_label_smooth = self.cnf.get('d_label_smooth',  0.25)
+        d_label_smooth = self.cnf.get('d_label_smooth',  0.05)
         d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
             logits=end_points_D_IMG['logits'], labels=tf.ones_like(end_points_D_IMG['logits']) - d_label_smooth))
         d_loss_fake = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(

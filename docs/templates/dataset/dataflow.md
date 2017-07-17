@@ -59,7 +59,7 @@ e.g.: [width, height]
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L54 target="_blank"><b>get_batch</b></a></span>  (batch_size,  target_probs,  image_size,  resize_size=None,  crop_size=[32,  32,  3],  init_probs=None,  enqueue_many=True,  queue_capacity=2048,  threads_per_queue=1,  name='balancing_op')</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/dataflow.py#L54 target="_blank"><b>get_batch</b></a></span>  (batch_size,  target_probs,  image_size,  resize_size=None,  crop_size=[32,  32,  3],  image_preprocessing=None,  num_preprocess_threads=32,  init_probs=None,  enqueue_many=True,  queue_capacity=2048,  threads_per_queue=4,  name='balancing_op')</span>
 
 Stochastically creates batches based on per-class probabilities.
 This method discards examples. Internally, it creates one queue to
