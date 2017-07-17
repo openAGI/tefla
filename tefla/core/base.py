@@ -15,6 +15,7 @@ from .losses import kappa_log_loss_clipped, segment_loss, dice_loss
 from . import summary
 from . import logger as log
 import tensorflow as tf
+from tensorflow.python.framework import function
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -326,6 +327,45 @@ class Base(object):
                                         key], dtype=grad.dtype)
             multiplied_grads_and_vars.append((grad, var))
         return multiplied_grads_and_vars
+
+    def _scale_gradient(self, layer_grad, scale, name="scale_gradient"):
+        """Scales gradients for the backwards pass.
+        This might be used to, for example, allow one part of a model to learn at a
+        lower rate than the rest.
+        WARNING: Think carefully about how your optimizer works. If, for example, you
+        use rmsprop, the gradient is always rescaled (with some additional epsilon)
+        towards unity. This means `scale_gradient` won't have the effect of
+        lowering the learning rate.
+        If `scale` is `0.0`, this op reduces to `tf.stop_gradient`. If `scale`
+        is `1.0`, this op reduces to `tf.identity`.
+
+        Args:
+          layer_grad: A `tf.Tensor`.
+          scale: The scale factor for the gradient on the backwards pass.
+          name: A name for the operation (optional).
+
+        Returns:
+          A `tf.Tensor` with the same type as the input tensor.
+        """
+        if scale == 0.0:
+            return tf.stop_gradient(layer_grad, name=name)
+        elif scale == 1.0:
+            return tf.identity(layer_grad, name=name)
+        else:
+            scale_tensor = tf.convert_to_tensor(scale)
+
+            @function.Defun(tf.float32, tf.float32,
+                            python_grad_func=lambda op, g: (
+                                g * op.inputs[1], None),
+                            func_name="ScaleGradient")
+            def gradient_scaler(x, unused_scale):
+                return x
+
+            output = gradient_scaler(
+                layer_grad, scale_tensor, name=name)
+            output.set_shape(net.get_shape())
+
+        return output
 
     def _add_scaled_noise_to_gradients(self, grads_and_vars, gradient_noise_scale=10.0):
         """Adds scaled noise from a 0-mean normal distribution to gradients
