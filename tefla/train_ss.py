@@ -35,15 +35,15 @@ import logging
               help='Path to initial weights file.')
 @click.option('--is_summary', default=False, show_default=True,
               help='Path to initial weights file.')
+@click.option('--log_file_name', default='train_ss.log', show_default=True,
+              help='Log file name.')
 @click.option('--num_classes', default=6, show_default=True,
               help='Number of classes to train the model.')
-def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, resume_lr, gpu_memory_fraction, is_summary, num_classes):
+def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, resume_lr, gpu_memory_fraction, is_summary, num_classes, log_file_name):
     model_def = util.load_module(model)
     model = model_def
     cnf = util.load_module(training_cnf).cnf
 
-    util.init_logging('train_ss.log', file_log_level=logging.INFO,
-                      console_log_level=logging.INFO)
     if weights_from:
         weights_from = str(weights_from)
 
@@ -53,7 +53,7 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, res
     training_iter, validation_iter = create_training_iters(
         cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=parallel)
     trainer = SemiSupervisedTrainer(model, cnf, training_iterator=training_iter, validation_iterator=validation_iter, resume_lr=resume_lr, classification=cnf[
-        'classification'], gpu_memory_fraction=gpu_memory_fraction, is_summary=is_summary, verbosity=2)
+        'classification'], gpu_memory_fraction=gpu_memory_fraction, is_summary=is_summary, verbosity=1, log_file_name=log_file_name)
     trainer.fit(data_set, num_classes, weights_from,
                 start_epoch, summary_every=399)
 
