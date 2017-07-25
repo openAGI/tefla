@@ -204,6 +204,60 @@ class SegPreprocessor(Preprocessor):
             return self.preprocess_for_eval(image, label, output_height, output_width, standardizer=standardizer)
 
 
+class ImagenetPreprocessor(Preprocessor, VggPreprocessor):
+
+    def random_flip_left_right(self, image, im_shape=(512, 512, 3), seed=1234):
+        """Randomly mirrors the images.
+
+        Args:
+          img: Training image to mirror.
+          label: Segmentation mask to mirror.
+        """
+        uniform_random = tf.random_uniform([], 0, 1.0, seed=seed)
+        mirror_cond = tf.less(uniform_random, .5)
+        image = tf.cond(mirror_cond, lambda: tf.reverse(
+            image, [1]), lambda: image)
+        return image
+
+    def random_flip_up_down(self, image, im_shape=(512, 512, 3), seed=1234):
+        """Randomly flip up/down the images.
+
+        Args:
+          img: Training image to mirror.
+          label: Segmentation mask to mirror.
+        """
+        uniform_random = tf.random_uniform([], 0, 1.0, seed=seed)
+        mirror_cond = tf.less(uniform_random, .5)
+        image = tf.cond(mirror_cond, lambda: tf.reverse(
+            image, [0]), lambda: image)
+        return image
+
+    def preprocess_for_train(self, image, output_height, output_width, resize_side_min=256, resize_side_max=512, standardizer=None):
+        resize_side = tf.random_uniform(
+            [], minval=resize_side_min, maxval=resize_side_max + 1, dtype=tf.int32)
+
+        image = self._aspect_preserving_resize(image, resize_side)
+        image = self._random_crop([image], output_height, output_width)[0]
+        image = self.random_flip_left_right(image)
+        image = self.random_flip_up_down(image)
+        image = tf.image.resize_images(
+            image, [output_height, output_width], method=0)
+        if standardizer is None:
+            image = tf.image.per_image_standardization(image)
+        else:
+            image = standardizer(image, True)
+        return image
+
+    def preprocess_for_eval(self, image, output_height, output_width, standardizer=None):
+        image = tf.image.resize_images(
+            image, [output_height, output_width], method=0)
+        if standardizer is None:
+            image = tf.image.per_image_standardization(image)
+        else:
+            image = standardizer(image, False)
+        return image
+
+
 class VggPreprocessor(Preprocessor):
 
     def __init__(self):

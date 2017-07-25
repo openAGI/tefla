@@ -40,13 +40,15 @@ class Decoder(object):
                 text: Tensor tf.string containing the human-readable label.
         """
 
-        features = tf.parse_single_example(example_serialized, self._feature_keys)
+        features = tf.parse_single_example(
+            example_serialized, self._feature_keys)
         outputs = dict()
         for feature in self._feature_names:
             f_type = feature.split('/')[-1]
             if f_type == 'image':
                 out = self._decode_feature(f_type, features[feature])
-                out = self._process_raw_image(out, image_size, resize_size=resize_size)
+                out = self._process_raw_image(
+                    out, image_size, resize_size=resize_size)
             elif f_type in ['format', 'text', 'colorspace', 'filename']:
                 out = tf.convert_to_tensor(features[feature], dtype=tf.string)
             else:
@@ -118,7 +120,8 @@ class Decoder(object):
 
             # Resize the image to the original height and width.
             image = tf.expand_dims(image, 0)
-            image = tf.image.resize_bilinear(image, [height, width], align_corners=False)
+            image = tf.image.resize_bilinear(
+                image, [height, width], align_corners=False)
             image = tf.squeeze(image, [0])
             return image
 
@@ -126,7 +129,8 @@ class Decoder(object):
         with tf.name_scope('process_raw_image'):
             image = tf.reshape(image, shape=im_size)
             if resize_size is not None:
-                image = tf.image.resize_bilinear(image, resize_size, align_corners=False)
+                image = tf.image.resize_bilinear(
+                    image, resize_size, align_corners=False)
             return image
 
     # TODO Mainly useful for ImageNet Dataset
@@ -189,7 +193,7 @@ class Decoder(object):
             xmax = tf.expand_dims(features['image/object/bbox/xmax'].values, 0)
             ymax = tf.expand_dims(features['image/object/bbox/ymax'].values, 0)
 
-            bbox = tf.concat(0, [ymin, xmin, ymax, xmax])
+            bbox = tf.concat([ymin, xmin, ymax, xmax], 0)
 
             # Force the variable number of bounding boxes into the shape
             # [1, num_boxes, coords].
@@ -211,16 +215,19 @@ class ImageCoder(object):
         # Initializes function that converts PNG to JPEG data.
         self._png_data = tf.placeholder(dtype=tf.string)
         image = tf.image.decode_png(self._png_data, channels=3)
-        self._png_to_jpeg = tf.image.encode_jpeg(image, format='rgb', quality=100)
+        self._png_to_jpeg = tf.image.encode_jpeg(
+            image, format='rgb', quality=100)
 
         # Initializes function that converts CMYK JPEG data to RGB JPEG data.
         self._cmyk_data = tf.placeholder(dtype=tf.string)
         image = tf.image.decode_jpeg(self._cmyk_data, channels=0)
-        self._cmyk_to_rgb = tf.image.encode_jpeg(image, format='rgb', quality=100)
+        self._cmyk_to_rgb = tf.image.encode_jpeg(
+            image, format='rgb', quality=100)
 
         # Initializes function that decodes RGB JPEG data.
         self._decode_jpeg_data = tf.placeholder(dtype=tf.string)
-        self._decode_jpeg = tf.image.decode_jpeg(self._decode_jpeg_data, channels=3)
+        self._decode_jpeg = tf.image.decode_jpeg(
+            self._decode_jpeg_data, channels=3)
 
     def png_to_jpeg(self, image_data):
         """Convert png image to jpeg images
@@ -253,7 +260,8 @@ class ImageCoder(object):
         Returns:
             decoded image
         """
-        image = self._sess.run(self._decode_jpeg, feed_dict={self._decode_jpeg_data: image_data})
+        image = self._sess.run(self._decode_jpeg, feed_dict={
+                               self._decode_jpeg_data: image_data})
         assert len(image.shape) == 3
         assert image.shape[2] == 3
         return image
