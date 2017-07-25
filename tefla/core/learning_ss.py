@@ -104,7 +104,7 @@ class SemiSupervisedTrainer(Base):
                 start_epoch - 1)
 
         if weights_from:
-            _load_weights(sess, saver, weights_from)
+            self._load_weights(sess, saver, weights_from)
 
         learning_rate_value = self.lr_policy.initial_lr
         log.info("Initial learning rate: %f " % learning_rate_value)
@@ -142,7 +142,7 @@ class SemiSupervisedTrainer(Base):
                     train_writer.flush()
                     log.debug(
                         '2. Running training steps with summary done.')
-                    log.debug("Epoch %d, Batch %d D_loss_real: %s, D_loss_fake: %s,D_loss_class: %s, G_loss: %s" % (
+                    log.info("Epoch %d, Batch %d D_loss_real: %s, D_loss_fake: %s,D_loss_class: %s, G_loss: %s" % (
                         epoch, batch_num, _d_loss_real, _d_loss_fake, _d_loss_class, _g_loss))
                 else:
                     log.debug(
@@ -168,8 +168,6 @@ class SemiSupervisedTrainer(Base):
                 g_train_losses, weights=batch_train_sizes)
             log.info("Epoch %d, D_avg_loss: %s, G_avg_loss %s" %
                      (epoch, d_avg_loss, g_avg_loss))
-            print("Epoch %d, D_avg_loss: %s, G_avg_loss %s" %
-                  (epoch, d_avg_loss, g_avg_loss))
             # Plot training loss every epoch
             log.debug('5. Writing epoch summary...')
             if self.is_summary:
@@ -244,13 +242,6 @@ class SemiSupervisedTrainer(Base):
                  epoch_validation_loss,
                  custom_metrics_string)
             )
-            print(
-                "Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
-                (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - tic,
-                 d_avg_loss,
-                 epoch_validation_loss,
-                 custom_metrics_string)
-            )
             epoch_info = dict(
                 epoch=epoch,
                 training_loss=d_avg_loss,
@@ -262,6 +253,7 @@ class SemiSupervisedTrainer(Base):
 
             learning_rate_value = self.lr_policy.epoch_update(
                 learning_rate_value, training_history)
+            log.info("Current learning rate: %f " % learning_rate_value)
             end_points_G_val = self.model.generator(
                 [self.cnf['batch_size_test'], 100], False, True, batch_size=self.cnf['batch_size_test'])
 
@@ -271,16 +263,15 @@ class SemiSupervisedTrainer(Base):
             G = sess.run(end_points_G_val['softmax'])
             cv2.imwrite('generated_image.jpg', G[0, :, :, :] * 50 + 128)
 
-            # Learning rate step decay
         if self.is_summary:
             train_writer.close()
             validation_writer.close()
 
     def _feature_matching_loss(self, real_data_features, fake_data_features):
         real_data_mean = tf.reduce_mean(
-            real_data_features, reduction_indices=0)
+            real_data_features, axis=0)
         fake_data_mean = tf.reduce_mean(
-            fake_data_features, reduction_indices=0)
+            fake_data_features, axis=0)
         feature_loss = tf.reduce_mean(
             tf.abs(tf.sub(real_data_mean, fake_data_mean)))
 
@@ -312,7 +303,8 @@ class SemiSupervisedTrainer(Base):
                 inputs_vars)], "image mean and average var", first_n=1)
 
         joint = tf.concat([inputs, G], 0)
-        print(joint.get_shape())
+        log.info('Input size of unlabelled and generated %s' %
+                 (joint.get_shape()))
         self.end_points_D = self.model.discriminator(
             joint, True, None, num_classes=num_classes, batch_size=batch_size_train)
         self.end_points_D_val = self.model.discriminator(
