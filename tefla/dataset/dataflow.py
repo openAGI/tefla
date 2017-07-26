@@ -77,7 +77,8 @@ class Dataflow(object):
             image, label = self.batch_inputs(batch_size, True, image_size, crop_size,
                                              im_size=resize_size, bbox=None, image_preprocessing=image_preprocessing, num_preprocess_threads=num_preprocess_threads)
         else:
-            image, label = self.get(['image', 'label'], image_size, resize_size)
+            image, label = self.get(
+                ['image', 'label'], image_size, resize_size)
         [data_batch], label_batch = balanced_sample([image], label, target_probs, batch_size, init_probs=init_probs,
                                                     enqueue_many=enqueue_many, queue_capacity=queue_capacity, threads_per_queue=threads_per_queue, name=name)
         return data_batch, label_batch
@@ -142,3 +143,29 @@ class Dataflow(object):
     @property
     def n_iters_per_epoch(self):
         return self.dataset.n_iters_per_epoch
+
+    def prefetch(self, tensor_dict, capacity):
+        """Creates a prefetch queue for tensors.
+            Creates a FIFO queue to asynchronously enqueue tensor_dicts and returns a
+            dequeue op that evaluates to a tensor_dict. This function is useful in
+            prefetching preprocessed tensors so that the data is readily available for
+            consumers.
+
+        Args:
+            tensor_dict: a dictionary of tensors to prefetch.
+            capacity: the size of the prefetch queue.
+
+        Returns:
+            a FIFO prefetcher queue
+        """
+        names = list(tensor_dict.keys())
+        dtypes = [t.dtype for t in tensor_dict.values()]
+        shapes = [t.get_shape() for t in tensor_dict.values()]
+        prefetch_queue = tf.PaddingFIFOQueue(capacity, dtypes=dtypes,
+                                             shapes=shapes,
+                                             names=names,
+                                             name='prefetch_queue')
+        enqueue_op = prefetch_queue.enqueue(tensor_dict)
+        tf.train.queue_runner.add_queue_runner(
+            tf.train.queue_runner.QueueRunner(prefetch_queue, [enqueue_op]))
+        return prefetch_queue

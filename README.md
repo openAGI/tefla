@@ -71,6 +71,8 @@ Many examples available with recent deep learning research integration
 4. [LSTM](https://github.com/n3011/tefla/tree/master/examples/lstm_rnn)
 5. [DATASETS](https://github.com/n3011/tefla/tree/master/examples/datasets)
 6. [ImageNet classificatrion](https://github.com/n3011/tefla/tree/master/examples/classification)
+7. [Inception-Resnetv2](https://github.com/n3011/tefla/blob/master/models/inception_resnet.py)
+8. [Resnet](https://github.com/n3011/tefla/blob/master/models/resnet_v2.py)
 
 ## Pretrained Weights
 1. [VGG19 Trained on ImageNet](https://drive.google.com/file/d/0B9ScQjaDDiwpRnVqZV9JQmh4ZE0/view?usp=sharing)

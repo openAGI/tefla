@@ -81,8 +81,6 @@ class SemiSupervisedTrainer(Base):
 
         # Create a saver.
         saver = tf.train.Saver(max_to_keep=None)
-        if not os.path.exists(weights_dir):
-            os.mkdir(weights_dir)
         if self.is_summary:
             training_batch_summary_op = tf.merge_all_summaries(
                 key=TRAINING_BATCH_SUMMARIES)
@@ -106,8 +104,7 @@ class SemiSupervisedTrainer(Base):
                 start_epoch - 1)
 
         if weights_from:
-            _load_variables(sess, saver, weights_from)
-            # self._load_weights(sess, weights_from)
+            self._load_weights(sess, saver, weights_from)
 
         learning_rate_value = self.lr_policy.initial_lr
         log.info("Initial learning rate: %f " % learning_rate_value)
@@ -130,10 +127,8 @@ class SemiSupervisedTrainer(Base):
             g_train_losses = []
             batch_train_sizes = []
             for batch_num, (Xb, yb) in enumerate(self.training_iterator(training_X, training_y)):
-                if Xb.shape[0] != self.cnf['batch_size_train']:
-                    batch_pad = - Xb.shape[0] + self.cnf['batch_size_train']
-                    Xb = np.vstack((Xb, Xb[0:batch_pad, :, :, :]))
-                    yb = np.hstack((yb, yb[0:batch_pad]))
+                if Xb.shape[0] < self.cnf['batch_size_train']:
+                    continue
                 feed_dict_train = {self.inputs: Xb,
                                    self.labels: yb, self.learning_rate_d: learning_rate_value, self.learning_rate_g: learning_rate_value}
                 log.debug('1. Loading batch %d data done.' % batch_num)
@@ -147,7 +142,7 @@ class SemiSupervisedTrainer(Base):
                     train_writer.flush()
                     log.debug(
                         '2. Running training steps with summary done.')
-                    log.debug("Epoch %d, Batch %d D_loss_real: %s, D_loss_fake: %s,D_loss_class: %s, G_loss: %s" % (
+                    log.info("Epoch %d, Batch %d D_loss_real: %s, D_loss_fake: %s,D_loss_class: %s, G_loss: %s" % (
                         epoch, batch_num, _d_loss_real, _d_loss_fake, _d_loss_class, _g_loss))
                 else:
                     log.debug(
@@ -171,10 +166,8 @@ class SemiSupervisedTrainer(Base):
                 d_train_losses, weights=batch_train_sizes)
             g_avg_loss = np.average(
                 g_train_losses, weights=batch_train_sizes)
-            log.debug("Epoch %d, D_avg_loss: %s, G_avg_loss %s" %
-                      (epoch, d_avg_loss, g_avg_loss))
-            print("Epoch %d, D_avg_loss: %s, G_avg_loss %s" %
-                  (epoch, d_avg_loss, g_avg_loss))
+            log.info("Epoch %d, D_avg_loss: %s, G_avg_loss %s" %
+                     (epoch, d_avg_loss, g_avg_loss))
             # Plot training loss every epoch
             log.debug('5. Writing epoch summary...')
             if self.is_summary:
@@ -249,13 +242,6 @@ class SemiSupervisedTrainer(Base):
                  epoch_validation_loss,
                  custom_metrics_string)
             )
-            print(
-                "Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
-                (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - tic,
-                 d_avg_loss,
-                 epoch_validation_loss,
-                 custom_metrics_string)
-            )
             epoch_info = dict(
                 epoch=epoch,
                 training_loss=d_avg_loss,
@@ -267,6 +253,7 @@ class SemiSupervisedTrainer(Base):
 
             learning_rate_value = self.lr_policy.epoch_update(
                 learning_rate_value, training_history)
+            log.info("Current learning rate: %f " % learning_rate_value)
             end_points_G_val = self.model.generator(
                 [self.cnf['batch_size_test'], 100], False, True, batch_size=self.cnf['batch_size_test'])
 
@@ -276,16 +263,15 @@ class SemiSupervisedTrainer(Base):
             G = sess.run(end_points_G_val['softmax'])
             cv2.imwrite('generated_image.jpg', G[0, :, :, :] * 50 + 128)
 
-            # Learning rate step decay
         if self.is_summary:
             train_writer.close()
             validation_writer.close()
 
     def _feature_matching_loss(self, real_data_features, fake_data_features):
         real_data_mean = tf.reduce_mean(
-            real_data_features, reduction_indices=0)
+            real_data_features, axis=0)
         fake_data_mean = tf.reduce_mean(
-            fake_data_features, reduction_indices=0)
+            fake_data_features, axis=0)
         feature_loss = tf.reduce_mean(
             tf.abs(tf.sub(real_data_mean, fake_data_mean)))
 
@@ -316,8 +302,9 @@ class SemiSupervisedTrainer(Base):
             inputs = tf.Print(inputs, [tf.reduce_mean(inputs_means), tf.reduce_mean(
                 inputs_vars)], "image mean and average var", first_n=1)
 
-        joint = tf.concat(0, [inputs, G])
-        print(joint.get_shape())
+        joint = tf.concat([inputs, G], 0)
+        log.info('Input size of unlabelled and generated %s' %
+                 (joint.get_shape()))
         self.end_points_D = self.model.discriminator(
             joint, True, None, num_classes=num_classes, batch_size=batch_size_train)
         self.end_points_D_val = self.model.discriminator(
@@ -336,7 +323,7 @@ class SemiSupervisedTrainer(Base):
             self.end_points_D['D_on_data_logits'], 1. - d_label_smooth)
         class_loss_weight = 1.
         self.d_loss_class = class_loss_weight * tf.nn.sparse_softmax_cross_entropy_with_logits(
-            self.end_points_D['class_logits'], tf.to_int64(targets))
+            logits=self.end_points_D['class_logits'], labels=tf.to_int64(targets))
         self.test_loss = 1. - \
             tf.reduce_mean(tf.to_float(tf.nn.in_top_k(
                 self.end_points_D_val['logits'], targets, 1)))
@@ -353,7 +340,7 @@ class SemiSupervisedTrainer(Base):
                 # d_loss_class = tf.Print(d_loss_class, [avg_error_rate], "running top-1 error rate")
                 self.d_loss_class = tf.identity(self.d_loss_class)
         self.d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(
-            self.end_points_D['D_on_G_logits'], tf.zeros_like(self.end_points_D['D_on_G_logits']))
+            logits=self.end_points_D['D_on_G_logits'], labels=tf.zeros_like(self.end_points_D['D_on_G_logits']))
         self.d_loss_class = tf.reduce_mean(self.d_loss_class)
         self.d_loss_real = tf.reduce_mean(self.d_loss_real)
         self.d_loss_fake = tf.reduce_mean(self.d_loss_fake)
@@ -418,7 +405,7 @@ class SemiSupervisedTrainer(Base):
         else:
             entropy = - targets * np.log(targets) - \
                 (1. - targets) * np.log(1. - targets)
-        return tf.nn.sigmoid_cross_entropy_with_logits(logits, tf.ones_like(logits) * targets) - entropy
+        return tf.nn.sigmoid_cross_entropy_with_logits(labels=tf.ones_like(logits) * targets, logits=logits) - entropy
 
     def _setup_model_loss(self, update_ops=None, num_classes=6):
         self.learning_rate_d = tf.placeholder(
@@ -468,10 +455,10 @@ class SemiSupervisedTrainer(Base):
             self.capped_g_grads = self._clip_grad_global_norms(
                 t_vars['g_vars'], self.g_losses[-1], g_optimizer, gradient_noise_scale=0.0)
         else:
-            self.capped_d_grads = d_optimizer.compute_gradients(
-                self.d_losses[-1], t_vars['d_vars'])
-            self.capped_g_grads = g_optimizer.compute_gradients(
-                self.g_losses[-1], t_vars['g_vars'])
+            self.capped_d_grads = self._clip_grad_norms(d_optimizer.compute_gradients(
+                self.d_losses[-1], t_vars['d_vars']))
+            self.capped_g_grads = self._clip_grad_norms(g_optimizer.compute_gradients(
+                self.g_losses[-1], t_vars['g_vars']))
         global_step = tf.get_variable(
             'global_step', [], initializer=tf.constant_initializer(0), trainable=False)
         if self.gradient_multipliers is not None:
@@ -486,33 +473,3 @@ class SemiSupervisedTrainer(Base):
             [apply_d_gradient_op], self.d_losses[-1])
         self.train_op_g = control_flow_ops.with_dependencies(
             [apply_g_gradient_op], self.g_losses[-1])
-
-
-def _load_variables(sess, saver, weights_from):
-    print("---Loading session/weights from %s..." % weights_from)
-    try:
-        saver.restore(sess, weights_from)
-    except Exception as e:
-        log.info(
-            "Unable to restore entire session from checkpoint. Error: %s." % e.message)
-        log.info("Doing selective restore.")
-        try:
-            reader = tf.train.NewCheckpointReader(weights_from)
-            names_to_restore = set(reader.get_variable_to_shape_map().keys())
-            variables_to_restore = [v for v in tf.global_variables() if v.name[
-                :-2] in names_to_restore]
-            log.info("Loading %d variables: " % len(variables_to_restore))
-            for var in variables_to_restore:
-                logger.info("Loading: %s %s)" % (var.name, var.get_shape()))
-                restorer = tf.train.Saver([var])
-                try:
-                    restorer.restore(sess, weights_from)
-                except Exception as e:
-                    logger.info("Problem loading: %s -- %s" %
-                                (var.name, e.message))
-                    continue
-            log.info("Loaded session/weights from %s" % weights_from)
-        except Exception:
-            log.info(
-                "Couldn't load session/weights from %s; starting from scratch" % weights_from)
-            sess.run(tf.global_variables_initilizer())
