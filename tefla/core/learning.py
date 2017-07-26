@@ -63,7 +63,8 @@ class SupervisedLearner(Base, BaseMixin):
             self._setup_model_loss(
                 keep_moving_averages=keep_moving_averages)
             if self.is_summary:
-                self._setup_summaries(self.grads_and_vars)
+                # self._setup_summaries(self.grads_and_vars)
+                self._setup_summaries()
             self._setup_misc()
             self._print_info(data_set)
             self._train_loop(data_set, weights_from, weights_dir,
