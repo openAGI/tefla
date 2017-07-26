@@ -53,7 +53,7 @@ class Base(object):
         except Exception:
             super(Base, self).__init__()
 
-    def _setup_summaries(self, d_grads_and_var, input_summary=False, g_grads_and_var=None):
+    def _setup_summaries(self, d_grads_and_var=None, input_summary=False, g_grads_and_var=None, activation_summary=False, params_summary=False, epoch_loss_g=False):
         with tf.name_scope('summaries'):
             self.epoch_loss = tf.placeholder(
                 tf.float32, shape=[], name="epoch_loss")
@@ -63,6 +63,11 @@ class Base(object):
                               collections=[TRAINING_EPOCH_SUMMARIES])
             tf.summary.scalar('training (cross entropy) loss', self.epoch_loss,
                               collections=[TRAINING_EPOCH_SUMMARIES])
+            if epoch_loss_g:
+                self.epoch_loss_g = tf.placeholder(
+                    tf.float32, shape=[], name="epoch_loss_g")
+                tf.summary.scalar('training generator (cross entropy) loss', self.epoch_loss_g,
+                                  collections=[TRAINING_EPOCH_SUMMARIES])
             if g_grads_and_var is not None:
                 self.epoch_loss_g = tf.placeholder(
                     tf.float32, shape=[], name="epoch_loss_g")
@@ -72,21 +77,25 @@ class Base(object):
                 if len(self.inputs.get_shape()) == 4:
                     summary.summary_image(self.inputs, 'inputs', max_images=10, collections=[
                         TRAINING_BATCH_SUMMARIES])
-            for key, val in self.training_end_points.iteritems():
-                summary.summary_activation(val, name=key, collections=[
-                                           TRAINING_BATCH_SUMMARIES])
-            summary.summary_trainable_params(['scalar', 'histogram', 'norm'], collections=[
-                                             TRAINING_BATCH_SUMMARIES])
-            summary.summary_gradients(d_grads_and_var, [
-                                      'scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
+            if activation_summary:
+                for key, val in self.training_end_points.iteritems():
+                    summary.summary_activation(val, name=key, collections=[
+                                               TRAINING_BATCH_SUMMARIES])
+            if params_summary:
+                summary.summary_trainable_params(['scalar', 'histogram', 'norm'], collections=[
+                                                 TRAINING_BATCH_SUMMARIES])
+            if d_grads_and_var is not None:
+                summary.summary_gradients(d_grads_and_var, [
+                                          'scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
             if g_grads_and_var is not None:
                 summary.summary_gradients(g_grads_and_var, [
                                           'scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
 
             # Validation summaries
-            for key, val in self.validation_end_points.iteritems():
-                summary.summary_activation(val, name=key, collections=[
-                                           VALIDATION_BATCH_SUMMARIES])
+            if activation_summary:
+                for key, val in self.validation_end_points.iteritems():
+                    summary.summary_activation(val, name=key, collections=[
+                                               VALIDATION_BATCH_SUMMARIES])
 
             tf.summary.scalar('validation loss', self.epoch_loss,
                               collections=[VALIDATION_EPOCH_SUMMARIES])
