@@ -26,7 +26,7 @@ cnf = {
     'l2_reg': 0.0005,
     'optname': 'momentum',
     'opt_kwargs': {'decay': 0.9},
-    'summary_dir': '/media/Data/eyepacs/summary/512_bn',
+    'summary_dir': '/tmp/summary/cifar',
     'aug_params': {
         'zoom_range': (1 / 1.15, 1.15),
         'rotation_range': (0, 360),
