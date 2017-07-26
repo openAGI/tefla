@@ -52,7 +52,7 @@ def inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=N
     return images, labels
 
 
-def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1, target_probs=None, init_probs=None, image_preprocessing=None):
+def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, batch_size=None, num_preprocess_threads=32, num_readers=1, target_probs=None, init_probs=None, image_preprocessing=None, data_balancing=0):
     """Generate batches of distorted versions of Training images.
 
     Args:
@@ -67,7 +67,7 @@ def distorted_inputs(dataflow, tfrecords_image_size, crop_size, im_size=None, ba
     """
     with tf.device('/cpu:0'):
         images, labels = dataflow.get_batch(batch_size, target_probs, tfrecords_image_size, crop_size=crop_size,
-                                            resize_size=im_size, num_preprocess_threads=num_preprocess_threads, image_preprocessing=image_preprocessing, init_probs=init_probs)
+                                            resize_size=im_size, num_preprocess_threads=num_preprocess_threads, image_preprocessing=image_preprocessing, init_probs=init_probs, data_balancing=data_balancing)
     return images, labels
 
 

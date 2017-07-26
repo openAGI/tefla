@@ -5,6 +5,7 @@
 # -------------------------------------------------------------------#
 import tensorflow as tf
 from .reader import Reader
+from ..core import logger as log
 
 balanced_sample = tf.contrib.training.stratified_sample
 
@@ -51,7 +52,7 @@ class Dataflow(object):
         self._validate_items(items, valid_items)
         return [outputs[item] for item in items]
 
-    def get_batch(self, batch_size, target_probs, image_size, resize_size=None,  crop_size=[32, 32, 3], image_preprocessing=None, num_preprocess_threads=32, init_probs=None, enqueue_many=True, queue_capacity=2048, threads_per_queue=4, name='balancing_op'):
+    def get_batch(self, batch_size, target_probs, image_size, resize_size=None,  crop_size=[32, 32, 3], image_preprocessing=None, num_preprocess_threads=32, init_probs=None, enqueue_many=True, queue_capacity=2048, threads_per_queue=4, name='balancing_op', data_balancing=True):
         """ Get a batch of examplea from the dataset
 
         Stochastically creates batches based on per-class probabilities.
@@ -79,9 +80,13 @@ class Dataflow(object):
         else:
             image, label = self.get(
                 ['image', 'label'], image_size, resize_size)
-        [data_batch], label_batch = balanced_sample([image], label, target_probs, batch_size, init_probs=init_probs,
-                                                    enqueue_many=enqueue_many, queue_capacity=queue_capacity, threads_per_queue=threads_per_queue, name=name)
-        return data_batch, label_batch
+        if data_balancing:
+            log.info('Using Stratified Data ReSampling')
+            [data_batch], label_batch = balanced_sample([image], label, target_probs, batch_size, init_probs=init_probs,
+                                                        enqueue_many=enqueue_many, queue_capacity=queue_capacity, threads_per_queue=threads_per_queue, name=name)
+            return data_batch, label_batch
+        else:
+            return image, label
 
     # TODO need refinements
     def batch_inputs(self, batch_size, train, tfrecords_image_size, crop_size, im_size=None, bbox=None, image_preprocessing=None, num_preprocess_threads=16):

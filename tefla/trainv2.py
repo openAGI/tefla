@@ -42,14 +42,16 @@ import logging
               help='Loss fuction type.')
 @click.option('--is_summary', default=False, show_default=True,
               help='Path to initial weights file.')
-def main(model, training_cnf, data_dir, parallel, max_to_keep, start_epoch, weights_from, weights_dir, num_classes, resume_lr, gpu_memory_fraction, is_summary, loss_type):
+@click.option('--data_balancing', default=1, show_default=True,
+              help='Whether to use probabilistic data resampling.')
+def main(model, training_cnf, data_dir, parallel, max_to_keep, start_epoch, weights_from, weights_dir, num_classes, resume_lr, gpu_memory_fraction, is_summary, loss_type, data_balancing):
     model_def = util.load_module(model)
     model = model_def.model
     cnf = util.load_module(training_cnf).cnf
     if weights_from:
         weights_from = str(weights_from)
 
-    learner = SupervisedLearner(model, cnf, resume_lr=resume_lr, classification=cnf[
+    learner = SupervisedLearner(model, cnf, data_balancing=data_balancing, resume_lr=resume_lr, classification=cnf[
                                 'classification'], gpu_memory_fraction=gpu_memory_fraction, num_classes=num_classes, is_summary=is_summary, loss_type=loss_type, verbosity=1)
     data_dir_train = os.path.join(data_dir, 'train')
     data_dir_val = os.path.join(data_dir, 'val')

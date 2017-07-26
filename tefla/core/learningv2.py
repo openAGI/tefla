@@ -46,8 +46,9 @@ class SupervisedLearner(Base, BaseMixin):
         is_summary: bool, to write summary or not
     """
 
-    def __init__(self, model, cnf, clip_by_global_norm=False, **kwargs):
+    def __init__(self, model, cnf, clip_by_global_norm=False, data_balancing=1, **kwargs):
         self.clip_by_global_norm = clip_by_global_norm
+        self.data_balancing = data_balancing
         super(SupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
@@ -350,7 +351,7 @@ class SupervisedLearner(Base, BaseMixin):
                 with tf.device('/gpu:%d' % i):
                     with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
                         images, labels = distorted_inputs(dataset, self.cnf['tfrecords_im_size'], self.cnf.get(
-                            'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8, target_probs=self.target_probs, init_probs=tf.convert_to_tensor(self.cnf['init_probs']), image_preprocessing=self.preprocessor.preprocess_image)
+                            'crop_size'), batch_size=self.cnf['batch_size_train'], num_preprocess_threads=32, num_readers=8, target_probs=self.target_probs, init_probs=tf.convert_to_tensor(self.cnf['init_probs']), image_preprocessing=self.preprocessor.preprocess_image, data_balancing=self.data_balancing)
                         labels = self._adjust_ground_truth(labels)
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
                                                 reuse=i > 0, is_classification=is_classification, gpu_id=i, loss_type=loss_type)
