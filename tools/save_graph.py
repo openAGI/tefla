@@ -25,10 +25,11 @@ def save_graph(model, output_dir, output_model):
 
             end_points_predict = model(is_training=False, reuse=None)
             inputs = end_points_predict['inputs']
-            predictions = end_points_predict['predictions']
+            # predictions = end_points_predict['predictions']
             init = tf.global_variables_initializer()
             sess.run(init)
             tf.train.write_graph(sess.graph_def, output_dir, output_model)
+            print('finsihes writing')
             sess.close()
     except Exception as e:
         print(e.message)

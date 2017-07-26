@@ -204,6 +204,7 @@ class SegmentPredictor(PredictSession):
         X = np.expand_dims(X, 0)
         predictions = self.sess.run(
             self.predictions, feed_dict={self.inputs: X})
+        predictions = predictions.transpose(0, 2, 1)
         print('took %6.1f seconds' % (time.time() - tic))
         return predictions
 
@@ -239,5 +240,6 @@ class SegmentPredictor_v2(PredictSession):
         raw_output_up = tf.argmax(raw_output_up, dimension=3)
         predictions = self.sess.run(
             raw_output_up, {self.inputs: X})
+        predictions = predictions.transpose(0, 2, 1)
         print('took %6.1f seconds' % (time.time() - tic))
         return predictions

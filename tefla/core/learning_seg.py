@@ -118,7 +118,7 @@ class SupervisedLearner(Base, BaseMixin):
         sess.run([tf.global_variables_initializer(),
                   tf.local_variables_initializer()])
         if weights_from:
-            self._load_weights(sess, weights_from)
+            self._load_weights(sess, saver, weights_from)
 
         learning_rate_value = self.lr_policy.initial_lr
         log.info("Initial learning rate: %f " % learning_rate_value)
@@ -235,7 +235,7 @@ class SupervisedLearner(Base, BaseMixin):
                 with tf.device('/gpu:%d' % i):
                     with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
                         images, labels = self.data_voc.get_batch(batch_size=self.cnf['batch_size_train'], height=self.cnf.get(
-                            'im_height', 256), width=self.cnf.get('im_width', 256), output_height=self.cnf.get('output_height', 224), output_width=self.cnf.get('output_width', 224))
+                            'im_height', 512), width=self.cnf.get('im_width', 512), output_height=self.cnf.get('output_height', 448), output_width=self.cnf.get('output_width', 448))
                         labels = tf.reshape(labels, shape=(-1,))
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
                                                 reuse=i > 0, loss_type=loss_type, is_classification=is_classification, gpu_id=i)

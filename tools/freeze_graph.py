@@ -124,6 +124,7 @@ def freeze_graph(input_graph,
                 except KeyError:
                     # This tensor doesn't exist in the graph (for example it's
                     # 'global_step' or a similar housekeeping element) so skip it.
+                    print(key)
                     continue
                 var_list[key] = tensor
 
@@ -138,7 +139,7 @@ def freeze_graph(input_graph,
                 n = _node_name(node.name)
                 name_to_node_map[n] = node
 
-            print(name_to_node_map.keys())
+            # print(name_to_node_map.keys())
             # """
             saver = saver_lib.Saver(var_list=var_list)
             saver.restore(sess, input_checkpoint)
