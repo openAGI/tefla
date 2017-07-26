@@ -27,6 +27,8 @@ import logging
               help='parallel or queued.')
 @click.option('--start_epoch', default=1, show_default=True,
               help='Epoch number from which to resume training.')
+@click.option('--num_classes', default=17, show_default=True,
+              help='Number of classes for training.')
 @click.option('--gpu_memory_fraction', default=0.92, show_default=True,
               help='Epoch number from which to resume training.')
 @click.option('--weights_from', default=None, show_default=True,
@@ -41,7 +43,7 @@ import logging
               help='Log file name.')
 @click.option('--is_summary', default=False, show_default=True,
               help='Path to initial weights file.')
-def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, weights_dir, resume_lr, gpu_memory_fraction, is_summary, loss_type, log_file_name):
+def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, weights_dir, resume_lr, num_classes, gpu_memory_fraction, is_summary, loss_type, log_file_name):
     with tf.Graph().as_default():
         model_def = util.load_module(model)
         model = model_def.model
@@ -51,7 +53,7 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
             weights_from = str(weights_from)
 
         trainer = SupervisedLearner(model, cnf, log_file_name=log_file_name, resume_lr=resume_lr, classification=cnf[
-                                    'classification'], gpu_memory_fraction=gpu_memory_fraction, num_classes=15, is_summary=is_summary, loss_type=loss_type, verbosity=1)
+                                    'classification'], gpu_memory_fraction=gpu_memory_fraction, num_classes=num_classes, is_summary=is_summary, loss_type=loss_type, verbosity=1)
         trainer.fit(data_dir, weights_from=weights_from, weights_dir=weights_dir, start_epoch=start_epoch,
                     summary_every=399, keep_moving_averages=True)
 

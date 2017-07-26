@@ -82,7 +82,9 @@ class SupervisedLearner(Base, BaseMixin):
             self._setup_model_loss(
                 dataflow_train, dataflow_val=dataflow_val, keep_moving_averages=keep_moving_averages, loss_type=self.loss_type)
             if self.is_summary:
-                self._setup_summaries(self.grads_and_vars)
+                # self._setup_summaries(self.grads_and_vars)
+                self._setup_summaries(
+                    activation_summary=True)
             self._setup_misc()
             self._print_info(data_dir)
             if max_to_keep is not None:
@@ -226,8 +228,8 @@ class SupervisedLearner(Base, BaseMixin):
             log.debug('The value of current_probs {}'.format(current_probs))
             epoch_training_loss = np.average(
                 training_losses, weights=batch_train_sizes)
-            print("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" %
-                  (epoch, np.sum(batch_train_sizes), time.time() - tic, epoch_training_loss))
+            log.info("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" %
+                     (epoch, np.sum(batch_train_sizes), time.time() - tic, epoch_training_loss))
 
             # Plot training loss every epoch
             log.debug('5. Writing epoch summary...')
@@ -321,9 +323,9 @@ class SupervisedLearner(Base, BaseMixin):
                 learning_rate_value, training_history)
             log.info("Learning rate: %f " % learning_rate_value)
 
-            if self.is_summary:
-                train_writer.close()
-                validation_writer.close()
+        if self.is_summary:
+            train_writer.close()
+            validation_writer.close()
         coord.request_stop()
         coord.join(stop_grace_period_secs=0.05)
 
