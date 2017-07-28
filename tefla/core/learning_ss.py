@@ -273,7 +273,7 @@ class SemiSupervisedTrainer(Base):
         fake_data_mean = tf.reduce_mean(
             fake_data_features, axis=0)
         feature_loss = tf.reduce_mean(
-            tf.abs(tf.sub(real_data_mean, fake_data_mean)))
+            tf.abs(tf.subtract(real_data_mean, fake_data_mean)))
 
         return feature_loss
 
@@ -426,7 +426,7 @@ class SemiSupervisedTrainer(Base):
         self.labels = tf.placeholder(tf.int32, shape=(None,))
 
         self._tower_loss_semi_supervised(
-            self.inputs, self.labels, num_classes=num_classes)
+            self.inputs, self.labels, num_classes=num_classes, is_fm_loss=True)
 
         # global_update_ops = set(tf.get_collection(tf.GraphKeys.UPDATE_OPS))
         global_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)

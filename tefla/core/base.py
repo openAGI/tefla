@@ -164,7 +164,7 @@ class Base(object):
         else:
             entropy = - targets * \
                 np.log(targets) - (1. - targets) * np.log(1. - targets)
-        return tf.nn.sigmoid_cross_entropy_with_logits(logits, tf.ones_like(logits) * targets) - entropy
+        return tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=tf.ones_like(logits) * targets) - entropy
 
     def _moving_averages_op(self):
         variable_averages = tf.train.ExponentialMovingAverage(
