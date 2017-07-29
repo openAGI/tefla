@@ -182,7 +182,7 @@ Refined predictions after MAP inference.
 
 # ResNeXt Block
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f5fb5b315f0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f46a41127d0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
 resnext paper https://arxiv.org/pdf/1611.05431.pdf
 
 <h3>Args</h3>
@@ -218,7 +218,7 @@ override name.
 
 # Embedding
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f5fb335a250>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f468520c390>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
 Embedding layer for a sequence of integer ids or floats.
 
 <h3>Args</h3>

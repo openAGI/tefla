@@ -42,7 +42,7 @@ of summary writing
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L405 target="_blank"><b>sigmoid_kl_with_logits</b></a></span>  (logits,  targets)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning_ss.py#L392 target="_blank"><b>sigmoid_kl_with_logits</b></a></span>  (logits,  targets)</span>
 <h5>Args</h5>
 
 
