@@ -357,7 +357,7 @@
             <div class="section">
               
                 <h1 id="computes-accuracy-metric">Computes accuracy metric</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L338 target="_blank"><b>tefla.core.metrics.accuracy_op</b></a></span>  (predictions,  targets,  num_classes=5)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L406 target="_blank"><b>tefla.core.metrics.accuracy_op</b></a></span>  (predictions,  targets,  num_classes=5)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -370,7 +370,7 @@
 <p>accuracy</p>
 <hr />
 <h1 id="retruns-one-hot-vector">Retruns one hot vector</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L359 target="_blank"><b>tefla.core.metrics.one_hot</b></a></span>  (vec,  m=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L427 target="_blank"><b>tefla.core.metrics.one_hot</b></a></span>  (vec,  m=None)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -379,7 +379,7 @@
 </ul>
 <hr />
 <h1 id="compute-dice-coef">Compute dice coef</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L384 target="_blank"><b>tefla.core.metrics.dice_coef</b></a></span>  (y_true,  y_pred)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L452 target="_blank"><b>tefla.core.metrics.dice_coef</b></a></span>  (y_true,  y_pred)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -391,7 +391,7 @@
 <p>a <code>float</code>, dice value</p>
 <hr />
 <h1 id="computes-character-level-accuracy">Computes character level accuracy</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L400 target="_blank"><b>tefla.core.metrics.char_accuracy</b></a></span>  (predictions,  targets,  rej_char,  streaming=False)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L468 target="_blank"><b>tefla.core.metrics.char_accuracy</b></a></span>  (predictions,  targets,  rej_char,  streaming=False)</span>
 Both predictions and targets should have the same shape
 [batch_size x seq_length].</p>
 <h3>Args</h3>
@@ -408,7 +408,7 @@ Both predictions and targets should have the same shape
 returns the total character accuracy.</p>
 <hr />
 <h1 id="computes-sequence-level-accuracy">Computes sequence level accuracy</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L430 target="_blank"><b>tefla.core.metrics.sequence_accuracy</b></a></span>  (predictions,  targets,  rej_char,  streaming=False)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/metrics.py#L498 target="_blank"><b>tefla.core.metrics.sequence_accuracy</b></a></span>  (predictions,  targets,  rej_char,  streaming=False)</span>
 Both input tensors should have the same shape: [batch_size x seq_length].</p>
 <h3>Args</h3>
 

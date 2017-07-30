@@ -345,7 +345,7 @@
             <div class="section">
               
                 <h1 id="supervised-learner-support-data-parallelism-multi-gpu-accept-tfrecords-data-as-input">Supervised Learner, support data parallelism, multi GPU, accept TFRecords data as input</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L27 target="_blank"><b>tefla.core.learning_v2.SupervisedLearner</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L28 target="_blank"><b>tefla.core.learning_v2.SupervisedLearner</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  data_balancing=1,  **kwargs)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -366,7 +366,7 @@ e.g: total_training_samples/batch_size</li>
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L53 target="_blank"><b>fit</b></a></span>  (data_dir,  data_dir_val=None,  features_keys=None,  weights_from=None,  start_epoch=1,  summary_every=10,  training_set_size=None,  val_set_size=None,  dataset_name='cifar10',  keep_moving_averages=False)</span></p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L55 target="_blank"><b>fit</b></a></span>  (data_dir,  data_dir_val=None,  features_keys=None,  weights_from=None,  weights_dir='weights',  max_to_keep=None,  start_epoch=1,  summary_every=10,  training_set_size=None,  val_set_size=None,  dataset_name='cifar10',  keep_moving_averages=False)</span></p>
 <h5>Args</h5>
 
 <ul>

@@ -373,7 +373,7 @@ text: Tensor tf.string containing the human-readable label.</li>
 label: Tensor tf.int32 containing the label.
 text: Tensor tf.string containing the human-readable label.</p>
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L85 target="_blank"><b>distort_image</b></a></span>  (image,  distort_op,  height,  width,  thread_id=0,  scope=None)</span>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L87 target="_blank"><b>distort_image</b></a></span>  (image,  distort_op,  height,  width,  thread_id=0,  scope=None)</span>
 <h5>Args</h5></p>
 <ul>
 <li><strong>image</strong>: 3-D float Tensor of image</li>
@@ -392,7 +392,7 @@ text: Tensor tf.string containing the human-readable label.</p>
 
 <p>3-D float Tensor of distorted image used for training.</p>
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L104 target="_blank"><b>eval_image</b></a></span>  (image,  height,  width,  scope=None)</span>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L106 target="_blank"><b>eval_image</b></a></span>  (image,  height,  width,  scope=None)</span>
 <h5>Args</h5></p>
 <ul>
 <li><strong>image</strong>: 3-D float Tensor</li>
@@ -410,7 +410,7 @@ text: Tensor tf.string containing the human-readable label.</p>
 
 <p>3-D float Tensor of prepared image.</p>
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L133 target="_blank"><b>parse_example_proto</b></a></span>  (example_serialized,  is_bbox=False)</span>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L137 target="_blank"><b>parse_example_proto</b></a></span>  (example_serialized,  is_bbox=False)</span>
 The output of the build_image_data.py image preprocessing script is a dataset
 containing serialized Example protocol buffers. Each Example proto contains
 the following fields:
