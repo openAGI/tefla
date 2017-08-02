@@ -46,12 +46,10 @@ class Base(object):
         self.is_summary = is_summary
         self.loss_type = loss_type
         self.num_classes = num_classes
+        self.label_smoothing = label_smoothing
         log.setFileHandler(log_file_name)
         log.setVerbosity(str(verbosity))
-        try:
-            super(Base, self).__init__(label_smoothing)
-        except Exception:
-            super(Base, self).__init__()
+        super(self.__clsss__, self).__init__()
 
     def _setup_summaries(self, d_grads_and_var=None, input_summary=False, g_grads_and_var=None, activation_summary=False, params_summary=False, epoch_loss_g=False):
         with tf.name_scope('summaries'):
