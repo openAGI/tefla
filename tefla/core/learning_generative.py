@@ -108,6 +108,8 @@ class GenerativeLearner(Base):
         if weights_from:
             self._load_weights(sess, weights_from)
 
+        self.total_network_params()
+        self.write_graph(sess.graph_def, weights_dir)
         learning_rate_value = self.lr_policy.initial_lr
         log.info("Initial learning rate: %f " % learning_rate_value)
         if self.is_summary:
@@ -131,7 +133,6 @@ class GenerativeLearner(Base):
             d_real_train_losses = []
             d_fake_train_losses = []
             batch_train_sizes = []
-            self.total_network_params()
             for batch_num, (Xb, yb) in enumerate(self.training_iterator(training_X, training_y)):
                 while Xb.shape[0] != self.cnf['batch_size_train']:
                     batch_pad = - Xb.shape[0] + self.cnf['batch_size_train']
