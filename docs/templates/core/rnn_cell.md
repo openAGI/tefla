@@ -1,6 +1,6 @@
 # The most basic RNN cell
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f4685218f50>,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7f46b012d398>,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7ff072128e60>,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7ff0c7a46050>,  layer_norm=None,  layer_norm_args=None)</span>
 
 <h3>Args</h3>
 
@@ -21,7 +21,96 @@ able to reuse the layer scope must be given.
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L107 target="_blank"><b>zero_state</b></a></span>  (batch_size,  dtype)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L344 target="_blank"><b>add_variable</b></a></span>  (name,  shape,  dtype=None,  initializer=None,  regularizer=None,  trainable=True)</span>
+
+Arguments:
+  name: variable name.
+  shape: variable shape.
+  dtype: The type of the variable. Defaults to `self.dtype`.
+  initializer: initializer instance (callable).
+  regularizer: regularizer instance (callable).
+  trainable: whether the variable should be part of the layer's
+"trainable_variables" (e.g. variables, biases)
+or "non_trainable_variables" (e.g. BatchNorm mean, stddev).
+
+<h5>Returns</h5>
+
+
+  The created variable.
+
+ <span class="hr_large"></span> 
+
+
+
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L479 target="_blank"><b>apply</b></a></span>  (inputs,  *args,  **kwargs)</span>
+
+This simply wraps `self.__call__`.
+
+Arguments:
+  inputs: Input tensor(s).
+  *args: additional positional arguments to be passed to `self.call`.
+  **kwargs: additional keyword arguments to be passed to `self.call`.
+
+<h5>Returns</h5>
+
+
+  Output tensor(s).
+
+ <span class="hr_large"></span> 
+
+
+
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L299 target="_blank"><b>call</b></a></span>  (inputs,  **kwargs)</span>
+
+Arguments:
+  inputs: input tensor(s).
+ **kwargs: additional keyword arguments.
+
+<h5>Returns</h5>
+
+
+  Output tensor(s).
+
+ <span class="hr_large"></span> 
+
+
+
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L271 target="_blank"><b>get_losses_for</b></a></span>  (inputs)</span>
+
+Arguments:
+  inputs: Input tensor or list/tuple of input tensors.
+Must match the `inputs` argument passed to the `__call__`
+method at the time the losses were created.
+If you pass `inputs=None`, unconditional losses are returned,
+such as weight regularization losses.
+
+<h5>Returns</h5>
+
+
+  List of loss tensors of the layer that depend on `inputs`.
+
+ <span class="hr_large"></span> 
+
+
+
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L207 target="_blank"><b>get_updates_for</b></a></span>  (inputs)</span>
+
+Arguments:
+  inputs: Input tensor or list/tuple of input tensors.
+Must match the `inputs` argument passed to the `__call__` method
+at the time the updates were created.
+If you pass `inputs=None`, unconditional updates are returned.
+
+<h5>Returns</h5>
+
+
+  List of update ops of the layer that depend on `inputs`.
+
+ <span class="hr_large"></span> 
+
+
+
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L212 target="_blank"><b>zero_state</b></a></span>  (batch_size,  dtype)</span>
 
 <h5>Args</h5>
 
@@ -39,7 +128,7 @@ able to reuse the layer scope must be given.
 
 # LSTM unit
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L61 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f4685b39230>,  forget_bias=1.0,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7f46b012d398>,  inner_activation=<function  sigmoid  at  0x7f46b012d320>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L61 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7ff07213b140>,  forget_bias=1.0,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7ff0c7a46050>,  inner_activation=<function  sigmoid  at  0x7ff0c7a40ed8>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None)</span>
 
 This class adds layer normalization and recurrent dropout to a
 basic LSTM unit. Layer normalization implementation is based on:
@@ -76,7 +165,7 @@ be applied.
 
 # Basic attention cell
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L168 target="_blank"><b>tefla.core.rnn_cell.AttentionCell</b></a></span>  (cell,  attn_length,  reuse,  w_init=<function  _initializer  at  0x7f4685b39488>,  use_bias=False,  trainable=True,  attn_size=None,  attn_vec_size=None,  input_size=None,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L168 target="_blank"><b>tefla.core.rnn_cell.AttentionCell</b></a></span>  (cell,  attn_length,  reuse,  w_init=<function  _initializer  at  0x7ff07213b398>,  use_bias=False,  trainable=True,  attn_size=None,  attn_vec_size=None,  input_size=None,  layer_norm=None,  layer_norm_args=None)</span>
 
 Implementation based on https://arxiv.org/abs/1409.0473.
 Create a cell with attention.
@@ -105,7 +194,7 @@ built from inputs and attention. Derived from the input tensor by default.
 
 # Gated Recurrent Unit cell (cf. http://arxiv.org/abs/1406.1078)
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L261 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  w_init=<function  _initializer  at  0x7f4685b39758>,  use_bias=False,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7f46b012d398>,  inner_activation=<function  sigmoid  at  0x7f46b012d320>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L261 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  w_init=<function  _initializer  at  0x7ff07213b668>,  use_bias=False,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7ff0c7a46050>,  inner_activation=<function  sigmoid  at  0x7ff0c7a40ed8>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None)</span>
 
 <h3>Args</h3>
 
@@ -157,7 +246,7 @@ probability; if it is float and 1, no output dropout will be added.
 
 # Adds a fully connected layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L683 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f4685218b90>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f46b00051b8>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L683 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7ff072128aa0>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7ff0c7b81758>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
 
 `fully_connected` creates a variable called `weights`, representing a fully
 connected weight matrix, which is multiplied by the `x` to produce a
@@ -235,7 +324,7 @@ A `Tensor` representing the output of the operation.
 
 # LSTM
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L918 target="_blank"><b>tefla.core.rnn_cell.lstm</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7f46b012d398>,  inner_activation=<function  sigmoid  at  0x7f46b012d320>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7f4685b3a578>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='lstm')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L918 target="_blank"><b>tefla.core.rnn_cell.lstm</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7ff0c7a46050>,  inner_activation=<function  sigmoid  at  0x7ff0c7a40ed8>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7ff07213e488>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='lstm')</span>
 Long Short Term Memory Recurrent Layer.
 
 <h3>Args</h3>
@@ -280,7 +369,7 @@ else: 2-D Tensor [samples, output dim].
 
 # GRU
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L971 target="_blank"><b>tefla.core.rnn_cell.gru</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7f46b012d398>,  inner_activation=<function  sigmoid  at  0x7f46b012d320>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7f4685b3a668>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='gru')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L971 target="_blank"><b>tefla.core.rnn_cell.gru</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7ff0c7a46050>,  inner_activation=<function  sigmoid  at  0x7ff0c7a40ed8>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7ff07213e578>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='gru')</span>
 Gated Recurrent Layer.
 
 <h3>Args</h3>

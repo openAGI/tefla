@@ -309,7 +309,7 @@ a scalar tensor representing the correlation loss value.
 
 # Computes the Maximum Mean Discrepancy (MMD) of two samples: x and y
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L516 target="_blank"><b>tefla.core.losses.maximum_mean_discrepancy</b></a></span>  (x,  y,  kernel=<function  gaussian_kernel_matrix  at  0x7f46a9e2b9b0>,  name='maximum_mean_discrepancy')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/losses.py#L516 target="_blank"><b>tefla.core.losses.maximum_mean_discrepancy</b></a></span>  (x,  y,  kernel=<function  gaussian_kernel_matrix  at  0x7ff078d6bb18>,  name='maximum_mean_discrepancy')</span>
 
 Maximum Mean Discrepancy (MMD) is a distance-measure between the samples of
 the distributions of x and y. Here we use the kernel two sample estimate
