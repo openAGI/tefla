@@ -850,3 +850,33 @@ def textfile_to_semi_redundant_sequences(path, seq_maxlen=25, redun_step=3,
     if to_lower_case:
         text = text.lower()
     return string_to_semi_redundant_sequences(text, seq_maxlen, redun_step, pre_defined_char_idx)
+
+
+def logits_to_log_prob(logits):
+    """Computes log probabilities using numerically stable trick.
+    This uses two numerical stability tricks:
+    1) softmax(x) = softmax(x - c) where c is a constant applied to all
+    arguments. If we set c = max(x) then the softmax is more numerically
+    stable.
+    2) log softmax(x) is not numerically stable, but we can stabilize it
+    by using the identity log softmax(x) = x - log sum exp(x)
+
+    Args:
+        logits: Tensor of arbitrary shape whose last dimension contains logits.
+
+    Returns:
+        A tensor of the same shape as the input, but with corresponding log
+            probabilities.
+    """
+
+    with tf.variable_scope('log_probabilities'):
+        axis = len(logits.get_shape().as_list()) - 1
+        max_logits = tf.reduce_max(
+            logits, axis=axis, keep_dims=True)
+        safe_logits = tf.subtract(logits, max_logits)
+        sum_exp = tf.reduce_sum(
+            tf.exp(safe_logits),
+            axis=axis,
+            keep_dims=True)
+        log_probs = tf.subtract(safe_logits, tf.log(sum_exp))
+    return log_probs
