@@ -1,3 +1,9 @@
+# -------------------------------------------------------------------#
+# Tool to Visualize activations
+# Released under the MIT license (https://opensource.org/licenses/MIT)
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 import click
 import tensorflow as tf
 import matplotlib.pyplot as plt

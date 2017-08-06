@@ -1,4 +1,9 @@
 """Resize and crop images to square, save as tiff."""
+# -------------------------------------------------------------------#
+# Tool to convert images
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 from __future__ import division, print_function
 
 import os
