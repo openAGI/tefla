@@ -124,11 +124,7 @@ class LSTMCell(core_rnn_cell.RNNCell):
                              trainable=self.trainable, w_init=self._w_init, use_bias=self._use_bias, name=scope)
 
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-            try:
-                i, j, f, o = tf.split(1, 4, concat)
-            except Exception as e:
-                print('Upgrade to recent version >= r.12 %s' % str(e.message))
-                i, j, f, o = tf.split(concat, 4, 1)
+            i, j, f, o = tf.split(concat, 4, axis=1)
 
             # apply batch normalization to inner state and gates
             if self.layer_norm is not None:
@@ -301,14 +297,8 @@ class GRUCell(core_rnn_cell.RNNCell):
         with tf.variable_scope(scope):
             with tf.variable_scope("gates"):  # Reset gate and update gate.
                 # We start with bias of 1.0 to not reset and not update.
-                try:
-                    r, u = tf.split(2, 1, value=_linear(
-                        [inputs, state], 2 * self._num_units, self.reuse, w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, trainable=self.trainable, name=scope))
-                except Exception as e:
-                    print('Upgrade to recent version >= r.12 %s' %
-                          str(e.message))
-                    r, u = tf.split(_linear([inputs, state], 2 * self._num_units, self.reuse,
-                                            w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, trainable=self.trainable, name=scope), 2, 1)
+                r, u = tf.split(_linear([inputs, state], 2 * self._num_units, self.reuse,
+                                        w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, trainable=self.trainable, name=scope), 2, 1)
                 r, u = self._inner_activation(r), self._inner_activation(u)
                 if self.layer_norm is not None:
                     u = self.layer_norm(
