@@ -25,8 +25,7 @@ def model(x, is_training, reuse, num_classes=2):
     x2 = conv1d(x, 128, filter_size=4, name='conv1_2', **common_args)
     x3 = conv1d(x, 128, filter_size=5, name='conv1_3', **common_args)
     x = merge([x1, x2, x3], 'concat', axis=1)
-    x = tf.expand_dims(x, 2)
-    x = global_max_pool(x)
+    x = lstm(x, 384, reuse, is_training)
     x = dropout(x, drop_p=0.3, **common_args)
     logits = fc(x, num_classes, name='logits', **logit_args)
 
