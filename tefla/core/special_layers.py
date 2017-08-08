@@ -402,7 +402,7 @@ def memory_module(inputs, time, context, reuse, nwords, edim, mem_size, lindim, 
         return hid
 
 
-def dense_crf(probs, img=None, n_classes=15, n_iters=10,
+def dense_crf(probs, img=None, n_classes=21, n_iters=10,
               sxy_gaussian=(1, 1), compat_gaussian=4,
               kernel_gaussian=dcrf.DIAG_KERNEL,
               normalisation_gaussian=dcrf.NORMALIZE_SYMMETRIC,
@@ -597,7 +597,7 @@ def embedding(inputs, vocab_dim, embedding_dim, reuse, validate_indices=False,
                                         validate_indices=validate_indices)
 
     shape = [-1] + output.get_shape().as_list()[1:3] + [1]
-    seq_length = util.retrieve_seq_length(tf.reshape(inputs, shape))
+    # seq_length = util.retrieve_seq_length(tf.reshape(inputs, shape))
 
     return output
 

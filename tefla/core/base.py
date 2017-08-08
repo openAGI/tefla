@@ -49,7 +49,7 @@ class Base(object):
         self.label_smoothing = label_smoothing
         log.setFileHandler(log_file_name)
         log.setVerbosity(str(verbosity))
-        super(self.__clsss__, self).__init__()
+        super(Base, self).__init__()
 
     def _setup_summaries(self, d_grads_and_var=None, input_summary=False, g_grads_and_var=None, activation_summary=False, params_summary=False, epoch_loss_g=False):
         with tf.name_scope('summaries'):
