@@ -166,6 +166,12 @@ def variance_scaling_initializer_v2(factor=2.0, mode='FAN_IN', uniform=False,
 def bilinear(f_shape):
     """Bilinear initialization for up sampling operation
 
+    Args:
+        f_shape: shape of the variable
+
+    Returns:
+        bilinear initializer
+
     """
     width = f_shape[0]
     heigh = f_shape[1]
@@ -186,7 +192,14 @@ def bilinear(f_shape):
 
 
 def random_orthonormal_initializer(shape, dtype=tf.float32, partition_info=None):
-    """Variable initializer that produces a random orthonormal matrix."""
+    """Variable initializer that produces a random orthonormal matrix
+
+    Args:
+        shape: shape of the variable
+
+    Returns:
+        random_orthogonal_matrix for initialization.
+    """
     if len(shape) != 2 or shape[0] != shape[1]:
         raise ValueError("Expecting square shape, got %s" % shape)
     _, u, _ = tf.svd(tf.random_normal(shape, dtype=dtype), full_matrices=True)
