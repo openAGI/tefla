@@ -382,3 +382,26 @@ A tuple: (inputs, targets, dictionary)
 
  ---------- 
 
+# Computes log probabilities using numerically stable trick
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/utils/util.py#L855 target="_blank"><b>tefla.utils.util.logits_to_log_prob</b></a></span>  (logits)</span>
+This uses two numerical stability tricks:
+1) softmax(x) = softmax(x - c) where c is a constant applied to all
+arguments. If we set c = max(x) then the softmax is more numerically
+stable.
+2) log softmax(x) is not numerically stable, but we can stabilize it
+by using the identity log softmax(x) = x - log sum exp(x)
+
+<h3>Args</h3>
+
+
+ - **logits**: Tensor of arbitrary shape whose last dimension contains logits.
+
+<h3>Returns</h3>
+
+
+A tensor of the same shape as the input, but with corresponding log
+probabilities.
+
+ ---------- 
+
