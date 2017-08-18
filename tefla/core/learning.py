@@ -273,8 +273,6 @@ class SupervisedLearner(Base, BaseMixin):
             if self.is_summary:
                 train_writer.close()
                 validation_writer.close()
-        coord.request_stop()
-        coord.join(stop_grace_period_secs=0.05)
 
     def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
         tower_grads = []
