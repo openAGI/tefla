@@ -5,7 +5,7 @@ import collections
 from tensorflow import random_normal, shape
 from tensorflow.python.training import optimizer
 from tensorflow.python.training import training_ops
-from ..utils.util import GetTensorOpName, ListUnion, Interface, BatchClipByL2Norm, AddGaussianNoise
+from ..utils.util import GetTensorOpName, ListUnion, Interface, BatchClipByL2norm, AddGaussianNoise
 
 ClipOption = collections.namedtuple("ClipOption",
                                     ["l2norm_bound", "clip"])
