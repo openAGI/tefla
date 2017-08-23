@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Mrinal(Ishant) Haloi">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Decoder - Tefla</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../css/extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Decoder";
+    var mkdocs_page_input_path = "dataset/decoder.md";
+    var mkdocs_page_url = "/dataset/decoder/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Tefla</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Index</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../installation/">Installation</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Layers</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/layers/">Layers</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/rnn_cell/">RNN</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/special_layers/">Special Layers</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/layer_arg_ops/">Layer Args</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Learner</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/training/">Learner</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/learning/">Learner Multi GPU</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/learning_v2/">Learner Multi GPU V2</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/learning_ss/">Learner Semi Supervised</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Predictor</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/prediction/">Predictor</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Built-in Ops</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/lr_policy/">Lr_Policy</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/metrics/">Metrics</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/initializers/">Initializations</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/losses/">Losses</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/summary/">Summaries</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/logger/">Logger</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../core/iter_ops/">Iter Ops</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Data Management</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../da/data/">Data Augmentation</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../da/standardizer/">Standardizer</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../image_to_tfrecords/">TfRecords</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../base/">Dataset</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../dataflow/">Dataflow</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Decoder</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#a-decoder-class-to-decode-examples">A Decoder class to decode examples</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../reader/">Reader</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Utils</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../utils/util/">Utils</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../contributions/">Contributions</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../license/">License</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Tefla</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Data Management &raquo;</li>
+        
+      
+    
+    <li>Decoder</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/n3011/tefla/edit/master/docs/dataset/decoder.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="a-decoder-class-to-decode-examples">A Decoder class to decode examples</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L9 target="_blank"><b>tefla.dataset.decoder.Decoder</b></a></span>  (feature_keys)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>feature_keys</strong>: a dict, with features name and data types</li>
+<li>e.g.:
+features_keys = {'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),'image/format': tf.FixedLenFeature((), tf.string, default_value='jpg'),'image/class/label': tf.FixedLenFeature([], tf.int64, - default_value=tf.zeros([], dtype=tf.int64)),
+}</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L32 target="_blank"><b>decode</b></a></span>  (example_serialized,  image_size,  resize_size=None)</span>
+<h5>Args</h5></p>
+<ul>
+<li><strong>example_serialized</strong>: scalar Tensor tf.string containing a serialized
+Example protocol buffer.</li>
+<li><strong>Returns</strong>:
+image_buffer: Tensor tf.string containing the contents of a JPEG file.
+label: Tensor tf.int32 containing the label.
+text: Tensor tf.string containing the human-readable label.</li>
+</ul>
+<h5>Returns</h5>
+
+<p>image_buffer: Tensor tf.string containing the contents of a JPEG file.
+label: Tensor tf.int32 containing the label.
+text: Tensor tf.string containing the human-readable label.</p>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L87 target="_blank"><b>distort_image</b></a></span>  (image,  distort_op,  height,  width,  thread_id=0,  scope=None)</span>
+<h5>Args</h5></p>
+<ul>
+<li><strong>image</strong>: 3-D float Tensor of image</li>
+<li><strong>height</strong>: integer</li>
+<li><strong>width</strong>: integer</li>
+<li><strong>thread_id</strong>: integer indicating the preprocessing thread.</li>
+<li>
+<p><strong>scope</strong>: Optional scope for name_scope.
+<h5>Returns</h5></p>
+</li>
+<li>
+<p>3-D float Tensor of distorted image used for training.</p>
+</li>
+</ul>
+<h5>Returns</h5>
+
+<p>3-D float Tensor of distorted image used for training.</p>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L106 target="_blank"><b>eval_image</b></a></span>  (image,  height,  width,  scope=None)</span>
+<h5>Args</h5></p>
+<ul>
+<li><strong>image</strong>: 3-D float Tensor</li>
+<li><strong>height</strong>: integer</li>
+<li><strong>width</strong>: integer</li>
+<li>
+<p><strong>scope</strong>: Optional scope for name_scope.
+<h5>Returns</h5></p>
+</li>
+<li>
+<p>3-D float Tensor of prepared image.</p>
+</li>
+</ul>
+<h5>Returns</h5>
+
+<p>3-D float Tensor of prepared image.</p>
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/dataset/decoder.py#L137 target="_blank"><b>parse_example_proto</b></a></span>  (example_serialized,  is_bbox=False)</span>
+The output of the build_image_data.py image preprocessing script is a dataset
+containing serialized Example protocol buffers. Each Example proto contains
+the following fields:
+image/height: 462
+image/width: 581
+image/colorspace: 'RGB'
+image/channels: 3
+image/class/label: 615
+image/class/synset: 'n03623198'
+image/class/text: 'knee pad'
+image/object/bbox/xmin: 0.1
+image/object/bbox/xma<h5>x</h5></p>
+<p>0.9
+image/object/bbox/ymin: 0.2
+image/object/bbox/yma<h5>x</h5></p>
+<p>0.6
+image/object/bbox/label: 615
+image/format: 'JPEG'
+image/filename: 'ILSVRC2012_val_00041207.JPEG'
+image/encoded: <JPEG encoded string></p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>example_serialized</strong>: scalar Tensor tf.string containing a serialized</li>
+<li>Example protocol buffer.</li>
+</ul>
+<h5>Returns</h5>
+
+<p>image_buffer: Tensor tf.string containing the contents of a JPEG file.
+label: Tensor tf.int32 containing the label.
+bbo<h5>x</h5></p>
+<p>3-D float Tensor of bounding boxes arranged [1, num_boxes, coords]
+where each coordinate is [0, 1) and the coordinates are arranged as
+[ymin, xmin, ymax, xmax].
+text: Tensor tf.string containing the human-readable label.</p>
+<hr />
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../reader/" class="btn btn-neutral float-right" title="Reader">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../dataflow/" class="btn btn-neutral" title="Dataflow"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../dataflow/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../reader/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>

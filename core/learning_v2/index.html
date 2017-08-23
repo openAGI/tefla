@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <meta name="author" content="Mrinal(Ishant) Haloi">
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Learner Multi GPU V2 - Tefla</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/highlight.css">
+  <link href="../../css/extra.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Learner Multi GPU V2";
+    var mkdocs_page_input_path = "core/learning_v2.md";
+    var mkdocs_page_url = "/core/learning_v2/";
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js"></script>
+  <script src="../../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Tefla</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Home</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../..">Index</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../installation/">Installation</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Layers</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../layers/">Layers</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../rnn_cell/">RNN</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../special_layers/">Special Layers</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../layer_arg_ops/">Layer Args</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Learner</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../training/">Learner</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../learning/">Learner Multi GPU</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 current">
+        <a class="current" href="./">Learner Multi GPU V2</a>
+        
+            <ul>
+            
+                <li class="toctree-l3"><a href="#supervised-learner-support-data-parallelism-multi-gpu-accept-tfrecords-data-as-input">Supervised Learner, support data parallelism, multi GPU, accept TFRecords data as input</a></li>
+                
+            
+            </ul>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../learning_ss/">Learner Semi Supervised</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Predictor</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../prediction/">Predictor</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Built-in Ops</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../lr_policy/">Lr_Policy</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../metrics/">Metrics</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../initializers/">Initializations</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../losses/">Losses</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../summary/">Summaries</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../logger/">Logger</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../iter_ops/">Iter Ops</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Data Management</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../da/data/">Data Augmentation</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../da/standardizer/">Standardizer</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/image_to_tfrecords/">TfRecords</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/base/">Dataset</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/dataflow/">Dataflow</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/decoder/">Decoder</a>
+        
+    </li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../dataset/reader/">Reader</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <ul class="subnav">
+    <li><span>Utils</span></li>
+
+        
+            
+    <li class="toctree-l1 ">
+        <a class="" href="../../utils/util/">Utils</a>
+        
+    </li>
+
+        
+    </ul>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../contributions/">Contributions</a>
+        
+    </li>
+<li>
+          
+            <li>
+    <li class="toctree-l1 ">
+        <a class="" href="../../license/">License</a>
+        
+    </li>
+<li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Tefla</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Learner &raquo;</li>
+        
+      
+    
+    <li>Learner Multi GPU V2</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/n3011/tefla/edit/master/docs/core/learning_v2.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="supervised-learner-support-data-parallelism-multi-gpu-accept-tfrecords-data-as-input">Supervised Learner, support data parallelism, multi GPU, accept TFRecords data as input</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L28 target="_blank"><b>tefla.core.learning_v2.SupervisedLearner</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  data_balancing=1,  **kwargs)</span></p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>model</strong>: model definition</li>
+<li><strong>cnf</strong>: dict, training configs</li>
+<li><strong>training_iterator</strong>: iterator to use for training data access, processing and augmentations</li>
+<li><strong>validation_iterator</strong>: iterator to use for validation data access, processing and augmentations</li>
+<li><strong>start_epoch</strong>: int, training start epoch; for resuming training provide the last</li>
+<li>epoch number to resume training from, its a required parameter for training data balancing</li>
+<li><strong>resume_lr</strong>: float, learning rate to use for new training</li>
+<li><strong>classification</strong>: bool, classificattion or regression</li>
+<li><strong>clip_norm</strong>: bool, to clip gradient using gradient norm, stabilizes the training</li>
+<li><strong>n_iters_per_epoch</strong>: int,  number of iteratiosn for each epoch;
+e.g: total_training_samples/batch_size</li>
+<li><strong>gpu_memory_fraction</strong>: amount of gpu memory to use</li>
+<li><strong>is_summary</strong>: bool, to write summary or not</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learningv2.py#L55 target="_blank"><b>fit</b></a></span>  (data_dir,  data_dir_val=None,  features_keys=None,  weights_from=None,  weights_dir='weights',  max_to_keep=None,  start_epoch=1,  summary_every=10,  training_set_size=None,  val_set_size=None,  dataset_name='cifar10',  keep_moving_averages=False)</span></p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>data_dir</strong>: str, training dataset directory (where tfrecords are staored for training)</li>
+<li><strong>data_dir_val</strong>: str optional, validation dataset directory (where tfrecords are stored for validation)</li>
+<li><strong>features_keys</strong>: a dict, tfrecords keys to datum features</li>
+<li>e.g.:</li>
+<li>features_keys = {
+'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),
+'image/format': tf.FixedLenFeature((), tf.string, default_value='jpg'),
+'image/class/label': tf.FixedLenFeature([], tf.int64, default_value=tf.zeros([], dtype=tf.int64)),</li>
+<li>}</li>
+<li><strong>weights_from</strong>: str, if not None, initializes model from exisiting weights</li>
+<li><strong>training_set_size</strong>: int, number of training examples</li>
+<li><strong>val_set_size</strong>: int, set if data_dir_val not None, number of validation examples</li>
+<li><strong>dataset_name</strong>: a optional, Name of the dataset</li>
+<li><strong>start_epoch</strong>: int,  epoch number to start training from
+e.g. for retarining set the epoch number you want to resume training from</li>
+<li><strong>summary_every</strong>: int, epoch interval to write summary; higher value means lower frequency
+of summary writing</li>
+<li><strong>keep_moving_averages</strong>: a bool, keep moving averages of trainable variables</li>
+</ul>
+<hr />
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../learning_ss/" class="btn btn-neutral float-right" title="Learner Semi Supervised">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../learning/" class="btn btn-neutral" title="Learner Multi GPU"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/n3011/tefla" class="icon icon-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../learning/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../learning_ss/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../../js/theme.js"></script>
+
+</body>
+</html>
