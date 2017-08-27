@@ -161,5 +161,3 @@ Improvements and requests for new features are more than welcome! Do not hesitat
 ## License
 
 [MIT License](https://n3011.github.io/tefla/license/)
-
-Note: This project BASE is jointly developed with Artelus team: www.github.com/litan/tefla. Both projects are evolving independently, with a cross-pollination of ideas.
