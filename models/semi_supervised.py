@@ -37,27 +37,32 @@ def discriminator(inputs, is_training, reuse, num_classes=11, batch_size=32):
     x = inputs
     end_points['inputs'] = x
     x = dropout(x, drop_p=0.2, name="input_dropout1", **common_args)
-    x = conv2d(x, 96, filter_size=(5, 5), stride=(
-        2, 2), name="d_conv1_1", **conv_args_1st)
-    end_points['d_conv1_1'] = x
-    x = conv2d(x, 96, name="d_conv1_2", **conv_args)
+    # x = conv2d(x, 48, name="d_conv1_1", **conv_args_1st)
+    # end_points['d_conv1_1'] = x
+    x = conv2d(x, 48, stride=2, name="d_conv1_2", **conv_args)
     end_points['d_conv1_2'] = x
-    x = conv2d(x, 96, stride=(2, 2), name="d_conv1_3", **conv_args)
-    end_points['d_conv1_3'] = x
-    x = dropout(x, drop_p=0.2, name="dropout1", **common_args)
-    x = conv2d(x, 192, name="d_conv2_1", **conv_args)
+    x = conv2d(x, 96, name="d_conv2_1", **conv_args)
     end_points['d_conv2_1'] = x
-    x = conv2d(x, 192, name="d_conv2_2", **conv_args)
+    x = conv2d(x, 96, name="d_conv2_2", **conv_args)
     end_points['d_conv2_2'] = x
-    x = conv2d(x, 192, stride=(2, 2), name="d_conv2_3", **conv_args)
+    x = conv2d(x, 96, stride=(2, 2), name="d_conv2_3", **conv_args)
     end_points['d_conv2_3'] = x
-    x = dropout(x, drop_p=0.2, name="dropout2", **common_args)
-    x = conv2d(x, 192, stride=(2, 2), name="d_conv3_1", **conv_args)
+    x = dropout(x, drop_p=0.2, name="dropout1", **common_args)
+    x = conv2d(x, 192, name="d_conv3_1", **conv_args)
     end_points['d_conv3_1'] = x
-    x = conv2d(x, 192, filter_size=(1, 1), name="d_conv4_1", **conv_args)
+    x = conv2d(x, 192, name="d_conv3_2", **conv_args)
+    end_points['d_conv3_2'] = x
+    x = conv2d(x, 192, name="d_conv3_3", **conv_args)
+    end_points['d_conv3_3'] = x
+    x = conv2d(x, 192, stride=(2, 2), name="d_conv3_4", **conv_args)
+    end_points['d_conv3_4'] = x
+    x = dropout(x, drop_p=0.2, name="dropout2", **common_args)
+    x = conv2d(x, 384, stride=(2, 2), name="d_conv4_1", **conv_args)
     end_points['d_conv4_1'] = x
-    x = conv2d(x, 192, filter_size=(1, 1), name="d_conv4_2", **conv_args)
+    x = conv2d(x, 384, name="d_conv4_2", **conv_args)
     end_points['d_conv4_2'] = x
+    x = conv2d(x, 384, name="d_conv4_3", **conv_args)
+    end_points['d_conv4_3'] = x
     x = global_avg_pool(x, name="global_pool")
     end_points['global_pool'] = x
     logits = fully_connected(x, num_classes, name="d_logits", **logits_args)
@@ -106,7 +111,9 @@ def generator(z_shape, is_training, reuse, batch_size=32):
     common_args = common_layer_args(is_training, reuse)
     conv_args = make_args(batch_norm=True, activation=lrelu, w_init=initz.he_normal(
         scale=1), untie_biases=False, **common_args)
-    conv_args_1st = make_args(batch_norm=None, activation=lrelu, w_init=initz.he_normal(
+    upsample_args = make_args(batch_norm=True, activation=lrelu, filter_size=2, stride=2, w_init=initz.he_normal(
+        scale=1), untie_biases=False, **common_args)
+    upsample_args_1st = make_args(batch_norm=None, activation=lrelu, filter_size=2, stride=2, w_init=initz.he_normal(
         scale=1), untie_biases=False, **common_args)
     fc_args = make_args(
         activation=lrelu, w_init=initz.he_normal(scale=1), **common_args)
@@ -121,26 +128,32 @@ def generator(z_shape, is_training, reuse, batch_size=32):
     x = tf.reshape(z_fc, [batch_size, 4, 4, 512])
     end_points['g_reshaped'] = x
     x = upsample2d(x, [batch_size, 8, 8, 256],
-                   name="g_deconv2d_1", **conv_args)
+                   name="g_deconv2d_1", **upsample_args)
+    x = conv2d(x, 256, name="g_conv_1", **conv_args)
+    x = dropout(x, drop_p=0.2, name="dropout2", **common_args)
     end_points['g_deconv2d_1'] = x
     x = upsample2d(x, [batch_size, 16, 16, 128],
-                   name="g_deconv2d_2", **conv_args)
+                   name="g_deconv2d_2", **upsample_args)
+    x = conv2d(x, 128, name="g_conv_2", **conv_args)
+    x = dropout(x, drop_p=0.2, name="dropout2", **common_args)
     end_points['g_deconv2d_2'] = x
     # x = upsample2d(x, [batch_size, 32, 32, 16 * 3],
-    #               name="g_deconv2d_3", **conv_args)
+    #               name="g_deconv2d_3", **upsample_args)
     # end_points['g_deconv2d_3'] = x
     # for now lets examine cifar
     # x = subpixel2d(x, 4, name='z_subpixel1')
     # x shape[batch_size, 128, 128, 3]
     # end_points['subpixel1'] = x
     x = upsample2d(x, [batch_size, 32, 32, 64],
-                   name="g_deconv2d_3", **conv_args)
+                   name="g_deconv2d_3", **upsample_args)
+    x = conv2d(x, 64, name="g_conv_3", **conv_args)
     end_points['g_deconv2d_3'] = x
     x = upsample2d(x, [batch_size, 64, 64, 32],
-                   name="g_deconv2d_4", **conv_args)
+                   name="g_deconv2d_4", **upsample_args)
+    x = conv2d(x, 32, name="g_conv_4", **conv_args)
     end_points['g_deconv2d_4'] = x
     x = upsample2d(x, [batch_size, 128, 128, 3],
-                   name="g_deconv2d_5", **conv_args_1st)
+                   name="g_deconv2d_5", **upsample_args_1st)
     end_points['g_deconv2d_5'] = x
 
     end_points['softmax'] = tf.nn.tanh(x)
