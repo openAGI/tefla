@@ -171,6 +171,17 @@ class ParallelDAIterator(QueuedDAIterator):
         return Xb, labels
 
 
+def balance_data(X, y, balance_ratio, count, balance_weights, final_balance_weights):
+    alpha = balance_ratio ** count
+    class_weights = balance_weights * alpha + \
+        final_balance_weights * (1 - alpha)
+    count += 1
+    indices = data.balance_per_class_indices(y, weights=class_weights)
+    X = X[indices]
+    y = y[indices]
+    return X, y, count
+
+
 class BalancingDAIterator(ParallelDAIterator):
 
     def __init__(
@@ -187,13 +198,8 @@ class BalancingDAIterator(ParallelDAIterator):
 
     def __call__(self, X, y=None):
         if y is not None:
-            alpha = self.balance_ratio ** self.count
-            class_weights = self.balance_weights * alpha + \
-                self.final_balance_weights * (1 - alpha)
-            self.count += 1
-            indices = data.balance_per_class_indices(y, weights=class_weights)
-            X = X[indices]
-            y = y[indices]
+            X, y, self.count = balance_data(
+                X, y, self.balance_ratio, self.count, self.balance_weights, self.final_balance_weights)
         return super(BalancingDAIterator, self).__call__(X, y)
 
 
@@ -215,11 +221,6 @@ class BalancingQueuedDAIterator(QueuedDAIterator):
 
     def __call__(self, X, y=None):
         if y is not None:
-            alpha = self.balance_ratio ** self.count
-            class_weights = self.balance_weights * alpha + \
-                self.final_balance_weights * (1 - alpha)
-            self.count += 1
-            indices = data.balance_per_class_indices(y, weights=class_weights)
-            X = X[indices]
-            y = y[indices]
+            X, y, self.count = balance_data(
+                X, y, self.balance_ratio, self.count, self.balance_weights, self.final_balance_weights)
         return super(BalancingQueuedDAIterator, self).__call__(X, y)
