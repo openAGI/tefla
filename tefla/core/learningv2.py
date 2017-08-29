@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Written by Mrinal Haloi
+# Contact: mrinal.haloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 from __future__ import division, print_function, absolute_import
 
 import os
