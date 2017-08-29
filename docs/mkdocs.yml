@@ -40,5 +40,4 @@ pages:
   - Reader: dataset/reader.md
 - Utils:
   - Utils: utils/util.md
-- Contributions: contributions.md
 - License: license.md
