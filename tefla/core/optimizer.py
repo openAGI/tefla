@@ -797,3 +797,52 @@ class AmortizedGaussianSanitizer(object):
         else:
             saned_x = tf.reduce_sum(x, 0)
         return saned_x
+
+
+class SGDNormMomentum(optimizer.Optimizer):
+
+    def __init__(self, learning_rate=0.001, mu=0.9, norm=10.0, use_locking=False, name="SGDmomentum"):
+        super(SGDNormMomentum, self).__init__(use_locking, name)
+        self._lr = learning_rate
+        self._mu = mu
+        self._norm = norm
+
+        self._lr_t = None
+        self._mu_t = None
+        self._norm_t = None
+
+    def _create_slots(self, var_list):
+        for v in var_list:
+            self._zeros_slot(v, "a", self._name)
+            self._zeros_slot(v, "n", self._name)
+
+    def _apply_dense(self, grad, weight):
+        learning_rate_t = tf.cast(self._lr_t, weight.dtype.base_dtype)
+        mu_t = tf.cast(self._mu_t, weight.dtype.base_dtype)
+        norm_t = tf.cast(self._norm_t, weight.dtype.base_dtype)
+        momentum = self.get_slot(weight, "a")
+        norm = self.get_slot(weight, "n")
+
+        if momentum.get_shape().ndims == 2:
+            momentum_mean = tf.reduce_mean(momentum, axis=1, keep_dims=True)
+        elif momentum.get_shape().ndims == 1:
+            momentum_mean = momentum
+        else:
+            momentum_mean = momentum
+
+        norm_update = learning_rate_t / norm + norm
+        norm_t = tf.assign(norm_t, norm_update)
+        momentum_update = (grad / norm_t) + (mu_t * momentum_mean)
+        momentum_t = tf.assign(momentum, momentum_update,
+                               use_locking=self._use_locking)
+
+        weight_update = learning_rate_t * momentum_t
+        weight_t = tf.assign_sub(
+            weight, weight_update, use_locking=self._use_locking)
+
+        return tf.group(*[weight_t, norm_t, momentum_t])
+
+    def _prepare(self):
+        self._lr_t = tf.convert_to_tensor(self._lr, name="learning_rate")
+        self._mu_t = tf.convert_to_tensor(self._mu, name="momentum_term")
+        self._norm_t = tf.convert_to_tensor(self._norm, name="normalizing_term")
