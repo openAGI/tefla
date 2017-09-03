@@ -83,11 +83,10 @@ class SupervisedLearner(Base, BaseMixin):
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        if self.update_ops is not None and len(self.update_ops) == 0:
-            self.update_ops = None
-            # if update_ops is not None:
-            # self.training_loss = tf.with_dependencies(update_ops,
-            # self.training_loss)
+        if self.update_ops is not None:
+            with tf.control_dependencies([tf.group(*self.update_ops)]):
+                self.training_loss = tf.identity(
+                    self.training_loss, name='train_loss')
 
     def _data_ops(self, data_dir, data_dir_val=None, standardizer=None, dataset_name='datarandom'):
         self.data_voc = PascalVoc(name='pascal_voc', data_dir=data_dir, standardizer=standardizer, is_label_filename=True, is_train=True, batch_size=1,
@@ -235,7 +234,7 @@ class SupervisedLearner(Base, BaseMixin):
                 with tf.device('/gpu:%d' % i):
                     with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
                         images, labels = self.data_voc.get_batch(batch_size=self.cnf['batch_size_train'], height=self.cnf.get(
-                            'im_height', 512), width=self.cnf.get('im_width', 512), output_height=self.cnf.get('output_height', 448), output_width=self.cnf.get('output_width', 448))
+                            'im_height', 512), width=self.cnf.get('im_width', 512), output_height=self.cnf.get('output_height', 224), output_width=self.cnf.get('output_width', 224))
                         labels = tf.reshape(labels, shape=(-1,))
                         loss = self._tower_loss(scope, model, images, labels, is_training=is_training,
                                                 reuse=i > 0, loss_type=loss_type, is_classification=is_classification, gpu_id=i)
