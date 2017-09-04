@@ -9,8 +9,6 @@ from tefla.core.layers import upsample2d, subpixel2d, batch_norm_tf as batch_nor
 from tefla.da import data
 from tefla.da import iterator
 
-# image_size = (128, 128)
-# crop_size = (128, 128)
 image_size = (32, 32)
 crop_size = (32, 32)
 
