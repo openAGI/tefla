@@ -46,8 +46,6 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
     model = model_def.model
     cnf = util.load_module(training_cnf).cnf
 
-    util.init_logging('train.log', file_log_level=logging.INFO,
-                      console_log_level=logging.INFO)
     if weights_from:
         weights_from = str(weights_from)
 

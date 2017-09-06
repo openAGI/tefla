@@ -182,7 +182,7 @@ Refined predictions after MAP inference.
 
 # ResNeXt Block
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7ff0749b0758>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7fc13dd846e0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
 resnext paper https://arxiv.org/pdf/1611.05431.pdf
 
 <h3>Args</h3>
@@ -218,7 +218,7 @@ override name.
 
 # Embedding
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7ff07211b510>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7fc13bbb6810>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
 Embedding layer for a sequence of integer ids or floats.
 
 <h3>Args</h3>
@@ -367,6 +367,64 @@ default set to None for no normalizer function
 
 The 4-D `Tensor` variable representing the result of the series of operations.
 e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
+
+ ---------- 
+
+# Performs a pooling operation that results in a fixed size:
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L804 target="_blank"><b>tefla.core.special_layers.max_pool_2d_nxn_regions</b></a></span>  (inputs,  output_size,  mode='max')</span>
+output_size x output_size.
+
+Used by spatial_pyramid_pool. Refer to appendix A in [1].
+
+<h3>Args</h3>
+
+
+ - **inputs**: A 4D Tensor (B, H, W, C)
+ - **output_size**: The output size of the pooling operation.
+ - **mode**: The pooling mode {max, avg}
+
+<h3>Returns</h3>
+
+
+A list of tensors, for each output bin.
+The list contains output_size * output_size elements, where
+each elment is a Tensor (N, C).
+
+ ---------- 
+
+# Performs spatial pyramid pooling (SPP) over the input
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L856 target="_blank"><b>tefla.core.special_layers.spatial_pyramid_pool</b></a></span>  (inputs,  dimensions=[2,  1],  mode='max',  implementation='kaiming')</span>
+It will turn a 2D input of arbitrary size into an output of fixed
+dimenson.
+Hence, the convlutional part of a DNN can be connected to a dense part
+with a fixed number of nodes even if the dimensions of the input
+image are unknown.
+
+The pooling is performed over :math:`l` pooling levels.
+Each pooling level :math:`i` will create :math:`M_i` output features.
+:math:`M_i` is given by :math:`n_i * n_i`, with :math:`n_i` as the number
+of pooling operations per dimension level :math:`i`.
+
+The length of the parameter dimensions is the level of the spatial pyramid.
+
+<h3>Args</h3>
+
+
+ - **inputs**: A 4D Tensor (B, H, W, C).
+ - **dimensions**: The list of :math:`n_i`'s that define the output dimension
+ - of each pooling level :math:`i`. The length of dimensions is the level of
+ - the spatial pyramid.
+ - **mode**: Pooling mode 'max' or 'avg'.
+ - **implementation**: The implementation to use, either 'kaiming' or 'fast'.
+ - kamming is the original implementation from the paper, and supports variable
+ - sizes of input vectors, which fast does not support.
+
+<h3>Returns</h3>
+
+
+A fixed length vector representing the inputs.
 
  ---------- 
 

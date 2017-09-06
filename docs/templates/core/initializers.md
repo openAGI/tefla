@@ -102,3 +102,35 @@ truncated_normal(shape, 0.0, stddev=sqrt(factor / n))
 
  ---------- 
 
+# Bilinear initialization for up sampling operation
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L166 target="_blank"><b>tefla.core.initializers.bilinear</b></a></span>  (f_shape)</span>
+
+<h3>Args</h3>
+
+
+ - **f_shape**: shape of the variable
+
+<h3>Returns</h3>
+
+
+bilinear initializer
+
+ ---------- 
+
+# Variable initializer that produces a random orthonormal matrix
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L194 target="_blank"><b>tefla.core.initializers.random_orthonormal_initializer</b></a></span>  (shape,  dtype=tf.float32,  partition_info=None)</span>
+
+<h3>Args</h3>
+
+
+ - **shape**: shape of the variable
+
+<h3>Returns</h3>
+
+
+random_orthogonal_matrix for initialization.
+
+ ---------- 
+

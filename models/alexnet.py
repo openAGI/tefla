@@ -17,18 +17,18 @@ import tensorflow as tf
 from tefla.core import initializers as initz
 from tefla.core.layer_arg_ops import common_layer_args, make_args, end_points
 from tefla.core.layers import dropout
-from tefla.core.layers import input, conv2d, max_pool, prelu, softmax
+from tefla.core.layers import input, conv2d, max_pool, prelu, softmax, global_avg_pool, fully_connected as fc
 
 # sizes - (width, height)
-image_size = (256, 256)
-crop_size = (224, 224)
+image_size = (128, 128)
+crop_size = (112, 112)
 
 
-def model(is_training, reuse,
-          num_classes=1000,
+def model(inputs, is_training, reuse,
+          num_classes=5,
           dropout_keep_prob=0.5,
           spatial_squeeze=True,
-          scope='alexnet_v2'):
+          name='alexnet_v2'):
     """AlexNet version 2.
 
     Described in: http://arxiv.org/pdf/1404.5997v2.pdf
@@ -64,7 +64,7 @@ def model(is_training, reuse,
         activation=prelu, w_init=initz.he_normal(scale=1), **common_args)
     pool_args = make_args(padding='SAME', **common_args)
 
-    inputs = input((None, crop_size[1], crop_size[0], 3), **common_args)
+    # inputs = input((None, crop_size[1], crop_size[0], 3), **common_args)
     with tf.variable_scope(name, 'alexnet_v2', [inputs]):
         net = conv2d(inputs, 64, filter_size=(11, 11), stride=(4, 4),
                      name='conv1', **conv_args)
@@ -84,11 +84,9 @@ def model(is_training, reuse,
         net = conv2d(net, 4096, filter_size=(1, 1), name='fc7', **conv_args)
         net = dropout(net, drop_p=1 - dropout_keep_prob,
                       name='dropout7', **common_args)
-        logits = conv2d(net, num_classes, filter_size=(1, 1),
-                        activation=None,
-                        name='logits', **logit_args)
+        net = global_avg_pool(net)
+        logits = fc(net, num_classes,
+                    name='logits', **logit_args)
 
-        if spatial_squeeze:
-            logits = tf.squeeze(logits, [1, 2], name='fc8/squeezed')
-        predictions = softmax(logits, name='predictions', **pred_args)
+        predictions = softmax(logits, name='predictions', **common_args)
         return end_points(is_training)

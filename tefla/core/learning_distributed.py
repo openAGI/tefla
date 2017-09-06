@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Written by Mrinal Haloi
+# Contact: mrinal.haloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 from __future__ import division, print_function, absolute_import
 
 import os
@@ -161,7 +166,8 @@ class DistSupervisedLearner(Base):
             saver = tf.train.Saver()
             init_op = tf.global_variables_initializer()
 
-            local_init_op = tf.group(tf.local_variables_initializer(), tf.tables_initializer())
+            local_init_op = tf.group(
+                tf.local_variables_initializer(), tf.tables_initializer())
 
             with tf.control_dependencies([local_init_op] if local_init_op is not None else []):
                 if is_chief:
@@ -170,8 +176,7 @@ class DistSupervisedLearner(Base):
                     local_init_op = opt.local_step_init_op
             ready_for_local_init_op = opt.ready_for_local_init_op
 
-
-            sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, local_init_op=local_init_op                 , ready_for_local_init_op=ready_for_local_init_op, summary_op=None,
+            sv = tf.train.Supervisor(is_chief=is_chief, logdir=self.cnf.get('train_dir', '/tmp'), init_op=init_op, local_init_op=local_init_op, ready_for_local_init_op=ready_for_local_init_op, summary_op=None,
                                      global_step=global_step, saver=saver, save_model_secs=self.cnf.get('save_interval_secs', 600))
 
             log.info('%s Supervisor' % datetime.now())
@@ -189,7 +194,7 @@ class DistSupervisedLearner(Base):
             batch_iter_idx = 1
             epoch = 1
             training_history = []
-	    self.total_network_params()
+            self.total_network_params()
             self.write_params()
             coord = tf.train.Coordinator()
             with sv.managed_session(server.target, config=sess_config) as sess:
@@ -200,7 +205,8 @@ class DistSupervisedLearner(Base):
                 log.info('Starting Queues.')
                 if is_chief:
                     sv.start_queue_runners(sess, chief_queue_runners)
-                    chief_queue_runners[0].create_threads(sess, coord=coord, daemon=True, start=True)
+                    chief_queue_runners[0].create_threads(
+                        sess, coord=coord, daemon=True, start=True)
                     sess.run(init_tokens_op)
 
                     if weights_from:
@@ -257,7 +263,7 @@ class DistSupervisedLearner(Base):
                                 learning_rate, batch_iter_idx)
                             batch_iter_idx += 1
                             log.debug('4. Training batch %d done.' % iteration)
-		        log.info('Learning rate value: %f.' % learning_rate)
+                        log.info('Learning rate value: %f.' % learning_rate)
                         epoch_training_loss = np.average(
                             training_losses, weights=batch_train_sizes)
                         # epoch_duration = time.time() - epoch_start_time

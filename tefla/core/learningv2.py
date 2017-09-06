@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Written by Mrinal Haloi
+# Contact: mrinal.haloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 from __future__ import division, print_function, absolute_import
 
 import os
@@ -96,10 +101,10 @@ class SupervisedLearner(Base, BaseMixin):
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        if self.update_ops is not None and len(self.update_ops) == 0:
-            self.update_ops = None
-            # if update_ops is not None:
-            #     self.training_loss = tf.with_dependencies(update_ops, self.training_loss)
+        if self.update_ops is not None:
+            with tf.control_dependencies([tf.group(*self.update_ops)]):
+                self.training_loss = tf.identity(
+                    self.training_loss, name='train_loss')
 
     def _data_ops(self, data_dir, data_dir_val, features_keys=None, training_set_size=50000, val_set_size=10000, dataset_name='datarandom'):
         num_readers = self.cnf.get('num_readers', 8)

@@ -23,6 +23,8 @@ import tensorflow as tf
 
 from .quadratic_weighted_kappa import quadratic_weighted_kappa
 
+OrderedDict = collections.OrderedDict
+
 
 def roc(y_true, y_pred, classes=[0, 1, 2, 3, 4]):
     y_true = label_binarize(y_true, classes=classes)
@@ -880,3 +882,147 @@ def logits_to_log_prob(logits):
             keep_dims=True)
         log_probs = tf.subtract(safe_logits, tf.log(sum_exp))
     return log_probs
+
+
+def GetTensorOpName(x):
+    """Get the name of the op that created a tensor.
+    Useful for naming related tensors, as ':' in name field of op is not permitted
+
+    Args:
+      x: the input tensor.
+
+    Returns:
+      the name of the op.
+    """
+
+    t = x.name.rsplit(":", 1)
+    if len(t) == 1:
+        return x.name
+    else:
+        return t[0]
+
+
+def ListUnion(list_1, list_2):
+    """Returns the union of two lists.
+    Python sets can have a non-deterministic iteration order. In some
+    contexts, this could lead to TensorFlow producing two different
+    programs when the same Python script is run twice. In these contexts
+    we use lists instead of sets.
+    This function is not designed to be especially fast and should only
+    be used with small lists.
+
+    Args:
+      list_1: A list
+      list_2: Another list
+
+    Returns:
+      A new list containing one copy of each unique element of list_1 and
+      list_2. Uniqueness is determined by "x in union" logic; e.g. two
+`      string of that value appearing in the union.
+
+    Raises:
+      TypeError: The arguments are not lists.
+    """
+
+    if not (isinstance(list_1, list) and isinstance(list_2, list)):
+        raise TypeError("Arguments must be lists.")
+
+    union = []
+    for x in list_1 + list_2:
+        if x not in union:
+            union.append(x)
+
+    return union
+
+
+def Interface(ys, xs):
+    """Maps xs to consumers.
+      Returns a dict mapping each element of xs to any of its consumers that are
+      indirectly consumed by ys.
+
+    Args:
+      ys: The outputs
+      xs: The inputs
+
+    Returns:
+      out: Dict mapping each member x of `xs` to a list of all Tensors that are
+           direct consumers of x and are eventually consumed by a member of
+           `ys`.
+    """
+
+    if isinstance(ys, (list, tuple)):
+        queue = list(ys)
+    else:
+        queue = [ys]
+
+    out = OrderedDict()
+    if isinstance(xs, (list, tuple)):
+        for x in xs:
+            out[x] = []
+    else:
+        out[xs] = []
+
+    done = set()
+
+    while queue:
+        y = queue.pop()
+        if y in done:
+            continue
+        done = done.union(set([y]))
+        for x in y.op.inputs:
+            if x in out:
+                out[x].append(y)
+            else:
+                assert id(x) not in [id(foo) for foo in out]
+        queue.extend(y.op.inputs)
+
+    return out
+
+
+def BatchClipByL2norm(t, upper_bound, name=None):
+    """Clip an array of tensors by L2 norm.
+    Shrink each dimension-0 slice of tensor (for matrix it is each row) such
+    that the l2 norm is at most upper_bound. Here we clip each row as it
+    corresponds to each example in the batch.
+
+    Args:
+      t: the input tensor.
+      upper_bound: the upperbound of the L2 norm.
+      name: optional name.
+
+    Returns:
+      the clipped tensor.
+    """
+
+    assert upper_bound > 0
+    with tf.name_scope(values=[t, upper_bound], name=name,
+                       default_name="batch_clip_by_l2norm") as name:
+        saved_shape = tf.shape(t)
+        batch_size = tf.slice(saved_shape, [0], [1])
+        t2 = tf.reshape(t, tf.concat(axis=0, values=[batch_size, [-1]]))
+        upper_bound_inv = tf.fill(tf.slice(saved_shape, [0], [1]),
+                                  tf.constant(1.0 / upper_bound))
+        # Add a small number to avoid divide by 0
+        l2norm_inv = tf.rsqrt(tf.reduce_sum(t2 * t2, [1]) + 0.000001)
+        scale = tf.minimum(l2norm_inv, upper_bound_inv) * upper_bound
+        clipped_t = tf.matmul(tf.diag(scale), t2)
+        clipped_t = tf.reshape(clipped_t, saved_shape, name=name)
+        return clipped_t
+
+
+def AddGaussianNoise(t, sigma, name=None):
+    """Add i.i.d. Gaussian noise (0, sigma^2) to every entry of t.
+
+    Args:
+      t: the input tensor.
+      sigma: the stddev of the Gaussian noise.
+      name: optional name.
+
+    Returns:
+      the noisy tensor.
+    """
+
+    with tf.name_scope(values=[t, sigma], name=name,
+                       default_name="add_gaussian_noise") as name:
+        noisy_t = t + tf.random_normal(tf.shape(t), stddev=sigma)
+        return noisy_t

@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Written by Mrinal Haloi
+# Contact: mrinal.haloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 from __future__ import division, print_function, absolute_import
 
 import os
@@ -73,12 +78,10 @@ class SupervisedLearner(Base, BaseMixin):
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
         self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-        if self.update_ops is not None and len(self.update_ops) == 0:
-            self.update_ops = None
-            # if update_ops is not None:
-            # regularized_training_loss =
-            # control_flow_ops.with_dependencies(update_ops,
-            # regularized_training_loss)
+        if self.update_ops is not None:
+            with tf.control_dependencies([tf.group(*self.update_ops)]):
+                self.training_loss = tf.identity(
+                    self.training_loss, name='train_loss')
 
     def _train_loop(self, data_set, weights_from, weights_dir, start_epoch, summary_every):
         training_X, training_y, validation_X, validation_y = \
@@ -273,8 +276,6 @@ class SupervisedLearner(Base, BaseMixin):
             if self.is_summary:
                 train_writer.close()
                 validation_writer.close()
-        coord.request_stop()
-        coord.join(stop_grace_period_secs=0.05)
 
     def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
         tower_grads = []
