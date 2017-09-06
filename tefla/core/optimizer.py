@@ -37,7 +37,7 @@ class RMSPropunroll(optimizer.Optimizer):
 
     def _create_slots(self, var_list):
         if self._g2 is None:
-            with tf.Graph.colocate_with(var_list[0]):
+            with tf.Graph().colocate_with(var_list[0]):
                 for v in var_list:
                     self._xi = self._zeros_slot(v, "xi", self._name)
                     self._g = self._zeros_slot(v, "g", self._name)
