@@ -51,7 +51,7 @@ class SupervisedLearner(Base, BaseMixin):
         super(SupervisedLearner, self).__init__(
             model, cnf, **kwargs)
 
-    def fit(self, data_set, weights_from=None, weights_dir='weights', start_epoch=1, summary_every=10, keep_moving_averages=False):
+    def fit(self, data_set, weights_from=None, weights_dir='weights', start_epoch=1, summary_every=10, keep_moving_averages=False, **kwargs):
         """
         Train the model on the specified dataset
 
@@ -68,8 +68,7 @@ class SupervisedLearner(Base, BaseMixin):
             self._setup_model_loss(
                 keep_moving_averages=keep_moving_averages)
             if self.is_summary:
-                # self._setup_summaries(self.grads_and_vars)
-                self._setup_summaries()
+                self. _setup_summaries(**kwargs)
             self._setup_misc()
             self._print_info(data_set)
             self._train_loop(data_set, weights_from, weights_dir,
@@ -200,7 +199,7 @@ class SupervisedLearner(Base, BaseMixin):
                     log.debug(
                         '6. Loading batch %d validation data done.' % batch_num)
 
-                    if (epoch - 1) % summary_every == 0 and self.is_summary:
+                    if (epoch - 1) % summary_every == 0 and self.is_summary and validation_batch_summary_op is not None:
                         log.debug(
                             '7. Running validation steps with summary...')
                         _validation_metric, summary_str_validate = sess.run(
