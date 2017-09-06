@@ -33,7 +33,7 @@ class PyTest(TestCommand):
 setup(
     name='tefla',
     packages=find_packages(),
-    version='1.3.1',
+    version='1.3.2',
     description='Simple end-to-end deep learning with tensorflow. Datasets, data-augmentation, models, training, prediction, and metrics',
     author='Tefla contributors',
     author_email='mrinalhaloi11@gmail.com',
@@ -41,7 +41,7 @@ setup(
     download_url='https://github.com/n3011/tefla/tarball/1.3.0',
     keywords=['tensorflow', 'deeplearning', 'cnn', 'deepcnn'],
     classifiers=[],
-    install_requires=['numpy==1.11.1', 'pandas==0.18.1', 'SharedArray==1.0', 'click==6.6', 'scikit-image==0.12.3',
+    install_requires=['tensorflow-gpu==1.2.0', 'numpy==1.11.1', 'pandas==0.18.1', 'SharedArray==1.0', 'click==6.6', 'scikit-image==0.12.3',
                       'scikit-learn==0.18.2', 'six==1.10.0', 'setuptools==28.8.0', 'ghalton==0.6', 'Pillow==2.3.0', 'progress'],
     test_suite='tests',
     cmdclass={'test': PyTest},
