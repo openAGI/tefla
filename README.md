@@ -63,28 +63,10 @@ export PYTHONPATH=.
 [Tefla Docs](https://n3011.github.io/tefla/)
 
 
-## Examples
-Many examples available with recent deep learning research integration
-
-1. [Gumbel Softmax](https://github.com/n3011/tefla/tree/master/examples/autoencoder)  
-2. [Unrolled_GAN](https://github.com/n3011/tefla/tree/master/examples/unrolled_gan)
-3. [Spatial Transoformer Network](https://github.com/n3011/tefla/tree/master/examples/spatial_transformer)
-4. [LSTM](https://github.com/n3011/tefla/tree/master/examples/lstm_rnn)
-5. [DATASETS](https://github.com/n3011/tefla/tree/master/examples/datasets)
-6. [ImageNet classificatrion](https://github.com/n3011/tefla/tree/master/examples/classification)
-7. [Inception-Resnetv2](https://github.com/n3011/tefla/blob/master/models/inception_resnet.py)
-8. [Resnet](https://github.com/n3011/tefla/blob/master/models/resnet_v2.py)
-
-## Pretrained Weights
-1. [VGG19 Trained on ImageNet](https://drive.google.com/file/d/0B9ScQjaDDiwpRnVqZV9JQmh4ZE0/view?usp=sharing)
-   Note: [(Model is converted from original Caffe version](https://gist.github.com/ksimonyan/3785162f95cd2d5fee77#file-readme-md)
-2. [Inception_Resnet_v2 trained on ImageNet](https://drive.google.com/file/d/0B9ScQjaDDiwpTk1kNDBqT1lKRUU/view?usp=sharing)
-   Note: [model is converted from original tf version, trained by Google brain](https://github.com/tensorflow/models/tree/master/slim)
-
 ## Tefla Models
 Recent deep convolutional models are easy to implement using TEFLA
  
-1. [Recent Models](https://github.com/n3011/tefla/tree/master/models)
+1. [Recent Models](https://github.com/openagi/models/nets)
 
 ## Getting Started
 
