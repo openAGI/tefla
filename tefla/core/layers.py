@@ -250,7 +250,7 @@ def conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), dilation=1,
+def dilated_conv2d(x, n_output_channels, is_training, reuse, trainable=True, filter_size=(3, 3), dilation=1, stride=1,
                    padding='SAME', w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, untie_biases=False,
                    name='dilated_conv2d', batch_norm=None, batch_norm_args=None, activation=None, use_bias=True,
                    outputs_collections=None):
