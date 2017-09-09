@@ -16,6 +16,7 @@ from . import summary
 from . import logger as log
 import tensorflow as tf
 from tensorflow.python.framework import function
+from tensorflow.python.training import moving_averages
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -318,20 +319,16 @@ class Base(object):
 
         multiplied_grads_and_vars = []
         for grad, var in grads_and_vars:
-            if var in gradient_multipliers or var.op.name in gradient_multipliers:
-                key = var if var in gradient_multipliers else var.op.name
-                if grad is None:
-                    raise ValueError('Requested multiple of `None` gradient.')
-
+            if (grad is not None and (var in gradient_multipliers or var.name in gradient_multipliers)):
+                key = var if var in gradient_multipliers else var.name
+                multiplier = tf.constant(
+                    gradient_multipliers[key], dtype=tf.float32)
                 if isinstance(grad, tf.IndexedSlices):
-                    tmp = grad.values * \
-                        tf.constant(gradient_multipliers[
-                                    key], dtype=grad.dtype)
+                    grad_values = grad.values * multiplier
                     grad = tf.IndexedSlices(
-                        tmp, grad.indices, grad.dense_shape)
+                        grad_values, grad.indices, grad.dense_shape)
                 else:
-                    grad *= tf.constant(gradient_multipliers[
-                                        key], dtype=grad.dtype)
+                    grad *= multiplier
             multiplied_grads_and_vars.append((grad, var))
         return multiplied_grads_and_vars
 
@@ -404,6 +401,62 @@ class Base(object):
             noisy_gradients.append(gradient + noise)
         # return list(zip(noisy_gradients, variables))
         return noisy_gradients
+
+    def _adaptive_max_norm(self, norm, std_factor, decay, global_step, epsilon, name):
+        """Find max_norm given norm and previous average."""
+        with tf.variable_scope(name, "AdaptiveMaxNorm", [norm]):
+            log_norm = tf.log(norm + epsilon)
+
+            def moving_average(name, value, decay):
+                moving_average_variable = tf.get_variable(name,
+                                                          shape=value.get_shape(),
+                                                          dtype=value.dtype,
+                                                          initializer=tf.zeros_initializer(),
+                                                          trainable=False)
+                return moving_averages.assign_moving_average(moving_average_variable, value, decay, zero_debias=False)
+
+            # quicker adaptation at the beginning
+            if global_step is not None:
+                n = tf.to_float(global_step)
+                decay = tf.minimum(decay, n / (n + 1.))
+
+            # update averages
+            mean = moving_average("mean", log_norm, decay)
+            sq_mean = moving_average(
+                "sq_mean", tf.square(log_norm), decay)
+
+            variance = sq_mean - tf.square(mean)
+            std = tf.sqrt(tf.maximum(epsilon, variance))
+            max_norms = tf.exp(mean + std_factor * std)
+            return max_norms, mean
+
+    def _adaptive_gradient_clipping(self, grads_and_vars, std_factor=2., decay=0.95, static_max_norm=None, global_step=None, epsilon=1e-8, name=None):
+        """function for adaptive gradient clipping."""
+        grads, variables = zip(*grads_and_vars)
+        norm = tf.global_norm(grads)
+        max_norm, log_mean = self._adaptive_max_norm(norm, std_factor, decay,
+                                                     global_step, epsilon, name)
+
+        # factor will be 1. if norm is smaller than max_norm
+        factor = tf.where(norm < max_norm,
+                          tf.ones_like(norm),
+                          tf.exp(log_mean) / norm)
+
+        if static_max_norm is not None:
+            factor = tf.minimum(static_max_norm / norm, factor)
+
+        # apply factor
+        clipped_grads = []
+        for grad in grads:
+            if grad is None:
+                clipped_grads.append(None)
+            elif isinstance(grad, tf.IndexedSlices):
+                clipped_grads.append(tf.IndexedSlices(grad.values * factor, grad.indices,
+                                                      grad.dense_shape))
+            else:
+                clipped_grads.append(grad * factor)
+
+        return list(zip(clipped_grads, variables))
 
     def _setup_misc(self):
         self.num_epochs = self.cnf.get('num_epochs', 500)
