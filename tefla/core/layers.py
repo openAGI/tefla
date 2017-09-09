@@ -2143,6 +2143,75 @@ def softmax(x, name='softmax', outputs_collections=None, **unused):
         return _collect_named_outputs(outputs_collections, name, output)
 
 
+def spatial_softmax(features, reuse, temperature=None, name='spatial_softmax', trainable=True, outputs_collections=None, **unused):
+    """Computes the spatial softmax of a convolutional feature map.
+    First computes the softmax over the spatial extent of each channel of a
+    convolutional feature map. Then computes the expected 2D position of the
+    points of maximal activation for each channel, resulting in a set of
+    feature keypoints [x1, y1, ... xN, yN] for all N channels.
+    Read more here:
+    "Learning visual feature spaces for robotic manipulation with
+    deep spatial autoencoders." Finn et. al, http://arxiv.org/abs/1509.06113.
+
+    Args:
+        features: A `Tensor` of size [batch_size, W, H, num_channels]; the
+            convolutional feature map.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        outputs_collections: The collections to which the outputs are added.
+        temperature: Softmax temperature (optional). If None, a learnable
+            temperature is created.
+        name: A name for this operation (optional).
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see `tf.Variable`).
+
+    Returns:
+        feature_keypoints: A `Tensor` with size [batch_size, num_channels * 2];
+            the expected 2D locations of each channel's feature keypoint (normalized
+            to the range (-1,1)). The inner dimension is arranged as
+           [x1, y1, ... xN, yN].
+
+    Raises:
+        ValueError: If unexpected data_format specified.
+        ValueError: If num_channels dimension is unspecified.
+    """
+    shape = tf.shape(features)
+    static_shape = features.shape
+    height, width, num_channels = shape[1], shape[2], static_shape[3]
+    if num_channels.value is None:
+        raise ValueError('The num_channels dimension of the inputs to '
+                         '`spatial_softmax` should be defined. Found `None`.')
+
+    with tf.name_scope(name, 'spatial_softmax', [features]) as name:
+        # Create tensors for x and y coordinate values, scaled to range [-1, 1].
+        pos_x, pos_y = tf.meshgrid(tf.lin_space(-1., 1., num=height),
+                                   tf.lin_space(-1., 1., num=width), indexing='ij')
+        pos_x = tf.reshape(pos_x, [height * width])
+        pos_y = tf.reshape(pos_y, [height * width])
+        if temperature is None:
+            with tf.variable_scope(name + '_temperature', reuse=reuse):
+                temperature = tf.get_variable(
+                    'temperature',
+                    shape=(),
+                    dtype=tf.float32,
+                    initializer=tf.ones_initializer(),
+                    trainable=trainable)
+        features = tf.reshape(tf.transpose(
+            features, [0, 3, 1, 2]), [-1, height * width])
+
+        softmax_attention = tf.nn.softmax(features / temperature)
+        expected_x = tf.reduce_sum(
+            pos_x * softmax_attention, [1], keep_dims=True)
+        expected_y = tf.reduce_sum(
+            pos_y * softmax_attention, [1], keep_dims=True)
+        expected_xy = tf.concat([expected_x, expected_y], 1)
+        feature_keypoints = tf.reshape(
+            expected_xy, [-1, num_channels.value * 2])
+        feature_keypoints.set_shape([None, num_channels.value * 2])
+
+        return _collect_named_outputs(outputs_collections, name, feature_keypoints)
+
+
 def selu(x, alpha=None, scale=None, name='selu', outputs_collections=None, **unused):
     """
     Computes selu
