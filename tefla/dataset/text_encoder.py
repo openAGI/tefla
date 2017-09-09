@@ -22,6 +22,7 @@ import re
 # Dependency imports
 
 import six
+import abc
 from six.moves import xrange  # pylint: disable=redefined-builtin
 from .tokenizer import InvertibleTokenizer
 
