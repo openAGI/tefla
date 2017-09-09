@@ -137,10 +137,10 @@ class SupervisedLearner(Base, BaseMixin):
                                        self.learning_rate: learning_rate_value}
 
                     log.debug('1. Loading batch %d data done.' % batch_num)
-                    if epoch % summary_every == 0 and self.is_summary:
+                    if epoch % summary_every == 0 and self.is_summary and training_batch_summary_op is not None:
                         log.debug('2. Running training steps with summary...')
-                        training_predictions_e, training_loss_e, summary_str_train, _ = sess.run(
-                            [self.training_predictions, self.training_loss, training_batch_summary_op,
+                        training_loss_e, summary_str_train, _ = sess.run(
+                            [self.training_loss, training_batch_summary_op,
                              self.train_op],
                             feed_dict=feed_dict_train)
                         train_writer.add_summary(summary_str_train, epoch)
