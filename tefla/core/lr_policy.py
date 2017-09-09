@@ -4,6 +4,7 @@ import abc
 import six
 import math
 import bisect
+import numpy as np
 from . import logger as log
 
 
@@ -30,9 +31,9 @@ class AbstractInitialLr(object):
     def initial_lr(self):
         """
         a property
-        Returns the base/initial learning rate
+        Returns the updated learning rate
         """
-        return self._base_lr
+        return self.batch_update(self._base_lr, self.start_epoch * self._n_iters_per_epoch)
 
     @property
     def start_epoch(self):
@@ -239,14 +240,6 @@ class PolyDecayPolicy(AbstractInitialLr):
     def epoch_update(self, learning_rate, training_history):
         return learning_rate
 
-    @property
-    def initial_lr(self):
-        """
-        a property
-        Returns the updated learning rate
-        """
-        return self.batch_update(self._base_lr, self.start_epoch * self._n_iters_per_epoch)
-
     def __str__(self):
         return 'PolyDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power,
                                                                              self.max_epoch)
@@ -294,16 +287,96 @@ class InvDecayPolicy(AbstractInitialLr):
     def epoch_update(self, learning_rate, training_history):
         return learning_rate
 
-    @property
-    def initial_lr(self):
-        """
-        a property
-        Returns the updated learning rate
-        """
-        return self.batch_update(self._base_lr, self.start_epoch * self._n_iters_per_epoch)
-
     def __str__(self):
         return 'InvDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power, self.max_epoch)
+
+    def __repr__(self):
+        return str(self)
+
+
+class CosineDecayPolicy(AbstractInitialLr):
+    """Cosine learning rate decay policy
+
+    the effective learning rate follows a polynomial decay, to be
+    zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)
+
+    Args:
+        base_lr: a float, starting learning rate
+        cycle_steps: a float, decay steps one cycle, learning rate decayed by inv(cycle_steps)
+    """
+
+    def __init__(self, base_lr, cycle_steps=100000, **kwargs):
+        self._cycle_steps = cycle_steps
+        super(CosineDecayPolicy, self).__init__(base_lr)
+
+    def batch_update(self, learning_rate, iter_idx):
+        """Update learning rate after every training batch
+
+        it follows a polynomial decay policy
+
+        Args:
+            learning_rate: current batch learning rate
+            iter_idx: iteration number,
+                e.g. number_of_iterations_per_batch*epoch+current_batch_iteration_number
+
+        Returns:
+            updated_lr
+        """
+        updated_lr = self._base_lr * \
+            05 * (1 + np.cos(np.pi * (iter_idx %
+                                      self._cycle_steps) / self._cycle_steps))
+        return updated_lr
+
+    def epoch_update(self, learning_rate, training_history):
+        return learning_rate
+
+    def __str__(self):
+        return 'CosineDecayPolicy(initial rate=%f, cycle_steps=%f)' % (self.initial_lr, self._cycle_steps)
+
+    def __repr__(self):
+        return str(self)
+
+
+class CyclicDecayPolicy(AbstractInitialLr):
+    """Cyclic learning rate decay policy
+
+    the effective learning rate follows a polynomial decay, to be
+    zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)
+
+    Args:
+        base_lr: a float, starting learning rate
+        cycle_steps: a float, decay steps one cycle, learning rate decayed by inv(cycle_steps)
+    """
+
+    def __init__(self, base_lr, cycle_steps=100000, **kwargs):
+        self._cycle_steps = cycle_steps
+        super(CyclicDecayPolicy, self).__init__(base_lr)
+
+    def batch_update(self, learning_rate, iter_idx):
+        """Update learning rate after every training batch
+
+        it follows a polynomial decay policy
+
+        Args:
+            learning_rate: current batch learning rate
+            iter_idx: iteration number,
+                e.g. number_of_iterations_per_batch*epoch+current_batch_iteration_number
+
+        Returns:
+            updated_lr
+        """
+        cycle_position = iter_idx % (2 * self._cycle_steps)
+        cycle_position = (cycle_position - self._cycle_steps) / \
+            float(self._cycle_steps)
+        cycle_position = 1.0 - np.abs(cycle_position)
+        updated_lr = self._base_lr * (cycle_position + 0.1) * 3.0
+        return updated_lr
+
+    def epoch_update(self, learning_rate, training_history):
+        return learning_rate
+
+    def __str__(self):
+        return 'CyclicDecayPolicy(initial rate=%f, cycle_steps=%f)' % (self.initial_lr, self._cycle_steps)
 
     def __repr__(self):
         return str(self)
