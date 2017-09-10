@@ -25,3 +25,4 @@ from . import special_layers
 from . import summary
 from . import training
 from . import vbn
+from . import gdn
