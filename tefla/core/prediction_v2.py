@@ -70,7 +70,7 @@ class OneCropPredictor(PredictSession):
         return data_predictions
 
 
-class QuasiPredictor(PredictSession):
+class QuasiCropPredictor(PredictSession):
     """Quasi transform predictor
 
     Args:
@@ -88,13 +88,13 @@ class QuasiPredictor(PredictSession):
         self.number_of_transforms = number_of_transforms
         self.predictor = OneCropPredictor(
             graph, prediction_iterator, input_tensor_name, predict_tensor_name)
-        super(QuasiPredictor, self).__init__(graph)
+        super(QuasiCropPredictor, self).__init__(graph)
 
     def _real_predict(self, X):
         standardizer = self.prediction_iterator.standardizer
         da_params = standardizer.da_processing_params()
         util.veryify_args(da_params, [
-                          'sigma'], 'QuasiPredictor > standardizer does unknown da with param(s):')
+                          'sigma'], 'QuasiCropPredictor > standardizer does unknown da with param(s):')
         color_sigma = da_params.get('sigma', 0.0)
         tfs, color_vecs = tta.build_quasirandom_transforms(self.number_of_transforms, color_sigma=color_sigma,
                                                            **self.cnf['aug_params'])
@@ -107,7 +107,7 @@ class QuasiPredictor(PredictSession):
         return np.mean(multiple_predictions, axis=0)
 
 
-class CropPredictor(PredictSession):
+class TenCropPredictor(PredictSession):
     """Multiples non Data augmented crops predictor
 
     Args:
@@ -127,7 +127,7 @@ class CropPredictor(PredictSession):
         self.crop_size = crop_size
         self.im_size = im_size
         self.prediction_iterator = prediction_iterator
-        super(CropPredictor, self).__init__(graph)
+        super(TenCropPredictor, self).__init__(graph)
 
     def _real_predict(self, X):
         crop_size = np.array(self.crop_size)
