@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import abc
 import six
+import os
 
 from . import text_encoder
 from .texttfrecords import TextTFRecord
@@ -68,7 +69,7 @@ class TextDataset():
         return True
 
     @abc.abstractmethod
-    def generator(self, tmp_dir, train, *args, characters=False, **kwargs):
+    def generator(self, tmp_dir, train, *args, **kwargs):
         """Generator for lm1b sentences.
 
         Args:
