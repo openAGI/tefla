@@ -165,6 +165,15 @@ class TextDataset():
             self.sharded_name(fname, shard, num_shards) for shard in xrange(num_shards)
         ]
 
+    def get_data_filepatterns(self, data_dir, mode='training'):
+        datasets = []
+        data_dir = os.path.join(data_dir, self._dataset_name)
+        if mode == 'training':
+            datasets.append("%s-train*" % data_dir)
+        else:
+            datasets.append("%s-dev*" % data_dir)
+        return datasets
+
 
 class SpaceID(object):
     """Input and target space ids. Add more as needed."""
