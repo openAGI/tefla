@@ -6,6 +6,7 @@ import abc
 import six
 import os
 
+import tensorflow as tf
 from . import text_encoder
 from .texttfrecords import TextTFRecord
 
@@ -66,7 +67,7 @@ class TextDataset():
 
     @property
     def use_train_shards_for_dev(self):
-        return True
+        return False
 
     @abc.abstractmethod
     def generator(self, tmp_dir, train, *args, **kwargs):
@@ -106,7 +107,7 @@ class TextDataset():
             all_paths = train_paths + dev_paths
             self.tfrecords.generate_files(
                 self.generator(data_dir, tmp_dir, True), all_paths)
-            self.tfrecords.shuffle_dataset(all_paths)
+            self.tfrecords.shuffle_dataset(train_paths)
         else:
             self.tfrecords.generate_dataset_and_shuffle(
                 self.generator(data_dir, tmp_dir, True), train_paths,
@@ -147,10 +148,10 @@ class TextDataset():
         return self._data_filenames(self._dataset_name + UNSHUFFLED_SUFFIX + "-train", output_dir, num_shards)
 
     def dev_data_filenames(self, output_dir, num_shards):
-        return self._data_filenames(self._dataset_name + UNSHUFFLED_SUFFIX + "-dev", output_dir, num_shards)
+        return self._data_filenames(self._dataset_name + "-dev", output_dir, num_shards)
 
     def test_data_filenames(self, output_dir, num_shards):
-        return self._data_filenames(self.dataset_name + UNSHUFFLED_SUFFIX + "-test", output_dir, num_shards)
+        return self._data_filenames(self.dataset_name + "-test", output_dir, num_shards)
 
     def combined_data_filenames(self, output_dir, num_training_shards):
         return (self.train_data_filenames(output_dir, num_training_shards) +
@@ -170,9 +171,38 @@ class TextDataset():
         data_dir = os.path.join(data_dir, self._dataset_name)
         if mode == 'training':
             datasets.append("%s-train*" % data_dir)
+        elif mode == 'eval':
+            datasets.append("%s-dev*" % data_dir)
         else:
+            datasets.append("%s-train*" % data_dir)
             datasets.append("%s-dev*" % data_dir)
         return datasets
+
+    def get_data_files(self, data_sources):
+        """Get data_files from data_sources.
+
+        Args:
+            data_sources: a list/tuple of files or the location of the data, i.e.
+            /path/to/train@128, /path/to/train* or /tmp/.../train*
+
+        Returns:
+            a list of data_files.
+
+        Raises:
+            ValueError: if not data files are not found
+        """
+        if isinstance(data_sources, (list, tuple)):
+            data_files = []
+            for source in data_sources:
+                data_files += self.get_data_files(source)
+        else:
+            if '*' in data_sources or '?' in data_sources or '[' in data_sources:
+                data_files = tf.gfile.Glob(data_sources)
+            else:
+                data_files = [data_sources]
+        if not data_files:
+            raise ValueError('No data files found in %s' % (data_sources,))
+        return data_files
 
 
 class SpaceID(object):
