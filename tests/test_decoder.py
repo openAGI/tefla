@@ -52,7 +52,7 @@ class DataReaderTest(tf.test.TestCase):
     def setUpClass(cls):
         tf.set_random_seed(1)
         cls.filepatterns, testdata = generate_test_data(
-            '/tmp/test', '/tmp/test')
+            '/tmp', '/tmp')
         cls.decoder = TextDecoder(testdata)
 
     def testBasicExampleReading(self):
