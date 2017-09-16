@@ -16,8 +16,8 @@ from tefla.dataset.textdecoder import TextDecoder
 
 class TestDataset(TextDataset):
 
-    def __init__(self, vocab_name='testvocab', dataset_name='test'):
-        super(TestDataset, self).__init__(vocab_name, dataset_name)
+    def __init__(self, data_dir, vocab_name='testvocab', dataset_name='test'):
+        super(TestDataset, self).__init__(data_dir, vocab_name, dataset_name)
 
     def generator(self, data_dir, tmp_dir, is_training):
         for i in xrange(30):
@@ -38,10 +38,10 @@ class TestDataset(TextDataset):
 
 
 def generate_test_data(data_dir, tmp_dir):
-    testdata = TestDataset()
+    testdata = TestDataset(data_dir)
     print('generrating data')
-    testdata.generate_data(data_dir, tmp_dir)
-    filepatterns = testdata.get_data_filepatterns(data_dir, mode='both')
+    testdata.generate_data(tmp_dir)
+    filepatterns = testdata.get_data_filepatterns(mode='both')
     assert tf.gfile.Glob(filepatterns[0])
     return filepatterns, testdata
 

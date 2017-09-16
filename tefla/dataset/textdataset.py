@@ -16,9 +16,10 @@ UNSHUFFLED_SUFFIX = "-unshuffled"
 @six.add_metaclass(abc.ABCMeta)
 class TextDataset():
 
-    def __init__(self, vocab_name, dataset_name):
+    def __init__(self, data_dir, vocab_name, dataset_name):
         self._vocab_name = vocab_name
         self._dataset_name = dataset_name
+        self._data_dir = data_dir
         self.tfrecords = TextTFRecord()
 
     @property
@@ -28,6 +29,10 @@ class TextDataset():
     @property
     def has_inputs(self):
         return True
+
+    @property
+    def data_dir(self):
+        return self._data_dir
 
     @property
     def input_space_id(self):
@@ -83,8 +88,7 @@ class TextDataset():
         """
         raise NotImplementedError()
 
-    def feature_encoders(self, data_dir):
-        del data_dir
+    def feature_encoders(self):
         return {
             "inputs": text_encoder.TextEncoder(),
             "targets": text_encoder.TextEncoder()
@@ -98,45 +102,42 @@ class TextDataset():
         data_items_to_decoders = None
         return (data_fields, data_items_to_decoders)
 
-    def generate_data(self, data_dir, tmp_dir, task_id=-1):
+    def generate_data(self, tmp_dir, task_id=-1):
         train_paths = self.training_filepaths(
-            data_dir, self.num_shards, shuffled=False)
+            self.num_shards)
         dev_paths = self.dev_filepaths(
-            data_dir, self.num_dev_shards, shuffled=False)
+            self.num_dev_shards)
         if self.use_train_shards_for_dev:
             all_paths = train_paths + dev_paths
             self.tfrecords.generate_files(
-                self.generator(data_dir, tmp_dir, True), all_paths)
+                self.generator(self._data_dir, tmp_dir, True), all_paths)
             self.tfrecords.shuffle_dataset(train_paths)
         else:
             self.tfrecords.generate_dataset_and_shuffle(
-                self.generator(data_dir, tmp_dir, True), train_paths,
-                self.generator(data_dir, tmp_dir, False), dev_paths)
+                self.generator(self._data_dir, tmp_dir, True), train_paths,
+                self.generator(self._data_dir, tmp_dir, False), dev_paths)
 
-    def feature_encoders(self, data_dir):
+    def feature_encoders(self):
         if self.is_character_level:
             encoder = text_encoder.ByteTextEncoder()
         elif self.use_subword_tokenizer:
-            vocab_filename = os.path.join(data_dir, self.vocab_file)
+            vocab_filename = os.path.join(self._data_dir, self.vocab_file)
             encoder = text_encoder.SubwordTextEncoder(vocab_filename)
         else:
-            vocab_filename = os.path.join(data_dir, self.vocab_file)
+            vocab_filename = os.path.join(self._data_dir, self.vocab_file)
             encoder = text_encoder.TokenTextEncoder(vocab_filename)
         if self.has_inputs:
             return {"inputs": encoder, "targets": encoder}
         return {"targets": encoder}
 
-    def training_filepaths(self, data_dir, num_shards, shuffled):
-        return self.train_data_filenames(data_dir,
-                                         num_shards)
+    def training_filepaths(self, num_shards):
+        return self.train_data_filenames(num_shards)
 
-    def dev_filepaths(self, data_dir, num_shards, shuffled):
-        return self.dev_data_filenames(data_dir,
-                                       num_shards)
+    def dev_filepaths(self, num_shards):
+        return self.dev_data_filenames(num_shards)
 
-    def test_filepaths(self, data_dir, num_shards, shuffled):
-        return self.test_data_filenames(data_dir,
-                                        num_shards)
+    def test_filepaths(self, num_shards):
+        return self.test_data_filenames(num_shards)
 
     def _data_filenames(self, output_name, output_dir, num_shards):
         return [
@@ -144,14 +145,14 @@ class TextDataset():
             for fname in self.shard_filepath(output_name, num_shards)
         ]
 
-    def train_data_filenames(self, output_dir, num_shards):
-        return self._data_filenames(self._dataset_name + UNSHUFFLED_SUFFIX + "-train", output_dir, num_shards)
+    def train_data_filenames(self, num_shards):
+        return self._data_filenames(self._dataset_name + UNSHUFFLED_SUFFIX + "-train", self._data_dir, num_shards)
 
-    def dev_data_filenames(self, output_dir, num_shards):
-        return self._data_filenames(self._dataset_name + "-dev", output_dir, num_shards)
+    def dev_data_filenames(self, num_shards):
+        return self._data_filenames(self._dataset_name + "-dev", self._data_dir, num_shards)
 
-    def test_data_filenames(self, output_dir, num_shards):
-        return self._data_filenames(self.dataset_name + "-test", output_dir, num_shards)
+    def test_data_filenames(self, num_shards):
+        return self._data_filenames(self.dataset_name + "-test", self._data_dir, num_shards)
 
     def combined_data_filenames(self, output_dir, num_training_shards):
         return (self.train_data_filenames(output_dir, num_training_shards) +
@@ -166,9 +167,9 @@ class TextDataset():
             self.sharded_name(fname, shard, num_shards) for shard in xrange(num_shards)
         ]
 
-    def get_data_filepatterns(self, data_dir, mode='training'):
+    def get_data_filepatterns(self, mode='training'):
         datasets = []
-        data_dir = os.path.join(data_dir, self._dataset_name)
+        data_dir = os.path.join(self._data_dir, self._dataset_name)
         if mode == 'training':
             datasets.append("%s-train*" % data_dir)
         elif mode == 'eval':
