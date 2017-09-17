@@ -1,8 +1,8 @@
-import tensorflow as tf
 import six
 import numpy as np
 from collections import namedtuple
-# from tensorflow.contrib.rnn.python.ops import core_rnn_cell
+import tensorflow as tf
+from tensorflow.python.util import nest
 from . import initializers as initz
 from .layers import conv2d, dropout, softmax
 from . import logger as log
@@ -274,7 +274,7 @@ class GRUCell(core_rnn_cell.RNNCell):
         if input_size is not None:
             log.warn("%s: The input_size parameter is deprecated.", self)
         self._num_units = num_units
-        self.resue = reuse
+        self.reuse = reuse
         self.trainable = trainable
         self._activation = activation
         self._b_init = b_init
@@ -307,7 +307,7 @@ class GRUCell(core_rnn_cell.RNNCell):
                         r, self.reuse, trainable=self.trainable, **self.layer_norm_args)
             with tf.variable_scope("candidate"):
                 c = self._activation(
-                    _linear([inputs, r * state], self._num_units, True, w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, name=scope))
+                    _linear([inputs, r * state], self._num_units, self.reuse, w_init=self._w_init, b_init=self._b_init, use_bias=self._use_bias, name=scope))
             new_h = u * state + (1 - u) * c
             if self.layer_norm is not None:
                 c = self.layer_norm(
@@ -354,12 +354,11 @@ class MultiRNNCell(core_rnn_cell.RNNCell):
                 with tf.variable_scope("cell_%d" % i):
                     if not helper.is_sequence(state):
                         raise ValueError("Expected state to be a tuple of length %d, but received: %s" % (
-                            len(self.state_size), state))
+                            self.state_size, state))
                     cur_state = state[i]
                     cur_inp, new_state = cell(cur_inp, cur_state)
                     new_states.append(new_state)
-        new_states = (
-            tuple(new_states) if self._state_is_tuple else tf.concat(new_states, 1))
+        new_states = tuple(new_states)
         return cur_inp, new_states
 
 
@@ -452,6 +451,421 @@ class ExtendedMultiRNNCell(MultiRNNCell):
         new_states = (tuple(new_states)
                       if self._state_is_tuple else tf.concat(new_states, 1))
         return cur_inp, new_states
+
+
+class HighwayCell(core_rnn_cell.RNNCell):
+    """RNNCell wrapper that adds highway connection on cell input and output.
+    Based on:
+      R. K. Srivastava, K. Greff, and J. Schmidhuber, "Highway networks",
+      arXiv preprint arXiv:1505.00387, 2015.
+      https://arxiv.org/abs/1505.00387
+    """
+
+    def __init__(self, cell, reuse,
+                 couple_carry_transform_gates=True,
+                 carry_bias_init=1.0):
+        """Constructs a `HighwayWrapper` for `cell`.
+        Args:
+          cell: An instance of `RNNCell`.
+          couple_carry_transform_gates: boolean, should the Carry and Transform gate
+            be coupled.
+          carry_bias_init: float, carry gates bias initialization.
+        """
+        self._cell = cell
+        self._reuse = reuse
+        self._couple_carry_transform_gates = couple_carry_transform_gates
+        self._carry_bias_init = carry_bias_init
+
+    @property
+    def state_size(self):
+        return self._cell.state_size
+
+    @property
+    def output_size(self):
+        return self._cell.output_size
+
+    def zero_state(self, batch_size, dtype):
+        with tf.name_scope(type(self).__name__ + "ZeroState", values=[batch_size]):
+            return self._cell.zero_state(batch_size, dtype)
+
+    def _highway(self, inp, out):
+        with tf.variable_scope('highway_cell', reuse=self._reuse):
+            input_size = inp.get_shape().with_rank(2)[1].value
+            carry_weight = tf.get_variable("carry_w", [input_size, input_size])
+            carry_bias = tf.get_variable(
+                "carry_b", [input_size],
+                initializer=tf.constant_initializer(
+                    self._carry_bias_init))
+            carry = tf.sigmoid(
+                tf.nn.xw_plus_b(inp, carry_weight, carry_bias))
+            if self._couple_carry_transform_gates:
+                transform = 1 - carry
+            else:
+                transform_weight = tf.get_variable("transform_w",
+                                                   [input_size, input_size])
+                transform_bias = tf.get_variable(
+                    "transform_b", [input_size],
+                    initializer=tf.constant_initializer(
+                        -self._carry_bias_init))
+                transform = tf.sigmoid(tf.nn.xw_plus_b(inp,
+                                                       transform_weight,
+                                                       transform_bias))
+            return inp * carry + out * transform
+
+    def __call__(self, inputs, state, scope='higway_cell'):
+        """Run the cell and add its inputs to its outputs.
+
+        Args:
+            inputs: cell inputs.
+            state: cell state.
+            scope: optional cell scope.
+
+        Returns:
+            Tuple of cell outputs and new state.
+
+        Raises:
+            TypeError: If cell inputs and outputs have different structure (type).
+            ValueError: If cell inputs and outputs have different structure (value).
+        """
+        outputs, new_state = self._cell(inputs, state, scope=scope)
+        nest.assert_same_structure(inputs, outputs)
+        # Ensure shapes match
+
+        def assert_shape_match(inp, out):
+            inp.get_shape().assert_is_compatible_with(out.get_shape())
+        nest.map_structure(assert_shape_match, inputs, outputs)
+        res_outputs = nest.map_structure(self._highway, inputs, outputs)
+        return (res_outputs, new_state)
+
+
+class NASCell(core_rnn_cell.RNNCell):
+    """Neural Architecture Search (NAS) recurrent network cell.
+    This implements the recurrent cell from the paper:
+      https://arxiv.org/abs/1611.01578
+    Barret Zoph and Quoc V. Le.
+    "Neural Architecture Search with Reinforcement Learning" Proc. ICLR 2017.
+    The class uses an optional projection layer.
+    """
+
+    def __init__(self, num_units, reuse, num_proj=None,
+                 use_biases=False, w_init=None, b_init=0.0):
+        """Initialize the parameters for a NAS cell.
+        Args:
+          num_units: int, The number of units in the NAS cell
+          num_proj: (optional) int, The output dimensionality for the projection
+            matrices.  If None, no projection is performed.
+          use_biases: (optional) bool, If True then use biases within the cell. This
+            is False by default.
+          reuse: (optional) Python boolean describing whether to reuse variables
+            in an existing scope.  If not `True`, and the existing scope already has
+            the given variables, an error is raised.
+        """
+        super(NASCell, self).__init__(_reuse=reuse)
+        self._num_units = num_units
+        self._num_proj = num_proj
+        self._use_biases = use_biases
+        self._reuse = reuse
+        self._w_init = w_init
+        self._b_init = b_init
+
+        if num_proj is not None:
+            self._state_size = core_rnn_cell.LSTMStateTuple(
+                num_units, num_proj)
+            self._output_size = num_proj
+        else:
+            self._state_size = core_rnn_cell.LSTMStateTuple(
+                num_units, num_units)
+            self._output_size = num_units
+
+    @property
+    def state_size(self):
+        return self._state_size
+
+    @property
+    def output_size(self):
+        return self._output_size
+
+    def call(self, inputs, state, scope='NSA_Cell'):
+        """Run one step of NAS Cell.
+
+        Args:
+            inputs: input Tensor, 2D, batch x num_units.
+            state: This must be a tuple of state Tensors, both `2-D`, with column
+                sizes `c_state` and `m_state`.
+        Returns:
+            A tuple containing:
+              - A `2-D, [batch x output_dim]`, Tensor representing the output of the
+              NAS Cell after reading `inputs` when previous state was `state`.
+              Here output_dim is:
+               num_proj if num_proj was set,
+               num_units otherwise.
+              - Tensor(s) representing the new state of NAS Cell after reading `inputs`
+                when the previous state was `state`.  Same type and shape(s) as `state`.
+        Raises:
+            ValueError: If input size cannot be inferred from inputs via
+                static shape inference.
+        """
+        sigmoid = tf.sigmoid
+        tanh = tf.tanh
+        relu = tf.nn.relu
+
+        num_proj = self._num_units if self._num_proj is None else self._num_proj
+
+        (c_prev, m_prev) = state
+
+        dtype = inputs.dtype
+        input_size = inputs.get_shape().with_rank(2)[1]
+        if input_size.value is None:
+            raise ValueError(
+                "Could not infer input size from inputs.get_shape()[-1]")
+        # Variables for the NAS cell. W_m is all matrices multiplying the
+        # hiddenstate and W_inputs is all matrices multiplying the inputs.
+        with tf.variable_scope(scope, reuse=self._reuse):
+            concat_w_m = tf.get_variable(
+                "recurrent_kernel", [num_proj, 8 * self._num_units],
+                dtype, initializer=self._w_init)
+            concat_w_inputs = tf.get_variable(
+                "kernel", [input_size.value, 8 * self._num_units],
+                dtype, initializer=self._w_init)
+
+            m_matrix = tf.matmul(m_prev, concat_w_m)
+            inputs_matrix = tf.matmul(inputs, concat_w_inputs)
+
+            if self._use_biases:
+                b = tf.get_variable(
+                    "bias",
+                    shape=[8 * self._num_units],
+                    dtype=dtype, initializer=tf.constant_initializer(self._b_init))
+                m_matrix = tf.nn.bias_add(m_matrix, b)
+
+            # The NAS cell branches into 8 different splits for both the hiddenstate
+            # and the input
+            m_matrix_splits = tf.split(axis=1, num_or_size_splits=8,
+                                       value=m_matrix)
+            inputs_matrix_splits = tf.split(axis=1, num_or_size_splits=8,
+                                            value=inputs_matrix)
+
+            # First layer
+            layer1_0 = sigmoid(inputs_matrix_splits[0] + m_matrix_splits[0])
+            layer1_1 = relu(inputs_matrix_splits[1] + m_matrix_splits[1])
+            layer1_2 = sigmoid(inputs_matrix_splits[2] + m_matrix_splits[2])
+            layer1_3 = relu(inputs_matrix_splits[3] * m_matrix_splits[3])
+            layer1_4 = tanh(inputs_matrix_splits[4] + m_matrix_splits[4])
+            layer1_5 = sigmoid(inputs_matrix_splits[5] + m_matrix_splits[5])
+            layer1_6 = tanh(inputs_matrix_splits[6] + m_matrix_splits[6])
+            layer1_7 = sigmoid(inputs_matrix_splits[7] + m_matrix_splits[7])
+
+            # Second layer
+            l2_0 = tanh(layer1_0 * layer1_1)
+            l2_1 = tanh(layer1_2 + layer1_3)
+            l2_2 = tanh(layer1_4 * layer1_5)
+            l2_3 = sigmoid(layer1_6 + layer1_7)
+
+            # Inject the cell
+            l2_0 = tanh(l2_0 + c_prev)
+
+            # Third layer
+            l3_0_pre = l2_0 * l2_1
+            new_c = l3_0_pre  # create new cell
+            l3_0 = l3_0_pre
+            l3_1 = tanh(l2_2 + l2_3)
+
+            # Final layer
+            new_m = tanh(l3_0 * l3_1)
+
+            # Projection layer if specified
+            if self._num_proj is not None:
+                concat_w_proj = tf.get_variable(
+                    "projection_weights", [self._num_units, self._num_proj],
+                    dtype, initializer=self._w_init)
+                new_m = tf.matmul(new_m, concat_w_proj)
+
+            new_state = core_rnn_cell.LSTMStateTuple(new_c, new_m)
+            return new_m, new_state
+
+
+class ConvLSTMCell(core_rnn_cell.RNNCell):
+    """Convolutional LSTM recurrent network cell.
+    https://arxiv.org/pdf/1506.04214v1.pdf
+    """
+
+    def __init__(self, conv_ndims, input_shape, output_channels, kernel_shape, reuse, use_bias=True, w_init=None, b_init=1.0, skip_connection=False, forget_bias=1.0, name="conv_lstm_cell"):
+        """Construct ConvLSTMCell.
+
+        Args:
+            conv_ndims: Convolution dimensionality (1, 2 or 3).
+            input_shape: Shape of the input as int tuple, excluding the batch size.
+            output_channels: int, number of output channels of the conv LSTM.
+            kernel_shape: Shape of kernel as in tuple (of size 1,2 or 3).
+            use_bias: Use bias in convolutions.
+            reuse: None/True, whether to reuse variables
+            w_init: weights initializer object
+            b_init: a `int`, bias initializer value
+            skip_connection: If set to `True`, concatenate the input to the
+            output of the conv LSTM. Default: `False`.
+            forget_bias: Forget bias.
+            name: Name of the module.
+
+        Raises:
+            ValueError: If `skip_connection` is `True` and stride is different from 1
+               or if `input_shape` is incompatible with `conv_ndims`.
+        """
+        super(ConvLSTMCell, self).__init__(name=name)
+
+        if conv_ndims != len(input_shape) - 1:
+            raise ValueError("Invalid input_shape {} for conv_ndims={}.".format(
+                input_shape, conv_ndims))
+
+        self._conv_ndims = conv_ndims
+        self._input_shape = input_shape
+        self._output_channels = output_channels
+        self._kernel_shape = kernel_shape
+        self._reuse = reuse
+        self._w_init = w_init
+        self._b_init = b_init
+        self._use_bias = use_bias
+        self._forget_bias = forget_bias
+        self._skip_connection = skip_connection
+
+        self._total_output_channels = output_channels
+        if self._skip_connection:
+            self._total_output_channels += self._input_shape[-1]
+
+        state_size = tf.TensorShape(self._input_shape[:-1]
+                                    + [self._output_channels])
+        self._state_size = core_rnn_cell.LSTMStateTuple(state_size, state_size)
+        self._output_size = tf.TensorShape(self._input_shape[:-1]
+                                           + [self._total_output_channels])
+
+    @property
+    def output_size(self):
+        return self._output_size
+
+    @property
+    def state_size(self):
+        return self._state_size
+
+    def call(self, inputs, state, scope=None):
+        cell, hidden = state
+        new_hidden = _conv([inputs, hidden],
+                           self._kernel_shape,
+                           4 * self._output_channels,
+                           self._use_bias, self._reuse, w_init=self._w_init, b_init=self._b_init)
+        gates = tf.split(value=new_hidden,
+                         num_or_size_splits=4,
+                         axis=self._conv_ndims + 1)
+
+        input_gate, new_input, forget_gate, output_gate = gates
+        new_cell = tf.sigmoid(forget_gate + self._forget_bias) * cell
+        new_cell += tf.sigmoid(input_gate) * tf.tanh(new_input)
+        output = tf.tanh(new_cell) * tf.sigmoid(output_gate)
+
+        if self._skip_connection:
+            output = tf.concat([output, inputs], axis=-1)
+        new_state = core_rnn_cell.LSTMStateTuple(new_cell, output)
+        return output, new_state
+
+
+class Conv1DLSTMCell(ConvLSTMCell):
+    """1D Convolutional LSTM recurrent network cell.
+    https://arxiv.org/pdf/1506.04214v1.pdf
+    """
+
+    def __init__(self, name="conv_1d_lstm_cell", **kwargs):
+        """Construct Conv1DLSTM. See `ConvLSTMCell` for more details."""
+        super(Conv1DLSTMCell, self).__init__(conv_ndims=1, **kwargs)
+
+
+class Conv2DLSTMCell(ConvLSTMCell):
+    """2D Convolutional LSTM recurrent network cell.
+    https://arxiv.org/pdf/1506.04214v1.pdf
+    """
+
+    def __init__(self, name="conv_2d_lstm_cell", **kwargs):
+        """Construct Conv2DLSTM. See `ConvLSTMCell` for more details."""
+        super(Conv2DLSTMCell, self).__init__(conv_ndims=2, **kwargs)
+
+
+class Conv3DLSTMCell(ConvLSTMCell):
+    """3D Convolutional LSTM recurrent network cell.
+    https://arxiv.org/pdf/1506.04214v1.pdf
+    """
+
+    def __init__(self, name="conv_3d_lstm_cell", **kwargs):
+        """Construct Conv3DLSTM. See `ConvLSTMCell` for more details."""
+        super(Conv3DLSTMCell, self).__init__(conv_ndims=3, **kwargs)
+
+
+def _conv(args, filter_size, num_features, bias, reuse, w_init=None, b_init=0.0, scope='_conv'):
+    """convolution:
+
+    Args:
+        args: a Tensor or a list of Tensors of dimension 3D, 4D or 5D
+        batch x n, Tensors.
+        filter_size: int tuple of filter height and width.
+        reuse: None/True, whether to reuse variables
+        w_init: weights initializer object
+        b_init: a `int`, bias initializer value
+        num_features: int, number of features.
+        bias_start: starting value to initialize the bias; 0 by default.
+
+    Returns:
+        A 3D, 4D, or 5D Tensor with shape [batch ... num_features]
+
+    Raises:
+        ValueError: if some of the arguments has unspecified or wrong shape.
+    """
+
+    # Calculate the total size of arguments on dimension 1.
+    total_arg_size_depth = 0
+    shapes = [a.get_shape().as_list() for a in args]
+    shape_length = len(shapes[0])
+    for shape in shapes:
+        if len(shape) not in [3, 4, 5]:
+            raise ValueError(
+                "Conv Linear expects 3D, 4D or 5D arguments: %s" % str(shapes))
+        if len(shape) != len(shapes[0]):
+            raise ValueError(
+                "Conv Linear expects all args to be of same Dimensiton: %s" % str(shapes))
+        else:
+            total_arg_size_depth += shape[-1]
+    dtype = [a.dtype for a in args][0]
+
+    # determine correct conv operation
+    if shape_length == 3:
+        conv_op = tf.nn.conv1d
+        strides = 1
+    elif shape_length == 4:
+        conv_op = tf.nn.conv2d
+        strides = shape_length * [1]
+    elif shape_length == 5:
+        conv_op = tf.nn.conv3d
+        strides = shape_length * [1]
+
+    # Now the computation.
+    with tf.variable_scope(scope, reuse=reuse):
+        kernel = tf.get_variable(
+            "W",
+            filter_size + [total_arg_size_depth, num_features],
+            dtype=dtype, initializer=w_init)
+        if len(args) == 1:
+            res = conv_op(args[0],
+                          kernel,
+                          strides,
+                          padding='SAME')
+        else:
+            res = conv_op(tf.concat(axis=shape_length - 1, values=args),
+                          kernel,
+                          strides,
+                          padding='SAME')
+        if not bias:
+            return res
+        bias_term = tf.get_variable(
+            "biases", [num_features],
+            dtype=dtype,
+            initializer=tf.constant_initializer(
+                b_init, dtype=dtype))
+        return res + bias_term
 
 
 class GLSTMCell(core_rnn_cell.RNNCell):
