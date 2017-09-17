@@ -1,6 +1,6 @@
 # The most basic RNN cell
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7fc13b6c6b18>,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7fc1916f80c8>,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L15 target="_blank"><b>tefla.core.rnn_cell.BasicRNNCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f85338232a8>,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7f859b1911b8>,  layer_norm=None,  layer_norm_args=None)</span>
 
 <h3>Args</h3>
 
@@ -21,7 +21,7 @@ able to reuse the layer scope must be given.
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L344 target="_blank"><b>add_variable</b></a></span>  (name,  shape,  dtype=None,  initializer=None,  regularizer=None,  trainable=True)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L353 target="_blank"><b>add_variable</b></a></span>  (name,  shape,  dtype=None,  initializer=None,  regularizer=None,  trainable=True)</span>
 
 Arguments:
   name: variable name.
@@ -42,7 +42,7 @@ or "non_trainable_variables" (e.g. BatchNorm mean, stddev).
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L479 target="_blank"><b>apply</b></a></span>  (inputs,  *args,  **kwargs)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L490 target="_blank"><b>apply</b></a></span>  (inputs,  *args,  **kwargs)</span>
 
 This simply wraps `self.__call__`.
 
@@ -60,7 +60,7 @@ Arguments:
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L299 target="_blank"><b>call</b></a></span>  (inputs,  **kwargs)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L308 target="_blank"><b>call</b></a></span>  (inputs,  **kwargs)</span>
 
 Arguments:
   inputs: input tensor(s).
@@ -75,7 +75,7 @@ Arguments:
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L271 target="_blank"><b>get_losses_for</b></a></span>  (inputs)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L280 target="_blank"><b>get_losses_for</b></a></span>  (inputs)</span>
 
 Arguments:
   inputs: Input tensor or list/tuple of input tensors.
@@ -93,7 +93,7 @@ such as weight regularization losses.
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L207 target="_blank"><b>get_updates_for</b></a></span>  (inputs)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/#L216 target="_blank"><b>get_updates_for</b></a></span>  (inputs)</span>
 
 Arguments:
   inputs: Input tensor or list/tuple of input tensors.
@@ -128,7 +128,7 @@ If you pass `inputs=None`, unconditional updates are returned.
 
 # LSTM unit
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L61 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7fc13b6c6d70>,  forget_bias=1.0,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7fc1916f80c8>,  inner_activation=<function  sigmoid  at  0x7fc1916f2f50>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L61 target="_blank"><b>tefla.core.rnn_cell.LSTMCell</b></a></span>  (num_units,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f8533823500>,  forget_bias=1.0,  use_bias=False,  input_size=None,  activation=<function  tanh  at  0x7f859b1911b8>,  inner_activation=<function  sigmoid  at  0x7f859b1910c8>,  keep_prob=1.0,  dropout_seed=None,  cell_clip=None,  layer_norm=None,  layer_norm_args=None)</span>
 
 This class adds layer normalization and recurrent dropout to a
 basic LSTM unit. Layer normalization implementation is based on:
@@ -165,7 +165,7 @@ be applied.
 
 # Basic attention cell
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L164 target="_blank"><b>tefla.core.rnn_cell.AttentionCell</b></a></span>  (cell,  attn_length,  reuse,  w_init=<function  _initializer  at  0x7fc13b6d5050>,  use_bias=False,  trainable=True,  attn_size=None,  attn_vec_size=None,  input_size=None,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L164 target="_blank"><b>tefla.core.rnn_cell.AttentionCell</b></a></span>  (cell,  attn_length,  reuse,  w_init=<function  _initializer  at  0x7f8533823758>,  use_bias=False,  trainable=True,  attn_size=None,  attn_vec_size=None,  input_size=None,  layer_norm=None,  layer_norm_args=None)</span>
 
 Implementation based on https://arxiv.org/abs/1409.0473.
 Create a cell with attention.
@@ -194,7 +194,7 @@ built from inputs and attention. Derived from the input tensor by default.
 
 # Gated Recurrent Unit cell (cf. http://arxiv.org/abs/1406.1078)
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L257 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  w_init=<function  _initializer  at  0x7fc13b6d5320>,  use_bias=False,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7fc1916f80c8>,  inner_activation=<function  sigmoid  at  0x7fc1916f2f50>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L257 target="_blank"><b>tefla.core.rnn_cell.GRUCell</b></a></span>  (num_units,  reuse,  w_init=<function  _initializer  at  0x7f8533823a28>,  use_bias=False,  trainable=True,  input_size=None,  activation=<function  tanh  at  0x7f859b1911b8>,  inner_activation=<function  sigmoid  at  0x7f859b1910c8>,  b_init=1.0,  layer_norm=None,  layer_norm_args=None)</span>
 
 <h3>Args</h3>
 
@@ -226,7 +226,7 @@ Create a RNN cell composed sequentially of a number of RNNCells.
 
 # Operator adding dropout to inputs and outputs of the given cell
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L620 target="_blank"><b>tefla.core.rnn_cell.DropoutWrapper</b></a></span>  (cell,  is_training,  input_keep_prob=1.0,  output_keep_prob=1.0,  seed=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L1034 target="_blank"><b>tefla.core.rnn_cell.DropoutWrapper</b></a></span>  (cell,  is_training,  input_keep_prob=1.0,  output_keep_prob=1.0,  seed=None)</span>
 
 Create a cell with added input and/or output dropout.
 Dropout is never used on the state.
@@ -244,9 +244,32 @@ probability; if it is float and 1, no output dropout will be added.
 
  --------- 
 
+# convolution:
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L799 target="_blank"><b>tefla.core.rnn_cell._conv</b></a></span>  (args,  filter_size,  num_features,  bias,  reuse,  w_init=None,  b_init=0.0,  scope='_conv')</span>
+
+<h3>Args</h3>
+
+
+ - **args**: a Tensor or a list of Tensors of dimension 3D, 4D or 5D
+ - batch x n, Tensors.
+ - **filter_size**: int tuple of filter height and width.
+ - **reuse**: None/True, whether to reuse variables
+ - **w_init**: weights initializer object
+ - **b_init**: a `int`, bias initializer value
+ - **num_features**: int, number of features.
+ - **bias_start**: starting value to initialize the bias; 0 by default.
+
+<h3>Returns</h3>
+
+
+A 3D, 4D, or 5D Tensor with shape [batch ... num_features]
+
+ ---------- 
+
 # Adds a fully connected layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L673 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7fc13b6c6758>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7fc1918327d0>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L1087 target="_blank"><b>tefla.core.rnn_cell._linear</b></a></span>  (x,  n_output,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f85338247d0>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  name='fc',  layer_norm=None,  layer_norm_args=None,  activation=None,  outputs_collections=None,  use_bias=True)</span>
 
 `fully_connected` creates a variable called `weights`, representing a fully
 connected weight matrix, which is multiplied by the `x` to produce a
@@ -292,7 +315,7 @@ e.g: 2-D `Tensor` [batch, n_output].
 
 # Adds a Layer Normalization layer from https://arxiv.org/abs/1607.06450
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L771 target="_blank"><b>tefla.core.rnn_cell.layer_norm</b></a></span>  (x,  reuse,  center=True,  scale=True,  trainable=True,  epsilon=1e-12,  name='bn',  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L1185 target="_blank"><b>tefla.core.rnn_cell.layer_norm</b></a></span>  (x,  reuse,  center=True,  scale=True,  trainable=True,  epsilon=1e-12,  name='bn',  outputs_collections=None)</span>
 "Layer Normalization" Jimmy Lei Ba, Jamie Ryan Kiros, Geoffrey E. Hinton
 Can be used as a normalizer function for conv2d and fully_connected.
 
@@ -324,7 +347,7 @@ A `Tensor` representing the output of the operation.
 
 # LSTM
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L908 target="_blank"><b>tefla.core.rnn_cell.lstm</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7fc1916f80c8>,  inner_activation=<function  sigmoid  at  0x7fc1916f2f50>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7fc13b6d7140>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='lstm')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L1322 target="_blank"><b>tefla.core.rnn_cell.lstm</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7f859b1911b8>,  inner_activation=<function  sigmoid  at  0x7f859b1910c8>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7f8533825140>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='lstm')</span>
 Long Short Term Memory Recurrent Layer.
 
 <h3>Args</h3>
@@ -369,7 +392,7 @@ else: 2-D Tensor [samples, output dim].
 
 # GRU
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L961 target="_blank"><b>tefla.core.rnn_cell.gru</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7fc1916f80c8>,  inner_activation=<function  sigmoid  at  0x7fc1916f2f50>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7fc13b6d7230>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='gru')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L1375 target="_blank"><b>tefla.core.rnn_cell.gru</b></a></span>  (inputs,  n_units,  reuse,  is_training,  activation=<function  tanh  at  0x7f859b1911b8>,  inner_activation=<function  sigmoid  at  0x7f859b1910c8>,  dropout=None,  use_bias=True,  w_init=<function  _initializer  at  0x7f8533825230>,  forget_bias=1.0,  return_seq=False,  return_state=False,  initial_state=None,  dynamic=True,  trainable=True,  scope='gru')</span>
 Gated Recurrent Layer.
 
 <h3>Args</h3>
@@ -414,7 +437,7 @@ else: 2-D Tensor [samples, output dim].
 
 # Bidirectional RNN
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L1014 target="_blank"><b>tefla.core.rnn_cell.bidirectional_rnn</b></a></span>  (inputs,  rnncell_fw,  rnncell_bw,  reuse,  is_training,  dropout_fw=None,  dropout_bw=None,  return_seq=False,  return_states=False,  initial_state_fw=None,  initial_state_bw=None,  dynamic=False,  scope='BiRNN',  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/rnn_cell.py#L1428 target="_blank"><b>tefla.core.rnn_cell.bidirectional_rnn</b></a></span>  (inputs,  rnncell_fw,  rnncell_bw,  reuse,  is_training,  dropout_fw=None,  dropout_bw=None,  return_seq=False,  return_states=False,  initial_state_fw=None,  initial_state_bw=None,  dynamic=False,  scope='BiRNN',  outputs_collections=None)</span>
 Build a bidirectional recurrent neural network, it requires 2 RNN Cells
 to process sequence in forward and backward order. Any RNN Cell can be
 used i.e. SimpleRNN, LSTM, GRU... with its own parameters. But the two

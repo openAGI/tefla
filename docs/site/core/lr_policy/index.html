@@ -135,6 +135,12 @@
     <li class="toctree-l3"><a href="#polynomial-learning-rate-decay-policy">Polynomial learning rate decay policy</a></li>
     
 
+    <li class="toctree-l3"><a href="#cosine-learning-rate-decay-policy">Cosine learning rate decay policy</a></li>
+    
+
+    <li class="toctree-l3"><a href="#cyclic-learning-rate-decay-policy">Cyclic learning rate decay policy</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -255,7 +261,7 @@
             <div class="section">
               
                 <h1 id="training-learning-rate-schedule-based-on-inputs-dict-with-epoch-number-as-keys">Training learning rate schedule based on  inputs dict with epoch number as keys</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L81 target="_blank"><b>tefla.core.lr_policy.StepDecayPolicy</b></a></span>  (schedule,  start_epoch=1)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L82 target="_blank"><b>tefla.core.lr_policy.StepDecayPolicy</b></a></span>  (schedule,  start_epoch=1)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -265,7 +271,7 @@
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L96 target="_blank"><b>epoch_update</b></a></span>  (learning_rate,  training_history)</span></p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L97 target="_blank"><b>epoch_update</b></a></span>  (learning_rate,  training_history)</span></p>
 <h5>Args</h5>
 
 <ul>
@@ -277,7 +283,7 @@
 <p>updated learning rate</p>
 <hr />
 <h1 id="polynomial-learning-rate-decay-policy">Polynomial learning rate decay policy</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L202 target="_blank"><b>tefla.core.lr_policy.PolyDecayPolicy</b></a></span>  (base_lr,  power=10.0,  max_epoch=500,  n_iters_per_epoch=1094)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L203 target="_blank"><b>tefla.core.lr_policy.PolyDecayPolicy</b></a></span>  (base_lr,  power=10.0,  max_epoch=500,  n_iters_per_epoch=1094)</span></p>
 <p>the effective learning rate follows a polynomial decay, to be
 zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)</p>
 <h3>Args</h3>
@@ -291,7 +297,59 @@ zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)</p>
 <h2>Methods</h2>
 
 <p><span class="hr_large"></span> </p>
-<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L221 target="_blank"><b>batch_update</b></a></span>  (learning_rate,  iter_idx)</span></p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L222 target="_blank"><b>batch_update</b></a></span>  (learning_rate,  iter_idx)</span></p>
+<p>it follows a polynomial decay policy</p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>learning_rate</strong>: current batch learning rate</li>
+<li><strong>iter_idx</strong>: iteration number,
+e.g. number_of_iterations_per_batch*epoch+current_batch_iteration_number</li>
+</ul>
+<h5>Returns</h5>
+
+<p>updated_lr</p>
+<hr />
+<h1 id="cosine-learning-rate-decay-policy">Cosine learning rate decay policy</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L297 target="_blank"><b>tefla.core.lr_policy.CosineDecayPolicy</b></a></span>  (base_lr,  cycle_steps=100000,  **kwargs)</span></p>
+<p>the effective learning rate follows a polynomial decay, to be
+zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>base_lr</strong>: a float, starting learning rate</li>
+<li><strong>cycle_steps</strong>: a float, decay steps one cycle, learning rate decayed by inv(cycle_steps)</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L312 target="_blank"><b>batch_update</b></a></span>  (learning_rate,  iter_idx)</span></p>
+<p>it follows a polynomial decay policy</p>
+<h5>Args</h5>
+
+<ul>
+<li><strong>learning_rate</strong>: current batch learning rate</li>
+<li><strong>iter_idx</strong>: iteration number,
+e.g. number_of_iterations_per_batch*epoch+current_batch_iteration_number</li>
+</ul>
+<h5>Returns</h5>
+
+<p>updated_lr</p>
+<hr />
+<h1 id="cyclic-learning-rate-decay-policy">Cyclic learning rate decay policy</h1>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L340 target="_blank"><b>tefla.core.lr_policy.CyclicDecayPolicy</b></a></span>  (base_lr,  cycle_steps=100000,  **kwargs)</span></p>
+<p>the effective learning rate follows a polynomial decay, to be
+zero by the max_iter. return base_lr (1 - iter/max_iter) ^ (power)</p>
+<h3>Args</h3>
+
+<ul>
+<li><strong>base_lr</strong>: a float, starting learning rate</li>
+<li><strong>cycle_steps</strong>: a float, decay steps one cycle, learning rate decayed by inv(cycle_steps)</li>
+</ul>
+<h2>Methods</h2>
+
+<p><span class="hr_large"></span> </p>
+<p><span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/lr_policy.py#L355 target="_blank"><b>batch_update</b></a></span>  (learning_rate,  iter_idx)</span></p>
 <p>it follows a polynomial decay policy</p>
 <h5>Args</h5>
 

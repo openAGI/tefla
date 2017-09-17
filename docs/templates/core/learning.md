@@ -1,6 +1,6 @@
 # Supervised Trainer, support data parallelism, multi GPU
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L23 target="_blank"><b>tefla.core.learning.SupervisedLearner</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L28 target="_blank"><b>tefla.core.learning.SupervisedLearner</b></a></span>  (model,  cnf,  clip_by_global_norm=False,  **kwargs)</span>
 
 
 <h3>Args</h3>
@@ -26,7 +26,7 @@ e.g: total_training_samples/batch_size
 
 
 
-<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L49 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  weights_dir='weights',  start_epoch=1,  summary_every=10,  keep_moving_averages=False)</span>
+<span class="extra_h2"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/learning.py#L54 target="_blank"><b>fit</b></a></span>  (data_set,  weights_from=None,  weights_dir='weights',  start_epoch=1,  summary_every=10,  keep_moving_averages=False,  **kwargs)</span>
 
 <h5>Args</h5>
 
