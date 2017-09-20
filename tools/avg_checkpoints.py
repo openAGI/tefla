@@ -1,3 +1,9 @@
+# -------------------------------------------------------------------#
+# Tool to save tenorflow model def file as GraphDef prototxt file
+# Released under the MIT license (https://opensource.org/licenses/MIT)
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function

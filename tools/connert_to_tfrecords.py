@@ -1,3 +1,9 @@
+# -------------------------------------------------------------------#
+# Tool to save tenorflow model def file as GraphDef prototxt file
+# Released under the MIT license (https://opensource.org/licenses/MIT)
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 import os
 import click
 
@@ -17,7 +23,8 @@ from tefla.dataset.image_to_tfrecords import TFRecords
               help="Path to the label file.")
 def process_dataset(records_name, num_shards, data_dir, output_data_dir, label_file):
     im2r = TFRecords()
-    im2r.process_dataset(records_name, data_dir, output_data_dir, num_shards, label_file)
+    im2r.process_dataset(records_name, data_dir,
+                         output_data_dir, num_shards, label_file)
 
 
 if __name__ == '__main__':

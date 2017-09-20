@@ -1,3 +1,9 @@
+# -------------------------------------------------------------------#
+# Tool to save tenorflow model def file as GraphDef prototxt file
+# Released under the MIT license (https://opensource.org/licenses/MIT)
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 import click
 import numpy as np
 from skimage.segmentation import slic
