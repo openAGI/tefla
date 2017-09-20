@@ -16,8 +16,8 @@ python predictv2.py --frozen_model output_graph.pb --training_cnf models/multicl
 
 ```
 
-# Tool to format data for tefla
-   - inputdata folder will have subfolders named as per class names; FOr example, if you have two class person and bike, inputdata will have two subfolders named as person and bike
+### Tool to format data for tefla
+   - inputdata folder will have subfolders named as per class names; For example, if you have two class person and bike, inputdata will have two subfolders named as person and bike
 ```Shell
-python data_process2.py --class_names person,bike --class_labels 0,1 --data_dir /path/to/inputdata
+python format_data.py --class_names person,bike --class_labels 0,1 --data_dir /path/to/inputdata
 ```
