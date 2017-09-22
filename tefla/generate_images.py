@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 
 from tefla.core.iter_ops import create_prediction_iter, convert_preprocessor
-from tefla.core.prediction import QuasiPredictor
+from tefla.core.prediction import QuasiCropPredictor
 from tefla.da import data
 from tefla.utils import util
 
