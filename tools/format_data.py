@@ -74,7 +74,7 @@ def format_data(data_dir, class_names, class_labels):
 
     with open(os.path.join(data_dir, 'training_labels.csv'), 'r+') as f:
         lines = f.readlines()
-        random.shuffle(lines)
+        random.shuffle(lines[1:])
         f.seek(0)
         f.writelines(lines)
 
