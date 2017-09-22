@@ -20,7 +20,7 @@ N_PROC = cpu_count()
 
 
 def convert(fname, target_size=512):
-    img = Image.open(fname)
+    img = Image.open(fname).convert('RGB')
 
     blurred = img.filter(ImageFilter.BLUR)
     ba = np.array(blurred)
