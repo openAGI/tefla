@@ -83,7 +83,7 @@ class OneCropPredictor(PredictSession):
         return data_predictions
 
 
-class QuasiPredictor(PredictSession):
+class QuasiCropPredictor(PredictSession):
     """Quasi transform predictor
 
     Args:
@@ -102,7 +102,7 @@ class QuasiPredictor(PredictSession):
         self.prediction_iterator = prediction_iterator
         self.predictor = OneCropPredictor(
             model, cnf, weights_from, prediction_iterator)
-        super(QuasiPredictor, self).__init__(weights_from)
+        super(QuasiCropPredictor, self).__init__(weights_from)
 
     def _real_predict(self, X):
         standardizer = self.prediction_iterator.standardizer
@@ -121,7 +121,7 @@ class QuasiPredictor(PredictSession):
         return np.mean(multiple_predictions, axis=0)
 
 
-class CropPredictor(PredictSession):
+class TenCropPredictor(PredictSession):
     """Multiples non Data augmented crops predictor
 
     Args:
@@ -142,7 +142,7 @@ class CropPredictor(PredictSession):
         self.prediction_iterator = prediction_iterator
         self.predictor = OneCropPredictor(
             model, cnf, weights_from, prediction_iterator)
-        super(CropPredictor, self).__init__(weights_from)
+        super(TenCropPredictor, self).__init__(weights_from)
 
     def _real_predict(self, X):
         crop_size = np.array(self.crop_size)
