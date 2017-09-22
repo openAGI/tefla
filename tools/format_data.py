@@ -44,32 +44,39 @@ def format_data(data_dir, class_names, class_labels):
         random.shuffle(cls_files)
         cls_val_samples.append(len(cls_files) / 10)
 
-    for idx, cls_files in enumerate(all_files):
-        for fil in cls_files[cls_val_samples[idx]:]:
-            copyfile(os.path.join(data_locs[idx], fil), os.path.join(
-                data_dir, 'training', fil))
-    for idx, cls_files in enumerate(all_files):
-        for fil in cls_files[:cls_val_samples[idx]]:
-            copyfile(os.path.join(data_locs[idx], fil), os.path.join(
-                data_dir, 'validation', fil))
-
     with open(os.path.join(data_dir, 'training_labels.csv'), 'w') as f:
         f.write('image' + ',level\n')
         for idx, cls_files in enumerate(all_files):
             for fil in cls_files[cls_val_samples[idx]:]:
-                f.write(fil.strip('.jpg \n') + ',' + str(labels[idx]) + '\n')
+                if not os.path.isfile(os.path.join(data_dir, 'training', fil)):
+                    copyfile(os.path.join(data_locs[idx], fil), os.path.join(
+                        data_dir, 'training', fil))
+                    f.write(fil[:-4] + ',' + str(labels[idx]) + '\n')
+                else:
+                    copyfile(os.path.join(data_locs[idx], fil), os.path.join(
+                        data_dir, 'training', 'image_' + str(idx) + fil))
+                    f.write('image_' + str(idx) +
+                            fil[:-4] + ',' + str(labels[idx]) + '\n')
+
+    with open(os.path.join(data_dir, 'validation_labels.csv'), 'w') as f:
+        f.write('image' + ',level\n')
+        for idx, cls_files in enumerate(all_files):
+            for fil in cls_files[:cls_val_samples[idx]]:
+                if not os.path.isfile(os.path.join(data_dir, 'validation', fil)):
+                    copyfile(os.path.join(data_locs[idx], fil), os.path.join(
+                        data_dir, 'validation', fil))
+                    f.write(fil[:-4] + ',' + str(labels[idx]) + '\n')
+                else:
+                    copyfile(os.path.join(data_locs[idx], fil), os.path.join(
+                        data_dir, 'validation', 'image_' + str(idx) + fil))
+                    f.write('image_' + str(idx) +
+                            fil[:-4] + ',' + str(labels[idx]) + '\n')
 
     with open(os.path.join(data_dir, 'training_labels.csv'), 'r+') as f:
         lines = f.readlines()
         random.shuffle(lines)
         f.seek(0)
         f.writelines(lines)
-
-    with open(os.path.join(data_dir, 'validation_labels.csv'), 'w') as f:
-        f.write('image' + ',level\n')
-        for idx, cls_files in enumerate(all_files):
-            for fil in cls_files[:cls_val_samples[idx]]:
-                f.write(fil.strip('.jpg \n') + ',' + str(labels[idx]) + '\n')
 
 
 if __name__ == '__main__':
