@@ -13,7 +13,6 @@ from tefla.core.iter_ops import create_training_iters
 from tefla.core.learning import SupervisedLearner
 from tefla.da.standardizer import NoOpStandardizer
 from tefla.utils import util
-import logging
 
 
 @click.command()
@@ -39,9 +38,11 @@ import logging
               help='Path to initial weights file.')
 @click.option('--loss_type', default='cross_entropy', show_default=True,
               help='Loss fuction type.')
+@click.option('--log_file_name', default='train_seg.log', show_default=True,
+              help='Log file name.')
 @click.option('--is_summary', default=False, show_default=True,
               help='Path to initial weights file.')
-def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, weights_dir, resume_lr, gpu_memory_fraction, num_classes, is_summary, loss_type):
+def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, weights_dir, resume_lr, gpu_memory_fraction, num_classes, is_summary, loss_type, log_file_name):
     model_def = util.load_module(model)
     model = model_def.model
     cnf = util.load_module(training_cnf).cnf
@@ -55,7 +56,7 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
     training_iter, validation_iter = create_training_iters(
         cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=parallel)
     learner = SupervisedLearner(model, cnf, training_iterator=training_iter, validation_iterator=validation_iter, resume_lr=resume_lr, classification=cnf[
-                                'classification'], gpu_memory_fraction=gpu_memory_fraction, num_classes=num_classes, is_summary=is_summary, loss_type=loss_type)
+                                'classification'], gpu_memory_fraction=gpu_memory_fraction, num_classes=num_classes, is_summary=is_summary, loss_type=loss_type, log_file_name=log_file_name)
     learner.fit(data_set, weights_from, start_epoch=start_epoch,
                 weights_dir=weights_dir, summary_every=399)
 

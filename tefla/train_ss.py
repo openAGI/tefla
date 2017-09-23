@@ -13,7 +13,6 @@ from tefla.core.iter_ops import create_training_iters
 from tefla.core.learning_ss import SemiSupervisedTrainer
 from tefla.da.standardizer import NoOpStandardizer
 from tefla.utils import util
-import logging
 
 
 @click.command()

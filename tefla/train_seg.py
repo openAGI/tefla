@@ -13,7 +13,6 @@ from tefla.core.learning_seg import SupervisedLearner
 from tefla.da.standardizer import NoOpStandardizer
 from tefla.da.standardizer import AggregateStandardizerTF
 from tefla.utils import util
-import logging
 
 
 @click.command()
