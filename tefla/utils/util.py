@@ -1026,3 +1026,18 @@ def AddGaussianNoise(t, sigma, name=None):
                        default_name="add_gaussian_noise") as name:
         noisy_t = t + tf.random_normal(tf.shape(t), stddev=sigma)
         return noisy_t
+
+
+def get_num_gpu():
+    """Get number of available GPUs
+
+    Returns:
+        a `int`, available GPUs in CUDA_VISIBLE_DEVICES, or in the system.
+    """
+    env = os.environ.get('CUDA_VISIBLE_DEVICES', None)
+    if env is not None:
+        return len(env.split(','))
+    from tensorflow.python.client import device_lib
+    device_protos = device_lib.list_local_devices()
+    gpus = [x.name for x in device_protos if x.device_type == 'GPU']
+    return len(gpus)
