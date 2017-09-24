@@ -9,6 +9,7 @@ import tensorflow as tf
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import math_ops
 from tensorflow.python.training import moving_averages
+from tensorflow.python.framework import function
 
 from . import initializers as initz
 from ..utils import util as helper
@@ -1853,6 +1854,59 @@ def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon
 
         output = _batch_normalization(x, mean, inv_std, beta, gamma)
         return _collect_named_outputs(outputs_collections, name, output)
+
+
+def layer_norm(x, reuse, filters=None, trainable=True, epsilon=1e-6, name='layer_norm', allow_defun=False, outputs_collections=None):
+    """Layer normalize the tensor x, averaging over the last dimension
+    Args:
+        x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        trainable: a bool, training or fixed value
+        name: a optional scope/name of the layer
+        outputs_collections: The collections to which the outputs are added.
+
+    Returns:
+        A `Tensor` representing the results of the prelu activation operation.
+    """
+    if filters is None:
+        filters = x.get_shape()[-1]
+    with tf.variable_scope(name, reuse=reuse):
+        scale = tf.get_variable(
+            "layer_norm_scale", [filters], initializer=tf.ones_initializer(), trainable=trainable)
+        bias = tf.get_variable(
+            "layer_norm_bias", [filters], initializer=tf.zeros_initializer(), trainable=trainable)
+        if allow_defun:
+            output = layer_norm_compute(x, tf.constant(epsilon), scale, bias)
+            output.set_shape(x.get_shape())
+        else:
+            output = _layer_norm_compute_python(x, epsilon, scale, bias)
+
+    return _collect_named_outputs(outputs_collections, name, output)
+
+
+def _layer_norm_compute_python(x, epsilon, scale, bias):
+    """Layer norm raw computation."""
+    mean = tf.reduce_mean(x, axis=[-1], keep_dims=True)
+    variance = tf.reduce_mean(tf.square(x - mean), axis=[-1], keep_dims=True)
+    norm_x = (x - mean) * tf.rsqrt(variance + epsilon)
+
+    return norm_x * scale + bias
+
+
+@function.Defun(compiled=True)
+def layer_norm_compute_grad(x, epsilon, scale, bias, dy):
+    y = _layer_norm_compute_python(x, epsilon, scale, bias)
+    dx = tf.gradients(ys=[y], xs=[x, epsilon, scale, bias], grad_ys=[dy])
+    return dx
+
+
+@function.Defun(
+    compiled=True,
+    separate_compiled_gradients=True,
+    grad_func=layer_norm_compute_grad)
+def layer_norm_compute(x, epsilon, scale, bias):
+    return _layer_norm_compute_python(x, epsilon, scale, bias)
 
 
 def prelu(x, reuse, alpha_init=0.2, trainable=True, name='prelu', outputs_collections=None):
