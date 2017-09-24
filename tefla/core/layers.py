@@ -1867,7 +1867,7 @@ def layer_norm(x, reuse, filters=None, trainable=True, epsilon=1e-6, name='layer
         outputs_collections: The collections to which the outputs are added.
 
     Returns:
-        A `Tensor` representing the results of the prelu activation operation.
+        A `Tensor` representing the results of the layer norm operation.
     """
     if filters is None:
         filters = x.get_shape()[-1]
