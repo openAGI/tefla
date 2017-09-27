@@ -5,7 +5,7 @@ from __future__ import print_function
 # Dependency imports
 
 import numpy as np
-from tefla.core.special_fn import fn_with_custom_grad
+from tefla.core.special_fn import fn_with_custom_grad, conv2d_gru, conv2d_lstm
 import tensorflow as tf
 
 
@@ -85,6 +85,30 @@ class FnWithCustomGradTest(tf.test.TestCase):
             g_val, eg_val = sess.run([grads, expected_grads])
             for g1, g2 in zip(g_val, eg_val):
                 self.assertAllClose(g1, g2)
+
+    def testConvGRU(self):
+        x = tf.convert_to_tensor(
+            np.random.rand(5, 7, 3, 11), dtype=tf.float32)
+        with self.test_session() as session:
+            y = conv2d_gru(
+                x, 11, False, None, filter_size=(1, 3))
+            z = conv2d_gru(
+                x, 11, False, None, filter_size=(1, 3), padding="LEFT", name='left_conv_gru')
+            session.run(tf.global_variables_initializer())
+            res1 = session.run(y)
+            res2 = session.run(z)
+        self.assertEqual(res1.shape, (5, 7, 3, 11))
+        self.assertEqual(res2.shape, (5, 7, 3, 11))
+
+    def testConvLSTM(self):
+        x = tf.convert_to_tensor(
+            np.random.rand(5, 7, 11, 13), dtype=tf.float32)
+        with self.test_session() as session:
+            y = conv2d_gru(
+                x, 13, False, None, filter_size=(1, 3))
+            session.run(tf.global_variables_initializer())
+            res = session.run(y)
+        self.assertEqual(res.shape, (5, 7, 11, 13))
 
 
 if __name__ == "__main__":
