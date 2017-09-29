@@ -1,7 +1,7 @@
 import random
 import tensorflow as tf
 from tensorflow.python.framework import function
-from .layers import dilated_conv2d, layer_norm
+from .layers import dilated_conv2d, layer_norm, _collect_named_outputs
 
 
 def fn_with_custom_grad(grad_fn, use_global_vars=False):
@@ -130,6 +130,12 @@ def saturating_sigmoid(x):
         return tf.minimum(1.0, tf.maximum(0.0, 1.2 * y - 0.1))
 
 
+def hard_sigmoid(x, saturation_limit=0.9):
+    saturation_cost = tf.reduce_mean(tf.nn.relu(tf.abs(x) - saturation_limit))
+    x_shifted = 0.5 * x + 0.5
+    return tf.minimum(1.0, tf.nn.relu(x_shifted)), saturation_cost
+
+
 def conv2d_v2(inputs, n_output_channels, is_training, reuse, **kwargs):
     """Adds a 2D dilated convolutional layer
 
@@ -190,7 +196,7 @@ def conv2d_v2(inputs, n_output_channels, is_training, reuse, **kwargs):
     return dilated_conv2d(inputs, n_output_channels, is_training, reuse, **kwargs)
 
 
-def conv2d_gru(inputs, n_output_channels, is_training, reuse, filter_size=3, padding="SAME", dilation=1, name='conv2d_gru', **kwargs):
+def conv2d_gru(inputs, n_output_channels, is_training, reuse, filter_size=3, padding="SAME", dilation=1, name='conv2d_gru', outputs_collections=None, **kwargs):
     """Adds a convolutional GRU layer in 1 dimension
 
     Args:
@@ -239,10 +245,11 @@ def conv2d_gru(inputs, n_output_channels, is_training, reuse, filter_size=3, pad
         gate = saturating_sigmoid(conv2d_fn(inputs, "gate", 1.0, padding))
         candidate = tf.tanh(
             conv2d_fn(reset * inputs, "candidate", 0.0, padding))
-        return gate * inputs + (1 - gate) * candidate
+        outputs = gate * inputs + (1 - gate) * candidate
+        return _collect_named_outputs(outputs_collections, name, outputs)
 
 
-def conv2d_lstm(inputs, n_output_channels, is_training, reuse, filter_size=3, padding="SAME", dilation=1, name='conv2d_gru', **kwargs):
+def conv2d_lstm(inputs, n_output_channels, is_training, reuse, filter_size=3, padding="SAME", dilation=1, name='conv2d_gru', outputs_collections=None, **kwargs):
     """Adds a convolutional LSTM layer in 1 dimension
 
     Args:
@@ -288,4 +295,73 @@ def conv2d_lstm(inputs, n_output_channels, is_training, reuse, filter_size=3, pa
                           filter_size=filter_size, padding=padding, dilation=dilation, name=name, **kwargs)
         g = tf.split(layer_norm(gates, 4 * n_ouput_channels), 4, axis=3)
         new_cell = tf.sigmoid(g[0]) * x + tf.sigmoid(g[1]) * tf.tanh(g[3])
-        return tf.sigmoid(g[2]) * tf.tanh(new_cell)
+        outputs = tf.sigmoid(g[2]) * tf.tanh(new_cell)
+        return _collect_named_outputs(outputs_collections, name, outputs)
+
+
+def conv2d_diagonal_gru(inputs, n_output_channels, is_training, reuse, filter_size=3, padding="SAME", dilation=1, dropout=0.0, name='conv2d_gru', outputs_collections=None, **kwargs):
+    """Adds a convolutional diagonal GRU layer in 1 dimension
+
+    Args:
+        x: A 4-D `Tensor` of with rank 4 and value for the last dimension,
+            i.e. `[batch_size, in_height, in_width, depth]`,
+        is_training: Bool, training or testing
+        n_output: Integer or long, the number of output units in the layer.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
+        dimensions of of the filters.
+        dilation:  A positive int32. The stride with which we sample input values across
+            the height and width dimensions. Equivalently, the rate by which we upsample the
+            filter values by inserting zeros across the height and width dimensions. In the literature,
+            the same parameter is sometimes called input stride/rate or dilation.
+        padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+        activation: activation function, set to None to skip it and maintain
+            a linear activation.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        untie_biases: spatial dimensions wise baises
+        b_init: An initializer for the biases. If None skip biases.
+        outputs_collections: The collections to which the outputs are added.
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+        name: Optional name or scope for variable_scope/name_scope.
+        use_bias: Whether to add bias or not
+
+    Returns:
+        The 4-D `Tensor` variable representing the result of the series of operations.
+        e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
+
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
+    def conv2d_fn(x, name, bias_start):
+        return conv2d_v2(x, n_output_channels, is_training, reuse, filter_size=filter_size, padding=padding, b_init=bias_start, dilation=dilation, name=name, **kwargs)
+
+    with tf.variable_scope(name, reuse=reuse):
+        reset, reset_cost = hard_sigmoid(conv2d_fn(x, "reset", 0.5))
+        gate, gate_cost = hard_sigmoid(conv2d_fn(x, "gate", 0.7))
+        candidate = tf.tanh(conv2d_fn(reset * x, "candidate", 0.0))
+
+        if dropout > 0.0:
+            candidate = tf.layers.dropout(
+                candidate, dropout, training=is_training)
+
+        # Diagonal shift.
+        shift_filters = n_output_channels // 3
+        base_filter = ([[0, 1, 0]] * (n_output_channels - 2 * shift_filters) +
+                       [[1, 0, 0]] * shift_filters + [[0, 0, 1]] * shift_filters)
+        shift_filter = tf.constant(np.transpose(base_filter), dtype=tf.float32)
+        shift_filter = tf.expand_dims(tf.expand_dims(shift_filter, 0), 3)
+        x_shifted = tf.nn.depthwise_conv2d(
+            x, shift_filter, [1, 1, 1, 1], padding="SAME")
+
+        # Return the gated result and cost.
+        total_cost_avg = 0.5 * (reset_cost + gate_cost)
+        outputs = gate * x_shifted + (1 - gate) * candidate, total_cost_avg
+        return _collect_named_outputs(outputs_collections, name, outputs)
