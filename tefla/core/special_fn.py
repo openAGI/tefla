@@ -2,6 +2,7 @@ import random
 import tensorflow as tf
 from tensorflow.python.framework import function
 from .layers import dilated_conv2d, layer_norm, _collect_named_outputs
+from ..utils import util as helper
 
 
 def fn_with_custom_grad(grad_fn, use_global_vars=False):
@@ -102,18 +103,18 @@ def format_input_left_padding(inputs, **kwargs):
     if not static_shape or len(static_shape) != 4:
         raise ValueError(
             "Inputs to conv must have statically known rank 4. Shape: " + str(static_shape))
-    dilation_rate = (1, 1)
+    dilation = (1, 1)
     assert kwargs['filter_size'] is not None
     filter_size = kwargs['filter_size']
     if isinstance(filter_size, int):
         filter_size = [filter_size, filter_size]
-    if "dilation_rate" in kwargs:
-        dilation_rate = kwargs["dilation_rate"]
+    if "dilation" in kwargs:
+        dilation_rate = kwargs["dilation"]
     assert filter_size[0] % 2 == 1 and filter_size[1] % 2 == 1
-    height_padding = 2 * (filter_size[0] // 2) * dilation_rate[0]
+    height_padding = 2 * (filter_size[0] // 2) * dilation[0]
     cond_padding = tf.cond(
         tf.equal(tf.shape(inputs)[2], 1), lambda: tf.constant(0),
-        lambda: tf.constant(2 * (filter_size[1] // 2) * dilation_rate[1]))
+        lambda: tf.constant(2 * (filter_size[1] // 2) * dilation[1]))
     width_padding = 0 if static_shape[2] == 1 else cond_padding
     padding = [[0, 0], [height_padding, 0], [width_padding, 0], [0, 0]]
     inputs = tf.pad(inputs, padding)
@@ -364,4 +365,114 @@ def conv2d_diagonal_gru(inputs, n_output_channels, is_training, reuse, filter_si
         # Return the gated result and cost.
         total_cost_avg = 0.5 * (reset_cost + gate_cost)
         outputs = gate * x_shifted + (1 - gate) * candidate, total_cost_avg
+        return _collect_named_outputs(outputs_collections, name, outputs)
+
+
+def multiscale_conv2d_sum(inputs, n_output_channels, is_training, reuse, dilation_rates_and_filter_sizes,
+                          pooling_type, name='multiscale_conv2d_sum', outputs_collections=None, **kwargs):
+    """Sum of several dilated convolutions.
+
+    For all convolutions with dilation_rate > 1, we first pool the input with
+    width dilation_rate.
+
+    Args:
+        x: A 4-D `Tensor` of with rank 4 and value for the last dimension,
+            i.e. `[batch_size, in_height, in_width, depth]`,
+        is_training: Bool, training or testing
+        n_output: Integer or long, the number of output units in the layer.
+        reuse: whether or not the layer and its variables should be reused. To be
+            able to reuse the layer scope must be given.
+        filter_size: a int or list/tuple of 2 positive integers specifying the spatial
+        dimensions of of the filters.
+        activation: activation function, set to None to skip it and maintain
+            a linear activation.
+        batch_norm: normalization function to use. If
+            `batch_norm` is `True` then google original implementation is used and
+            if another function is provided then it is applied.
+            default set to None for no normalizer function
+        batch_norm_args: normalization function parameters.
+        w_init: An initializer for the weights.
+        w_regularizer: Optional regularizer for the weights.
+        untie_biases: spatial dimensions wise baises
+        b_init: An initializer for the biases. If None skip biases.
+        outputs_collections: The collections to which the outputs are added.
+        trainable: If `True` also add variables to the graph collection
+            `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
+        name: Optional name or scope for variable_scope/name_scope.
+        use_bias: Whether to add bias or not
+        dilation_rates_and_kernel_sizes: a list of pairs (dilation, kernel_size)
+        pooling_type: "AVG" or "MAX"
+        **kwargs: additional
+
+    Returns:
+        The 4-D `Tensor` variable representing the result of the series of operations.
+        e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
+
+    Raises:
+        ValueError: if x has rank less than 4 or if its last dimension is not set.
+    """
+    with tf.variable_scope(name, reuse=reuse):
+        padding = kwargs["padding"]
+        results, counter = [], -1
+        for dilation_rate, filter_size in dilation_rates_and_filter_sizes:
+            counter += 1
+            if dilation_rate[0] > 1:
+                pooled = pool(inputs, filter_size, pooling_type, padding)
+            else:
+                pooled = inputs
+            results.append(
+                conv2d_v2(pooled, n_output_channels, is_training, reuse, filter_size=filter_size,
+                          dilation=dilation_rate, name="conv_layer%d" % counter, **kwargs))
+        outputs = tf.add_n(results) * (len(results)**-0.5)
+        return _collect_named_outputs(outputs_collections, name, outputs)
+
+
+def pool(inputs, filter_size=(3, 3), pooling_type='AVG', padding='SAME', strides=(1, 1), outputs_collections=None, name='general_pool', **kwargs):
+    """
+    General pooling layer; Supports LEFT padding
+
+    Args:
+        x: A 4-D 'Tensor` of shape `[batch_size, height, width, channels]`
+        filter_size: A int or list/tuple of length 2: [kernel_height, kernel_width] of the
+            pooling kernel over which the op is computed. Can be an int if both
+            values are the same.
+        stride: A int or list/tuple of length 2: [stride_height, stride_width].
+        padding: The padding method, either 'VALID' or 'SAME'.
+        outputs_collections: The collections to which the outputs are added.
+        name: Optional scope/name for name_scope.
+        pooling_type: "AVG" or "MAX"
+        **kwargs: additional
+
+    Returns:
+        A `Tensor` representing the results of the pooling operation.
+        e.g.: 4-D `Tensor` [batch, new_height, new_width, channels].
+
+    Raises:
+        ValueError: If `input` is not 4-D array
+    """
+    with tf.name_scope("pool", [inputs]):
+        static_shape = inputs.get_shape()
+        if not static_shape or len(static_shape) != 4:
+            raise ValueError(
+                "Inputs to conv must have statically known rank 4.")
+        # Add support for left padding.
+        if padding == "LEFT":
+            assert filter_size[0] % 2 == 1 and filter_size[1] % 2 == 1
+            if len(static_shape) == 3:
+                width_padding = 2 * (filter_size[1] // 2)
+                padding_ = [[0, 0], [width_padding, 0], [0, 0]]
+            else:
+                height_padding = 2 * (filter_size[0] // 2)
+                cond_padding = tf.cond(
+                    tf.equal(tf.shape(inputs)[2], 1), lambda: tf.constant(0),
+                    lambda: tf.constant(2 * (filter_size[1] // 2)))
+                width_padding = 0 if static_shape[2] == 1 else cond_padding
+                padding_ = [[0, 0], [height_padding, 0],
+                            [width_padding, 0], [0, 0]]
+            inputs = tf.pad(inputs, padding_)
+            inputs.set_shape([static_shape[0], None, None, static_shape[3]])
+            padding = "VALID"
+
+        outputs = tf.nn.pool(inputs, filter_size, pooling_type,
+                             padding, strides=strides)
         return _collect_named_outputs(outputs_collections, name, outputs)
