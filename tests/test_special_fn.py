@@ -5,7 +5,7 @@ from __future__ import print_function
 # Dependency imports
 
 import numpy as np
-from tefla.core.special_fn import fn_with_custom_grad, conv2d_gru, conv2d_lstm
+from tefla.core.special_fn import fn_with_custom_grad, conv2d_gru, conv2d_lstm, multiscale_conv2d_sum
 import tensorflow as tf
 
 
@@ -109,6 +109,19 @@ class FnWithCustomGradTest(tf.test.TestCase):
             session.run(tf.global_variables_initializer())
             res = session.run(y)
         self.assertEqual(res.shape, (5, 7, 11, 13))
+
+    def testMultiscaleConvSum(self):
+        x = tf.convert_to_tensor(
+            np.random.rand(5, 9, 1, 11), dtype=tf.float32)
+        with self.test_session() as session:
+            y = multiscale_conv2d_sum(
+                x,
+                13, False, None, [((1, 1), (5, 5)), ((2, 2), (3, 3))],
+                "AVG",
+                padding="SAME")
+            session.run(tf.global_variables_initializer())
+            res = session.run(y)
+            self.assertEqual(res.shape, (5, 9, 1, 13))
 
 
 if __name__ == "__main__":
