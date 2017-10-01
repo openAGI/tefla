@@ -417,7 +417,7 @@ def multiscale_conv2d_sum(inputs, n_output_channels, is_training, reuse, dilatio
         for dilation_rate, filter_size in dilation_rates_and_filter_sizes:
             counter += 1
             if dilation_rate[0] > 1:
-                pooled = pool(inputs, filter_size, pooling_type, padding)
+                pooled = pool2d(inputs, filter_size, pooling_type, padding)
             else:
                 pooled = inputs
             results.append(
@@ -427,7 +427,7 @@ def multiscale_conv2d_sum(inputs, n_output_channels, is_training, reuse, dilatio
         return _collect_named_outputs(outputs_collections, name, outputs)
 
 
-def pool(inputs, filter_size=(3, 3), pooling_type='AVG', padding='SAME', strides=(1, 1), outputs_collections=None, name='general_pool', **kwargs):
+def pool2d(inputs, filter_size=(3, 3), pooling_type='AVG', padding='SAME', strides=(1, 1), outputs_collections=None, name='general_pool', **kwargs):
     """
     General pooling layer; Supports LEFT padding
 
