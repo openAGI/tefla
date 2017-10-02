@@ -137,6 +137,11 @@ def hard_sigmoid(x, saturation_limit=0.9):
     return tf.minimum(1.0, tf.nn.relu(x_shifted)), saturation_cost
 
 
+def hard_tanh(x, saturation_limit=0.9):
+    saturation_cost = tf.reduce_mean(tf.nn.relu(tf.abs(x) - saturation_limit))
+    return tf.minimum(1.0, tf.maximum(x, -1.0)), saturation_cost
+
+
 def conv2d_v2(inputs, n_output_channels, is_training, reuse, **kwargs):
     """Adds a 2D dilated convolutional layer
 
