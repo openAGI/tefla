@@ -165,6 +165,38 @@ def convert_gradient_to_tensor(x):
     return x
 
 
+def top_k_gpu(x, k):
+    """GPU-compatible version of top-k that works for very small constant k.
+
+    Calls argmax repeatedly.
+
+    tf.nn.top_k is implemented for GPU, but the gradient, sparse_to_dense,
+    seems not to be, so if we use tf.nn.top_k, then both the top_k and its
+    gradient go on cpu.  Once this is not an issue, this function becomes
+    obselete and should be replaced by tf.nn.top_k.
+
+    Args:
+      x: a 2d Tensor.
+      k: a small integer.
+
+    Returns:
+      values: a Tensor of shape [batch_size, k]
+      indices: a int32 Tensor of shape [batch_size, k]
+    """
+    if k > 10:
+        return tf.nn.top_k(x, k)
+    values = []
+    indices = []
+    depth = tf.shape(x)[1]
+    for i in xrange(k):
+        values.append(tf.reduce_max(x, 1))
+        argmax = tf.argmax(x, 1)
+        indices.append(argmax)
+        if i + 1 < k:
+            x += tf.one_hot(argmax, depth, -1e9)
+    return tf.stack(values, axis=1), tf.to_int32(tf.stack(indices, axis=1))
+
+
 def conv2d_v2(inputs, n_output_channels, is_training, reuse, **kwargs):
     """Adds a 2D dilated convolutional layer
 
