@@ -7,7 +7,7 @@ scikit-learn==0.14.1
 scipy==0.18.0
 six==1.10.0
 setuptools==28.8.0
-matplotlib==1.5.1
+#matplotlib==1.5.1
 jupyter==1.0.0
 ghalton==0.6
 Pillow==2.3.0
