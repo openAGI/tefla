@@ -536,3 +536,20 @@ def pool2d(inputs, filter_size=(3, 3), pooling_type='AVG', padding='SAME', strid
         outputs = tf.nn.pool(inputs, filter_size, pooling_type,
                              padding, strides=strides)
         return _collect_named_outputs(outputs_collections, name, outputs)
+
+
+def variable_ref(t):
+    """Find the variable ref, ignoring Identity ops.
+
+    Args:
+      t: a Tensor
+
+    Returns:
+      a Tensor that is a variable ref, or None on error.
+    """
+    while t.op.type == "Identity":
+        t = t.op.inputs[0]
+    if "Variable" in t.op.type:
+        return t
+    else:
+        return None
