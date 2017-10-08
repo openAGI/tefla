@@ -471,7 +471,7 @@ class GradientReverseLayer(object):
 
         @ops.RegisterGradient(grad_name)
         def _gradients_reverse(op, grad):
-            return [tf.neg(grad) * gamma]
+            return [tf.negative(grad) * gamma]
 
         g = tf.get_default_graph()
         with g.gradient_override_map({"Identity": grad_name}):
