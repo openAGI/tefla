@@ -6,8 +6,6 @@ from tensorflow.python.framework import function
 from .layers import dilated_conv2d, layer_norm, _collect_named_outputs
 from ..utils import util as helper
 
-LAYER_RE = re.compile(".*revlayer_([0-9]*)/([fg])/.*")
-
 
 def fn_with_custom_grad(grad_fn, use_global_vars=False):
     """Decorator to create a subgraph with a custom gradient function.
@@ -671,6 +669,9 @@ def _rev_block_forward(x1,
 
     y1, y2 = out
     return y1, y2
+
+
+LAYER_RE = re.compile(".*revlayer_([0-9]*)/([fg])/.*")
 
 
 def rev_block(x1,
