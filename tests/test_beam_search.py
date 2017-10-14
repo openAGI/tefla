@@ -27,7 +27,6 @@ class TestGatherTree(tf.test.TestCase):
             res_ = sess.run(res)
 
         self.assertNDArrayNear(expected_result, res_, 0.0001)
-        # self.assert_array_equal(expected_result, res_)
 
 
 class TestLengthNorm(tf.test.TestCase):
