@@ -9,7 +9,7 @@ from collections import namedtuple
 import tensorflow as tf
 from tensorflow.python.framework import function  # pylint: disable=E0611
 from tensorflow.python.util import nest
-
+from .layers import fully_connected, conv1d
 from .encoder import GraphModule, Configurable, _toggle_dropout, _default_rnn_cell_params, _get_rnn_cell
 from ..utils.seq2seq_utils import CustomHelper
 from . import beam_search
@@ -51,6 +51,53 @@ class FinalBeamDecoderOutput(
 
 
 @six.add_metaclass(abc.ABCMeta)
+class Decoder(object):
+    """An RNN Decoder abstract interface object."""
+
+    @property
+    def batch_size(self):
+        """The batch size of the inputs returned by `sample`."""
+        raise NotImplementedError
+
+    @property
+    def output_size(self):
+        """A (possibly nested tuple of...) integer[s] or `TensorShape` object[s]."""
+        raise NotImplementedError
+
+    @property
+    def output_dtype(self):
+        """A (possibly nested tuple of...) dtype[s]."""
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def initialize(self, name=None):
+        """Called before any decoding iterations.
+
+        Args:
+          name: Name scope for any created operations.
+
+        Returns:
+          `(finished, first_inputs, initial_state)`.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def step(self, time, inputs, state, name=None):
+        """Called per step of decoding (but only once for dynamic decoding).
+
+        Args:
+          time: Scalar `int32` tensor.
+          inputs: Input (possibly nested tuple of) tensor[s] for this time step.
+          state: State (possibly nested tuple of) tensor[s] from previous time step.
+          name: Name scope for any created operations.
+
+        Returns:
+          `(outputs, next_state, next_inputs, finished)`.
+        """
+        raise NotImplementedError
+
+
+@six.add_metaclass(abc.ABCMeta)
 class RNNDecoder(Decoder, GraphModule, Configurable):
     """Base class for RNN decoders.
 
@@ -62,12 +109,11 @@ class RNNDecoder(Decoder, GraphModule, Configurable):
       name: A name for this module
     """
 
-    def __init__(self, params, mode, name):
+    def __init__(self, params, mode, reuse=None, name='rnndecoder'):
         GraphModule.__init__(self, name)
-        Configurable.__init__(self, params, mode)
+        Configurable.__init__(self, params, mode, reuse)
         self.params["rnn_cell"] = _toggle_dropout(self.params["rnn_cell"], mode)
         self.cell = _get_rnn_cell(**self.params["rnn_cell"])
-        # Not initialized yet
         self.initial_state = None
         self.helper = None
 
@@ -129,14 +175,14 @@ class BasicDecoder(RNNDecoder):
     """Simple RNN decoder that performed a softmax operations on the cell output.
     """
 
-    def __init__(self, params, mode, vocab_size, name="basic_decoder"):
-        super(BasicDecoder, self).__init__(params, mode, name)
+    def __init__(self, params, mode, reuse, vocab_size, name="basic_decoder"):
+        super(BasicDecoder, self).__init__(params, mode, reuse, name)
         self.vocab_size = vocab_size
 
     def compute_output(self, cell_output):
         """Computes the decoder outputs."""
-        return tf.contrib.layers.fully_connected(
-            inputs=cell_output, num_outputs=self.vocab_size, activation_fn=None)
+        return fully_connected(
+            cell_output, self.vocab_size, self._mode, self._reuse, activation=None)
 
     @property
     def output_size(self):
@@ -192,9 +238,9 @@ class AttentionLayer(GraphModule, Configurable):
       num_units: Number of units used in the attention layer
     """
 
-    def __init__(self, params, mode, name="attention"):
+    def __init__(self, params, mode, reuse=None, name="attention"):
         GraphModule.__init__(self, name)
-        Configurable.__init__(self, params, mode)
+        Configurable.__init__(self, params, mode, reuse)
 
     @staticmethod
     def default_params():
@@ -232,19 +278,10 @@ class AttentionLayer(GraphModule, Configurable):
         """
         values_depth = values.get_shape().as_list()[-1]
 
-        # Fully connected layers to transform both keys and query
-        # into a tensor with `num_units` units
-        att_keys = tf.contrib.layers.fully_connected(
-            inputs=keys,
-            num_outputs=self.params["num_units"],
-            activation_fn=None,
-            scope="att_keys")
-        att_query = tf.contrib.layers.fully_connected(
-            inputs=query,
-            num_outputs=self.params["num_units"],
-            activation_fn=None,
-            scope="att_query")
-
+        att_keys = conv1d(
+            keys, self.params["num_units"], self._mode, self._reuse, activation=None, name="att_keys")
+        att_query = fully_connected(
+            query, self.params["num_units"], self._mode, self._reuse, activation=None, name="att_query")
         scores = self.score_fn(att_keys, att_query)
 
         # Replace all scores for padded inputs with tf.float32.min
@@ -286,53 +323,6 @@ class AttentionLayerBahdanau(AttentionLayer):
         return att_sum_bahdanau(v_att, keys, query)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Decoder(object):
-    """An RNN Decoder abstract interface object."""
-
-    @property
-    def batch_size(self):
-        """The batch size of the inputs returned by `sample`."""
-        raise NotImplementedError
-
-    @property
-    def output_size(self):
-        """A (possibly nested tuple of...) integer[s] or `TensorShape` object[s]."""
-        raise NotImplementedError
-
-    @property
-    def output_dtype(self):
-        """A (possibly nested tuple of...) dtype[s]."""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def initialize(self, name=None):
-        """Called before any decoding iterations.
-
-        Args:
-          name: Name scope for any created operations.
-
-        Returns:
-          `(finished, first_inputs, initial_state)`.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def step(self, time, inputs, state, name=None):
-        """Called per step of decoding (but only once for dynamic decoding).
-
-        Args:
-          time: Scalar `int32` tensor.
-          inputs: Input (possibly nested tuple of) tensor[s] for this time step.
-          state: State (possibly nested tuple of) tensor[s] from previous time step.
-          name: Name scope for any created operations.
-
-        Returns:
-          `(outputs, next_state, next_inputs, finished)`.
-        """
-        raise NotImplementedError
-
-
 class AttentionDecoder(RNNDecoder):
     """An RNN Decoder that uses attention over an input sequence.
 
@@ -361,6 +351,7 @@ class AttentionDecoder(RNNDecoder):
     def __init__(self,
                  params,
                  mode,
+                 reuse,
                  vocab_size,
                  attention_keys,
                  attention_values,
@@ -368,7 +359,7 @@ class AttentionDecoder(RNNDecoder):
                  attention_fn,
                  reverse_scores_lengths=None,
                  name="attention_decoder"):
-        super(AttentionDecoder, self).__init__(params, mode, name)
+        super(AttentionDecoder, self).__init__(params, mode, reuse, name)
         self.vocab_size = vocab_size
         self.attention_keys = attention_keys
         self.attention_values = attention_values
@@ -421,17 +412,19 @@ class AttentionDecoder(RNNDecoder):
         # This makes the softmax smaller and allows us to synthesize information
         # between decoder state and attention context
         # see https://arxiv.org/abs/1508.04025v5
-        softmax_input = tf.contrib.layers.fully_connected(
-            inputs=tf.concat([cell_output, attention_context], 1),
-            num_outputs=self.cell.output_size,
-            activation_fn=tf.nn.tanh,
+        softmax_input = fully_connected(
+            tf.concat([cell_output, attention_context], 1),
+            self.cell.output_size, self._mode, self._reuse,
+            activation=tf.nn.tanh,
             scope="attention_mix")
 
         # Softmax computation
-        logits = tf.contrib.layers.fully_connected(
-            inputs=softmax_input,
-            num_outputs=self.vocab_size,
-            activation_fn=None,
+        logits = fully_connected(
+            softmax_input,
+            self.vocab_size,
+            self._mode,
+            self._reuse,
+            activation=None,
             scope="logits")
 
         return softmax_input, logits, att_scores, attention_context
@@ -521,7 +514,7 @@ class BeamSearchDecoder(RNNDecoder):
     """
 
     def __init__(self, decoder, config):
-        super(BeamSearchDecoder, self).__init__(decoder.params, decoder.mode,
+        super(BeamSearchDecoder, self).__init__(decoder.params, decoder.mode, decoder.reuse,
                                                 decoder.name)
         self.decoder = decoder
         self.config = config
@@ -815,8 +808,8 @@ def _create_zero_outputs(size, dtype, batch_size):
     """Create a zero outputs Tensor structure."""
     def _t(s):
         return (s if isinstance(s, tf.Tensor) else tf.constant(
-            s.get_shape().as_list(),
-            dtype=dtypes.int32,
+            tf.TensorShape(s).as_list(),
+            dtype=tf.int32,
             name="zero_suffix_shape"))
 
     def _create(s, d):
