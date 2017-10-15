@@ -5,15 +5,117 @@ from __future__ import print_function
 import abc
 from collections import namedtuple
 import copy
+import yaml
 from pydoc import locate
 
 from .rnn_cell import LSTMCell
-
+from . import logger as log
 import six
+import tensorflow as tf
 rnn_cell = tf.contrib.rnn
 EncoderOutput = namedtuple(
     "EncoderOutput",
     "outputs final_state attention_values attention_values_length")
+
+
+class abstractstaticmethod(staticmethod):  # pylint: disable=C0111,C0103
+    """Decorates a method as abstract and static"""
+    __slots__ = ()
+
+    def __init__(self, function):
+        super(abstractstaticmethod, self).__init__(function)
+        function.__isabstractmethod__ = True
+
+    __isabstractmethod__ = True
+
+
+@six.add_metaclass(abc.ABCMeta)
+class Configurable(object):
+    """Interface for all classes that are configurable
+    via a parameters dictionary.
+
+    Args:
+      params: A dictionary of parameters.
+      mode: A value in tf.contrib.learn.ModeKeys
+    """
+
+    def __init__(self, params, mode, reuse=None):
+        self._params = _parse_params(params, self.default_params())
+        self._mode = mode
+        self._reuse = reuse
+        self._print_params()
+
+    def _print_params(self):
+        """Logs parameter values"""
+        classname = self.__class__.__name__
+        log.info("Creating %s in mode=%s", classname, self._mode)
+        log.info("\n%s", yaml.dump({classname: self._params}))
+
+    @property
+    def mode(self):
+        """Returns a value in tf.contrib.learn.ModeKeys.
+        """
+        return self._mode
+
+    @property
+    def reuse(self):
+        """Returns a value in tf.contrib.learn.ModeKeys.
+        """
+        return self._reuse
+
+    @property
+    def params(self):
+        """Returns a dictionary of parsed parameters.
+        """
+        return self._params
+
+    @abstractstaticmethod
+    def default_params():
+        """Returns a dictionary of default parameters. The default parameters
+        are used to define the expected type of passed parameters. Missing
+        parameter values are replaced with the defaults returned by this method.
+        """
+        raise NotImplementedError
+
+
+class GraphModule(object):
+    """
+    Convenience class that makes it easy to share variables.
+    Each insance of this class creates its own set of variables, but
+    each subsequent execution of an instance will re-use its variables.
+
+    Graph components that define variables should inherit from this class
+    and implement their logic in the `_build` method.
+    """
+
+    def __init__(self, name):
+        """
+        Initialize the module. Each subclass must call this constructor with a name.
+
+        Args:
+          name: Name of this module. Used for `tf.make_template`.
+        """
+        self.name = name
+        self._template = tf.make_template(
+            name, self._build, create_scope_now_=True)
+        # Docstrings for the class should be the docstring for the _build method
+        self.__doc__ = self._build.__doc__
+        # pylint: disable=E1101
+        self.__call__.__func__.__doc__ = self._build.__doc__
+
+    def _build(self, *args, **kwargs):
+        """Subclasses should implement their logic here.
+        """
+        raise NotImplementedError
+
+    def __call__(self, *args, **kwargs):
+        # pylint: disable=missing-docstring
+        return self._template(*args, **kwargs)
+
+    def variable_scope(self):
+        """Returns the proper variable scope for this module.
+        """
+        return tf.variable_scope(self._template.variable_scope)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -350,99 +452,6 @@ class StackBidirectionalRNNEncoder(Encoder):
             attention_values_length=sequence_length)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Configurable(object):
-    """Interface for all classes that are configurable
-    via a parameters dictionary.
-
-    Args:
-      params: A dictionary of parameters.
-      mode: A value in tf.contrib.learn.ModeKeys
-    """
-
-    def __init__(self, params, mode):
-        self._params = _parse_params(params, self.default_params())
-        self._mode = mode
-        self._print_params()
-
-    def _print_params(self):
-        """Logs parameter values"""
-        classname = self.__class__.__name__
-        tf.logging.info("Creating %s in mode=%s", classname, self._mode)
-        tf.logging.info("\n%s", yaml.dump({classname: self._params}))
-
-    @property
-    def mode(self):
-        """Returns a value in tf.contrib.learn.ModeKeys.
-        """
-        return self._mode
-
-    @property
-    def params(self):
-        """Returns a dictionary of parsed parameters.
-        """
-        return self._params
-
-    @abstractstaticmethod
-    def default_params():
-        """Returns a dictionary of default parameters. The default parameters
-        are used to define the expected type of passed parameters. Missing
-        parameter values are replaced with the defaults returned by this method.
-        """
-        raise NotImplementedError
-
-
-class abstractstaticmethod(staticmethod):  # pylint: disable=C0111,C0103
-    """Decorates a method as abstract and static"""
-    __slots__ = ()
-
-    def __init__(self, function):
-        super(abstractstaticmethod, self).__init__(function)
-        function.__isabstractmethod__ = True
-
-    __isabstractmethod__ = True
-
-
-class GraphModule(object):
-    """
-    Convenience class that makes it easy to share variables.
-    Each insance of this class creates its own set of variables, but
-    each subsequent execution of an instance will re-use its variables.
-
-    Graph components that define variables should inherit from this class
-    and implement their logic in the `_build` method.
-    """
-
-    def __init__(self, name):
-        """
-        Initialize the module. Each subclass must call this constructor with a name.
-
-        Args:
-          name: Name of this module. Used for `tf.make_template`.
-        """
-        self.name = name
-        self._template = tf.make_template(
-            name, self._build, create_scope_now_=True)
-        # Docstrings for the class should be the docstring for the _build method
-        self.__doc__ = self._build.__doc__
-        # pylint: disable=E1101
-        self.__call__.__func__.__doc__ = self._build.__doc__
-
-    def _build(self, *args, **kwargs):
-        """Subclasses should implement their logic here.
-        """
-        raise NotImplementedError
-
-    def __call__(self, *args, **kwargs):
-        # pylint: disable=missing-docstring
-        return self._template(*args, **kwargs)
-
-    def variable_scope(self):
-        """Returns the proper variable scope for this module.
-        """
-        return tf.variable_scope(self._template.variable_scope)
-
-
 def _parse_params(params, default_params):
     """Parses parameter values to the types defined by the default parameters.
     Default parameters are used for missing values.
@@ -488,12 +497,11 @@ def _default_rnn_cell_params():
     """Creates default parameters used by multiple RNN encoders.
     """
     return {
-        "cell_class": LSTMCell,
         "cell_params": {
-            "num_units": 128
+            "num_units": 128,
+            "reuse": None,
+            "keep_prob": 0.8
         },
-        "dropout_input_keep_prob": 1.0,
-        "dropout_output_keep_prob": 1.0,
         "num_layers": 1,
         "residual_connections": False,
         "residual_combiner": "add",
@@ -506,8 +514,7 @@ def _toggle_dropout(cell_params, mode):
     """
     cell_params = copy.deepcopy(cell_params)
     if mode != tf.contrib.learn.ModeKeys.TRAIN:
-        cell_params["dropout_input_keep_prob"] = 1.0
-        cell_params["dropout_output_keep_prob"] = 1.0
+        cell_params["cell_params"]["keep_prob"] = 1.0
     return cell_params
 
 
@@ -569,11 +576,8 @@ def _create_position_embedding(embedding_dim, num_positions, lengths, maxlen):
     return positions_embed
 
 
-def _get_rnn_cell(cell_class,
-                  cell_params,
+def _get_rnn_cell(cell_params,
                   num_layers=1,
-                  dropout_input_keep_prob=1.0,
-                  dropout_output_keep_prob=1.0,
                   residual_connections=False,
                   residual_combiner="add",
                   residual_dense=False):
@@ -597,12 +601,7 @@ def _get_rnn_cell(cell_class,
 
     cells = []
     for _ in range(num_layers):
-        cell = cell_class(**cell_params)
-        if dropout_input_keep_prob < 1.0 or dropout_output_keep_prob < 1.0:
-            cell = tf.contrib.rnn.DropoutWrapper(
-                cell=cell,
-                input_keep_prob=dropout_input_keep_prob,
-                output_keep_prob=dropout_output_keep_prob)
+        cell = LSTMCell(**cell_params)
         cells.append(cell)
 
     if len(cells) > 1:
