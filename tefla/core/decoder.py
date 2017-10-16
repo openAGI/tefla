@@ -415,8 +415,8 @@ class AttentionDecoder(RNNDecoder):
         softmax_input = fully_connected(
             tf.concat([cell_output, attention_context], 1),
             self.cell.output_size, self._mode, self._reuse,
-            activation=tf.nn.tanh,
-            scope="attention_mix")
+            activation=tf.tanh,
+            name="attention_mix")
 
         # Softmax computation
         logits = fully_connected(
@@ -425,7 +425,7 @@ class AttentionDecoder(RNNDecoder):
             self._mode,
             self._reuse,
             activation=None,
-            scope="logits")
+            name="logits")
 
         return softmax_input, logits, att_scores, attention_context
 
