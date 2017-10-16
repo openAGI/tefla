@@ -2433,8 +2433,8 @@ def _flatten(x, name='flatten'):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     with tf.name_scope(name):
-        # dims = int(np.prod(input_shape[1:]))
-        flattened = tf.reshape(x, [tf.shape(x)[0], -1])
+        dims = int(np.prod(input_shape[1:]))
+        flattened = tf.reshape(x, [-1, dims])
         return flattened
 
 
