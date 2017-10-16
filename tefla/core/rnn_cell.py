@@ -270,7 +270,7 @@ class GRUCell(core_rnn_cell.RNNCell):
             `GraphKeys.TRAINABLE_VARIABLES` (see tf.Variable).
     """
 
-    def __init__(self, num_units, reuse, w_init=initz.he_normal(), use_bias=False, trainable=True, input_size=None, activation=tf.tanh, inner_activation=tf.sigmoid, b_init=1.0, layer_norm=None, layer_norm_args=None):
+    def __init__(self, num_units, reuse, w_init=initz.he_normal(), use_bias=False, trainable=True, input_size=None, activation=tf.tanh, inner_activation=tf.sigmoid, b_init=1.0, keep_prob=1.0, layer_norm=None, layer_norm_args=None):
         if input_size is not None:
             log.warn("%s: The input_size parameter is deprecated.", self)
         self._num_units = num_units
@@ -280,6 +280,7 @@ class GRUCell(core_rnn_cell.RNNCell):
         self._b_init = b_init
         self._w_init = w_init
         self._use_bias = use_bias
+        self._keep_prob = keep_prob
         self._inner_activation = inner_activation
         self.layer_norm = layer_norm
         self.layer_norm_args = layer_norm_args or {}
@@ -334,8 +335,8 @@ class MultiRNNCell(core_rnn_cell.RNNCell):
             raise ValueError(
                 "Must specify at least one cell for MultiRNNCell.")
         self._cells = cells
-        if any(helper.is_sequence(c.state_size) for c in self._cells):
-            raise ValueError("Cell state should be tuple of states")
+        # if any(helper.is_sequence(c.state_size) for c in self._cells):
+        #    raise ValueError("Cell state should be tuple of states")
 
     @property
     def state_size(self):
@@ -448,8 +449,7 @@ class ExtendedMultiRNNCell(MultiRNNCell):
                     prev_inputs.append(cur_inp)
 
                     new_states.append(new_state)
-        new_states = (tuple(new_states)
-                      if self._state_is_tuple else tf.concat(new_states, 1))
+        new_states = tuple(new_states)
         return cur_inp, new_states
 
 
