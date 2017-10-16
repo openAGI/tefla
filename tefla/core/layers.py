@@ -107,7 +107,6 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
         x = _flatten(x)
 
     n_input = x.get_shape().as_list()[1]
-
     with tf.variable_scope(name, reuse=reuse):
         shape = [n_input, n_output] if hasattr(w_init, '__call__') else None
         if params is not None:
@@ -145,7 +144,10 @@ def fully_connected(x, n_output, is_training, reuse, trainable=True, w_init=init
                                 reuse=reuse, trainable=trainable, **batch_norm_args)
 
         if activation:
-            output = activation(output, reuse=reuse, trainable=trainable)
+            if activation in (tf.tanh, tf.sigmoid, tf.nn.relu):
+                output = activation(output)
+            else:
+                output = activation(output, reuse=reuse, trainable=trainable)
 
         return _collect_named_outputs(outputs_collections, name, output)
 
@@ -2431,8 +2433,8 @@ def _flatten(x, name='flatten'):
     input_shape = helper.get_input_shape(x)
     assert len(input_shape) > 1, "Input Tensor shape must be > 1-D"
     with tf.name_scope(name):
-        dims = int(np.prod(input_shape[1:]))
-        flattened = tf.reshape(x, [-1, dims])
+        # dims = int(np.prod(input_shape[1:]))
+        flattened = tf.reshape(x, [tf.shape(x)[0], -1])
         return flattened
 
 
