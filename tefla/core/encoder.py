@@ -8,11 +8,12 @@ import copy
 import yaml
 from pydoc import locate
 
-from .rnn_cell import LSTMCell
+from .layers import conv2d, avg_pool_1d
+from .rnn_cell import LSTMCell, MultiRNNCell, ExtendedMultiRNNCell
 from . import logger as log
 import six
 import tensorflow as tf
-rnn_cell = tf.contrib.rnn
+core_rnn_cell = tf.contrib.rnn
 EncoderOutput = namedtuple(
     "EncoderOutput",
     "outputs final_state attention_values attention_values_length")
@@ -127,9 +128,9 @@ class Encoder(GraphModule, Configurable):
       name: A variable scope for the encoder graph.
     """
 
-    def __init__(self, params, mode, name):
+    def __init__(self, params, mode, reuse, name):
         GraphModule.__init__(self, name)
-        Configurable.__init__(self, params, mode)
+        Configurable.__init__(self, params, mode, reuse)
 
     def _build(self, inputs, *args, **kwargs):
         return self.encode(inputs, *args, **kwargs)
@@ -171,10 +172,9 @@ class ConvEncoder(Encoder):
         This should be set to the maximum sequence length of the inputs.
     """
 
-    def __init__(self, params, mode, name="conv_encoder"):
-        super(ConvEncoder, self).__init__(params, mode, name)
-        self._combiner_fn = locate(
-            self.params["position_embeddings.combiner_fn"])
+    def __init__(self, params, mode, reuse=None, name="conv_encoder"):
+        super(ConvEncoder, self).__init__(params, mode, reuse, name)
+        self._combiner_fn = tf.multiply
 
     @staticmethod
     def default_params():
@@ -209,12 +209,14 @@ class ConvEncoder(Encoder):
         with tf.variable_scope("cnn_a"):
             cnn_a_output = inputs
             for layer_idx in range(self.params["attention_cnn.layers"]):
-                next_layer = tf.contrib.layers.conv2d(
-                    inputs=cnn_a_output,
-                    num_outputs=self.params["attention_cnn.units"],
-                    kernel_size=self.params["attention_cnn.kernel_size"],
+                next_layer = conv2d(
+                    cnn_a_output,
+                    self.params["attention_cnn.units"],
+                    self._mode,
+                    self._reuse,
+                    filter_size=self.params["attention_cnn.kernel_size"],
                     padding="SAME",
-                    activation_fn=None)
+                    activation=None)
                 # Add a residual connection, except for the first layer
                 if layer_idx > 0:
                     next_layer += cnn_a_output
@@ -223,12 +225,14 @@ class ConvEncoder(Encoder):
         with tf.variable_scope("cnn_c"):
             cnn_c_output = inputs
             for layer_idx in range(self.params["output_cnn.layers"]):
-                next_layer = tf.contrib.layers.conv2d(
-                    inputs=cnn_c_output,
-                    num_outputs=self.params["output_cnn.units"],
-                    kernel_size=self.params["output_cnn.kernel_size"],
+                next_layer = conv2d(
+                    cnn_c_output,
+                    self.params["output_cnn.units"],
+                    self._mode,
+                    self._reuse,
+                    filter_size=self.params["output_cnn.kernel_size"],
                     padding="SAME",
-                    activation_fn=None)
+                    activation=None)
                 # Add a residual connection, except for the first layer
                 if layer_idx > 0:
                     next_layer += cnn_c_output
@@ -264,11 +268,10 @@ class PoolingEncoder(Encoder):
         This should be set to the maximum sequence length of the inputs.
     """
 
-    def __init__(self, params, mode, name="pooling_encoder"):
-        super(PoolingEncoder, self).__init__(params, mode, name)
-        self._pooling_fn = locate(self.params["pooling_fn"])
-        self._combiner_fn = locate(
-            self.params["position_embeddings.combiner_fn"])
+    def __init__(self, params, mode, reuse, name="pooling_encoder"):
+        super(PoolingEncoder, self).__init__(params, mode, reuse, name)
+        self._pooling_fn = avg_pool_1d
+        self._combiner_fn = tf.multiply
 
     @staticmethod
     def default_params():
@@ -299,8 +302,8 @@ class PoolingEncoder(Encoder):
 
         outputs = self._pooling_fn(
             inputs=inputs,
-            pool_size=self.params["pool_size"],
-            strides=self.params["strides"],
+            filter_size=self.params["pool_size"],
+            stride=self.params["strides"],
             padding="SAME")
 
         # Final state is the average representation of the pooled embeddings
@@ -323,8 +326,9 @@ class UnidirectionalRNNEncoder(Encoder):
       name: A name for the encoder
     """
 
-    def __init__(self, params, mode, name="forward_rnn_encoder"):
-        super(UnidirectionalRNNEncoder, self).__init__(params, mode, name)
+    def __init__(self, params, mode, reuse=None, name="forward_rnn_encoder"):
+        super(UnidirectionalRNNEncoder, self).__init__(
+            params, mode, reuse, name)
         self.params["rnn_cell"] = _toggle_dropout(self.params["rnn_cell"], mode)
 
     @staticmethod
@@ -365,8 +369,8 @@ class BidirectionalRNNEncoder(Encoder):
       name: A name for the encoder
     """
 
-    def __init__(self, params, mode, name="bidi_rnn_encoder"):
-        super(BidirectionalRNNEncoder, self).__init__(params, mode, name)
+    def __init__(self, params, mode, reuse=None, name="bidi_rnn_encoder"):
+        super(BidirectionalRNNEncoder, self).__init__(params, mode, reuse, name)
         self.params["rnn_cell"] = _toggle_dropout(self.params["rnn_cell"], mode)
 
     @staticmethod
@@ -413,8 +417,9 @@ class StackBidirectionalRNNEncoder(Encoder):
       name: A name for the encoder
     """
 
-    def __init__(self, params, mode, name="stacked_bidi_rnn_encoder"):
-        super(StackBidirectionalRNNEncoder, self).__init__(params, mode, name)
+    def __init__(self, params, mode, reuse=None, name="stacked_bidi_rnn_encoder"):
+        super(StackBidirectionalRNNEncoder, self).__init__(
+            params, mode, reuse, name)
         self.params["rnn_cell"] = _toggle_dropout(self.params["rnn_cell"], mode)
 
     @staticmethod
@@ -436,7 +441,7 @@ class StackBidirectionalRNNEncoder(Encoder):
         cells_fw = _unpack_cell(cell_fw)
         cells_bw = _unpack_cell(cell_bw)
 
-        result = rnn_cell.stack_bidirectional_dynamic_rnn(
+        result = core_rnn_cell.stack_bidirectional_dynamic_rnn(
             cells_fw=cells_fw,
             cells_bw=cells_bw,
             inputs=inputs,
@@ -487,7 +492,7 @@ def _parse_params(params, default_params):
 def _unpack_cell(cell):
     """Unpack the cells because the stack_bidirectional_dynamic_rnn
     expects a list of cells, one per layer."""
-    if isinstance(cell, tf.contrib.rnn.MultiRNNCell):
+    if isinstance(cell, MultiRNNCell):
         return cell._cells  # pylint: disable=W0212
     else:
         return [cell]
@@ -603,7 +608,6 @@ def _get_rnn_cell(cell_params,
     for _ in range(num_layers):
         cell = LSTMCell(**cell_params)
         cells.append(cell)
-
     if len(cells) > 1:
         final_cell = ExtendedMultiRNNCell(
             cells=cells,
