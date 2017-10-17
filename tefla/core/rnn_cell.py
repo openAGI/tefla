@@ -340,7 +340,7 @@ class MultiRNNCell(core_rnn_cell.RNNCell):
 
     @property
     def state_size(self):
-        return sum([cell.state_size for cell in self._cells])
+        return tuple(cell.state_size for cell in self._cells)
 
     @property
     def output_size(self):
