@@ -7,8 +7,9 @@ from collections import namedtuple
 import copy
 import yaml
 from pydoc import locate
+import numpy as np
 
-from .layers import conv2d, avg_pool_1d
+from .layers import conv2d, conv1d, avg_pool_1d
 from .rnn_cell import LSTMCell, MultiRNNCell, ExtendedMultiRNNCell
 from . import logger as log
 import six
@@ -209,34 +210,36 @@ class ConvEncoder(Encoder):
         with tf.variable_scope("cnn_a"):
             cnn_a_output = inputs
             for layer_idx in range(self.params["attention_cnn.layers"]):
-                next_layer = conv2d(
-                    cnn_a_output,
-                    self.params["attention_cnn.units"],
-                    self._mode,
-                    self._reuse,
-                    filter_size=self.params["attention_cnn.kernel_size"],
-                    padding="SAME",
-                    activation=None)
-                # Add a residual connection, except for the first layer
-                if layer_idx > 0:
-                    next_layer += cnn_a_output
-                cnn_a_output = tf.tanh(next_layer)
+                with tf.variable_scope('conv1d_' + str(layer_idx), reuse=self._reuse):
+                    next_layer = conv1d(
+                        cnn_a_output,
+                        self.params["attention_cnn.units"],
+                        self._mode,
+                        self._reuse,
+                        filter_size=self.params["attention_cnn.kernel_size"],
+                        padding="SAME",
+                        activation=None)
+                    # Add a residual connection, except for the first layer
+                    if layer_idx > 0:
+                        next_layer += cnn_a_output
+                    cnn_a_output = tf.tanh(next_layer)
 
         with tf.variable_scope("cnn_c"):
             cnn_c_output = inputs
             for layer_idx in range(self.params["output_cnn.layers"]):
-                next_layer = conv2d(
-                    cnn_c_output,
-                    self.params["output_cnn.units"],
-                    self._mode,
-                    self._reuse,
-                    filter_size=self.params["output_cnn.kernel_size"],
-                    padding="SAME",
-                    activation=None)
-                # Add a residual connection, except for the first layer
-                if layer_idx > 0:
-                    next_layer += cnn_c_output
-                cnn_c_output = tf.tanh(next_layer)
+                with tf.variable_scope('conv1d_o_' + str(layer_idx), reuse=self._reuse):
+                    next_layer = conv1d(
+                        cnn_c_output,
+                        self.params["output_cnn.units"],
+                        self._mode,
+                        self._reuse,
+                        filter_size=self.params["output_cnn.kernel_size"],
+                        padding="SAME",
+                        activation=None)
+                    # Add a residual connection, except for the first layer
+                    if layer_idx > 0:
+                        next_layer += cnn_c_output
+                    cnn_c_output = tf.tanh(next_layer)
 
         final_state = tf.reduce_mean(cnn_c_output, 1)
 
@@ -301,7 +304,7 @@ class PoolingEncoder(Encoder):
             is_training=self.mode == tf.contrib.learn.ModeKeys.TRAIN)
 
         outputs = self._pooling_fn(
-            inputs=inputs,
+            inputs,
             filter_size=self.params["pool_size"],
             stride=self.params["strides"],
             padding="SAME")
