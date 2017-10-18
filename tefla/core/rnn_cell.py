@@ -354,7 +354,7 @@ class MultiRNNCell(core_rnn_cell.RNNCell):
             for i, cell in enumerate(self._cells):
                 with tf.variable_scope("cell_%d" % i):
                     if not helper.is_sequence(state):
-                        raise ValueError("Expected state to be a tuple of length %d, but received: %s" % (
+                        raise ValueError("Expected state to be a tuple of length %s, but received: %s" % (
                             self.state_size, state))
                     cur_state = state[i]
                     cur_inp, new_state = cell(cur_inp, cur_state)
