@@ -1041,3 +1041,19 @@ def get_num_gpu():
     device_protos = device_lib.list_local_devices()
     gpus = [x.name for x in device_protos if x.device_type == 'GPU']
     return len(gpus)
+
+
+def get_dict_from_collection(collection_name):
+    """Gets a dictionary from a graph collection.
+
+    Args:
+      collection_name: A collection name to read a dictionary from
+
+    Returns:
+      A dictionary with string keys and tensor values
+    """
+    key_collection = collection_name + "_keys"
+    value_collection = collection_name + "_values"
+    keys = tf.get_collection(key_collection)
+    values = tf.get_collection(value_collection)
+    return dict(zip(keys, values))
