@@ -7,7 +7,7 @@ import abc
 import six
 from collections import namedtuple
 import tensorflow as tf
-from tensorflow.python.framework import function  # pylint: disable=E0611
+from tensorflow.python.framework import function
 from tensorflow.python.util import nest
 from .layers import fully_connected, conv1d
 from .encoder import GraphModule, Configurable, _toggle_dropout, _default_rnn_cell_params, _get_rnn_cell
@@ -139,7 +139,6 @@ class RNNDecoder(Decoder, GraphModule, Configurable):
         """Applies final transformation to the decoder output once decoding is
         finished.
         """
-        # pylint: disable=R0201
         return (outputs, final_state)
 
     @staticmethod
@@ -574,7 +573,7 @@ class BeamSearchDecoder(RNNDecoder):
         # Tile initial state
         initial_state = nest.map_structure(
             lambda x: tf.tile(x, [self.batch_size, 1]), initial_state)
-        self.decoder._setup(initial_state, helper)  # pylint: disable=W0212
+        self.decoder._setup(initial_state, helper)
         return super(BeamSearchDecoder, self)._build(self.decoder.initial_state,
                                                      self.decoder.helper)
 

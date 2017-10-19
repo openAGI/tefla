@@ -20,7 +20,7 @@ EncoderOutput = namedtuple(
     "outputs final_state attention_values attention_values_length")
 
 
-class abstractstaticmethod(staticmethod):  # pylint: disable=C0111,C0103
+class abstractstaticmethod(staticmethod):
     """Decorates a method as abstract and static"""
     __slots__ = ()
 
@@ -102,7 +102,6 @@ class GraphModule(object):
             name, self._build, create_scope_now_=True)
         # Docstrings for the class should be the docstring for the _build method
         self.__doc__ = self._build.__doc__
-        # pylint: disable=E1101
         self.__call__.__func__.__doc__ = self._build.__doc__
 
     def _build(self, *args, **kwargs):
@@ -111,7 +110,6 @@ class GraphModule(object):
         raise NotImplementedError
 
     def __call__(self, *args, **kwargs):
-        # pylint: disable=missing-docstring
         return self._template(*args, **kwargs)
 
     def variable_scope(self):
@@ -496,7 +494,7 @@ def _unpack_cell(cell):
     """Unpack the cells because the stack_bidirectional_dynamic_rnn
     expects a list of cells, one per layer."""
     if isinstance(cell, MultiRNNCell):
-        return cell._cells  # pylint: disable=W0212
+        return cell._cells
     else:
         return [cell]
 
