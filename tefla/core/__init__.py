@@ -26,3 +26,7 @@ from . import summary
 from . import training
 from . import vbn
 from . import gdn
+from . import encoder
+from . import decoder
+from . import bridges
+from . import beam_search
