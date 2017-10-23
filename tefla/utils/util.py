@@ -9,6 +9,8 @@ from datetime import datetime
 from scipy.misc import imsave
 import matplotlib.pyplot as plt
 import numbers
+from pydoc import locate
+import yaml
 import numpy as np
 from progress.bar import Bar
 from sklearn.metrics import auc, roc_curve
@@ -1057,3 +1059,92 @@ def get_dict_from_collection(collection_name):
     keys = tf.get_collection(key_collection)
     values = tf.get_collection(value_collection)
     return dict(zip(keys, values))
+
+
+def add_dict_to_collection(dict_, collection_name):
+    """Adds a dictionary to a graph collection.
+
+    Args:
+      dict_: A dictionary of string keys to tensor values
+      collection_name: The name of the collection to add the dictionary to
+    """
+    key_collection = collection_name + "_keys"
+    value_collection = collection_name + "_values"
+    for key, value in dict_.items():
+        tf.add_to_collection(key_collection, key)
+        tf.add_to_collection(value_collection, value)
+
+
+def _create_from_dict(dict_, default_module, *args, **kwargs):
+    """Creates a configurable class from a dictionary. The dictionary must have
+    "class" and "params" properties. The class can be either fully qualified, or
+    it is looked up in the modules passed via `default_module`.
+    """
+    class_ = locate(dict_["class"]) or getattr(default_module, dict_["class"])
+    params = {}
+    if "params" in dict_:
+        params = dict_["params"]
+    instance = class_(params, *args, **kwargs)
+    return instance
+
+
+def _maybe_load_yaml(item):
+    """Parses `item` only if it is a string. If `item` is a dictionary
+    it is returned as-is.
+    """
+    if isinstance(item, six.string_types):
+        return yaml.load(item)
+    elif isinstance(item, dict):
+        return item
+    else:
+        raise ValueError("Got {}, expected YAML string or dict", type(item))
+
+
+def _deep_merge_dict(dict_x, dict_y, path=None):
+    """Recursively merges dict_y into dict_x.
+    """
+    if path is None:
+        path = []
+    for key in dict_y:
+        if key in dict_x:
+            if isinstance(dict_x[key], dict) and isinstance(dict_y[key], dict):
+                _deep_merge_dict(dict_x[key], dict_y[key], path + [str(key)])
+            elif dict_x[key] == dict_y[key]:
+                pass  # same leaf value
+            else:
+                dict_x[key] = dict_y[key]
+        else:
+            dict_x[key] = dict_y[key]
+    return dict_x
+
+
+def _parse_params(params, default_params):
+    """Parses parameter values to the types defined by the default parameters.
+    Default parameters are used for missing values.
+    """
+    # Cast parameters to correct types
+    if params is None:
+        params = {}
+    result = copy.deepcopy(default_params)
+    for key, value in params.items():
+        # If param is unknown, drop it to stay compatible with past versions
+        if key not in default_params:
+            raise ValueError("%s is not a valid model parameter" % key)
+        # Param is a dictionary
+        if isinstance(value, dict):
+            default_dict = default_params[key]
+            if not isinstance(default_dict, dict):
+                raise ValueError("%s should not be a dictionary", key)
+            if default_dict:
+                value = _parse_params(value, default_dict)
+            else:
+                # If the default is an empty dict we do not typecheck it
+                # and assume it's done downstream
+                pass
+        if value is None:
+            continue
+        if default_params[key] is None:
+            result[key] = value
+        else:
+            result[key] = type(default_params[key])(value)
+    return result
