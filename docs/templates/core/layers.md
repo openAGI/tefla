@@ -1,6 +1,6 @@
 # Define input layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L19 target="_blank"><b>tefla.core.layers.input</b></a></span>  (shape,  name='inputs',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L20 target="_blank"><b>tefla.core.layers.input</b></a></span>  (shape,  name='inputs',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -19,7 +19,7 @@ A placeholder for the input
 
 # Add item to colelction
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L38 target="_blank"><b>tefla.core.layers.register_to_collections</b></a></span>  (inputs,  name=None,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L39 target="_blank"><b>tefla.core.layers.register_to_collections</b></a></span>  (inputs,  name=None,  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -38,7 +38,7 @@ A placeholder for the input
 
 # Adds a fully connected layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L55 target="_blank"><b>tefla.core.layers.fully_connected</b></a></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f8535ec9b90>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  w_normalized=False,  name='fc',  batch_norm=None,  batch_norm_args=None,  activation=None,  params=None,  outputs_collections=None,  use_bias=True)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L56 target="_blank"><b>tefla.core.layers.fully_connected</b></a></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  w_init=<function  _initializer  at  0x7f8538bdab18>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  w_normalized=False,  name='fc',  batch_norm=None,  batch_norm_args=None,  activation=None,  params=None,  outputs_collections=None,  use_bias=True)</span>
 
 `fully_connected` creates a variable called `weights`, representing a fully
 connected weight matrix, which is multiplied by the `x` to produce a
@@ -85,7 +85,7 @@ e.g: 2-D `Tensor` [batch, n_output].
 
 # Adds a 2D convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L152 target="_blank"><b>tefla.core.layers.conv2d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8535ec9c80>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  untie_biases=False,  name='conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L155 target="_blank"><b>tefla.core.layers.conv2d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8538bdac08>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  untie_biases=False,  name='conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
 
 `convolutional layer` creates a variable called `weights`, representing a conv
 weight matrix, which is multiplied by the `x` to produce a
@@ -137,7 +137,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Adds a 2D dilated convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L253 target="_blank"><b>tefla.core.layers.dilated_conv2d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  dilation=1,  stride=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f8535ec9d70>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  untie_biases=False,  name='dilated_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L256 target="_blank"><b>tefla.core.layers.dilated_conv2d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  dilation=1,  stride=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f8538bdacf8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  untie_biases=False,  name='dilated_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
 
 also known as convolution with holes or atrous convolution.
 If the rate parameter is equal to one, it performs regular 2-D convolution.
@@ -196,7 +196,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Adds a 2D seperable convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L361 target="_blank"><b>tefla.core.layers.separable_conv2d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f8535ec9e60>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  untie_biases=False,  name='separable_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L364 target="_blank"><b>tefla.core.layers.separable_conv2d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  depth_multiplier=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f8538bdade8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  untie_biases=False,  name='separable_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
 
 Performs a depthwise convolution that acts separately on channels followed by
 a pointwise convolution that mixes channels. Note that this is separability between
@@ -255,7 +255,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Adds a 2D sdepthwise convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L479 target="_blank"><b>tefla.core.layers.depthwise_conv2d</b></a></span>  (x,  depth_multiplier,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8535ec9f50>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  untie_biases=False,  name='depthwise_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L482 target="_blank"><b>tefla.core.layers.depthwise_conv2d</b></a></span>  (x,  depth_multiplier,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8538bdaed8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  untie_biases=False,  name='depthwise_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
 
 Given an input tensor of shape [batch, in_height, in_width, in_channels] and a filter
 tensor of shape [filter_height, filter_width, in_channels, channel_multiplier] containing
@@ -312,7 +312,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Adds a 3D convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L585 target="_blank"><b>tefla.core.layers.conv3d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3,  3),  stride=  (1,  1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8535ed00c8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  untie_biases=False,  name='conv3d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L588 target="_blank"><b>tefla.core.layers.conv3d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3,  3),  stride=  (1,  1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8538bdf050>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  untie_biases=False,  name='conv3d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
 
 `convolutional layer` creates a variable called `weights`, representing a conv
 weight matrix, which is multiplied by the `x` to produce a
@@ -364,7 +364,7 @@ e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, n_output].
 
 # Adds a 2D upsampling or deconvolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L686 target="_blank"><b>tefla.core.layers.upsample2d</b></a></span>  (input_,  output_shape,  is_training,  reuse,  trainable=True,  filter_size=  (5,  5),  stride=  (2,  2),  w_init=<function  _initializer  at  0x7f8535ed01b8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  batch_norm=None,  batch_norm_args=None,  activation=None,  name='deconv2d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L689 target="_blank"><b>tefla.core.layers.upsample2d</b></a></span>  (input_,  output_shape,  is_training,  reuse,  trainable=True,  filter_size=  (5,  5),  stride=  (2,  2),  w_init=<function  _initializer  at  0x7f8538bdf140>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  batch_norm=None,  batch_norm_args=None,  activation=None,  name='deconv2d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
 
 his operation is sometimes called "deconvolution" after Deconvolutional Networks,
 but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
@@ -415,7 +415,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Adds a 3D upsampling or deconvolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L779 target="_blank"><b>tefla.core.layers.upsample3d</b></a></span>  (input_,  output_shape,  is_training,  reuse,  trainable=True,  filter_size=  (5,  5,  5),  stride=  (2,  2,  2),  w_init=<function  _initializer  at  0x7f8535ed02a8>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  batch_norm=None,  batch_norm_args=None,  activation=None,  name='deconv3d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L782 target="_blank"><b>tefla.core.layers.upsample3d</b></a></span>  (input_,  output_shape,  is_training,  reuse,  trainable=True,  filter_size=  (5,  5,  5),  stride=  (2,  2,  2),  w_init=<function  _initializer  at  0x7f8538bdf230>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  batch_norm=None,  batch_norm_args=None,  activation=None,  name='deconv3d',  use_bias=True,  with_w=False,  outputs_collections=None,  **unused)</span>
 
 his operation is sometimes called "deconvolution" after Deconvolutional Networks,
 but is actually the transpose (gradient) of conv2d rather than an actual deconvolution.
@@ -466,7 +466,7 @@ e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, n_output].
 
 # Adds a 1D convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L872 target="_blank"><b>tefla.core.layers.conv1d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=3,  stride=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f8535ed0398>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  untie_biases=False,  name='conv1d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L875 target="_blank"><b>tefla.core.layers.conv1d</b></a></span>  (x,  n_output_channels,  is_training,  reuse,  trainable=True,  filter_size=3,  stride=1,  padding='SAME',  w_init=<function  _initializer  at  0x7f8538bdf320>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  untie_biases=False,  name='conv1d',  batch_norm=None,  batch_norm_args=None,  activation=None,  use_bias=True,  outputs_collections=None)</span>
 
 `convolutional layer` creates a variable called `weights`, representing a conv
 weight matrix, which is multiplied by the `x` to produce a
@@ -518,7 +518,7 @@ e.g.: 3-D `Tensor` [batch, new_width, n_output].
 
 # Max Pooling 1D
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L973 target="_blank"><b>tefla.core.layers.max_pool_1d</b></a></span>  (x,  filter_size=3,  stride=2,  padding='SAME',  name='maxpool1d',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L976 target="_blank"><b>tefla.core.layers.max_pool_1d</b></a></span>  (x,  filter_size=3,  stride=2,  padding='SAME',  name='maxpool1d',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -540,7 +540,7 @@ Default: 'same'.
 
 # Avg Pooling 1D
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1008 target="_blank"><b>tefla.core.layers.avg_pool_1d</b></a></span>  (x,  filter_size=3,  stride=2,  padding='SAME',  name='avgpool1d',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1011 target="_blank"><b>tefla.core.layers.avg_pool_1d</b></a></span>  (x,  filter_size=3,  stride=2,  padding='SAME',  name='avgpool1d',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -562,7 +562,7 @@ Default: 'same'.
 
 # Adds a 2D highway convolutional layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1067 target="_blank"><b>tefla.core.layers.highway_conv2d</b></a></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8535ed0668>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  name='highway_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=<function  relu  at  0x7f859b28c500>,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1070 target="_blank"><b>tefla.core.layers.highway_conv2d</b></a></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  stride=  (1,  1),  padding='SAME',  w_init=<function  _initializer  at  0x7f8538bdf5f0>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  name='highway_conv2d',  batch_norm=None,  batch_norm_args=None,  activation=<function  relu  at  0x7f85479dfc80>,  use_bias=True,  outputs_collections=None)</span>
 
 https://arxiv.org/abs/1505.00387
 If a `batch_norm` is provided (such as
@@ -613,7 +613,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Adds a fully connected highway layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1155 target="_blank"><b>tefla.core.layers.highway_fc2d</b></a></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  w_init=<function  _initializer  at  0x7f8535ed0758>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f859b281758>,  name='highway_fc2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1158 target="_blank"><b>tefla.core.layers.highway_fc2d</b></a></span>  (x,  n_output,  is_training,  reuse,  trainable=True,  filter_size=  (3,  3),  w_init=<function  _initializer  at  0x7f8538bdf6e0>,  b_init=0.0,  w_regularizer=<function  l2_loss  at  0x7f85479d6ed8>,  name='highway_fc2d',  activation=None,  use_bias=True,  outputs_collections=None)</span>
 
 https://arxiv.org/abs/1505.00387
 If a `batch_norm` is provided (such as
@@ -659,7 +659,7 @@ e.g.: 2-D `Tensor` [batch_size, n_output]
 
 # Max pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1294 target="_blank"><b>tefla.core.layers.max_pool</b></a></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name='pool',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1297 target="_blank"><b>tefla.core.layers.max_pool</b></a></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name='pool',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -683,7 +683,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, channels].
 
 # Max pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1328 target="_blank"><b>tefla.core.layers.max_pool_3d</b></a></span>  (x,  filter_size=  (3,  3,  3),  stride=  (2,  2,  2),  padding='SAME',  name='pool',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1331 target="_blank"><b>tefla.core.layers.max_pool_3d</b></a></span>  (x,  filter_size=  (3,  3,  3),  stride=  (2,  2,  2),  padding='SAME',  name='pool',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -707,7 +707,7 @@ e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, channels].
 
 # Fractional pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1362 target="_blank"><b>tefla.core.layers.fractional_pool</b></a></span>  (x,  pooling_ratio=[1.0,  1.44,  1.73,  1.0],  pseudo_random=None,  determinastic=None,  overlapping=None,  name='fractional_pool',  seed=None,  seed2=None,  type='avg',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1365 target="_blank"><b>tefla.core.layers.fractional_pool</b></a></span>  (x,  pooling_ratio=[1.0,  1.44,  1.73,  1.0],  pseudo_random=None,  determinastic=None,  overlapping=None,  name='fractional_pool',  seed=None,  seed2=None,  type='avg',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -749,7 +749,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, channels].
 
 # RMS pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1416 target="_blank"><b>tefla.core.layers.rms_pool_2d</b></a></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name='pool',  epsilon=1e-12,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1419 target="_blank"><b>tefla.core.layers.rms_pool_2d</b></a></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name='pool',  epsilon=1e-12,  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -774,7 +774,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, channels].
 
 # RMS pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1453 target="_blank"><b>tefla.core.layers.rms_pool_3d</b></a></span>  (x,  filter_size=  (3,  3,  3),  stride=  (2,  2,  2),  padding='SAME',  name='pool',  epsilon=1e-12,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1456 target="_blank"><b>tefla.core.layers.rms_pool_3d</b></a></span>  (x,  filter_size=  (3,  3,  3),  stride=  (2,  2,  2),  padding='SAME',  name='pool',  epsilon=1e-12,  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -799,7 +799,7 @@ e.g.: 5-D `Tensor` [batch, new_height, new_width, channels].
 
 # Avg pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1490 target="_blank"><b>tefla.core.layers.avg_pool_3d</b></a></span>  (x,  filter_size=  (3,  3,  3),  stride=  (2,  2,  2),  padding='SAME',  name=None,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1493 target="_blank"><b>tefla.core.layers.avg_pool_3d</b></a></span>  (x,  filter_size=  (3,  3,  3),  stride=  (2,  2,  2),  padding='SAME',  name=None,  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -823,7 +823,7 @@ e.g.: 5-D `Tensor` [batch, new_depth, new_height, new_width, channels].
 
 # Avg pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1524 target="_blank"><b>tefla.core.layers.avg_pool_2d</b></a></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name=None,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1527 target="_blank"><b>tefla.core.layers.avg_pool_2d</b></a></span>  (x,  filter_size=  (3,  3),  stride=  (2,  2),  padding='SAME',  name=None,  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -847,7 +847,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, channels].
 
 # Gloabl pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1558 target="_blank"><b>tefla.core.layers.global_avg_pool</b></a></span>  (x,  name='global_avg_pool',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1561 target="_blank"><b>tefla.core.layers.global_avg_pool</b></a></span>  (x,  name='global_avg_pool',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -866,7 +866,7 @@ e.g.: 4-D `Tensor` [batch, 1, 1, channels].
 
 # Gloabl max pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1582 target="_blank"><b>tefla.core.layers.global_max_pool</b></a></span>  (x,  name='global_max_pool',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1585 target="_blank"><b>tefla.core.layers.global_max_pool</b></a></span>  (x,  name='global_max_pool',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -885,7 +885,7 @@ e.g.: 4-D `Tensor` [batch, 1, 1, channels].
 
 # Feature max pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1606 target="_blank"><b>tefla.core.layers.feature_max_pool_1d</b></a></span>  (x,  stride=2,  name='feature_max_pool_1d',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1609 target="_blank"><b>tefla.core.layers.feature_max_pool_1d</b></a></span>  (x,  stride=2,  name='feature_max_pool_1d',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -905,7 +905,7 @@ e.g.: 2-D `Tensor` [batch_size, new_channels]
 
 # Feature max pooling layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1635 target="_blank"><b>tefla.core.layers.feature_max_pool_2d</b></a></span>  (x,  stride=2,  name='feature_max_pool_2d',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1638 target="_blank"><b>tefla.core.layers.feature_max_pool_2d</b></a></span>  (x,  stride=2,  name='feature_max_pool_2d',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -925,7 +925,7 @@ e.g.: 4-D `Tensor` [batch_size, height, width, new_channels]
 
 # Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1675 target="_blank"><b>tefla.core.layers.batch_norm_tf</b></a></span>  (x,  name='bn',  scale=False,  updates_collections=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1678 target="_blank"><b>tefla.core.layers.batch_norm_tf</b></a></span>  (x,  name='bn',  scale=False,  updates_collections=None,  **kwargs)</span>
 "Batch Normalization: Accelerating Deep Network Training by Reducing
 Internal Covariate Shift", Sergey Ioffe, Christian Szegedy
 Can be used as a normalizer function for conv2d and fully_connected.
@@ -990,7 +990,7 @@ A `Tensor` representing the output of the operation.
 
 # Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1741 target="_blank"><b>tefla.core.layers.batch_norm_lasagne</b></a></span>  (x,  is_training,  reuse,  trainable=True,  decay=0.9,  epsilon=0.0001,  name='bn',  updates_collections='update_ops',  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1744 target="_blank"><b>tefla.core.layers.batch_norm_lasagne</b></a></span>  (x,  is_training,  reuse,  trainable=True,  decay=0.9,  epsilon=0.0001,  name='bn',  updates_collections='update_ops',  outputs_collections=None)</span>
 Instead of storing and updating moving variance, this layer store and
 update moving inverse standard deviation
 "Batch Normalization: Accelerating Deep Network Training by Reducin Internal Covariate Shift"
@@ -1042,9 +1042,30 @@ A `Tensor` representing the output of the operation.
 
  ---------- 
 
+# Layer normalize the tensor x, averaging over the last dimension
+
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1861 target="_blank"><b>tefla.core.layers.layer_norm</b></a></span>  (x,  reuse,  filters=None,  trainable=True,  epsilon=1e-06,  name='layer_norm',  allow_defun=False,  outputs_collections=None)</span>
+
+<h3>Args</h3>
+
+
+ - **x**: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+ - **reuse**: whether or not the layer and its variables should be reused. To be
+able to reuse the layer scope must be given.
+ - **trainable**: a bool, training or fixed value
+ - **name**: a optional scope/name of the layer
+ - **outputs_collections**: The collections to which the outputs are added.
+
+<h3>Returns</h3>
+
+
+A `Tensor` representing the results of the layer norm operation.
+
+ ---------- 
+
 # Prametric rectifier linear layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1858 target="_blank"><b>tefla.core.layers.prelu</b></a></span>  (x,  reuse,  alpha_init=0.2,  trainable=True,  name='prelu',  outputs_collections=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1916 target="_blank"><b>tefla.core.layers.prelu</b></a></span>  (x,  reuse,  alpha_init=0.2,  trainable=True,  name='prelu',  outputs_collections=None)</span>
 
 <h3>Args</h3>
 
@@ -1066,7 +1087,7 @@ A `Tensor` representing the results of the prelu activation operation.
 
 # Computes relu
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2039 target="_blank"><b>tefla.core.layers.relu</b></a></span>  (x,  name='relu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2097 target="_blank"><b>tefla.core.layers.relu</b></a></span>  (x,  name='relu',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1084,7 +1105,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Rectifier linear relu6 layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1905 target="_blank"><b>tefla.core.layers.relu6</b></a></span>  (x,  name='relu6',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1963 target="_blank"><b>tefla.core.layers.relu6</b></a></span>  (x,  name='relu6',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1102,7 +1123,7 @@ A `Tensor` representing the results of the relu6 activation operation.
 
 # Softplus layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1923 target="_blank"><b>tefla.core.layers.softplus</b></a></span>  (x,  name='softplus',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L1981 target="_blank"><b>tefla.core.layers.softplus</b></a></span>  (x,  name='softplus',  outputs_collections=None,  **unused)</span>
 Computes softplus: log(exp(x) + 1).
 
 <h3>Args</h3>
@@ -1121,7 +1142,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Softsign layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1942 target="_blank"><b>tefla.core.layers.softsign</b></a></span>  (x,  name='softsign',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2000 target="_blank"><b>tefla.core.layers.softsign</b></a></span>  (x,  name='softsign',  outputs_collections=None,  **unused)</span>
 Computes softsign: x / (abs(x) + 1).
 
 <h3>Args</h3>
@@ -1140,7 +1161,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes Concatenated ReLU
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1961 target="_blank"><b>tefla.core.layers.crelu</b></a></span>  (x,  name='crelu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2019 target="_blank"><b>tefla.core.layers.crelu</b></a></span>  (x,  name='crelu',  outputs_collections=None,  **unused)</span>
 Concatenates a ReLU which selects only the positive part of the activation with
 a ReLU which selects only the negative part of the activation. Note that
 at as a result this non-linearity doubles the depth of the activations.
@@ -1162,7 +1183,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes exponential linear: exp(features) - 1 if < 0, features otherwise
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L1982 target="_blank"><b>tefla.core.layers.elu</b></a></span>  (x,  name='elu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2040 target="_blank"><b>tefla.core.layers.elu</b></a></span>  (x,  name='elu',  outputs_collections=None,  **unused)</span>
 See "Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)"
 
 <h3>Args</h3>
@@ -1181,7 +1202,7 @@ A `Tensor` representing the results of the activation operation.
 
 # like concatenated ReLU (http://arxiv.org/abs/1603.05201), but then with ELU
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2000 target="_blank"><b>tefla.core.layers.concat_elu</b></a></span>  (x,  name='concat_elu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2058 target="_blank"><b>tefla.core.layers.concat_elu</b></a></span>  (x,  name='concat_elu',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1199,7 +1220,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes leaky relu
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2017 target="_blank"><b>tefla.core.layers.leaky_relu</b></a></span>  (x,  alpha=0.01,  name='leaky_relu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2075 target="_blank"><b>tefla.core.layers.leaky_relu</b></a></span>  (x,  alpha=0.01,  name='leaky_relu',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1218,7 +1239,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes reaky relu lasagne style
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2057 target="_blank"><b>tefla.core.layers.lrelu</b></a></span>  (x,  leak=0.2,  name='lrelu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2115 target="_blank"><b>tefla.core.layers.lrelu</b></a></span>  (x,  leak=0.2,  name='lrelu',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1237,7 +1258,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes maxout activation
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2077 target="_blank"><b>tefla.core.layers.maxout</b></a></span>  (x,  k=2,  name='maxout',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2135 target="_blank"><b>tefla.core.layers.maxout</b></a></span>  (x,  k=2,  name='maxout',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1256,7 +1277,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes maxout activation
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2102 target="_blank"><b>tefla.core.layers.offset_maxout</b></a></span>  (x,  k=2,  name='maxout',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2160 target="_blank"><b>tefla.core.layers.offset_maxout</b></a></span>  (x,  k=2,  name='maxout',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1275,7 +1296,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes softmax activation
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2128 target="_blank"><b>tefla.core.layers.softmax</b></a></span>  (x,  name='softmax',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2186 target="_blank"><b>tefla.core.layers.softmax</b></a></span>  (x,  name='softmax',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1293,7 +1314,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Computes the spatial softmax of a convolutional feature map
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2146 target="_blank"><b>tefla.core.layers.spatial_softmax</b></a></span>  (features,  reuse,  temperature=None,  name='spatial_softmax',  trainable=True,  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2204 target="_blank"><b>tefla.core.layers.spatial_softmax</b></a></span>  (features,  reuse,  temperature=None,  name='spatial_softmax',  trainable=True,  outputs_collections=None,  **unused)</span>
 First computes the softmax over the spatial extent of each channel of a
 convolutional feature map. Then computes the expected 2D position of the
 points of maximal activation for each channel, resulting in a set of
@@ -1328,7 +1349,7 @@ to the range (-1,1)). The inner dimension is arranged as
 
 # Computes selu
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2215 target="_blank"><b>tefla.core.layers.selu</b></a></span>  (x,  alpha=None,  scale=None,  name='selu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2273 target="_blank"><b>tefla.core.layers.selu</b></a></span>  (x,  alpha=None,  scale=None,  name='selu',  outputs_collections=None,  **unused)</span>
 
 <h3>Args</h3>
 
@@ -1348,7 +1369,7 @@ A `Tensor` representing the results of the selu activation operation.
 
 # Dropout layer for self normalizing networks
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2239 target="_blank"><b>tefla.core.layers.dropout_selu</b></a></span>  (x,  is_training,  drop_p=0.2,  alpha=-1.7580993408473766,  fixedPointMean=0.0,  fixedPointVar=1.0,  noise_shape=None,  seed=None,  name='dropout_selu',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2297 target="_blank"><b>tefla.core.layers.dropout_selu</b></a></span>  (x,  is_training,  drop_p=0.2,  alpha=-1.7580993408473766,  fixedPointMean=0.0,  fixedPointVar=1.0,  noise_shape=None,  seed=None,  name='dropout_selu',  outputs_collections=None,  **unused)</span>
 <h3>Args</h3>
 
 
@@ -1370,7 +1391,7 @@ A `Tensor` representing the results of the dropout operation.
 
 # Computes Gumbel Softmax
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2310 target="_blank"><b>tefla.core.layers.gumbel_softmax</b></a></span>  (logits,  temperature,  hard=False)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2368 target="_blank"><b>tefla.core.layers.gumbel_softmax</b></a></span>  (logits,  temperature,  hard=False)</span>
 Sample from the Gumbel-Softmax distribution and optionally discretize.
 http://blog.evjang.com/2016/11/tutorial-categorical-variational.html
 https://arxiv.org/abs/1611.01144
@@ -1393,7 +1414,7 @@ be a probabilitiy distribution that sums to 1 across classes
 
 # Computes pixel wise softmax activation
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2336 target="_blank"><b>tefla.core.layers.pixel_wise_softmax</b></a></span>  (inputs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2394 target="_blank"><b>tefla.core.layers.pixel_wise_softmax</b></a></span>  (inputs)</span>
 
 <h3>Args</h3>
 
@@ -1411,7 +1432,7 @@ A `Tensor` representing the results of the activation operation.
 
 # Dropout layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2353 target="_blank"><b>tefla.core.layers.dropout</b></a></span>  (x,  is_training,  drop_p=0.5,  seed=None,  name='dropout',  outputs_collections=None,  **unused)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2411 target="_blank"><b>tefla.core.layers.dropout</b></a></span>  (x,  is_training,  drop_p=0.5,  seed=None,  name='dropout',  outputs_collections=None,  **unused)</span>
 <h3>Args</h3>
 
 
@@ -1430,7 +1451,7 @@ A `Tensor` representing the results of the dropout operation.
 
 # Repeat op
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2394 target="_blank"><b>tefla.core.layers.repeat</b></a></span>  (x,  repetitions,  layer,  num_outputs=None,  name='Repeat',  outputs_collections=None,  *args,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2452 target="_blank"><b>tefla.core.layers.repeat</b></a></span>  (x,  repetitions,  layer,  num_outputs=None,  name='Repeat',  outputs_collections=None,  *args,  **kwargs)</span>
 
 <h3>Args</h3>
 
@@ -1450,7 +1471,7 @@ A `Tensor` representing the results of the repetition operation.
 
 # Merge op
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2432 target="_blank"><b>tefla.core.layers.merge</b></a></span>  (tensors_list,  mode,  axis=1,  name='merge',  outputs_collections=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2490 target="_blank"><b>tefla.core.layers.merge</b></a></span>  (tensors_list,  mode,  axis=1,  name='merge',  outputs_collections=None,  **kwargs)</span>
 
 <h3>Args</h3>
 
@@ -1470,7 +1491,7 @@ A `Tensor` representing the results of the repetition operation.
 
 # Builds a stack of layers by applying layer repeatedly using stack_args
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2485 target="_blank"><b>tefla.core.layers.stack</b></a></span>  (inputs,  layer,  stack_args,  is_training,  reuse,  outputs_collections=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2543 target="_blank"><b>tefla.core.layers.stack</b></a></span>  (inputs,  layer,  stack_args,  is_training,  reuse,  outputs_collections=None,  **kwargs)</span>
 `stack` allows you to repeatedly apply the same operation with different
 arguments `stack_args[i]`. For each application of the layer, `stack` creates
 a new scope appended with an increasing number. For example:
@@ -1504,7 +1525,7 @@ layers are called with `scope='stack'`.
 
 # Normalizes the given input across the specified dimension to unit length
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2538 target="_blank"><b>tefla.core.layers.unit_norm</b></a></span>  (inputs,  dim,  epsilon=1e-07,  scope=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2596 target="_blank"><b>tefla.core.layers.unit_norm</b></a></span>  (inputs,  dim,  epsilon=1e-07,  scope=None)</span>
 Note that the rank of `input` must be known.
 
 <h3>Args</h3>
@@ -1524,7 +1545,7 @@ The normalized `Tensor`.
 
 # Concates two features maps
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/layers.py#L2575 target="_blank"><b>tefla.core.layers.crop_and_concat</b></a></span>  (inputs1,  inputs2,  name='crop_concat')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/layers.py#L2633 target="_blank"><b>tefla.core.layers.crop_and_concat</b></a></span>  (inputs1,  inputs2,  name='crop_concat')</span>
   concates different sizes feature maps cropping the larger map
   concatenation across output channels
 

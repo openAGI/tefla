@@ -22,10 +22,11 @@ from tefla.core import losses
 from tefla.core import lr_policy
 from tefla.core import prediction
 from tefla.core import summary
-from tefla.core import training as trainer
-from tefla.core import learning as trainer_multi_gpu
-from tefla.core import learningv2 as trainer_multi_gpu_v2
-from tefla.core import learning_ss as trainer_semisupervised
+from tefla.core import learner_hooks
+from tefla.core import training as learner
+from tefla.core import learning as learner_multi_gpu
+from tefla.core import learningv2 as learner_multi_gpu_v2
+from tefla.core import learning_ss as learner_semisupervised
 from tefla.da import data as data_augmentation
 from tefla.da import iterator
 from tefla.da import standardizer
@@ -59,10 +60,11 @@ MODULES = [
     (standardizer, 'tefla.da.standardizer'),
     # (iterator, 'tefla.da.iterator'),
     (prediction, 'tefla.core.prediction'),
-    (trainer, 'tefla.core.training'),
-    (trainer_multi_gpu, 'tefla.core.learning'),
-    (trainer_multi_gpu_v2, 'tefla.core.learning_v2'),
-    (trainer_semisupervised, 'tefla.core.learning_ss'),
+    (learner_hooks, 'tefla.core.learner_hooks'),
+    (learner, 'tefla.core.training'),
+    (learner_multi_gpu, 'tefla.core.learning'),
+    (learner_multi_gpu_v2, 'tefla.core.learning_v2'),
+    (learner_semisupervised, 'tefla.core.learning_ss'),
 ]
 
 KEYWORDS = ['Input', 'x', 'Output', 'Examples', 'Args',
@@ -119,7 +121,8 @@ def get_src_path(obj, src_root='tefla', append_base=True):
 
     path = src_root + "/" + post + lineno
     if append_base:
-        path = os.path.join('https://github.com/n3011/tefla/blob/master', path)
+        path = os.path.join(
+            'https://github.com/openagi/tefla/blob/master', path)
     return path
 
 
@@ -335,6 +338,8 @@ def get_class_doc(c):
         doc_source += '\n\n --------- \n\n'
 
     return doc_source
+
+
 try:
     for module, module_name in MODULES:
 

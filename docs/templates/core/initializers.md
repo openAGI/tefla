@@ -1,6 +1,6 @@
 # He Normal initializer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L11 target="_blank"><b>tefla.core.initializers.he_normal</b></a></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/initializers.py#L11 target="_blank"><b>tefla.core.initializers.he_normal</b></a></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
 Kaiming He et al. (2015): Delving deep into rectifiers: Surpassing human-level
 performance on imagenet classification. arXiv preprint arXiv:1502.01852.
 
@@ -17,7 +17,7 @@ performance on imagenet classification. arXiv preprint arXiv:1502.01852.
 
 # He Uniform initializer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L28 target="_blank"><b>tefla.core.initializers.he_uniform</b></a></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/initializers.py#L28 target="_blank"><b>tefla.core.initializers.he_uniform</b></a></span>  (seed=None,  scale=1.0,  dtype=tf.float32)</span>
 
 <h3>Args</h3>
 
@@ -32,7 +32,7 @@ performance on imagenet classification. arXiv preprint arXiv:1502.01852.
 
 # Random Normal initializer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L43 target="_blank"><b>tefla.core.initializers.random_normal</b></a></span>  (seed=None,  mean=0.0,  stddev=1.0,  dtype=tf.float32,  name=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/initializers.py#L43 target="_blank"><b>tefla.core.initializers.random_normal</b></a></span>  (seed=None,  mean=0.0,  stddev=1.0,  dtype=tf.float32,  name=None)</span>
 
 <h3>Args</h3>
 
@@ -44,7 +44,7 @@ performance on imagenet classification. arXiv preprint arXiv:1502.01852.
 
 # Returns an initializer that generates tensors without scaling variance
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L71 target="_blank"><b>tefla.core.initializers.variance_scaling_initializer_v2</b></a></span>  (factor=2.0,  mode='FAN_IN',  uniform=False,  seed=None,  dtype=tf.float32,  mean=0.0,  stddev=1.0,  normal_type=None,  name=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/initializers.py#L71 target="_blank"><b>tefla.core.initializers.variance_scaling_initializer_v2</b></a></span>  (factor=2.0,  mode='FAN_IN',  uniform=False,  seed=None,  dtype=tf.float32,  mean=0.0,  stddev=1.0,  normal_type=None,  name=None)</span>
 When initializing a deep network, it is in principle advantageous to keep
 the scale of the input variance constant, so it does not explode or diminish
 by reaching the final layer. This initializer use the following formula:
@@ -104,7 +104,7 @@ truncated_normal(shape, 0.0, stddev=sqrt(factor / n))
 
 # Bilinear initialization for up sampling operation
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L166 target="_blank"><b>tefla.core.initializers.bilinear</b></a></span>  (f_shape)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/initializers.py#L166 target="_blank"><b>tefla.core.initializers.bilinear</b></a></span>  (f_shape)</span>
 
 <h3>Args</h3>
 
@@ -120,7 +120,7 @@ bilinear initializer
 
 # Variable initializer that produces a random orthonormal matrix
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/initializers.py#L194 target="_blank"><b>tefla.core.initializers.random_orthonormal_initializer</b></a></span>  (shape,  dtype=tf.float32,  partition_info=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/initializers.py#L194 target="_blank"><b>tefla.core.initializers.random_orthonormal_initializer</b></a></span>  (shape,  dtype=tf.float32,  partition_info=None)</span>
 
 <h3>Args</h3>
 

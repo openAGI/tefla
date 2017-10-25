@@ -1,6 +1,6 @@
 # Spatial Transformer Layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L10 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L10 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span>
 
 Implements a spatial transformer layer as described in [1]_.
 It's based on lasagne implementation in [2]_, modified by Mrinal Haloi
@@ -26,7 +26,7 @@ spatial transformed output of the network
 
 # Subsamples the input along the spatial dimensions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L164 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L164 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span>
 
 <h3>Args</h3>
 
@@ -45,7 +45,7 @@ input, either intact (if factor == 1) or subsampled (if factor > 1).
 
 # Strided 2-D convolution with 'SAME' padding
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L182 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L182 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span>
 
 When stride > 1, then we do explicit zero-padding, followed by conv2d with
 'VALID' padding.
@@ -86,7 +86,7 @@ the convolution output.
 
 # Bottleneck residual unit variant with BN before convolutions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L230 target="_blank"><b>tefla.core.special_layers.bottleneck_v1</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L230 target="_blank"><b>tefla.core.special_layers.bottleneck_v1</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span>
 
 This is the full preactivation residual unit variant proposed in [2]. See
 Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
@@ -116,7 +116,7 @@ The ResNet unit's output.
 
 # Bottleneck residual unit variant with BN before convolutions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L277 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L277 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span>
 
 This is the full preactivation residual unit variant proposed in [2]. See
 Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
@@ -146,7 +146,7 @@ The ResNet unit's output.
 
 # DenseCRF over unnormalised predictions
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L405 target="_blank"><b>tefla.core.special_layers.dense_crf</b></a></span>  (probs,  img=None,  n_classes=21,  n_iters=10,  sxy_gaussian=  (1,  1),  compat_gaussian=4,  kernel_gaussian=<KernelType.DIAG_KERNEL:  1>,  normalisation_gaussian=<NormalizationType.NORMALIZE_SYMMETRIC:  3>,  sxy_bilateral=  (49,  49),  compat_bilateral=2,  srgb_bilateral=  (13,  13,  13),  kernel_bilateral=<KernelType.DIAG_KERNEL:  1>,  normalisation_bilateral=<NormalizationType.NORMALIZE_SYMMETRIC:  3>)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L405 target="_blank"><b>tefla.core.special_layers.dense_crf</b></a></span>  (probs,  img=None,  n_classes=21,  n_iters=10,  sxy_gaussian=  (1,  1),  compat_gaussian=4,  kernel_gaussian=<KernelType.DIAG_KERNEL:  1>,  normalisation_gaussian=<NormalizationType.NORMALIZE_SYMMETRIC:  3>,  sxy_bilateral=  (49,  49),  compat_bilateral=2,  srgb_bilateral=  (13,  13,  13),  kernel_bilateral=<KernelType.DIAG_KERNEL:  1>,  normalisation_bilateral=<NormalizationType.NORMALIZE_SYMMETRIC:  3>)</span>
    More details on the arguments at https://github.com/lucasb-eyer/pydensecrf.
 
 <h3>Args</h3>
@@ -182,7 +182,7 @@ Refined predictions after MAP inference.
 
 # ResNeXt Block
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f8535ecf5f0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f8538be0668>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
 resnext paper https://arxiv.org/pdf/1611.05431.pdf
 
 <h3>Args</h3>
@@ -218,7 +218,7 @@ override name.
 
 # Embedding
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f8533d04250>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f8533e99110>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
 Embedding layer for a sequence of integer ids or floats.
 
 <h3>Args</h3>
@@ -243,7 +243,7 @@ will be reused (shared).
 
 # Gated unit for language modelling
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L613 target="_blank"><b>tefla.core.special_layers.gated_layer</b></a></span>  (inputs,  layer,  num_units,  is_training,  reuse,  name='gated_layer',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L613 target="_blank"><b>tefla.core.special_layers.gated_layer</b></a></span>  (inputs,  layer,  num_units,  is_training,  reuse,  name='gated_layer',  **kwargs)</span>
 
 <h3>Args</h3>
 
@@ -266,7 +266,7 @@ a 3-D/4-D `Tensor`, output of the gated unit
 
 # Returns glimpses at the locations
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L643 target="_blank"><b>tefla.core.special_layers.glimpseSensor</b></a></span>  (img,  normLoc,  minRadius=4,  depth=1,  sensorBandwidth=12)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L643 target="_blank"><b>tefla.core.special_layers.glimpseSensor</b></a></span>  (img,  normLoc,  minRadius=4,  depth=1,  sensorBandwidth=12)</span>
 
 <h3>Args</h3>
 
@@ -286,7 +286,7 @@ a 5-D `tensor` of glimpses
 
 # Adds a PVA block layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L690 target="_blank"><b>tefla.core.special_layers.pva_block_v1</b></a></span>  (x,  num_units,  name='pva_block_v1',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L690 target="_blank"><b>tefla.core.special_layers.pva_block_v1</b></a></span>  (x,  num_units,  name='pva_block_v1',  **kwargs)</span>
 convolution followed by crelu and scaling
 
 <h3>Args</h3>
@@ -329,7 +329,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Adds a PVA block v2 layer
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L744 target="_blank"><b>tefla.core.special_layers.pva_block_v2</b></a></span>  (x,  num_units,  name='pva_block_v2',  **kwargs)</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L744 target="_blank"><b>tefla.core.special_layers.pva_block_v2</b></a></span>  (x,  num_units,  name='pva_block_v2',  **kwargs)</span>
 first batch normalization followed by crelu and scaling, convolution is applied after scalling
 
 <h3>Args</h3>
@@ -372,7 +372,7 @@ e.g.: 4-D `Tensor` [batch, new_height, new_width, n_output].
 
 # Performs a pooling operation that results in a fixed size:
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L804 target="_blank"><b>tefla.core.special_layers.max_pool_2d_nxn_regions</b></a></span>  (inputs,  output_size,  mode='max')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L804 target="_blank"><b>tefla.core.special_layers.max_pool_2d_nxn_regions</b></a></span>  (inputs,  output_size,  mode='max')</span>
 output_size x output_size.
 
 Used by spatial_pyramid_pool. Refer to appendix A in [1].
@@ -395,7 +395,7 @@ each elment is a Tensor (N, C).
 
 # Performs spatial pyramid pooling (SPP) over the input
 
-<span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L856 target="_blank"><b>tefla.core.special_layers.spatial_pyramid_pool</b></a></span>  (inputs,  dimensions=[2,  1],  mode='max',  implementation='kaiming')</span>
+<span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L856 target="_blank"><b>tefla.core.special_layers.spatial_pyramid_pool</b></a></span>  (inputs,  dimensions=[2,  1],  mode='max',  implementation='kaiming')</span>
 It will turn a 2D input of arbitrary size into an output of fixed
 dimenson.
 Hence, the convlutional part of a DNN can be connected to a dense part
