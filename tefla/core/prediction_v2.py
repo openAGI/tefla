@@ -219,11 +219,12 @@ class SegmentPredictor_v2(PredictSession):
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
-    def __init__(self, graph, standardizer, preprocessor, input_tensor_name='model/inputs/input:0', predict_tensor_name='model/final_map_logits/BiasAdd:0'):
+    def __init__(self, graph, standardizer, preprocessor, input_tensor_name='model/inputs/input:0', predict_tensor_name='model/final_map_logits/BiasAdd:0', num_classes=17):
         self.standardizer = standardizer
         self.preprocessor = preprocessor
         self.inputs = graph.get_tensor_by_name(input_tensor_name)
         self.predictions = graph.get_tensor_by_name(predict_tensor_name)
+        self.num_classes = num_classes
         super(SegmentPredictor_v2, self).__init__(graph)
 
     def _real_predict(self, X, xform=None, crop_bbox=None):
@@ -236,7 +237,7 @@ class SegmentPredictor_v2(PredictSession):
         X = np.expand_dims(X, 0)
         raw_output_up = tf.nn.softmax(self.predictions)
         raw_output_up = tf.py_func(
-            dense_crf, [raw_output_up, tf.expand_dims(img_orig, axis=0)], tf.float32)
+            dense_crf, [raw_output_up, tf.expand_dims(img_orig, axis=0), self.num_classes], tf.float32)
         raw_output_up = tf.argmax(raw_output_up, dimension=3)
         predictions = self.sess.run(
             raw_output_up, {self.inputs: X})
