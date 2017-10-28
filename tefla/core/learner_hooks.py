@@ -128,7 +128,7 @@ class MetadataCaptureHook(TrainingHook):
 class TrainSampleHook(TrainingHook):
     """Occasionally samples predictions from the training run and prints them.
 
-    Params:
+    Args:
       every_n_secs: Sample predictions every N seconds.
         If set, `every_n_steps` must be None.
       every_n_steps: Sample predictions every N steps.
@@ -243,7 +243,7 @@ class PrintModelAnalysisHook(TrainingHook):
 class VariableRestoreHook(TrainingHook):
     """A hooks that restored variables from a given checkpoints.
 
-    Params:
+    Args:
       prefix: Variables matching this prefix are restored.
       checkpoint_path: Path to the checkpoint to restore variables from.
     """
