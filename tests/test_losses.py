@@ -167,19 +167,19 @@ class CrossEntropySequenceLossTest(tf.test.TestCase):
             losses_ = sess.run(loss)
 
         # Make sure all losses not past the sequence length are > 0
-        np.testing.assert_array_less(
+        self.assertLess(
             np.zeros_like(losses_[:1, 0]), losses_[:1, 0])
-        np.testing.assert_array_less(
-            np.zeros_like(losses_[:2, 1]), losses_[:2, 1])
-        np.testing.assert_array_less(
-            np.zeros_like(losses_[:3, 2]), losses_[:3, 2])
+        self.assertLess(
+            np.zeros_like(losses_[:2, 1]).all(), losses_[:2, 1].all())
+        self.assertLess(
+            np.zeros_like(losses_[:3, 2]).all(), losses_[:3, 2].all())
 
         # Make sure all losses past the sequence length are 0
-        np.testing.assert_array_equal(
+        self.assertAllEqual(
             losses_[1:, 0], np.zeros_like(losses_[1:, 0]))
-        np.testing.assert_array_equal(
+        self.assertAllEqual(
             losses_[2:, 1], np.zeros_like(losses_[2:, 1]))
-        np.testing.assert_array_equal(
+        self.assertAllEqual(
             losses_[3:, 2], np.zeros_like(losses_[3:, 2]))
 
 
