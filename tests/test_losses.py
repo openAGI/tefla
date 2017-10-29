@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from functools import partial
 import numpy as np
 import tensorflow as tf
@@ -135,6 +140,47 @@ class LogLossTest(tf.test.TestCase):
         with self.test_session():
             self.assertAlmostEqual(
                 weights * -np.sum(self._expected_losses) / 6.0, loss.eval(), 3)
+
+
+class CrossEntropySequenceLossTest(tf.test.TestCase):
+    """
+    Test for `sqe2seq.losses.sequence_mask`.
+    """
+
+    def setUp(self):
+        super(CrossEntropySequenceLossTest, self).setUp()
+        self.batch_size = 4
+        self.sequence_length = 10
+        self.vocab_size = 50
+
+    def test_op(self):
+        logits = np.random.randn(self.sequence_length, self.batch_size,
+                                 self.vocab_size)
+        logits = logits.astype(np.float32)
+        sequence_length = np.array([1, 2, 3, 4])
+        targets = np.random.randint(0, self.vocab_size,
+                                    [self.sequence_length, self.batch_size])
+        loss = losses.cross_entropy_sequence_loss(logits, targets,
+                                                  sequence_length)
+
+        with self.test_session() as sess:
+            losses_ = sess.run(loss)
+
+        # Make sure all losses not past the sequence length are > 0
+        np.testing.assert_array_less(
+            np.zeros_like(losses_[:1, 0]), losses_[:1, 0])
+        np.testing.assert_array_less(
+            np.zeros_like(losses_[:2, 1]), losses_[:2, 1])
+        np.testing.assert_array_less(
+            np.zeros_like(losses_[:3, 2]), losses_[:3, 2])
+
+        # Make sure all losses past the sequence length are 0
+        np.testing.assert_array_equal(
+            losses_[1:, 0], np.zeros_like(losses_[1:, 0]))
+        np.testing.assert_array_equal(
+            losses_[2:, 1], np.zeros_like(losses_[2:, 1]))
+        np.testing.assert_array_equal(
+            losses_[3:, 2], np.zeros_like(losses_[3:, 2]))
 
 
 if __name__ == '__main__':
