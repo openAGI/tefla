@@ -1,5 +1,7 @@
 import re
 import functools
+from collections import defaultdict
+import contextlib
 import random
 import tensorflow as tf
 from tensorflow.python.framework import function
@@ -978,3 +980,54 @@ def dot_product_attention(q,
         weights = tf.nn.softmax(logits, name="attention_weights")
         weights = tf.nn.dropout(weights, 1.0 - dropout_rate)
         return tf.matmul(weights, v)
+
+
+def fn_device_dependency_dict():
+    """State container for fn_device_dependency."""
+    if not hasattr(tf.get_default_graph(), "dependency_dict"):
+        setattr(tf.get_default_graph(), "dependency_dict", defaultdict(list))
+    return tf.get_default_graph().dependency_dict
+
+
+@contextlib.contextmanager
+def fn_device_dependency(name, device=""):
+    """Add control deps for name and device."""
+    key = name + "_" + device
+    outs = []
+
+    def body():
+        with tf.control_dependencies(fn_device_dependency_dict()[key]):
+            yield outs
+            assert outs
+
+            deps = outs
+            if isinstance(outs[0], list) or isinstance(outs[0], tuple):
+                assert len(outs) == 1
+                deps = outs[0]
+            fn_device_dependency_dict()[key] = deps
+
+    if device:
+        with tf.device(device):
+            return body()
+    else:
+        return body()
+
+
+def underlying_variable(t):
+    """Find the underlying tf.Variable object.
+
+    Args:
+      t: a Tensor
+
+    Returns:
+      a tf.Varaible object.
+    """
+    t = variable_ref(t)
+    assert t is not None
+    # make sure that the graph has a variable index and that it is up-to-date
+    if not hasattr(tf.get_default_graph(), "var_index"):
+        tf.get_default_graph().var_index = {}
+    var_index = tf.get_default_graph().var_index
+    for v in tf.global_variables()[len(var_index):]:
+        var_index[v.name] = v
+    return var_index[t.name]
