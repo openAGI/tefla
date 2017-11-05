@@ -5,7 +5,7 @@ from __future__ import print_function
 # Dependency imports
 
 import numpy as np
-from tefla.core.special_fn import fn_with_custom_grad, conv2d_gru, conv2d_lstm, multiscale_conv2d_sum
+from tefla.core.special_fn import fn_with_custom_grad, conv2d_gru, conv2d_lstm, multiscale_conv2d_sum, conv1d_memory_efficient
 import tensorflow as tf
 
 
@@ -122,6 +122,52 @@ class FnWithCustomGradTest(tf.test.TestCase):
             session.run(tf.global_variables_initializer())
             res = session.run(y)
             self.assertEqual(res.shape, (5, 9, 1, 13))
+
+    def testConv1dMemoryEfficient(self):
+        batch = 3
+        length = 23
+        io_size = 16
+        filter_size = 7
+        x = np.random.rand(batch, length, io_size)
+        dy = np.random.rand(batch, length, io_size)
+        with self.test_session() as session:
+            x = tf.to_float(x)
+            dy = tf.to_float(dy)
+            f1 = tf.get_variable("f1", [1, io_size, filter_size])
+            f2 = tf.get_variable("f2", [1, filter_size, io_size])
+            norm_scale, norm_bias = layer_norm_vars(io_size)
+            y = conv1d_memory_efficient(
+                x, filter_size, True, None, forget=False,
+                test_vars=(f1, f2, norm_scale, norm_bias))
+            y_forget = conv1d_memory_efficient(
+                x, filter_size, True, None, forget=True,
+                test_vars=(f1, f2, norm_scale, norm_bias))
+            dx, df1, df2, dnorm_scale, dnorm_bias = tf.gradients(
+                ys=[y], xs=[x, f1, f2, norm_scale, norm_bias], grad_ys=[dy])
+            dx_f, df1_f, df2_f, dnorm_scale_f, dnorm_bias_f = tf.gradients(
+                ys=[y_forget], xs=[x, f1, f2, norm_scale, norm_bias], grad_ys=[dy])
+            session.run(tf.global_variables_initializer())
+            (y, y_forget,
+             dx, df1, df2, dnorm_scale, dnorm_bias,
+             dx_f, df1_f, df2_f, dnorm_scale_f, dnorm_bias_f) = session.run(
+                 [y, y_forget,
+                  dx, df1, df2, dnorm_scale, dnorm_bias,
+                  dx_f, df1_f, df2_f, dnorm_scale_f, dnorm_bias_f])
+        self.assertAllClose(y, y_forget)
+        self.assertAllClose(df2, df2_f)
+        self.assertAllClose(df1, df1_f)
+        self.assertAllClose(dnorm_scale, dnorm_scale_f)
+        self.assertAllClose(dnorm_bias, dnorm_bias_f)
+        self.assertAllClose(dx, dx_f)
+
+
+def layer_norm_vars(filters):
+    """Create Variables for layer norm."""
+    scale = tf.get_variable(
+        "layer_norm_scale", [filters], initializer=tf.ones_initializer())
+    bias = tf.get_variable(
+        "layer_norm_bias", [filters], initializer=tf.zeros_initializer())
+    return scale, bias
 
 
 if __name__ == "__main__":
