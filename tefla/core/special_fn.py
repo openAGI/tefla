@@ -5,8 +5,12 @@ import contextlib
 import random
 import tensorflow as tf
 from tensorflow.python.framework import function
-from .layers import dilated_conv2d, conv1d, layer_norm, _collect_named_outputs
+from .layers import dilated_conv2d, conv1d, layer_norm, _layer_norm_compute_python, _collect_named_outputs
 from ..utils import util as helper
+from . import initializers as initz
+
+
+_function_cache = {}
 
 
 def fn_with_custom_grad(grad_fn, use_global_vars=False):
@@ -489,6 +493,128 @@ def multiscale_conv2d_sum(inputs, n_output_channels, is_training, reuse, dilatio
                           dilation=dilation_rate, name="conv_layer%d" % counter, **kwargs))
         outputs = tf.add_n(results) * (len(results)**-0.5)
         return _collect_named_outputs(outputs_collections, name, outputs)
+
+
+def conv1d_memory_efficient(x, n_output, is_training, reuse, trainable=True, w_init=initz.he_normal(), w_regularizer=tf.nn.l2_loss, epsilon=1e-6, forget=True, test_vars=None, name='conv1d_memory_efficient'):
+    """LayerNorm, Conv, ReLU, Conv.
+
+    All convolutions have kernel size 1.
+
+    returns conv(relu(conv(layer_norm(x))))
+
+    Args:
+      x: input Tensor with shape [batch, length, io_size]
+      n_output: an integer - size of the hidden layer.
+      is_training: Bool, training or testing
+      reuse: whether or not the layer and its variables should be reused. To be
+          able to reuse the layer scope must be given.
+      epsilon: a float (for layer norm)
+      forget: a boolean - forget forwards activations and recompute on backprop
+      test_vars: optional tuple of variables for testing purposes
+      name: an optional string
+
+    Returns:
+      a Tensor with shape [batch, length, io_size]
+    """
+    io_size = x.get_shape().as_list()[-1]
+
+    def forward_internal(x, f1, f2, scale, bias):
+        """Forward function."""
+        num_splits = 4
+        x_flat = tf.reshape(x, [-1, 1, tf.shape(x)[2]])
+        xs = approximate_split(x_flat, num_splits)
+        ys = []
+        for i in xrange(num_splits):
+            with tf.control_dependencies(ys[-1:]):
+                n = _layer_norm_compute_python(xs[i], epsilon, scale, bias)
+                y = tf.nn.conv1d(n, f1, 1, "SAME")
+                y = tf.nn.relu(y)
+                y = tf.nn.conv1d(y, f2, 1, "SAME")
+                ys.append(y)
+        y = tf.concat(ys, 0)
+        y = tf.reshape(y, tf.shape(x))
+        return y
+    key = ("conv1d_memory_efficient %s" % epsilon)
+    if not forget:
+        forward_fn = forward_internal
+    elif key in _function_cache:
+        forward_fn = _function_cache[key]
+    else:
+        @function.Defun(compiled=True)
+        def grad_fn(x, f1, f2, scale, bias, dy):
+            with tf.control_dependencies([dy]):
+                num_splits = 4
+                x_shape = tf.shape(x)
+                flat_shape = [-1, 1, x_shape[2]]
+                x = tf.reshape(x, flat_shape)
+                dy = tf.reshape(dy, flat_shape)
+                xs = approximate_split(x, num_splits)
+                dys = approximate_split(dy, num_splits)
+                dxs = []
+                df1 = 0
+                df2 = 0
+                dscale = 0
+                dbias = 0
+                deps = []
+                for i in xrange(num_splits):
+                    with tf.control_dependencies(deps):
+                        n = _layer_norm_compute_python(
+                            xs[i], epsilon, scale, bias)
+                        y = tf.nn.conv1d(n, f1, 1, "SAME")
+                        y = tf.nn.relu(y)
+                        y = tf.nn.conv1d(y, f2, 1, "SAME")
+                        dxi, pdf1, pdf2, pdscale, pdbias = tf.gradients(
+                            ys=[y], xs=[xs[i], f1, f2, scale, bias], grad_ys=[dys[i]])
+                        df1 += pdf1
+                        df2 += pdf2
+                        dscale += pdscale
+                        dbias += pdbias
+                        dxs.append(dxi)
+                        deps = [dxi, df1, df2, dscale, dbias]
+                with tf.control_dependencies(deps):
+                    dx = tf.concat(dxs, 0)
+                    dx = tf.reshape(dx, x_shape)
+                    return dx, df1, df2, dscale, dbias
+
+        @function.Defun(grad_func=grad_fn, compiled=True,
+                        separate_compiled_gradients=True)
+        def forward_fn(x, f1, f2, scale, bias):
+            return forward_internal(x, f1, f2, scale, bias)
+
+    with tf.variable_scope(name, reuse=reuse, default_name="ffn2", values=[x]):
+        if test_vars is not None:
+            f1, f2, scale, bias = list(test_vars)
+        else:
+            f1 = tf.get_variable(
+                "f1", [1, io_size, n_output], trainable=trainable, initializer=w_init, regularizer=w_regularizer)
+            f2 = tf.get_variable(
+                "f2", [1, n_output, io_size], trainable=trainable, initializer=w_init, regularizer=w_regularizer)
+            scale = tf.get_variable(
+                "layer_norm_scale", [io_size], initializer=tf.ones_initializer(), trainable=trainable)
+            bias = tf.get_variable(
+                "layer_norm_bias", [io_size], initializer=tf.zeros_initializer(), trainable=trainable)
+        if forget:
+            y = forward_fn(x, f1, f2, scale, bias)
+        else:
+            y = forward_internal(x, f1, f2, scale, bias)
+        y.set_shape(x.get_shape())
+        return y
+
+
+def approximate_split(x, num_splits, axis=0):
+    """Split approximately equally into num_splits parts.
+
+    Args:
+      x: a Tensor
+      num_splits: an integer
+      axis: an integer.
+
+    Returns:
+      a list of num_splits Tensors.
+    """
+    size = tf.shape(x)[axis]
+    size_splits = [tf.div(size + i, num_splits) for i in xrange(num_splits)]
+    return tf.split(x, size_splits, axis=axis)
 
 
 def pool2d(inputs, filter_size=(3, 3), pooling_type='AVG', padding='SAME', strides=(1, 1), outputs_collections=None, name='general_pool', **kwargs):
