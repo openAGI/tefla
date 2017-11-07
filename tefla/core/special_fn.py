@@ -1067,7 +1067,8 @@ def ffn_self_attention_layer(x,
         batch_q *= part_depth**-0.5
         # non-masked bias
         bias = None
-        x = dot_product_attention(batch_q, batch_k, batch_v, bias, dropout_rate)
+        x = dot_product_attention(
+            batch_q, batch_k, batch_v, bias, dropout_rate)
         x = tf.reshape(x, [x_shape[0], x_shape[1], filter_depth])
         x = conv1d(x, output_depth, is_training, reuse,
                    filter_size=1, name="output_transform")
@@ -1157,3 +1158,36 @@ def underlying_variable(t):
     for v in tf.global_variables()[len(var_index):]:
         var_index[v.name] = v
     return var_index[t.name]
+
+
+def clip_gradient(net, clip_value_min, clip_value_max, name='clip_gradient'):
+    """Clips respective gradients of a given tensor.
+    Acts as identity for the forward pass, but clips gradient tensor element-wise
+    by value during the backward pass. Any gradient values less than
+    `clip_value_min` or greater than `clip_values_max` are set to the respective
+    limit values.
+
+    Args:
+      net: A `tf.Tensor`.
+      clip_value_min: A 0-D Tensor or scalar. The minimum value to clip by.
+      clip_value_max: A 0-D Tensor or scalar. The maximum value to clip by.
+      name: A name for the operation (optional, default 'clip_gradient').
+
+    Returns:
+      A `tf.Tensor` with the same type as the input tensor.
+    """
+
+    def _clip_gradient_backward(unused_op, grad):
+        return tf.clip_by_value(grad, clip_value_min, clip_value_max)
+
+    @function.Defun(
+        net.dtype,
+        python_grad_func=_clip_gradient_backward,
+        func_name="ClipGradient")
+    def _clip_gradient_forward(x):
+        return x
+
+    with tf.name_scope(name, values=[net]):
+        output = _clip_gradient_forward(net)
+        output.set_shape(net.shape)
+    return output
