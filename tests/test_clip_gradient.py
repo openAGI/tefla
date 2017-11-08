@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import numpy as np
 import tensorflow as tf
-from tefla.core.special_fn import clip_gradient
+from tefla.core.special_fn import clip_gradient, scale_gradient
 
 
 class ClipGradientTest(tf.test.TestCase):
@@ -39,6 +39,33 @@ class ClipGradientTest(tf.test.TestCase):
 
         self.assertAllEqual(y.get_shape().as_list(), [None, 10, 13])
         self.assertAllEqual(dzdx.get_shape().as_list(), [None, 10, 13])
+
+
+class ScaleGradientTest(tf.test.TestCase):
+
+    def testTwoOps(self):
+        """Tests that the op can be instantiated twice with appropriate results.
+        Implementations with inappropriate global registration of gradients will
+        fail this test.
+        """
+
+        x = tf.placeholder(tf.float32, [1])
+        y = x * x
+        y = scale_gradient(y, 0.1)
+        y = scale_gradient(y, 0.1)
+        dydx = tf.gradients([y], [x])[0]
+
+        with self.test_session() as sess:
+            dydx_, y_ = sess.run([dydx, y], feed_dict={x: [3.0]})
+
+        self.assertAlmostEqual(dydx_[0], 2 * 0.1**2 * 3.0, places=6)
+        self.assertAlmostEqual(y_[0], 3.0 ** 2, places=6)
+
+    def testShape(self):
+        x = tf.placeholder(tf.float32, [None, 10, 13])
+        y = scale_gradient(x, 0.1)
+        shape = tuple(y.get_shape().as_list())
+        self.assertEqual(shape, (None, 10, 13))
 
 
 if __name__ == "__main__":
