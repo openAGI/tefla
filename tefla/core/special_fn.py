@@ -1191,3 +1191,42 @@ def clip_gradient(net, clip_value_min, clip_value_max, name='clip_gradient'):
         output = _clip_gradient_forward(net)
         output.set_shape(net.shape)
     return output
+
+
+def scale_gradient(net, scale, name="scale_gradient"):
+    """Scales gradients for the backwards pass.
+    This might be used to, for example, allow one part of a model to learn at a
+    lower rate than the rest.
+    WARNING: Think carefully about how your optimizer works. If, for example, you
+    use rmsprop, the gradient is always rescaled (with some additional epsilon)
+    towards unity. This means `scale_gradient` won't have the effect of
+    lowering the learning rate.
+    If `scale` is `0.0`, this op reduces to `tf.stop_gradient`. If `scale`
+    is `1.0`, this op reduces to `tf.identity`.
+
+    Args:
+      net: A `tf.Tensor`.
+      scale: The scale factor for the gradient on the backwards pass.
+      name: A name for the operation (optional).
+
+    Returns:
+      A `tf.Tensor` with the same type as the input tensor.
+    """
+    if scale == 0.0:
+        return tf.stop_gradient(net, name=name)
+    elif scale == 1.0:
+        return tf.identity(net, name=name)
+    else:
+        def _scale_gradient_backward(unused, grad):
+            return tf.multiply(tf.convert_to_tensor(scale), grad)
+
+        @function.Defun(tf.float32,
+                        python_grad_func=_scale_gradient_backward,
+                        func_name="ScaleGradient")
+        def _scale_gradient_forward(x):
+            return x
+
+        with tf.name_scope(name, values=[net]):
+            output = _scale_gradient_forward(net, name=name)
+            output.set_shape(net.shape)
+        return output
