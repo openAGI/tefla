@@ -135,15 +135,15 @@ def _lower_bound(inputs, bound, name=None):
     Returns:
       tf.maximum(inputs, bound)
     """
-    with tf.name_scope(name, 'GDNLowerBound', [inputs, bound]) as scope:
+    with tf.name_scope(name, 'GDNLowerBoundTefla', [inputs, bound]) as scope:
         inputs = tf.convert_to_tensor(inputs, name='inputs')
         bound = tf.convert_to_tensor(bound, name='bound')
         with tf.get_default_graph().gradient_override_map(
-                {'Maximum': 'GDNLowerBound'}):
+                {'Maximum': 'GDNLowerBoundTefla'}):
             return tf.maximum(inputs, bound, name=scope)
 
 
-@tf.RegisterGradient("GDNLowerBound")
+@tf.RegisterGradient("GDNLowerBoundTefla")
 def _lower_bound_grad(op, grad):
     """Gradient for `_lower_bound`.
     Args:
