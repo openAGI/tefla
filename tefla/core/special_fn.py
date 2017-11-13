@@ -1230,3 +1230,20 @@ def scale_gradient(net, scale, name="scale_gradient"):
             output = _scale_gradient_forward(net, name=name)
             output.set_shape(net.shape)
         return output
+
+
+def relu_density_logit(x, reduce_dims):
+    """logit(density(x)).
+
+    Useful for histograms.
+
+    Args:
+      x: a Tensor, typilcally the output of tf.relu
+      reduce_dims: a list of dimensions
+
+    Returns:
+      a Tensor
+    """
+    frac = tf.reduce_mean(tf.to_float(x > 0.0), reduce_dims)
+    scaled = tf.log(frac + math.exp(-10)) - tf.log((1.0 - frac) + math.exp(-10))
+    return scaled
