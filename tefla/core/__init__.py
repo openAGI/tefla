@@ -22,6 +22,7 @@ from . import prediction
 from . import prediction_v2
 from . import rnn_cell
 from . import special_layers
+from . import special_fn
 from . import summary
 from . import training
 from . import vbn

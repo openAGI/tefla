@@ -40,7 +40,7 @@ pip install git+https://github.com/lucasb-eyer/pydensecrf.git
 ```
 
 ## Tefla Installation version 
-# Tefla 1.2.0 released
+# Tefla 1.4.0 released
 For the latest stable version:
 ```python
 pip install tefla
