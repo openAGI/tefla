@@ -561,6 +561,26 @@ class BaseMixin(object):
         else:
             return ce_loss_mean
 
+    def _loss_sigmoid(self, logits, labels, is_training):
+        log.info('Using softmax loss')
+        labels = tf.cast(labels, tf.int64)
+        if tf.rank(labels) != 2:
+            labels = tf.one_hot(labels, self.num_classes)
+        ce_loss = tf.nn.sigmoid_cross_entropy_with_logits(
+            labels=labels, logits=logits, name='sigmoid_cross_entropy_loss')
+        ce_loss_mean = tf.reduce_mean(ce_loss, name='sigmoid_cross_entropy')
+        if is_training:
+            tf.add_to_collection('losses', ce_loss_mean)
+
+            l2_loss = tf.add_n(tf.get_collection(
+                tf.GraphKeys.REGULARIZATION_LOSSES))
+            l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+            tf.add_to_collection('losses', l2_loss)
+
+            return tf.add_n(tf.get_collection('losses'), name='total_loss')
+        else:
+            return ce_loss_mean
+
     def _loss_dice(self, predictions, labels, is_training):
         log.info('Using DICE loss')
         labels = tf.cast(labels, tf.int64)
@@ -579,6 +599,12 @@ class BaseMixin(object):
             return tf.add_n(tf.get_collection('losses'), name='total_loss')
         else:
             return dc_loss_mean
+
+    def _compute_weights(self, labels):
+        lshape = tf.shape(labels)
+        weights = tf.reshape(tf.divide(tf.reduce_sum(
+            labels, axis=0), lshape[0]), [1, lshape[1]])
+        return tf.tile(weights, [lshape[0], 1])
 
     def _loss_kappa(self, predictions, labels, is_training, y_pow=2):
         log.info('Using KAPPA loss')
@@ -609,6 +635,9 @@ class BaseMixin(object):
                 elif loss_type == 'dice_loss':
                     loss_temp = self._loss_dice(
                         self.training_end_points['predictions'], labels, is_training)
+                elif loss_type == 'sigmoid_loss':
+                    loss_temp = self._loss_sigmoid(self.training_end_points[
+                        'logits'], labels, is_training)
                 else:
                     loss_temp = self._loss_softmax(self.training_end_points[
                         'logits'], labels, is_training)
@@ -625,7 +654,10 @@ class BaseMixin(object):
             if is_classification:
                 if loss_type == 'kappa_log':
                     loss = self._loss_kappa(self.validation_end_points[
-                                            'predictions'], labels, is_training)
+                        'predictions'], labels, is_training)
+                elif loss_type == 'sigmoid_loss':
+                    loss = self._loss_sigmoid(self.validation_end_points[
+                        'logits'], labels, is_training)
                 else:
                     loss = self._loss_softmax(self.validation_end_points[
                         'logits'], labels, is_training)
