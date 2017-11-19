@@ -543,11 +543,18 @@ class BaseMixin(object):
         else:
             return sq_loss_mean
 
-    def _loss_softmax(self, logits, labels, is_training):
+    def _loss_softmax(self, logits, labels, is_training, weighted=False):
         log.info('Using softmax loss')
         labels = tf.cast(labels, tf.int64)
-        ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-            labels=labels, logits=logits, name='cross_entropy_loss')
+        if weighted:
+            if tf.rank(labels) != 2:
+                labels = tf.one_hot(labels, self.num_classes)
+            weights = self._compute_weights(labels)
+            ce_loss = tf.losses.sparse_softmax_cross_entropy(
+                labels=labels, logits=logits, weights=weights, name='cross_entropy_loss')
+        else:
+            ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+                labels=labels, logits=logits, name='cross_entropy_loss')
         ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
         if is_training:
             tf.add_to_collection('losses', ce_loss_mean)
@@ -561,13 +568,18 @@ class BaseMixin(object):
         else:
             return ce_loss_mean
 
-    def _loss_sigmoid(self, logits, labels, is_training):
+    def _loss_sigmoid(self, logits, labels, is_training, weighted=False):
         log.info('Using softmax loss')
         labels = tf.cast(labels, tf.int64)
         if tf.rank(labels) != 2:
             labels = tf.one_hot(labels, self.num_classes)
-        ce_loss = tf.nn.sigmoid_cross_entropy_with_logits(
-            labels=labels, logits=logits, name='sigmoid_cross_entropy_loss')
+        if weighted:
+            weights = self._compute_weights(labels)
+            ce_loss = tf.losses.sigmoid_cross_entropy(
+                labels=labels, logits=logits, weights=weights, name='sigmoid_cross_entropy_loss')
+        else:
+            ce_loss = tf.nn.sigmoid_cross_entropy_with_logits(
+                labels=labels, logits=logits, name='sigmoid_cross_entropy_loss')
         ce_loss_mean = tf.reduce_mean(ce_loss, name='sigmoid_cross_entropy')
         if is_training:
             tf.add_to_collection('losses', ce_loss_mean)
