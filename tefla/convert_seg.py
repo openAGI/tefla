@@ -114,7 +114,10 @@ def process(args):
                                                      convert_directory)
     if not os.path.exists(convert_fname):
         img, label = fun(fname, label_fname, crop_size)
-        save(img, label, convert_fname, convert_label)
+        try:
+            save(img, label, convert_fname, convert_label)
+        except Exception:
+            print('Corrupted Image file %s' % fname)
 
 
 def save(img, label, fname, fname_label):

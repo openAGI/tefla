@@ -54,6 +54,15 @@ def convert(fname, target_size=512):
     return resized
 
 
+def convert_v2(fname, target_size=512):
+    try:
+        img = Image.open(fname).convert('RGB')
+        resized = img.resize([target_size, target_size])
+        return resized
+    except Exception:
+        print('Corrupted Image file %s' % fname)
+
+
 def full_bbox(img, fname):
     print("full bbox conversion done for image: %s" % fname)
     w, h = img.size
@@ -109,7 +118,10 @@ def process(args):
                                       convert_directory)
     if not os.path.exists(convert_fname):
         img = fun(fname, crop_size)
-        save(img, convert_fname)
+        try:
+            save(img, convert_fname)
+        except Exception:
+            print('Corrupted Image file %s' % fname)
 
 
 def save(img, fname):
