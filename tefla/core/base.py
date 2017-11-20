@@ -28,7 +28,7 @@ VALIDATION_EPOCH_SUMMARIES = 'validation_epoch_summaries'
 class Base(object):
 
     def __init__(self, model, cnf, training_iterator=BatchIterator(32, False),
-                 validation_iterator=BatchIterator(32, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=1, loss_type='softmax_cross_entropy', label_smoothing=0.009, model_name='graph.pbtxt'):
+                 validation_iterator=BatchIterator(32, False), num_classes=5, start_epoch=1, resume_lr=0.01, classification=True, clip_norm=True, norm_threshold=5, n_iters_per_epoch=1094, gpu_memory_fraction=0.94, is_summary=False, log_file_name='/tmp/deepcnn.log', verbosity=1, loss_type='softmax_cross_entropy', weighted=False, label_smoothing=0.009, model_name='graph.pbtxt'):
         self.model = model
         self.model_name = model_name
         self.cnf = cnf
@@ -46,6 +46,7 @@ class Base(object):
         self.gpu_memory_fraction = gpu_memory_fraction
         self.is_summary = is_summary
         self.loss_type = loss_type
+        self.weighted = weighted
         self.num_classes = num_classes
         self.label_smoothing = label_smoothing
         log.setFileHandler(log_file_name)
@@ -649,10 +650,10 @@ class BaseMixin(object):
                         self.training_end_points['predictions'], labels, is_training)
                 elif loss_type == 'sigmoid_loss':
                     loss_temp = self._loss_sigmoid(self.training_end_points[
-                        'logits'], labels, is_training)
+                        'logits'], labels, is_training, weighted=self.weighted)
                 else:
                     loss_temp = self._loss_softmax(self.training_end_points[
-                        'logits'], labels, is_training)
+                        'logits'], labels, is_training, weighted=self.weighted)
             else:
                 loss_temp = self._loss_regression(self.training_end_points[
                     'logits'], labels, is_training)
