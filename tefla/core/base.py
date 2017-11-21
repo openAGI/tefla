@@ -552,7 +552,7 @@ class BaseMixin(object):
                 labels = tf.one_hot(labels, self.num_classes)
             weights = self._compute_weights(labels)
             ce_loss = tf.losses.sparse_softmax_cross_entropy(
-                labels=labels, logits=logits, weights=weights, name='cross_entropy_loss')
+                labels=labels, logits=logits, weights=weights, label_smoothing=self.label_smoothing, scope='cross_entropy_loss')
         else:
             ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
                 labels=labels, logits=logits, name='cross_entropy_loss')
@@ -577,7 +577,7 @@ class BaseMixin(object):
         if weighted:
             weights = self._compute_weights(labels)
             ce_loss = tf.losses.sigmoid_cross_entropy(
-                labels=labels, logits=logits, weights=weights, name='sigmoid_cross_entropy_loss')
+                labels, logits=logits, weights=weights, label_smoothing=self.label_smoothing, scope='sigmoid_cross_entropy_loss')
         else:
             ce_loss = tf.nn.sigmoid_cross_entropy_with_logits(
                 labels=labels, logits=logits, name='sigmoid_cross_entropy_loss')
