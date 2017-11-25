@@ -652,7 +652,7 @@ class BaseMixin(object):
         labels = tf.cast(labels, tf.int64)
         if is_training:
             kappa_loss = kappa_log_loss_clipped(
-                predictions, labels, y_pow=y_pow, label_smoothing=self.label_smoothing, batch_size=self.cnf['batch_size_train'])
+                predictions, labels, y_pow=y_pow, label_smoothing=self.label_smoothing, batch_size=self.cnf['batch_size_train'], num_classes=self.num_classes)
             tf.add_to_collection('losses', kappa_loss)
             l2_loss = tf.add_n(tf.get_collection(
                 tf.GraphKeys.REGULARIZATION_LOSSES))
@@ -662,7 +662,7 @@ class BaseMixin(object):
             return tf.add_n(tf.get_collection('losses'), name='total_loss')
         else:
             kappa_loss = kappa_log_loss_clipped(
-                predictions, labels, batch_size=self.cnf['batch_size_test'])
+                predictions, labels, batch_size=self.cnf['batch_size_test'], num_classes=self.num_classes)
             return kappa_loss
 
     def _tower_loss(self, scope, model, images, labels, is_training, reuse, loss_type='kappa_log', y_pow=2, is_classification=True, gpu_id=0):
