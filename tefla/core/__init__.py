@@ -32,3 +32,4 @@ from . import decoder
 from . import bridges
 from . import beam_search
 from . import learner_hooks
+from . import yellowfin
