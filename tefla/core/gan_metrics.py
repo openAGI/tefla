@@ -19,7 +19,7 @@ import tarfile
 from six.moves import urllib
 import tensorflow as tf
 
-from tefla.core.layers import flatten
+from .layers import flatten
 
 __all__ = [
     'get_graph_def_from_disk',
