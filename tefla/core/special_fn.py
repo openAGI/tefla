@@ -6,6 +6,7 @@ import random
 import tensorflow as tf
 from tensorflow.python.framework import function
 from .layers import dilated_conv2d, conv1d, layer_norm, _layer_norm_compute_python, _collect_named_outputs
+from .optimizer import VariableClippingOptimizer
 from ..utils import util as helper
 from . import initializers as initz
 
@@ -1245,5 +1246,35 @@ def relu_density_logit(x, reduce_dims):
       a Tensor
     """
     frac = tf.reduce_mean(tf.to_float(x > 0.0), reduce_dims)
-    scaled = tf.log(frac + math.exp(-10)) - tf.log((1.0 - frac) + math.exp(-10))
+    scaled = tf.log(frac + math.exp(-10)) - \
+        tf.log((1.0 - frac) + math.exp(-10))
     return scaled
+
+
+def clip_variables(optimizer, variables, weight_clip):
+    """Modifies an optimizer so it clips weights to a certain value.
+
+    Args:
+      optimizer: An optimizer to perform variable weight clipping.
+      variables: A list of TensorFlow variables.
+      weight_clip: Positive python float to clip discriminator weights. Used to
+        enforce a K-lipschitz condition, which is useful for some GAN training
+        schemes (ex WGAN: https://arxiv.org/pdf/1701.07875).
+
+    Returns:
+      An optimizer to perform weight clipping after updates.
+
+    Raises:
+      ValueError: If `weight_clip` is less than 0.
+    """
+    if weight_clip < 0:
+        raise ValueError(
+            '`discriminator_weight_clip` must be positive. Instead, was %s',
+            weight_clip)
+    return VariableClippingOptimizer(
+        opt=optimizer,
+        # Do no reduction, so clipping happens per-value.
+        vars_to_clip_dims={var: [] for var in variables},
+        max_norm=weight_clip,
+        use_locking=True,
+        colocate_clip_ops_with_vars=True)
