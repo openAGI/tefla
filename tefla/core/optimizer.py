@@ -11,6 +11,7 @@ import tensorflow as tf
 import collections
 from tensorflow import random_normal, shape
 from tensorflow.python.training import optimizer
+from tensorflow.python.training import saver
 from tensorflow.python.training import training_ops
 from ..utils.util import GetTensorOpName, ListUnion, Interface, BatchClipByL2norm, AddGaussianNoise
 from . import logger as log
@@ -1078,3 +1079,190 @@ def clip_gradients_by_global_norm(gradients_variables, clip_norm=20.):
     gradients, _ = tf.clip_by_global_norm(
         gradients, clip_norm, use_norm=fixed_global_norm)
     return list(six.moves.zip(gradients, variables)), fixed_global_norm
+
+
+class MovingAverageOptimizer(optimizer.Optimizer):
+    """Optimizer that computes a moving average of the variables.
+
+    Empirically it has been found that using the moving average of the trained
+    parameters of a deep network is better than using its trained parameters
+    directly. This optimizer allows you to compute this moving average and swap
+    the variables at save time so that any code outside of the training loop will
+    use by default the averaged values instead of the original ones.
+
+    Example of usage:
+
+    ```python
+
+    // Encapsulate your favorite optimizer (here the momentum one)
+    // inside the MovingAverageOptimizer.
+    opt = tf.train.MomentumOptimizer(learning_rate, FLAGS.momentum)
+    opt = tefla.core.optimizer.MovingAverageOptimizer(opt)
+    // Then create your model and all its variables.
+    model = build_model()
+    // Add the training op that optimizes using opt.
+    // This needs to be called before swapping_saver().
+    opt.minimize(cost, var_list)
+    // Then create your saver like this:
+    saver = opt.swapping_saver()
+    // Pass it to your training loop.
+        slim.learning.train(
+            model,
+            ...
+            saver=saver)
+    ```
+
+    Note that for evaluation, the normal saver should be used instead of
+    swapping_saver().
+    """
+
+    def __init__(self, opt, average_decay=0.9999, num_updates=None,
+                 sequential_update=True):
+        """Construct a new MovingAverageOptimizer.
+
+        Args:
+          opt: A tf.Optimizer that will be used to compute and apply gradients.
+          average_decay: Float.  Decay to use to maintain the moving averages
+                         of trained variables.
+                         See tf.train.ExponentialMovingAverage for details.
+          num_updates: Optional count of number of updates applied to variables.
+                       See tf.train.ExponentialMovingAverage for details.
+          sequential_update: Bool. If False, will compute the moving average at the
+                             same time as the model is updated, potentially doing
+                             benign data races.
+                             If True, will update the moving average after gradient
+                             updates.
+        """
+        self._optimizer = opt
+        self._ema = tf.train.ExponentialMovingAverage(
+            average_decay, num_updates=num_updates)
+        self._variable_map = None
+        self._sequential_update = sequential_update
+
+    def apply_gradients(self, grads_and_vars, global_step=None, name=None):
+        train_op = self._optimizer.apply_gradients(
+            grads_and_vars, global_step=global_step, name=name)
+        var_list = [x[1] for x in grads_and_vars if x[0] is not None]
+        self._variable_map = {}
+        if self._sequential_update:
+            with tf.control_dependencies([train_op]):
+                ma_op = self._ema.apply(var_list)
+        else:
+            ma_op = self._ema.apply(var_list)
+
+        for v in var_list:
+            v_avg = self._ema.average(v)
+            self._variable_map[v.op.name] = v_avg
+            self._variable_map[v_avg.op.name] = v
+        return tf.group(train_op, ma_op, name="train_with_avg")
+
+    def swapping_saver(self, var_list=None, name='swapping_saver', **kwargs):
+        """Create a saver swapping moving averages and variables.
+
+        You should use this saver during training.  It will save the moving averages
+        of the trained parameters under the original parameter names.  For
+        evaluations or inference you should use a regular saver and it will
+        automatically use the moving averages for the trained variable.
+
+        You must call this function after all variables have been created and after
+        you have called Optimizer.minimize().
+
+        Args:
+          var_list: List of variables to save, as per `Saver()`.
+                    If set to None, will save all the variables that have been
+                    created before this call.
+          name: The name of the saver.
+          **kwargs: Keyword arguments of `Saver()`.
+
+        Returns:
+          A `tf.train.Saver` object.
+
+        Raises:
+          RuntimeError: If apply_gradients or minimize has not been called before.
+        """
+
+        if self._variable_map is None:
+            raise RuntimeError('Must call apply_gradients or minimize before '
+                               'creating the swapping_saver')
+        if var_list is None:
+            var_list = tf.global_variables()
+        if not isinstance(var_list, dict):
+            var_list = saver.BaseSaverBuilder.OpListToDict(var_list)
+        # Now swap variables and moving averages
+        swapped_var_list = {}
+        for k, v in six.iteritems(var_list):
+            v_swap = self._variable_map.get(v.op.name, None)
+            if v_swap:
+                swapped_var_list[k] = v_swap
+            else:
+                swapped_var_list[k] = v
+        # Build the swapping saver.
+        return saver.Saver(swapped_var_list, name=name, **kwargs)
+
+
+class NadamOptimizer(tf.train.AdamOptimizer):
+    """Optimizer that implements the Nadam algorithm.
+
+    See [Dozat, T., 2015](http://cs229.stanford.edu/proj2015/054_report.pdf).
+    """
+
+    def _apply_dense(self, grad, var):
+        m = self.get_slot(var, "m")
+        v = self.get_slot(var, "v")
+        return training_ops.apply_adam(
+            var,
+            m,
+            v,
+            tf.cast(self._beta1_power, var.dtype.base_dtype),
+            tf.cast(self._beta2_power, var.dtype.base_dtype),
+            tf.cast(self._lr_t, var.dtype.base_dtype),
+            tf.cast(self._beta1_t, var.dtype.base_dtype),
+            tf.cast(self._beta2_t, var.dtype.base_dtype),
+            tf.cast(self._epsilon_t, var.dtype.base_dtype),
+            grad,
+            use_locking=self._use_locking,
+            use_nesterov=True).op
+
+    def _resource_apply_dense(self, grad, var):
+        m = self.get_slot(var, "m")
+        v = self.get_slot(var, "v")
+        return training_ops.resource_apply_adam(
+            var.handle,
+            m.handle,
+            v.handle,
+            tf.cast(self._beta1_power, grad.dtype.base_dtype),
+            tf.cast(self._beta2_power, grad.dtype.base_dtype),
+            tf.cast(self._lr_t, grad.dtype.base_dtype),
+            tf.cast(self._beta1_t, grad.dtype.base_dtype),
+            tf.cast(self._beta2_t, grad.dtype.base_dtype),
+            tf.cast(self._epsilon_t, grad.dtype.base_dtype),
+            grad,
+            use_locking=self._use_locking,
+            use_nesterov=True)
+
+    def _apply_sparse_shared(self, grad, var, indices, scatter_add):
+        beta1_power = tf.cast(self._beta1_power, var.dtype.base_dtype)
+        beta2_power = tf.cast(self._beta2_power, var.dtype.base_dtype)
+        lr_t = tf.cast(self._lr_t, var.dtype.base_dtype)
+        beta1_t = tf.cast(self._beta1_t, var.dtype.base_dtype)
+        beta2_t = tf.cast(self._beta2_t, var.dtype.base_dtype)
+        epsilon_t = tf.cast(self._epsilon_t, var.dtype.base_dtype)
+        lr = (lr_t * tf.sqrt(1 - beta2_power) / (1 - beta1_power))
+        # m_t = beta1 * m + (1 - beta1) * g_t
+        m = self.get_slot(var, "m")
+        m_scaled_g_values = grad * (1 - beta1_t)
+        m_t = tf.assign(m, m * beta1_t, use_locking=self._use_locking)
+        with tf.control_dependencies([m_t]):
+            m_t = scatter_add(m, indices, m_scaled_g_values)
+            # m_bar = (1 - beta1) * g_t + beta1 * m_t
+            m_bar = m_scaled_g_values + beta1_t * m_t
+        # v_t = beta2 * v + (1 - beta2) * (g_t * g_t)
+        v = self.get_slot(var, "v")
+        v_scaled_g_values = (grad * grad) * (1 - beta2_t)
+        v_t = tf.assign(v, v * beta2_t, use_locking=self._use_locking)
+        with tf.control_dependencies([v_t]):
+            v_t = scatter_add(v, indices, v_scaled_g_values)
+        v_sqrt = tf.sqrt(v_t)
+        var_update = tf.assign_sub(
+            var, lr * m_bar / (v_sqrt + epsilon_t), use_locking=self._use_locking)
+        return tf.group(*[var_update, m_bar, v_t])
