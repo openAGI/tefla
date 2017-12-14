@@ -122,27 +122,35 @@ class Base(object):
             optimizer to use
          """
         if optname == 'adadelta':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.AdadeltaOptimizer(
                 learning_rate=lr, rho=0.95, epsilon=1e-08, use_locking=False, name='Adadelta')
         if optname == 'adagrad':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.AdagradOptimizer(
                 lr, initial_accumulator_value=0.1, use_locking=False, name='Adadelta')
         if optname == 'rmsprop':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.RMSPropOptimizer(
                 lr, decay=0.9, momentum=0.0, epsilon=epsilon)
         if optname == 'momentum':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.MomentumOptimizer(
                 lr, momentum, use_locking=False, name='momentum', use_nesterov=True)
         if optname == 'adam':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.AdamOptimizer(
                 learning_rate=lr, beta1=beta1, beta2=beta2, epsilon=epsilon, use_locking=False, name='Adam')
         if optname == 'proximalgd':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.ProximalGradientDescentOptimizer(
                 lr, l1_regularization_strength=l1_reg, l2_regularization_strength=l2_reg, use_locking=False, name='ProximalGradientDescent')
         if optname == 'proximaladagrad':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.ProximalAdagradOptimizer(lr, initial_accumulator_value=accum_val, l1_regularization_strength=l1_reg,
                                                     l2_regularization_strength=l2_reg, use_locking=False, name='ProximalGradientDescent')
         if optname == 'ftrl':
+            log.info('Using {} optimizer'.format(optname))
             opt = tf.train.FtrlOptimizer(lr, learning_rate_power=lr_power, initial_accumulator_value=accum_val,
                                          l1_regularization_strength=l1_reg, l2_regularization_strength=l2_reg, use_locking=False, name='Ftrl')
         return opt
@@ -641,6 +649,7 @@ class BaseMixin(object):
             return dc_loss_mean
 
     def _compute_weights(self, labels):
+        log.debug('Computing weights from batch labels')
         labels = tf.cast(labels, dtype=tf.float32)
         lshape = tf.cast(tf.shape(labels), dtype=tf.float32)
         weights = tf.divide(tf.reduce_sum(

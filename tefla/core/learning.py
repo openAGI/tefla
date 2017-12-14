@@ -17,6 +17,7 @@ from .base import Base, BaseMixin
 from . import summary as summary
 from . import logger as log
 from ..utils import util
+from .optimizer import MovingAverageOptimizer
 
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -257,8 +258,12 @@ class SupervisedLearner(Base, BaseMixin):
                      custom_metrics_string)
                 )
 
-                saver.save(sess, "%s/model-epoch-%d.ckpt" %
-                           (weights_dir, epoch))
+                if self.swapped_saver is not None:
+		    self.swapped_saver.save(sess, "%s/model-epoch-%d.ckpt" %
+			       (weights_dir, epoch))
+                else:
+		    saver.save(sess, "%s/model-epoch-%d.ckpt" %
+			       (weights_dir, epoch))
 
                 epoch_info = dict(
                     epoch=epoch,
@@ -347,6 +352,9 @@ class SupervisedLearner(Base, BaseMixin):
             1.0, trainable=False, name="learning_rate")
         optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get(
             'optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
+        if self.cnf.get('moving_avg', False):
+            log.info('Using Moving Average Optimizer')
+            optimizer = MovingAverageOptimizer(optimizer)
         self.inputs = tf.placeholder(tf.float32, shape=(
             self.cnf['batch_size_train'],) + self.cnf['input_size'], name="input")
         if self.loss_type == 'kappa_log':
@@ -371,6 +379,10 @@ class SupervisedLearner(Base, BaseMixin):
             self.grads_and_vars = self._clip_grad_norms(
                 self.grads_and_vars, max_norm=self.norm_threshold)
         apply_gradients_op = optimizer.apply_gradients(self.grads_and_vars)
+        if self.cnf.get('moving_avg', False):
+            self.swapped_saver = optimizer.swapping_saver()
+        else:
+            self.swapped_saver = None
         if keep_moving_averages:
             variables_averages_op = self._moving_averages_op()
             with tf.control_dependencies([apply_gradients_op, variables_averages_op]):
