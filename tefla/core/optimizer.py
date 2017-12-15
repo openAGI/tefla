@@ -1139,6 +1139,9 @@ class MovingAverageOptimizer(optimizer.Optimizer):
         self._variable_map = None
         self._sequential_update = sequential_update
 
+    def compute_gradients(self, *args, **kwargs):
+        return self._optimizer.compute_gradients(*args, **kwargs)
+
     def apply_gradients(self, grads_and_vars, global_step=None, name=None):
         train_op = self._optimizer.apply_gradients(
             grads_and_vars, global_step=global_step, name=name)
@@ -1266,3 +1269,51 @@ class NadamOptimizer(tf.train.AdamOptimizer):
         var_update = tf.assign_sub(
             var, lr * m_bar / (v_sqrt + epsilon_t), use_locking=self._use_locking)
         return tf.group(*[var_update, m_bar, v_t])
+
+
+class LazyAdamOptimizer(tf.train.AdamOptimizer):
+    """Variant of the Adam optimizer that handles sparse updates more efficiently.
+
+    The original Adam algorithm maintains two moving-average accumulators for
+    each trainable variable; the accumulators are updated at every step.
+    This class provides lazier handling of gradient updates for sparse variables.
+    It only updates moving-average accumulators for sparse variable indices that
+    appear in the current batch, rather than updating the accumulators for all
+    indices. Compared with the original Adam optimizer, it can provide large
+    improvements in model training throughput for some applications. However, it
+    provides slightly different semantics than the original Adam algorithm, and
+    may lead to different empirical results.
+    """
+
+    def _apply_sparse(self, grad, var):
+        beta1_power = tf.cast(self._beta1_power, var.dtype.base_dtype)
+        beta2_power = tf.cast(self._beta2_power, var.dtype.base_dtype)
+        lr_t = tf.cast(self._lr_t, var.dtype.base_dtype)
+        beta1_t = tf.cast(self._beta1_t, var.dtype.base_dtype)
+        beta2_t = tf.cast(self._beta2_t, var.dtype.base_dtype)
+        epsilon_t = tf.cast(self._epsilon_t, var.dtype.base_dtype)
+        lr = (lr_t * tf.sqrt(1 - beta2_power) / (1 - beta1_power))
+
+        # m := beta1 * m + (1 - beta1) * g_t
+        m = self.get_slot(var, "m")
+        m_t = tf.scatter_update(m, grad.indices,
+                                beta1_t * tf.gather(m, grad.indices) +
+                                (1 - beta1_t) * grad.values,
+                                use_locking=self._use_locking)
+
+        # v := beta2 * v + (1 - beta2) * (g_t * g_t)
+        v = self.get_slot(var, "v")
+        v_t = tf.scatter_update(v, grad.indices,
+                                beta2_t * tf.gather(v, grad.indices) +
+                                (1 - beta2_t) *
+                                tf.square(grad.values),
+                                use_locking=self._use_locking)
+
+        # variable -= learning_rate * m_t / (epsilon_t + sqrt(v_t))
+        m_t_slice = tf.gather(m_t, grad.indices)
+        v_t_slice = tf.gather(v_t, grad.indices)
+        denominator_slice = tf.sqrt(v_t_slice) + epsilon_t
+        var_update = tf.scatter_sub(var, grad.indices,
+                                    lr * m_t_slice / denominator_slice,
+                                    use_locking=self._use_locking)
+        return tf.group(var_update, m_t, v_t)
