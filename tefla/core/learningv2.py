@@ -315,8 +315,12 @@ class SupervisedLearner(Base, BaseMixin):
                  custom_metrics_string)
             )
 
-            saver.save(sess, "%s/model-epoch-%d.ckpt" %
-                       (weights_dir, epoch))
+            if self.swapped_saver is not None:
+                self.swapped_saver.save(sess, "%s/model-epoch-%d.ckpt" %
+                                        (weights_dir, epoch))
+            else:
+                saver.save(sess, "%s/model-epoch-%d.ckpt" %
+                           (weights_dir, epoch))
 
             epoch_info = dict(
                 epoch=epoch,
@@ -410,6 +414,9 @@ class SupervisedLearner(Base, BaseMixin):
             1.0, trainable=False, name="learning_rate")
         optimizer = self._optimizer(self.learning_rate, optname=self.cnf.get(
             'optname', 'momentum'), **self.cnf.get('opt_kwargs', {'decay': 0.9}))
+        if self.cnf.get('moving_avg', False):
+            log.info('Using Moving Average Optimizer')
+            optimizer = MovingAverageOptimizer(optimizer)
         self.grads_and_vars, self.training_loss = self._process_towers_grads(
             dataflow, optimizer, self.model, is_classification=self.classification, loss_type=loss_type)
         if dataflow_val is not None:
@@ -421,6 +428,11 @@ class SupervisedLearner(Base, BaseMixin):
             self.grads_and_vars = self._clip_grad_norms(
                 self.grads_and_vars, max_norm=self.norm_threshold)
         apply_gradients_op = optimizer.apply_gradients(self.grads_and_vars)
+        if self.cnf.get('moving_avg', False):
+            log.info('Using Swapped Saver')
+            self.swapped_saver = optimizer.swapping_saver()
+        else:
+            self.swapped_saver = None
         if keep_moving_averages:
             variables_averages_op = self._moving_averages_op()
             with tf.control_dependencies([apply_gradients_op, variables_averages_op]):

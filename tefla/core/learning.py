@@ -259,11 +259,11 @@ class SupervisedLearner(Base, BaseMixin):
                 )
 
                 if self.swapped_saver is not None:
-		    self.swapped_saver.save(sess, "%s/model-epoch-%d.ckpt" %
-			       (weights_dir, epoch))
+                    self.swapped_saver.save(sess, "%s/model-epoch-%d.ckpt" %
+                                            (weights_dir, epoch))
                 else:
-		    saver.save(sess, "%s/model-epoch-%d.ckpt" %
-			       (weights_dir, epoch))
+                    saver.save(sess, "%s/model-epoch-%d.ckpt" %
+                               (weights_dir, epoch))
 
                 epoch_info = dict(
                     epoch=epoch,
@@ -380,6 +380,7 @@ class SupervisedLearner(Base, BaseMixin):
                 self.grads_and_vars, max_norm=self.norm_threshold)
         apply_gradients_op = optimizer.apply_gradients(self.grads_and_vars)
         if self.cnf.get('moving_avg', False):
+            log.info('Using Swapped Saver')
             self.swapped_saver = optimizer.swapping_saver()
         else:
             self.swapped_saver = None
