@@ -102,6 +102,37 @@ class MovingAverageOptimizerTest(tf.test.TestCase):
             with self.assertRaises(RuntimeError):
                 _ = opt.swapping_saver([var])
 
+    def testCorrectOverride(self):
+
+        class WrapperOptimizer(tf.train.GradientDescentOptimizer):
+
+            def compute_gradients(self, *args, **kwargs):
+                self.compute_gradients_called = True
+                return super(WrapperOptimizer, self).compute_gradients(
+                    *args, **kwargs)
+
+            def apply_gradients(self, *args, **kwargs):
+                self.apply_gradients_called = True
+                return super(WrapperOptimizer, self).apply_gradients(*args, **kwargs)
+
+        with self.test_session() as sess:
+            var = tf.Variable([1.2], name='var', dtype=tf.float32)
+            loss = var ** 2
+            wrapper_opt = WrapperOptimizer(learning_rate=2.0)
+            opt = MovingAverageOptimizer(wrapper_opt)
+            train_op = opt.minimize(loss)
+
+            # Check that both methods are called on the underlying optimizer.
+            self.assertTrue(wrapper_opt.compute_gradients_called)
+            self.assertTrue(wrapper_opt.apply_gradients_called)
+
+            # Run train_op once, and verify that we've updated the variable.
+            tf.global_variables_initializer().run()
+            sess.run(train_op)
+            var_value = sess.run(var)
+            # Started at 1.2, gradient is 2*1.2=2.4, lr=2, so should now be -3.6.
+            self.assertNear(-3.6, var_value, 1e-6)
+
 
 if __name__ == '__main__':
     tf.test.main()
