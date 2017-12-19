@@ -18,7 +18,7 @@ class PredictSession(object):
     base mixin class for prediction
 
     Args:
-        graph: graph with weights and variables
+        graph: `tf.Graph` object, graph with weights and variables
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
@@ -45,7 +45,7 @@ class OneCropPredictor(PredictSession):
     """One crop Predictor, it predict network out put from a single crop of an input image
 
     Args:
-        graph: graph with weights and variables
+        graph: `tf.Graph` object, graph with weights and variables
         cnf: prediction configs
         prediction_iterator: iterator to access and augment the data for prediction
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
@@ -74,7 +74,7 @@ class QuasiCropPredictor(PredictSession):
     """Quasi transform predictor
 
     Args:
-        graph: graph with weights and variables
+        graph: `tf.Graph` object, graph with weights and variables
         cnf: prediction configs
         prediction_iterator: iterator to access and augment the data for prediction
         number_of_transform: number of determinastic augmentaions to be performed on the input data
@@ -111,7 +111,7 @@ class TenCropPredictor(PredictSession):
     """Multiples non Data augmented crops predictor
 
     Args:
-        graph: graph with weights and variables
+        graph: `tf.Graph` object, graph with weights and variables
         cnf: prediction configs
         prediction_iterator: iterator to access and augment the data for prediction
         crop_size: crop size for network input
@@ -180,12 +180,12 @@ def _ensemble(en_type, x):
 
 
 class SegmentPredictor(PredictSession):
-    """One crop Predictor, it predict network out put from a single crop of an input image
+    """Segmentation Predictor, it predict mask from an RGB image
 
     Args:
-        graph: graph with weights and variables
-        cnf: prediction configs
+        graph: `tf.Graph` object, graph with weights and variables
         standardizer: standardizer for the  input data for prediction
+        preprocessor: image preprocessor to use
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
@@ -210,12 +210,12 @@ class SegmentPredictor(PredictSession):
 
 
 class SegmentPredictor_v2(PredictSession):
-    """One crop Predictor, it predict network out put from a single crop of an input image
+    """Segmentation Predictor, it predict mask from an RGB image
 
     Args:
-        graph: graph with weights and variables
-        cnf: prediction configs
+        graph: `tf.Graph` object, graph with weights and variables
         standardizer: standardizer for the  input data for prediction
+        preprocessor: image preprocessor to use
         gpu_memory_fraction: fraction of gpu memory to use, if not cpu prediction
     """
 
