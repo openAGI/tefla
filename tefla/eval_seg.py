@@ -24,18 +24,6 @@ from tefla.core.metrics import IOUSeg as IOU
 import tensorflow as tf
 
 
-def fast_hist(a, b, n):
-    k = (a >= 0) & (a < n)
-    return np.bincount(n * a[k].astype(int) + b[k], minlength=n**2).reshape(n, n)
-
-
-def compute_hist(gt, preds, num_classes=15):
-    hist = np.zeros((num_classes, num_classes))
-    hist += fast_hist(np.reshape(gt, (-1)),
-                      np.reshape(preds, (-1)), num_classes)
-    return hist
-
-
 @click.command()
 @click.option('--frozen_model', default=None, show_default=True,
               help='Relative path to model.')
