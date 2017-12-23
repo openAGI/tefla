@@ -16,6 +16,7 @@ from . import logger
 from . import losses
 from . import lr_policy
 from . import mem_dataset
+from . import dir_dataset
 from . import metrics
 from . import optimizer
 from . import prediction
@@ -33,3 +34,8 @@ from . import bridges
 from . import beam_search
 from . import learner_hooks
 from . import yellowfin
+from . import gan_losses
+from . import gan_metrics
+from . import model_analyzer
+from . import diet
+from . import learnable_pooling
