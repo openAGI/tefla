@@ -14,6 +14,7 @@ develop-eggs/
 dist/
 downloads/
 MNIST_data/
+models/
 eggs/
 .eggs/
 lib/
