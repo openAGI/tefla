@@ -6,6 +6,7 @@ import abc
 import six
 import math
 import tensorflow as tf
+from collections import namedtuple
 import numpy as np
 
 from .layers import batch_norm_tf as batch_norm
