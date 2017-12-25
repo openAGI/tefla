@@ -50,7 +50,7 @@ class PoolingBaseModel(object):
         self.name = name
         self.outputs_collections = outputs_collections
 
-    @abc.abstractmthod
+    @abc.abstractmethod
     def forward(self, reshaped_input):
         raise NotImplementedError("Models should implement the forward pass.")
 
