@@ -13,6 +13,9 @@ import re as _re
 import tensorflow as tf
 from tensorflow.tools import graph_transforms as _graph_transforms
 
+_FREEZE_GRAPH_TRANSFORM = 'freeze_graph'
+_SPARSIFY_GATHER_TRANSFORM = 'sparsify_gather'
+
 
 def _op_name(tensor_name):
     """Get the op name from a tensor name."""
@@ -108,12 +111,12 @@ def _freeze_transform(graph_def, output_names, initializer_names, saver_def,
     if table_initializers:
         pruned_initializer_names[tf.GraphKeys.TABLE_INITIALIZERS] = (
             table_initializers)
-        if tf.saved_model.costants.LEGACY_INIT_OP_KEY in initializer_names:
-            pruned_initializer_names[tf.saved_model.costants.LEGACY_INIT_OP_KEY] = (
-                initializer_names[tf.saved_model.costants.LEGACY_INIT_OP_KEY])
-        if tf.saved_model.costants.MAIN_OP_KEY in initializer_names:
-            pruned_initializer_names[tf.saved_model.costants.MAIN_OP_KEY] = (
-                initializer_names[tf.saved_model.costants.MAIN_OP_KEY])
+        if tf.saved_model.constants.LEGACY_INIT_OP_KEY in initializer_names:
+            pruned_initializer_names[tf.saved_model.constants.LEGACY_INIT_OP_KEY] = (
+                initializer_names[tf.saved_model.constants.LEGACY_INIT_OP_KEY])
+        if tf.saved_model.constants.MAIN_OP_KEY in initializer_names:
+            pruned_initializer_names[tf.saved_model.constants.MAIN_OP_KEY] = (
+                initializer_names[tf.saved_model.constants.MAIN_OP_KEY])
     return (graph_def, pruned_initializer_names)
 
 
@@ -411,8 +414,8 @@ def _find_all_mandatory_retain_ops(base_meta_graph_def):
         initializer_names[tf.GraphKeys.TABLE_INITIALIZERS] = table_initializers
 
     # Various init ops
-    various_init_op_collections = [tf.saved_model.costants.LEGACY_INIT_OP_KEY,
-                                   tf.saved_model.costants.MAIN_OP_KEY,
+    various_init_op_collections = [tf.saved_model.constants.LEGACY_INIT_OP_KEY,
+                                   tf.saved_model.constants.MAIN_OP_KEY,
                                    tf.GraphKeys.INIT_OP,
                                    tf.GraphKeys.LOCAL_INIT_OP,
                                    tf.GraphKeys.READY_OP,
@@ -674,7 +677,7 @@ def _add_new_inits_to_collection(meta_graph_def, updated_initializer_names):
                 new_table_inits)
 
 
-def meta_graph_transform(
+def meta_graph_editor(
         base_meta_graph_def, input_names, output_names, transforms, tags,
         checkpoint_path=None):
     """Apply the Graph Transform tool to a MetaGraphDef.
