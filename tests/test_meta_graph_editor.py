@@ -535,7 +535,7 @@ class MetaGraphTransformTest(tf.test.TestCase):
                                             meta_graph_def,
                                             removed_op_names)
 
-        # TODO(b/63447631): For now the saver is just copied unchanged
+        # TODO(n3011): For now the saver is just copied unchanged
         self.assertEqual(base_meta_graph_def.saver_def,
                          meta_graph_def.saver_def)
 

@@ -67,7 +67,7 @@ export PYTHONPATH=.
 ## Tefla Models
 Recent deep convolutional models are easy to implement using TEFLA
  
-1. [Recent Models](https://github.com/openagi/models/nets)
+1. [Recent Models](https://github.com/openagi/models)
 
 ## Getting Started
 
