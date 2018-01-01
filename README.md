@@ -143,4 +143,4 @@ Improvements and requests for new features are more than welcome! Do not hesitat
 
 ## License
 
-[MIT License](https://n3011.github.io/tefla/license/)
+[MIT License](https://openAGI.github.io/tefla/license/)
