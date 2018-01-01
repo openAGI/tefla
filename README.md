@@ -61,7 +61,7 @@ export PYTHONPATH=.
 ```
 ## Documentation
 
-[Tefla Docs](https://n3011.github.io/tefla/)
+[Tefla Docs](https://openAGI.github.io/tefla/)
 
 
 ## Tefla Models
