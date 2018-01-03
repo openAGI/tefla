@@ -6,6 +6,8 @@ from tensorflow.python.ops import control_flow_ops
 
 from tefla.core.layers import batch_norm_tf as batch_norm
 
+# batch_norm = tf.layers.batch_normalization
+
 
 @pytest.fixture(autouse=True)
 def _reset_graph():
@@ -18,12 +20,15 @@ def test_eval_moving_vars():
         image_shape = (10, height, width, 3)
         image_values = np.random.rand(*image_shape)
         images = tf.constant(image_values, shape=image_shape, dtype=tf.float32)
-        output = batch_norm(images, is_training=False, reuse=None, decay=0.1, name='BatchNorm')
+        output = batch_norm(images, is_training=False, scale=False,
+                            reuse=None, fused=None, decay=0.1, name='BatchNorm')
         assert len(tf.get_collection(tf.GraphKeys.UPDATE_OPS)) == 0
         # Initialize all variables
         sess.run(tf.global_variables_initializer())
-        moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
-        moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
+        moving_mean = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_mean')[0]
+        moving_variance = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_variance')[0]
         mean, variance = sess.run([moving_mean, moving_variance])
         # After initialization moving_mean == 0 and moving_variance == 1.
         assert_array_almost_equal(mean, [0] * 3)
@@ -31,7 +36,8 @@ def test_eval_moving_vars():
         # Simulate assigment from saver restore.
         expected_moving_mean = [0.1] * 3  # could be any number
         expected_moving_var = [0.5] * 3
-        init_assigns = [tf.assign(moving_mean, expected_moving_mean), tf.assign(moving_variance, expected_moving_var)]
+        init_assigns = [tf.assign(moving_mean, expected_moving_mean), tf.assign(
+            moving_variance, expected_moving_var)]
         sess.run(init_assigns)
         for _ in range(10):
             sess.run([output], {images: np.random.rand(*image_shape)})
@@ -53,12 +59,14 @@ def test_forced_update_moving_vars_and_output():
         images = tf.constant(image_values, shape=image_shape, dtype=tf.float32)
         decay = 0.8
         epsilon = 1e-5
-        output_s = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon,
-                              updates_collections=None, name='BatchNorm')
+        output_s = batch_norm(images, is_training=True, scale=False,
+                              reuse=None, fused=False, decay=decay, epsilon=epsilon, name='BatchNorm')
         sess.run(tf.global_variables_initializer())
 
-        moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
-        moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
+        moving_mean = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_mean')[0]
+        moving_variance = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_variance')[0]
         mean, variance = sess.run([moving_mean, moving_variance])
         # After initialization moving_mean == 0 and moving_variance == 1.
         assert_array_almost_equal(mean, [0] * 3)
@@ -68,9 +76,12 @@ def test_forced_update_moving_vars_and_output():
         n_times = 10
         expected_mean = np.array([0.] * 3)
         expected_var = np.array([1.] * 3)
-        expected_output = (image_values - images_mean) / np.sqrt(images_var + epsilon)
+        expected_output = (image_values - images_mean) / \
+            np.sqrt(images_var + epsilon)
+        update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         for _ in xrange(n_times):
             output = sess.run(output_s)
+            sess.run(update_ops)
             mean, variance = sess.run([moving_mean, moving_variance])
             expected_mean = expected_mean * decay + images_mean * (1 - decay)
             expected_var = expected_var * decay + images_var * (1 - decay)
@@ -89,8 +100,8 @@ def test_delayed_update_moving_vars_and_output():
         images = tf.constant(image_values, shape=image_shape, dtype=tf.float32)
         decay = 0.8
         epsilon = 1e-5
-        output_s = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon,
-                              updates_collections=tf.GraphKeys.UPDATE_OPS, name='BatchNorm')
+        output_s = batch_norm(images, is_training=True, scale=False,
+                              reuse=None, decay=decay, fused=False, epsilon=epsilon, name='BatchNorm')
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         # updates_ops are added to UPDATE_OPS collection.
         assert len(update_ops) == 2
@@ -99,8 +110,10 @@ def test_delayed_update_moving_vars_and_output():
         output_s = control_flow_ops.with_dependencies([barrier], output_s)
         sess.run(tf.global_variables_initializer())
 
-        moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
-        moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
+        moving_mean = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_mean')[0]
+        moving_variance = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_variance')[0]
         mean, variance = sess.run([moving_mean, moving_variance])
         # After initialization moving_mean == 0 and moving_variance == 1.
         assert_array_almost_equal(mean, [0] * 3)
@@ -110,7 +123,8 @@ def test_delayed_update_moving_vars_and_output():
         n_times = 10
         expected_mean = np.array([0.] * 3)
         expected_var = np.array([1.] * 3)
-        expected_output = (image_values - images_mean) / np.sqrt(images_var + epsilon)
+        expected_output = (image_values - images_mean) / \
+            np.sqrt(images_var + epsilon)
         for _ in range(n_times):
             output = sess.run(output_s)
             mean, variance = sess.run([moving_mean, moving_variance])
@@ -131,8 +145,8 @@ def test_delayed_update_moving_vars():
         images = tf.constant(image_values, shape=image_shape, dtype=tf.float32)
         decay = 0.1
         epsilon = 1e-5
-        output = batch_norm(images, is_training=True, reuse=None, decay=decay, epsilon=epsilon,
-                            updates_collections=tf.GraphKeys.UPDATE_OPS, name='BatchNorm')
+        output = batch_norm(images, is_training=True, scale=False, reuse=None, fused=False, decay=decay, epsilon=epsilon,
+                            name='BatchNorm')
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         # updates_ops are added to UPDATE_OPS collection.
         assert len(update_ops) == 2
@@ -141,8 +155,10 @@ def test_delayed_update_moving_vars():
         output = control_flow_ops.with_dependencies([barrier], output)
         # Initialize all variables
         sess.run(tf.global_variables_initializer())
-        moving_mean = tf.contrib.framework.get_variables('BatchNorm/moving_mean')[0]
-        moving_variance = tf.contrib.framework.get_variables('BatchNorm/moving_variance')[0]
+        moving_mean = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_mean')[0]
+        moving_variance = tf.contrib.framework.get_variables(
+            'BatchNorm/moving_variance')[0]
         mean, variance = sess.run([moving_mean, moving_variance])
         # After initialization moving_mean == 0 and moving_variance == 1.
         assert_array_almost_equal(mean, [0] * 3)

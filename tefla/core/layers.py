@@ -13,7 +13,7 @@ from tensorflow.python.framework import function
 
 from . import initializers as initz
 from ..utils import util as helper
-rng = np.random.RandomState([2016, 6, 1])
+rng = np.random.RandomState([2018, 1, 1])
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 
 
@@ -1675,7 +1675,7 @@ def local_response_normalization(x, depth_radius=5, bias=1, alpha=1, beta=0.5, n
         return _collect_named_outputs(outputs_collections, name, output)
 
 
-def batch_norm_tf(x, name='bn', scale=False, updates_collections=None, **kwargs):
+def batch_norm_tf(x, name='bn', scale=False, fused=False, is_training=False, decay=0.999, **kwargs):
     """Adds a Batch Normalization layer from http://arxiv.org/abs/1502.03167.
         "Batch Normalization: Accelerating Deep Network Training by Reducing
         Internal Covariate Shift", Sergey Ioffe, Christian Szegedy
@@ -1738,7 +1738,7 @@ def batch_norm_tf(x, name='bn', scale=False, updates_collections=None, **kwargs)
         ValueError: if the rank of `inputs` is undefined.
         ValueError: if rank or channels dimension of `inputs` is undefined.
     """
-    return tf.contrib.layers.batch_norm(x, scope=name, scale=scale, updates_collections=updates_collections, **kwargs)
+    return tf.layers.batch_normalization(x, name=name, scale=scale, training=is_training, fused=fused, momentum=decay, **kwargs)
 
 
 def batch_norm_lasagne(x, is_training, reuse, trainable=True, decay=0.9, epsilon=1e-4, name='bn',
