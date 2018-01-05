@@ -23,12 +23,12 @@ class RevBlockTest(tf.test.TestCase):
 
         if f is None:
 
-            def f(x):  # pylint: disable=function-redefined
+            def f(x):
                 return tf.layers.dense(x, self.CHANNELS // 2, use_bias=True)
 
         if g is None:
 
-            def g(x):  # pylint: disable=function-redefined
+            def g(x):
                 return tf.layers.dense(x, self.CHANNELS // 2, use_bias=True)
 
         if f_side_input is None:
@@ -41,7 +41,6 @@ class RevBlockTest(tf.test.TestCase):
             x = tf.random_uniform(
                 [self.BATCH_SIZE, self.CHANNELS], dtype=tf.float32)
         x1, x2 = tf.split(x, 2, axis=-1)
-
         with tf.variable_scope("rev_test") as vs:
             y1_rev, y2_rev = rev_block(
                 x1,
@@ -113,9 +112,9 @@ class RevBlockTest(tf.test.TestCase):
 
         def f(x):
             x = tf.layers.conv1d(x, self.CHANNELS // 2, 3, padding="same")
-            x = tf.layers.batch_normalization(x, training=True)
+            x = tf.layers.batch_normalization(x, training=False)
             x = tf.layers.conv1d(x, self.CHANNELS // 2, 3, padding="same")
-            x = tf.layers.batch_normalization(x, training=True)
+            x = tf.layers.batch_normalization(x, training=False)
             return x
 
         self._testRevBlock(x=x, f=f)
