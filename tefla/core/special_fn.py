@@ -151,6 +151,34 @@ def hard_tanh(x, saturation_limit=0.9):
     return tf.minimum(1.0, tf.maximum(x, -1.0)), saturation_cost
 
 
+def shift_right(x, pad_value=None):
+    """Shift the second dimension of x right by one."""
+    if pad_value is None:
+        shifted_targets = tf.pad(x, [[0, 0], [1, 0], [0, 0], [0, 0]])[
+            :, :-1, :, :]
+    else:
+        shifted_targets = tf.concat([pad_value, x], axis=1)[:, :-1, :, :]
+    return shifted_targets
+
+
+def shift_right_3d(x, pad_value=None):
+    """Shift the second dimension of x right by one."""
+    if pad_value is None:
+        shifted_targets = tf.pad(x, [[0, 0], [1, 0], [0, 0]])[:, :-1, :]
+    else:
+        shifted_targets = tf.concat([pad_value, x], axis=1)[:, :-1, :]
+    return shifted_targets
+
+
+def shift_right_2d(x, pad_value=None):
+    """Shift the second dimension of x right by one."""
+    if pad_value is None:
+        shifted_targets = tf.pad(x, [[0, 0], [1, 0]])[:, :-1]
+    else:
+        shifted_targets = tf.concat([pad_value, x], axis=1)[:, :-1]
+    return shifted_targets
+
+
 @function.Defun(
     python_grad_func=lambda x, dy: tf.convert_to_tensor(dy),
     shape_func=lambda op: [op.inputs[0].get_shape()])
