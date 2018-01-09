@@ -1306,3 +1306,68 @@ def clip_variables(optimizer, variables, weight_clip):
         max_norm=weight_clip,
         use_locking=True,
         colocate_clip_ops_with_vars=True)
+
+
+def approximate_split(x, num_splits, axis=0):
+    """Split approximately equally into num_splits parts.
+
+    Args:
+      x: a Tensor
+      num_splits: an integer
+      axis: an integer.
+
+    Returns:
+      a list of num_splits Tensors.
+    """
+    size = shape_list(x)[axis]
+    size_splits = [tf.div(size + i, num_splits) for i in xrange(num_splits)]
+    return tf.split(x, size_splits, axis=axis)
+
+
+class FactoredTensor(object):
+    """A concise factored representation of Tensor as two tensors.
+
+    This class represents the tensor tf.matmul(a, b, transpose_b=True)
+    by storing the values of Tensors a and b.
+
+    The reason for this is that the product may be too big to fully realize at
+    once, so it can be realized a part at a time.
+
+    "a" may have extra leading dimensions, in which case they are flattened out
+    before computing the matrix product, then re-expanded afterwards.
+    """
+
+    def __init__(self, a, b):
+        self._a = a
+        self._b = b
+
+    @property
+    def a(self):
+        return self._a
+
+    @property
+    def b(self):
+        return self._b
+
+    def to_tensor(self):
+        """Convert to Tensor."""
+        a_shape = shape_list(self.a)
+        b_shape = shape_list(self.b)
+        inner_dim = b_shape[1]
+        result_dim = b_shape[0]
+        flat_a = tf.reshape(self.a, [-1, inner_dim])
+        product = tf.matmul(flat_a, self.b, transpose_b=True)
+        product_shape = a_shape[:-1] + [result_dim]
+        product = tf.reshape(product, product_shape)
+        product.set_shape(
+            self.a.get_shape().as_list()[:-1] + [self.b.get_shape()[0]])
+        return product
+
+
+def _convert_factored_tensor_to_tensor(value, *args, **kwargs):
+    # call ops.convert_to_tensor to handle optional arguments appropriately
+    return ops.internal_convert_to_tensor(value.to_tensor(), *args, **kwargs)
+
+
+tf.register_tensor_conversion_function(FactoredTensor,
+                                       _convert_factored_tensor_to_tensor)
