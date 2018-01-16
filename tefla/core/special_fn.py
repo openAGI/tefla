@@ -1391,3 +1391,24 @@ def _convert_factored_tensor_to_tensor(value, *args, **kwargs):
 
 tf.register_tensor_conversion_function(FactoredTensor,
                                        _convert_factored_tensor_to_tensor)
+
+
+def maybe_zero_out_padding(inputs, kernel_size, nonpadding_mask):
+    """If necessary, zero out inputs to a conv for padding positions.
+
+    Args:
+      inputs: a Tensor with shape [batch, length, ...]
+      kernel_size: an integer or pair of integers
+      nonpadding_mask: a Tensor with shape [batch, length]
+
+    Returns:
+      a Tensor with the same shape as inputs
+    """
+    if (kernel_size != 1 and
+        kernel_size != (1, 1) and
+            nonpadding_mask is not None):
+        while nonpadding_mask.get_shape().ndims < inputs.get_shape().ndims:
+            nonpadding_mask = tf.expand_dims(nonpadding_mask, -1)
+        return inputs * nonpadding_mask
+    else:
+        return inputs
