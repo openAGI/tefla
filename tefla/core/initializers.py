@@ -204,3 +204,55 @@ def random_orthonormal_initializer(shape, dtype=tf.float32, partition_info=None)
         raise ValueError("Expecting square shape, got %s" % shape)
     _, u, _ = tf.svd(tf.random_normal(shape, dtype=dtype), full_matrices=True)
     return u
+
+
+def smart_initialize(variables=None, sess=None):
+    """Initializes all uninitialized variables in correct order. Initializers
+    are only run for uninitialized variables, so it's safe to run this multiple
+    times.
+    Args:
+        sess: session to use. Use default session if None.
+    """
+
+    from tensorflow.contrib import graph_editor as ge
+
+    def make_initializer(var):
+        def f():
+            return tf.assign(var, var.initial_value).op
+        return f
+
+    def make_noop():
+        return tf.no_op()
+
+    def make_safe_initializer(var):
+        """Returns initializer op that only runs for uninitialized ops."""
+        return tf.cond(tf.is_variable_initialized(var), make_noop,
+                       make_initializer(var), name="safe_init_" + var.op.name).op
+
+    if not sess:
+        sess = tf.get_default_session()
+    g = tf.get_default_graph()
+
+    if not variables:
+        variables = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES)
+
+    safe_initializers = {}
+    for v in variables:
+        safe_initializers[v.op.name] = make_safe_initializer(v)
+
+    # initializers access variable vaue through read-only value cached in
+    # <varname>/read, so add control dependency to trigger safe_initializer
+    # on read access
+    for v in variables:
+        var_name = v.op.name
+        var_cache = g.get_operation_by_name(var_name + "/read")
+        ge.reroute.add_control_inputs(var_cache, [safe_initializers[var_name]])
+
+    sess.run(tf.group(*safe_initializers.values()))
+
+    # remove initializer dependencies to avoid slowing down future variable reads
+    for v in variables:
+        var_name = v.op.name
+        var_cache = g.get_operation_by_name(var_name + "/read")
+        ge.reroute.remove_control_inputs(
+            var_cache, [safe_initializers[var_name]])
