@@ -8,6 +8,8 @@ Tefla is built on top of Tensorflow. It provides higher level access to tensorfl
 
 Tefla features:
 
+        - Support for custom optimizers
+
         . Support for data-sets, data-augmentation
        
         . Support for text datasets
