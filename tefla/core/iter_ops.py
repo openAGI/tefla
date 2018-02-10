@@ -28,7 +28,6 @@ def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, paralle
     else:
         training_iterator_maker = iterator.BalancingQueuedDAIterator
         validation_iterator_maker = iterator.ParallelDAIterator
-        # validation_iterator_maker = iterator.QueuedDAIterator
         logger.info('Using queued iterators')
 
     preprocessor = None
