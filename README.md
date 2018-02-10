@@ -67,7 +67,7 @@ export PYTHONPATH=.
 
 
 ## Tefla Models
-Recent deep convolutional models are easy to implement using TEFLA
+Recent deep convolutional models are easy to implement using TEFLA, the state-of-the-art models are implemented using tefla.
  
 1. [Recent Models](https://github.com/openagi/models)
 
@@ -138,7 +138,7 @@ trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every
 
 ## Contributions
 
-Welcome to the first release of Tefla, if you find any bug, please report it in the GitHub issues section.
+Welcome to the fourth release of Tefla, if you find any bug, please report it in the GitHub issues section.
 
 Improvements and requests for new features are more than welcome! Do not hesitate to twist and tweak Tefla, and send pull-requests.
 
