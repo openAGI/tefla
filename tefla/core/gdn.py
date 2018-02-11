@@ -1,5 +1,4 @@
 import tensorflow as tf
-from tensorflow.python.ops import nn
 
 
 def gdn(inputs,
@@ -29,7 +28,8 @@ def gdn(inputs,
     where `i` and `j` run over channels. This implementation never sums across
     spatial dimensions. It is similar to local response normalization, but much
     more flexible, as `beta` and `gamma` are trainable parameters.
-    Arguments:
+
+    Args:
       inverse: If `False` (default), compute GDN response. If `True`, compute IGDN
         response (one step of fixed point iteration to invert GDN; the division
         is replaced by multiplication).
@@ -57,6 +57,7 @@ def gdn(inputs,
       name: String, the name of the layer. Layers with the same name will
         share weights, but to avoid mistakes we require `reuse=True` in such
         cases.
+
     Properties:
       inverse: Boolean, whether GDN is computed (`True`) or IGDN (`False`).
       beta: The beta parameter as defined above (1D `Tensor`).
@@ -110,8 +111,8 @@ def gdn(inputs,
     shape = gamma.get_shape().as_list()
     gamma = tf.reshape(gamma, (ndim - 2) * [1] + shape)
 
-    norm_pool = nn.convolution(tf.square(inputs), gamma, 'VALID')
-    norm_pool = nn.bias_add(norm_pool, beta, data_format='NHWC')
+    norm_pool = tf.nn.convolution(tf.square(inputs), gamma, 'VALID')
+    norm_pool = tf.nn.bias_add(norm_pool, beta, data_format='NHWC')
     norm_pool = tf.sqrt(norm_pool)
 
     if inverse:
@@ -128,10 +129,12 @@ def _lower_bound(inputs, bound, name=None):
     The gradient is overwritten so that it is passed through if the input is not
     hitting the bound. If it is, only gradients that push `inputs` higher than
     the bound are passed through. No gradients are passed through to the bound.
+
     Args:
       inputs: input tensor
       bound: lower bound for the input tensor
       name: name for this op
+
     Returns:
       tf.maximum(inputs, bound)
     """
@@ -146,9 +149,11 @@ def _lower_bound(inputs, bound, name=None):
 @tf.RegisterGradient("GDNLowerBoundTefla")
 def _lower_bound_grad(op, grad):
     """Gradient for `_lower_bound`.
+
     Args:
       op: the tensorflow op for which to calculate a gradient
       grad: gradient with respect to the output of the op
+
     Returns:
       gradients with respect to the inputs of the op
     """
