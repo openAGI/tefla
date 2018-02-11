@@ -165,9 +165,6 @@ class ParallelDAIterator(QueuedDAIterator):
         finally:
             SharedArray.delete(shared_array_name)
 
-        # if labels is not None:
-        #     labels = labels[:, np.newaxis]
-
         return Xb, labels
 
 
@@ -203,7 +200,7 @@ class BalancingDAIterator(ParallelDAIterator):
         return super(BalancingDAIterator, self).__call__(X, y)
 
 
-# Todo remove code duplication with BalancingDAIterator (call method)
+# TODO(n3011) remove code duplication with BalancingDAIterator (call method)
 class BalancingQueuedDAIterator(QueuedDAIterator):
 
     def __init__(
