@@ -10,8 +10,7 @@ import logging
 
 from .. import convert
 from ..da import iterator
-
-logger = logging.getLogger('tefla')
+from ..core import logger
 
 
 class Dataflow(object):
