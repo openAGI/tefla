@@ -5,6 +5,7 @@ from __future__ import print_function
 import collections
 import tensorflow as tf
 from tensorflow import gfile
+from ..core import logger
 
 SpecialVocab = collections.namedtuple("SpecialVocab",
                                       ["UNK", "SEQUENCE_START", "SEQUENCE_END"])
@@ -29,8 +30,8 @@ class Vocabulary(object):
             unk_word: Special word denoting unknown words.
         """
         if not tf.gfile.Exists(vocab_file):
-            tf.logging.fatal("Vocab file %s not found.", vocab_file)
-        tf.logging.info("Initializing vocabulary from file: %s", vocab_file)
+            logger.fatal("Vocab file %s not found." % vocab_file)
+        logger.info("Initializing vocabulary from file: %s" % vocab_file)
 
         with tf.gfile.GFile(vocab_file, mode="r") as f:
             reverse_vocab = list(f.readlines())
@@ -41,7 +42,7 @@ class Vocabulary(object):
             reverse_vocab.append(unk_word)
         vocab = dict([(x, y) for (y, x) in enumerate(reverse_vocab)])
 
-        tf.logging.info("Created vocabulary with %d words" % len(vocab))
+        logger.info("Created vocabulary with %d words" % len(vocab))
 
         self.vocab = vocab  # vocab[word] = id
         self.reverse_vocab = reverse_vocab  # reverse_vocab[id] = word
@@ -153,7 +154,7 @@ def create_vocabulary_lookup_table(filename, default_value=None):
     if default_value is None:
         default_value = special_vocab.UNK
 
-    tf.logging.info("Creating vocabulary lookup table of size %d", vocab_size)
+    logger.info("Creating vocabulary lookup table of size %d" % vocab_size)
 
     vocab_tensor = tf.constant(vocab)
     count_tensor = tf.constant(counts, dtype=tf.float32)

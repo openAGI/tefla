@@ -23,7 +23,7 @@ import re
 
 import six
 import abc
-from six.moves import xrange  # pylint: disable=redefined-builtin
+from six.moves import xrange
 from .tokenizer import InvertibleTokenizer
 
 import tensorflow as tf
@@ -641,8 +641,6 @@ class SubwordTextEncoder(TextEncoder):
         elif reserved == len(RESERVED_TOKENS):
             self._all_subtoken_strings = RESERVED_TOKENS + subtoken_strings
         else:
-            # TODO(dtarlow): or should we fall back to the previous behavior and
-            # insert copies of "" for each reserved count?
             raise ValueError(
                 "Unexpected value for reserved. What is being reserved?")
 
