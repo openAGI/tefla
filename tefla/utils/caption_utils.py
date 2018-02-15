@@ -4,6 +4,7 @@ import heapq
 import math
 import numpy as np
 import tensorflow as tf
+from ..core import logger
 
 
 class Caption(object):
@@ -208,9 +209,9 @@ class Vocabulary(object):
             unk_word: Special word denoting unknown words.
         """
         if not tf.gfile.Exists(vocab_file):
-            tf.logging.fatal("Vocab file %s not found.", vocab_file)
-        tf.logging.info(
-            "Initializing vocabulary from file: %s", vocab_file)
+            logger.fatal("Vocab file %s not found." % vocab_file)
+        logger.info(
+            "Initializing vocabulary from file: %s" % vocab_file)
 
         with tf.gfile.GFile(vocab_file, mode="r") as f:
             reverse_vocab = list(f.readlines())
@@ -221,7 +222,7 @@ class Vocabulary(object):
             reverse_vocab.append(unk_word)
         vocab = dict([(x, y) for (y, x) in enumerate(reverse_vocab)])
 
-        tf.logging.info("Created vocabulary with %d words" % len(vocab))
+        logger.info("Created vocabulary with %d words" % len(vocab))
 
         self.vocab = vocab
         self.reverse_vocab = reverse_vocab

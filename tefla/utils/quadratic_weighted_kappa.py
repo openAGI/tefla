@@ -120,4 +120,4 @@ def quadratic_weighted_kappa(rater_a, rater_b, min_rating=0, max_rating=4):
     try:
         return 1.0 - numerator / denominator
     except ZeroDivisionError:
-        return 0.999
+        return 0.001
