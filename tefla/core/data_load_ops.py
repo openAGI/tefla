@@ -2,6 +2,7 @@ import os
 from glob import glob
 import pandas as pd
 import numpy as np
+from . import logger
 
 
 def get_image_files(datadir, left_only=False):
@@ -22,6 +23,7 @@ def get_labels(names, labels=None, label_file='data/trainLabels.csv',
             labels = pd.read_csv(label_file,
                                  index_col=0).loc[names].values.flatten()
     except Exception:
+        logger.info('No labels found!')
         labels = np.zeros(shape=[len(names)])
 
     if per_patient:
