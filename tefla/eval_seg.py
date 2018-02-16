@@ -2,8 +2,6 @@ import os
 import click
 import numpy as np
 import cv2
-from matplotlib import pyplot as plt
-import matplotlib.patches as mpatches
 import scipy
 import scipy.misc
 from PIL import Image

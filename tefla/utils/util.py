@@ -7,7 +7,6 @@ import subprocess
 import time
 from datetime import datetime
 from scipy.misc import imsave
-import matplotlib.pyplot as plt
 import numbers
 from pydoc import locate
 import yaml

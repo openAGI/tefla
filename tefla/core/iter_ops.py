@@ -5,8 +5,7 @@ import logging
 
 from .. import convert
 from ..da import iterator
-
-logger = logging.getLogger('tefla')
+from . import logger
 
 
 def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True):
