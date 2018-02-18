@@ -205,8 +205,6 @@ class WassersteinLossTest(tf.test.TestCase, _LossesTest):
         self._d_loss_fn = tfgan_losses.wasserstein_discriminator_loss
 
 
-# TODO(joelshor): Use `parameterized` tests when opensourced.
-# TODO(joelshor): Refactor this test to use the same code as the other losses.
 class ACGANLossTest(tf.test.TestCase):
     """Tests for wasserstein_xxx_loss."""
 
