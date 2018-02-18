@@ -6,8 +6,6 @@ from tensorflow.python.ops import control_flow_ops
 
 from tefla.core.layers import batch_norm_tf as batch_norm
 
-# batch_norm = tf.layers.batch_normalization
-
 
 @pytest.fixture(autouse=True)
 def _reset_graph():
