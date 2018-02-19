@@ -34,10 +34,6 @@ def test_np_tf_aggregate():
     )
 
     sess = tf.Session()
-
-    # im_tf = tf.read_file('/home/ishant/Downloads/segmentation2.jpg')
-    # im_tf = tf.image.decode_jpeg(im_tf)
-    # im_np = np.asarray(im_tf.eval(session=sess), dtype=np.float32).transpose(2, 1, 0)
     im_np = np.random.normal(50.0, 2.5,
                              size=(200, 200, 3))
     im_np = np.clip(im_np, 0.0, 255.0)
@@ -48,8 +44,6 @@ def test_np_tf_aggregate():
     im_tf = tf.transpose(im_tf, perm=[1, 0, 2])
     im_sttf = standardizertf(tf.to_float(im_tf), False)
     im_ = im_sttf.eval(session=sess)
-    # print(im_st[188, 113, :])
-    # print(im_[188, 113, :])
     assert_array_almost_equal(im_st, im_)
 
 
@@ -72,4 +66,3 @@ def test_np_tf_samplewise():
 
 if __name__ == '__main__':
     pytest.main([__file__])
-    # test_np_tf_aggregate()
