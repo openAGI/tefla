@@ -10,8 +10,6 @@ from tefla.core.layers import conv2d, max_pool
 from tefla.core import receptive_field
 
 
-# TODO(andrearaujo): Rename the create_test_network_* functions in order to have
-# more descriptive names.
 def create_test_network_1():
     """Aligned network for test.
 
