@@ -287,11 +287,14 @@ def l2_regularizer(scale, name='l2_regularizer'):
 
 
 def discretized_mix_logistic_loss(inputs, predictions, sum_all=True, name='disretized_mix_logistic_loss'):
-    """ log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to [-1,1] interval
+    """ log-likelihood for mixture of discretized logistics, assumes the data has been rescaled to
+        [-1,1] interval
 
     Args:
-        predictions: 4D tensor or array, [batch_size, width, height, out_channels] predictions of the network .
-        inputs: 4D tensor or array, [batch_size, width, height, num_classes] ground truth labels or target labels.
+        predictions: 4D tensor or array, [batch_size, width, height, out_channels]
+            predictions of the network .
+        inputs: 4D tensor or array, [batch_size, width, height, num_classes]
+            ground truth labels or target labels.
         name: Optional scope/name for op_scope.
 
     Returns:
@@ -703,7 +706,8 @@ def random_perturbation_loss(embedded, length, loss_fn, perturb_norm_length=0.1)
         embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
         length: a `int`, length of the mask
         loss_fn: a callable, that returns loss
-        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation
+            to be optimized with validatio
 
     Returns:
         perturbation loss
@@ -720,7 +724,8 @@ def adversarial_loss(embedded, loss, loss_fn, perturb_norm_length=0.1):
         embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
         loss: `float`, loss
         loss_fn: a callable, that returns loss
-        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation
+            to be optimized with validatio
 
     Returns:
         adversial loss
@@ -735,7 +740,8 @@ def adversarial_loss(embedded, loss, loss_fn, perturb_norm_length=0.1):
 
 
 def virtual_adversarial_loss(logits, embedded, labels, length,
-                             logits_from_embedding_fn, num_classes, num_power_iteration=1, small_constant_for_finite_diff=1e-3, perturb_norm_length=0.1):
+                             logits_from_embedding_fn, num_classes, num_power_iteration=1,
+                             small_constant_for_finite_diff=1e-3, perturb_norm_length=0.1):
     """Virtual adversarial loss.
     Computes virtual adversarial perturbation by finite difference method and
     power iteration, adds it to the embedding, and computes the KL divergence
@@ -753,7 +759,8 @@ def virtual_adversarial_loss(logits, embedded, labels, length,
         vocab_size: a `int`, vocabular size of the problem
         num_power_iteration: a `int`, the number of power iteration
         small_constant_for_finite_diff: a `float`, Small constant for finite difference method
-        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation
+            to be optimized with validatio
 
     Returns:
         a `float` `scalar`, KL divergence.
@@ -785,7 +792,8 @@ def random_perturbation_loss_brnn(embedded, length, loss_fn, perturb_norm_length
         embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
         length: a `int`, length of the mask
         loss_fn: a callable, that returns loss
-        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation to
+            be optimized with validatio
 
     Returns:
         perturbation loss
@@ -803,7 +811,8 @@ def adversarial_loss_brnn(embedded, loss, loss_fn, perurb_norm_length=0.1):
         embedded: 3-D float `Tensor`, [batch_size, num_timesteps, embedding_dim]
         loss: `float`, loss
         loss_fn: a callable, that returns loss
-        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation
+            to be optimized with validatio
 
     Returns:
         adversial loss
@@ -816,7 +825,9 @@ def adversarial_loss_brnn(embedded, loss, loss_fn, perurb_norm_length=0.1):
 
 
 def virtual_adversarial_loss_brnn(logits, embedded, labels, length,
-                                  logits_from_embedding_fn, vocab_size, num_classes, num_power_iteration=1, small_constant_for_finite_diff=1e-3, perturb_norm_length=0.1):
+                                  logits_from_embedding_fn, vocab_size, num_classes,
+                                  num_power_iteration=1, small_constant_for_finite_diff=1e-3,
+                                  perturb_norm_length=0.1):
     """Virtual adversarial loss for bidirectional models
     Computes virtual adversarial perturbation by finite difference method and
     power iteration, adds it to the embedding, and computes the KL divergence
@@ -834,7 +845,8 @@ def virtual_adversarial_loss_brnn(logits, embedded, labels, length,
         vocab_size: a `int`, vocabular size of the problem
         num_power_iteration: a `int`, the number of power iteration
         small_constant_for_finite_diff: a `float`, Small constant for finite difference method
-        perturb_norm_length: a `float`, Norm length of adversarial perturbation to be optimized with validatio
+        perturb_norm_length: a `float`, Norm length of adversarial perturbation
+            to be optimized with validatio
 
     Returns:
         a `float` `scalar`, KL divergence.

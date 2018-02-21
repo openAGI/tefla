@@ -82,7 +82,7 @@ def setVerbosity(verbosity=0):
     set the verbosity level of logging
 
     Args:
-        verbosity: set the verbosity level using an integer {0, 1, 2, 3, 4} 
+        verbosity: set the verbosity level using an integer {0, 1, 2, 3, 4}
         e.g. verbosity=0, imply DEBUG logging, it logs all level of logs
              verbosity=1, imply INFO logging
              verbosity=2, imply WARN logging
@@ -114,7 +114,7 @@ def debug(msg, *args, **kwargs):
     """
     Logs the Highest level DEBUG logging, it logs all level
 
-    Args: 
+    Args:
         msg: the message to log
     """
     _logger.debug(_log_prefix() + msg, *args, **kwargs)
@@ -124,7 +124,7 @@ def info(msg, *args, **kwargs):
     """
     Logs the level INFO logging, it logs all LEVEL BELOW INFO
 
-    Args: 
+    Args:
         msg: the message to log
     """
     _logger.info(_log_prefix() + msg, *args, **kwargs)
@@ -134,7 +134,7 @@ def warn(msg, *args, **kwargs):
     """
     Logs the WARN logging, it logs all level BELOW WARN
 
-    Args: 
+    Args:
         msg: the message to log
     """
     _logger.warn(_log_prefix() + msg, *args, **kwargs)
@@ -144,7 +144,7 @@ def error(msg, *args, **kwargs):
     """
     Logs the level ERROR logging, it logs level ERROR  and FATAL
 
-    Args: 
+    Args:
         msg: the message to log
     """
     _logger.error(_log_prefix() + msg, *args, **kwargs)
@@ -154,7 +154,7 @@ def fatal(msg, *args, **kwargs):
     """
     Logs thE level FATAL logging, it logs only FATAL
 
-    Args: 
+    Args:
         msg: the message to log
     """
     _logger.fatal(_log_prefix() + msg, *args, **kwargs)
