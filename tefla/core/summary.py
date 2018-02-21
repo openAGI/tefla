@@ -99,7 +99,7 @@ def summary_param(op, tensor, ndims, name, collections=None):
         'stddev': tf.summary.scalar(name + '/stddev', tf.sqrt(tf.reduce_sum(tf.square(tensor - tf.reduce_mean(tensor, name='mean_op'))), name='stddev_op'), collections=collections),
         'max': tf.summary.scalar(name + '/max', tf.reduce_max(tensor), collections=collections),
         'min': tf.summary.scalar(name + '/min', tf.reduce_min(tensor), collections=collections),
-        'norm': tf.summary.scalar(name + '/norm', tf.sqrt(tf.reduce_sum(tensor * tensor)), collections=collections),
+        'norm': tf.summary.scalar(name + '/global_norm', tf.global_norm([tensor]), collections=collections),
     }[op]
 
 
@@ -122,7 +122,7 @@ def summary_trainable_params(summary_types, collections=None):
                               collections=collections)
 
 
-def summary_gradients(grad_vars, summary_types, collections=None):
+def summary_gradients(grad_vars, summary_types=['histogram', 'norm'], collections=None):
     """
     Add summary to all gradient tensors
 
@@ -134,15 +134,17 @@ def summary_gradients(grad_vars, summary_types, collections=None):
     """
     with tf.name_scope('summary/gradient'):
         for grad, var in grad_vars:
-            ndims = grad.get_shape().ndims
-            for s_type in summary_types:
-                summary_param(s_type, grad, ndims, var.op.name +
-                              '/grad', collections=None)
-        try:
-            tf.summary.scalar('/global_norm', tf.global_norm(
-                map(lambda grad_v: grad_v[0], grad_vars)), collections=collections)
-        except Exception:
-            return
+            if grad is not None:
+                if isinstance(grad, tf.IndexedSlices):
+                    grad_values = grad.values
+                else:
+                    grad_values = grad
+                ndims = grad_values.get_shape().ndims
+                for s_type in summary_types:
+                    summary_param(s_type, grad_values, ndims, var.op.name +
+                                  '/grad', collections=None)
+            else:
+                logger.info('Var %s has no gradient', var.op.name)
 
 
 def summary_image(tensor, name=None, max_images=10, collections=None):
