@@ -195,11 +195,9 @@ class AggregateStandardizerTF(object):
 
         """
         if color_vec is None:
-            # tf.zeros(shape=(3,), dtype=tf.float32))
             color_vec = tf.random_normal(shape=(3,), mean=0.0, stddev=sigma)
 
         alpha = tf.multiply(tf.to_float(color_vec), self.ev)
-        # noise = tf.reshape(tf.tensordot(self.u, alpha, 1), shape=(1, 1, 3))
         noise = tf.reshape(
             tf.matmul(self.u, tf.reshape(alpha, (3, 1))), shape=(1, 1, 3))
         return tf.add(img, noise)

@@ -316,7 +316,6 @@ class VggPreprocessor(Preprocessor):
             asserts.extend([height_assert, width_assert])
 
         # Create a random bounding box.
-        #
         # Use tf.random_uniform and not numpy.random.rand as doing the former would
         # generate random numbers at graph eval time, unlike the latter which
         # generates random numbers at graph definition time.
