@@ -938,7 +938,7 @@ class VariableClippingOptimizer(optimizer.Optimizer):
 
     def _clip_dense(self, var):
         with self._maybe_colocate_with(var):
-            updated_var_value = var._ref()
+            updated_var_value = var.read_value()
             normalized_var = tf.clip_by_norm(
                 updated_var_value, self._max_norm, self._vars_to_clip_dims[var])
             delta = updated_var_value - normalized_var
