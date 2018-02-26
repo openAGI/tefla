@@ -122,9 +122,6 @@ def freeze_graph(input_graph,
                 try:
                     tensor = sess.graph.get_tensor_by_name(key + ":0")
                 except KeyError:
-                    # This tensor doesn't exist in the graph (for example it's
-                    # 'global_step' or a similar housekeeping element) so skip it.
-                    print(key)
                     continue
                 var_list[key] = tensor
 
