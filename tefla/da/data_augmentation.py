@@ -126,10 +126,6 @@ VGG_MEAN = [103.939, 116.779, 123.68]
 
 def vggnet_input(im_tf):
     im_tf = tf.image.convert_image_dtype(im_tf, dtype=tf.float32)
-    # im_tf = tf.image.central_crop(im_tf, central_fraction=0.875)
-    # im_tf = tf.expand_dims(im_tf, 0)
-    # im_tf = tf.image.resize_bilinear(im_tf, [224, 224], align_corners=False)
-    # im_tf = tf.squeeze(im_tf, [0])
     im_tf = tf.subtract(im_tf, 0.5)
     im_tf = tf.multiply(im_tf, 2.0)
     im_tf = im_tf * 255.0
@@ -138,7 +134,6 @@ def vggnet_input(im_tf):
     g_ = b_ - VGG_MEAN[1]
     b_ = b_ - VGG_MEAN[0]
     im_tf = tf.concat([r_, g_, b_], axis=2)
-    # im_tf = tf.expand_dims(im_tf, 0)
     return im_tf
 
 
@@ -406,7 +401,6 @@ def random_crop_and_pad_image_and_labels(image, label, crop_h, crop_w, ignore_la
         crop_h, image_shape[0]), tf.maximum(crop_w, image_shape[1]))
 
     last_image_dim = tf.shape(image)[-1]
-    # last_label_dim = tf.shape(label)[-1]
     combined_crop = tf.random_crop(combined_pad, [crop_h, crop_w, 4])
     img_crop = combined_crop[:, :, :last_image_dim]
     label_crop = combined_crop[:, :, last_image_dim:]
