@@ -149,10 +149,6 @@ class SegPreprocessor(Preprocessor):
     def preprocess_for_train(self, image, label, output_height, output_width, standardizer=None):
         image, label = self.random_flip_left_right(image, label)
         image, label = self.random_flip_up_down(image, label)
-        # crop_h = output_height + 10
-        # crop_w = output_width + 10
-        # image, label = self.random_crop_and_pad_image_and_label(
-        #    image, label, crop_h, crop_w)
         image = tf.image.resize_images(
             image, [output_height, output_width], method=0)
         label = tf.expand_dims(label, 2)
@@ -1117,7 +1113,6 @@ def random_distort_color(image, color_ordering=0):
         else:
             raise ValueError('color_ordering must be in {0, 1}')
 
-        # The random_* ops do not necessarily clamp.
         image = tf.clip_by_value(image, 0.0, 1.0)
         return image
 
