@@ -69,11 +69,11 @@ class TFRecords(object):
 
     def label_to_string(self, label):
         return{
-            0: 'No DR',
-            1: 'Mild',
-            2: 'Moderate',
-            3: 'Severe',
-            4: 'Proliferative DR',
+            0: 'label0',
+            1: 'label1',
+            2: 'label2',
+            3: 'label3',
+            4: 'label4',
         }[label]
 
     def process_image(self, filename, coder):
@@ -99,8 +99,6 @@ class TFRecords(object):
         # Decode the RGB JPEG.
         image = coder.decode_jpeg(image_data)
 
-        # Check that image converted to RGB
-        # image = tf.image.resize_images(image, cfg.TRAIN.im_height, cfg.TRAIN.im_width, method=3, align_corners=False)
         assert len(image.shape) == 3
         height = image.shape[0]
         width = image.shape[1]
@@ -309,7 +307,8 @@ class TFRecords(object):
             labels_file: string, path to the labels file.
         """
         filenames, texts, labels = self.find_image_files(directory, labels_file)
-        self.process_image_files(name, filenames, texts, labels, num_shards, output_directory)
+        self.process_image_files(name, filenames, texts,
+                                 labels, num_shards, output_directory)
 
     def read_images_from(self, data_dir, imresize=[512, 512]):
         images = []
@@ -332,5 +331,5 @@ class TFRecords(object):
 if __name__ == '__main__':
     # Convert Images to tfRecords files
     im2r = TFRecords()
-    im2r.process_dataset('retina_dr_train_256',
+    im2r.process_dataset('dataset_name',
                          '/path/to/Data/train', 'path/to/output/dir', 16, '/path/to/Data/label.txt')
