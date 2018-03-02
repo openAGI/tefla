@@ -135,7 +135,7 @@ class PascalVoc(object):
 
 if __name__ == '__main__':
     sess = tf.Session()
-    data_voc = PascalVoc(name='pascal_voc', data_dir='/home/artelus_server/data/VOCdevkit/segment/', batch_size=1,
+    data_voc = PascalVoc(name='pascal_voc', data_dir='/home/server/data/VOCdevkit/segment/', batch_size=1,
                          height=224, extension='.jpg', is_train=True, capacity=1024, min_queue_examples=256, num_preprocess_threads=8)
     images, labels = data_voc.get_batch(
         batch_size=1, label_filename=None)
