@@ -1084,6 +1084,43 @@ class DropoutWrapper(core_rnn_cell.RNNCell):
         return output, new_state
 
 
+class VariationalDropoutWrapper(core_rnn_cell.RNNCell):
+    """Add variational dropout to a RNN cell."""
+
+    def __init__(self, cell, is_training, batch_size, input_size, recurrent_keep_prob,
+                 input_keep_prob):
+        self._cell = cell
+        self._is_training = is_training
+        if is_training:
+            self._recurrent_keep_prob = recurrent_keep_prob
+        else:
+            self._recurrent_keep_prob = 1.0
+        self._input_keep_prob = input_keep_prob
+
+        def make_mask(keep_prob, units):
+            random_tensor = keep_prob
+            random_tensor += tf.random_uniform(tf.stack([batch_size, units]))
+            return tf.floor(random_tensor) / keep_prob
+
+        self._recurrent_mask = make_mask(recurrent_keep_prob,
+                                         self._cell.state_size[0])
+        self._input_mask = self._recurrent_mask
+
+    @property
+    def state_size(self):
+        return self._cell.state_size
+
+    @property
+    def output_size(self):
+        return self._cell.output_size
+
+    def __call__(self, inputs, state, scope=None):
+        dropped_inputs = inputs * self._input_mask
+        dropped_state = (state[0], state[1] * self._recurrent_mask)
+        new_h, new_state = self._cell(dropped_inputs, dropped_state, scope)
+        return new_h, new_state
+
+
 def _linear(x, n_output, reuse, trainable=True, w_init=initz.he_normal(), b_init=0.0, w_regularizer=tf.nn.l2_loss, name='fc', layer_norm=None, layer_norm_args=None, activation=None, outputs_collections=None, use_bias=True):
     """Adds a fully connected layer.
 
