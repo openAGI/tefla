@@ -87,17 +87,17 @@ class Helper(object):
     @abc.abstractmethod
     def initialize(self, name=None):
         """Returns `(initial_finished, initial_inputs)`."""
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def sample(self, time, outputs, state, name=None):
         """Returns `sample_ids`."""
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def next_inputs(self, time, outputs, state, sample_ids, name=None):
         """Returns `(finished, next_inputs, next_state)`."""
-        pass
+        raise NotImplementedError
 
 
 class CustomHelper(Helper):
