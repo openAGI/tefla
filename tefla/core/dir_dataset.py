@@ -6,8 +6,7 @@ import logging
 import numpy as np
 
 from . import data_load_ops as data
-
-logger = logging.getLogger('tefla')
+from . import logger
 
 
 class DataSet(object):
