@@ -16,4 +16,4 @@ opencv-python
 h5py
 Cython
 git+https://github.com/lucasb-eyer/pydensecrf.git
-tensorflow-gpu==1.4.0
+tensorflow-gpu==1.5.0
