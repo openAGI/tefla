@@ -1124,7 +1124,7 @@ class VariationalDropoutWrapper(core_rnn_cell.RNNCell):
 class ZoneoutWrapper(core_rnn_cell.RNNCell):
     """Add Zoneout to a RNN cell."""
 
-    def __init__(self, cell, is_training, zoneout_drop_prob * args, **kwargs):
+    def __init__(self, cell, is_training, zoneout_drop_prob,  *args, **kwargs):
         self._cell = cell
         self._zoneout_prob = zoneout_drop_prob
         self._is_training = is_training
