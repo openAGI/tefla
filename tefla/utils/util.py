@@ -1147,3 +1147,29 @@ def _parse_params(params, default_params):
         else:
             result[key] = type(default_params[key])(value)
     return result
+
+
+def tok_k_masks(inputs, K):
+    """Returns a mask for top_k op
+
+    Args:
+        inputs: A `Tensor`
+        K: A `int`
+
+    Returns:
+        A `Tensor` representing top_k mask
+    """
+    values, indices = tf.nn.top_k(arr, k=K, sorted=False)
+
+    temp_indices = tf.meshgrid(*[tf.range(d) for d in (tf.unstack(
+        tf.shape(arr)[:(arr.get_shape().ndims - 1)]) + [K])], indexing='ij')
+    temp_indices = tf.stack(temp_indices[:-1] + [indices], axis=-1)
+
+    full_indices = tf.reshape(temp_indices, [-1, arr.get_shape().ndims])
+
+    values = tf.reshape(values, [-1])
+
+    mask_st = tf.SparseTensor(indices=tf.cast(
+        full_indices, dtype=tf.int64), values=tf.ones_like(values), dense_shape=arr.shape)
+
+    return tf.sparse_tensor_to_dense(tf.sparse_reorder(mask_st))
