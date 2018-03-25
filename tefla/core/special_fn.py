@@ -1261,6 +1261,28 @@ def scale_gradient(net, scale, name="scale_gradient"):
         return output
 
 
+def normalize_gradient(grad_scales=None, name='normalize_gradient'):
+    if grad_scales is not None:
+        grad_scales = np.float32(grad_scales)
+
+    def _normalize_grad_backward(op, grad):
+        grad_norm = tf.sqrt(tf.reduce_sum(grad**2, [1, 2, 3], keep_dims=True))
+        if grad_scales is not None:
+            grad *= grad_scales[:, None, None, None]
+        return grad / grad_norm
+
+    @function.Defun(tf.float32,
+                  python_grad_func=_normalize_grad_backward,
+                  func_name="NormalizeGradient")
+    def _normalize_grad_forward(x):
+        return x
+
+    with tf.name_scope(name):
+        output = _normalize_grad_forward(net, name=name)
+        output.set_shape(net.shape)
+    return output
+
+
 def relu_density_logit(x, reduce_dims):
     """logit(density(x)).
 
