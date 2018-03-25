@@ -980,11 +980,12 @@ def _is_all_zeros(grad):
 
 
 def _get_wrapper(fn, opt):
-
     def wrapper(self, grad, *args, **kwargs):
         all_zeros = _is_all_zeros(grad)
-        return tf.cond(all_zeros, tf.no_op,
-                       lambda: fn(grad, *args, **kwargs))
+        def call_fn():
+            with tf.control_dependencies([fn(grad, *args, **kwargs)]):
+                return tf.no_op()
+        return tf.cond(all_zeros, tf.no_op, call_fn)
 
     wrapper = types.MethodType(wrapper, opt)
     return wrapper
