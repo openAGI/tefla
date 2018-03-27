@@ -10,194 +10,196 @@ import tensorflow as tf
 
 @six.add_metaclass(abc.ABCMeta)
 class SaliencyMask(object):
-    """Base class for saliency masks. Alone, this class doesn't do anything."""
+  """Base class for saliency masks.
 
-    def __init__(self, graph, session, y, x):
-        """Constructs a SaliencyMask.
+  Alone, this class doesn't do anything.
+  """
 
-        Args:
-            graph: The TensorFlow graph to evaluate masks on.
-            session: The current TensorFlow session.
-            y: The output tensor to compute the SaliencyMask against. This tensor
-                should be of size 1.
-            x: The input tensor to compute the SaliencyMask against. The outer
-                dimension should be the batch size.
-        """
+  def __init__(self, graph, session, y, x):
+    """Constructs a SaliencyMask.
 
-        # y must be of size one, otherwise the gradient we get from tf.gradients
-        # will be summed over all ys.
-        size = 1
-        for shape in y.shape:
-            size *= shape
-        assert size == 1
+    Args:
+        graph: The TensorFlow graph to evaluate masks on.
+        session: The current TensorFlow session.
+        y: The output tensor to compute the SaliencyMask against. This tensor
+            should be of size 1.
+        x: The input tensor to compute the SaliencyMask against. The outer
+            dimension should be the batch size.
+    """
 
-        self.graph = graph
-        self.session = session
-        self.y = y
-        self.x = x
+    # y must be of size one, otherwise the gradient we get from tf.gradients
+    # will be summed over all ys.
+    size = 1
+    for shape in y.shape:
+      size *= shape
+    assert size == 1
 
-    @abc.abstractmethod
-    def GetMask(self, x_value, feed_dict={}):
-        """Returns an unsmoothed mask.
+    self.graph = graph
+    self.session = session
+    self.y = y
+    self.x = x
 
-        Args:
-            x_value: Input value, not batched.
-            feed_dict: (Optional) feed dictionary to pass to the session.run call.
+  @abc.abstractmethod
+  def GetMask(self, x_value, feed_dict={}):
+    """Returns an unsmoothed mask.
 
-        Returns:
-            returns a 3D mask
-        """
-        pass
+    Args:
+        x_value: Input value, not batched.
+        feed_dict: (Optional) feed dictionary to pass to the session.run call.
 
-    def GetSmoothedMask(
-            self, x_value, feed_dict={}, stdev_spread=.2, nsamples=50):
-        """Returns a mask that is smoothed with the SmoothGrad method.
+    Returns:
+        returns a 3D mask
+    """
+    pass
 
-        Args:
-            x_value: Input value, not batched.
-            feed_dict: (Optional) feed dictionary to pass to the session.run call.
-        """
-        stdev = stdev_spread * (np.max(x_value) - np.min(x_value))
+  def GetSmoothedMask(self, x_value, feed_dict={}, stdev_spread=.2, nsamples=50):
+    """Returns a mask that is smoothed with the SmoothGrad method.
 
-        total_gradients = np.zeros_like(x_value)
-        for i in range(nsamples):
-            noise = np.random.normal(0, stdev, x_value.shape)
-            x_plus_noise = x_value + noise
+    Args:
+        x_value: Input value, not batched.
+        feed_dict: (Optional) feed dictionary to pass to the session.run call.
+    """
+    stdev = stdev_spread * (np.max(x_value) - np.min(x_value))
 
-            total_gradients += self.GetMask(x_plus_noise, feed_dict)
+    total_gradients = np.zeros_like(x_value)
+    for i in range(nsamples):
+      noise = np.random.normal(0, stdev, x_value.shape)
+      x_plus_noise = x_value + noise
 
-        return total_gradients / nsamples
+      total_gradients += self.GetMask(x_plus_noise, feed_dict)
+
+    return total_gradients / nsamples
 
 
 class GradientSaliency(SaliencyMask):
-    r"""A SaliencyMask class that computes saliency masks with a gradient."""
+  r"""A SaliencyMask class that computes saliency masks with a gradient."""
 
-    def __init__(self, graph, session, y, x):
-        super(GradientSaliency, self).__init__(graph, session, y, x)
-        self.gradients_node = tf.gradients(y, x)[0]
+  def __init__(self, graph, session, y, x):
+    super(GradientSaliency, self).__init__(graph, session, y, x)
+    self.gradients_node = tf.gradients(y, x)[0]
 
-    def GetMask(self, x_value, feed_dict={}):
-        """Returns a vanilla gradient mask.
+  def GetMask(self, x_value, feed_dict={}):
+    """Returns a vanilla gradient mask.
 
-        Args:
-            x_value: Input value, not batched.
-            feed_dict: (Optional)feed dictionary to pass to the session.run call.
-        """
-        feed_dict[self.x] = [x_value]
-        return self.session.run(self.gradients_node, feed_dict=feed_dict)[0]
+    Args:
+        x_value: Input value, not batched.
+        feed_dict: (Optional)feed dictionary to pass to the session.run call.
+    """
+    feed_dict[self.x] = [x_value]
+    return self.session.run(self.gradients_node, feed_dict=feed_dict)[0]
 
 
 class GuidedBackprop(SaliencyMask):
-    """A SaliencyMask class that computes saliency masks with GuidedBackProp.
-    This implementation copies the TensorFlow graph to a new graph with the ReLU
-    gradient overwritten as in the paper:
-    https://arxiv.org/abs/1412.6806
-    """
+  """A SaliencyMask class that computes saliency masks with GuidedBackProp.
 
-    GuidedReluRegistered = False
+  This implementation copies the TensorFlow graph to a new graph with
+  the ReLU gradient overwritten as in the paper:
+  https://arxiv.org/abs/1412.6806
+  """
 
-    def __init__(self, graph, session, y, x):
-        """Constructs a GuidedBackprop SaliencyMask."""
-        super(GuidedBackprop, self).__init__(graph, session, y, x)
+  GuidedReluRegistered = False
 
-        self.x = x
+  def __init__(self, graph, session, y, x):
+    """Constructs a GuidedBackprop SaliencyMask."""
+    super(GuidedBackprop, self).__init__(graph, session, y, x)
 
-        if GuidedBackprop.GuidedReluRegistered is False:
-            @tf.RegisterGradient("GuidedRelu")
-            def _GuidedReluGrad(op, grad):
-                gate_g = tf.cast(grad > 0, "float32")
-                gate_y = tf.cast(op.outputs[0] > 0, "float32")
-                return gate_y * gate_g * grad
+    self.x = x
 
-        GuidedBackprop.GuidedReluRegistered = True
+    if GuidedBackprop.GuidedReluRegistered is False:
 
-        with graph.as_default():
-            saver = tf.train.Saver()
-            saver.save(session, '/tmp/guided_backprop_ckpt')
+      @tf.RegisterGradient("GuidedRelu")
+      def _GuidedReluGrad(op, grad):
+        gate_g = tf.cast(grad > 0, "float32")
+        gate_y = tf.cast(op.outputs[0] > 0, "float32")
+        return gate_y * gate_g * grad
 
-        graph_def = graph.as_graph_def()
+    GuidedBackprop.GuidedReluRegistered = True
 
-        self.guided_graph = tf.Graph()
-        with self.guided_graph.as_default():
-            self.guided_sess = tf.Session(graph=self.guided_graph)
-            with self.guided_graph.gradient_override_map({'Relu': 'GuidedRelu'}):
-                tf.import_graph_def(graph_def, name='')
-                saver.restore(self.guided_sess, '/tmp/guided_backprop_ckpt')
+    with graph.as_default():
+      saver = tf.train.Saver()
+      saver.save(session, '/tmp/guided_backprop_ckpt')
 
-                imported_y = self.guided_graph.get_tensor_by_name(y.name)
-                imported_x = self.guided_graph.get_tensor_by_name(x.name)
+    graph_def = graph.as_graph_def()
 
-                self.guided_grads_node = tf.gradients(
-                    imported_y, imported_x)[0]
+    self.guided_graph = tf.Graph()
+    with self.guided_graph.as_default():
+      self.guided_sess = tf.Session(graph=self.guided_graph)
+      with self.guided_graph.gradient_override_map({'Relu': 'GuidedRelu'}):
+        tf.import_graph_def(graph_def, name='')
+        saver.restore(self.guided_sess, '/tmp/guided_backprop_ckpt')
 
-    def GetMask(self, x_value, feed_dict={}):
-        """Returns a GuidedBackprop mask."""
-        with self.guided_graph.as_default():
-            guided_feed_dict = {}
-            for tensor in feed_dict:
-                guided_feed_dict[tensor.name] = feed_dict[tensor]
-            guided_feed_dict[self.x.name] = [x_value]
+        imported_y = self.guided_graph.get_tensor_by_name(y.name)
+        imported_x = self.guided_graph.get_tensor_by_name(x.name)
 
-        return self.guided_sess.run(
-            self.guided_grads_node, feed_dict=guided_feed_dict)[0]
+        self.guided_grads_node = tf.gradients(imported_y, imported_x)[0]
+
+  def GetMask(self, x_value, feed_dict={}):
+    """Returns a GuidedBackprop mask."""
+    with self.guided_graph.as_default():
+      guided_feed_dict = {}
+      for tensor in feed_dict:
+        guided_feed_dict[tensor.name] = feed_dict[tensor]
+      guided_feed_dict[self.x.name] = [x_value]
+
+    return self.guided_sess.run(self.guided_grads_node, feed_dict=guided_feed_dict)[0]
 
 
 class IntegratedGradients(GradientSaliency):
-    """A SaliencyMask class that implements the integrated gradients method.
-    https://arxiv.org/abs/1703.01365
-    """
+  """A SaliencyMask class that implements the integrated gradients method.
 
-    def GetMask(self, x_value, feed_dict={}, x_baseline=None, nsamples=100):
-        """Returns a integrated gradients mask."""
-        if x_baseline is None:
-            x_baseline = np.zeros_like(x_value)
+  https://arxiv.org/abs/1703.01365
+  """
 
-        assert x_baseline.shape == x_value.shape
+  def GetMask(self, x_value, feed_dict={}, x_baseline=None, nsamples=100):
+    """Returns a integrated gradients mask."""
+    if x_baseline is None:
+      x_baseline = np.zeros_like(x_value)
 
-        x_diff = x_value - x_baseline
+    assert x_baseline.shape == x_value.shape
 
-        total_gradients = np.zeros_like(x_value)
+    x_diff = x_value - x_baseline
 
-        for alpha in np.linspace(0, 1, nsamples):
-            x_step = x_baseline + alpha * x_diff
+    total_gradients = np.zeros_like(x_value)
 
-            total_gradients += super(IntegratedGradients, self).GetMask(
-                x_step, feed_dict)
+    for alpha in np.linspace(0, 1, nsamples):
+      x_step = x_baseline + alpha * x_diff
 
-        return total_gradients * x_diff
+      total_gradients += super(IntegratedGradients, self).GetMask(x_step, feed_dict)
+
+    return total_gradients * x_diff
 
 
 class Occlusion(SaliencyMask):
-    """A SaliencyMask class that computes saliency masks by occluding the image.
-    This method slides a window over the image and computes how that occlusion
-    affects the class score. When the class score decreases, this is positive
-    evidence for the class, otherwise it is negative evidence.
-    """
+  """A SaliencyMask class that computes saliency masks by occluding the image.
 
-    def __init__(self, graph, session, y, x):
-        super(Occlusion, self).__init__(graph, session, y, x)
+  This method slides a window over the image and computes how that
+  occlusion affects the class score. When the class score decreases,
+  this is positive evidence for the class, otherwise it is negative
+  evidence.
+  """
 
-    def GetMask(self, x_value, feed_dict={}, size=15, value=0):
-        """Returns an occlusion mask."""
-        occlusion_window = np.array([size, size, x_value.shape[2]])
-        occlusion_window.fill(value)
+  def __init__(self, graph, session, y, x):
+    super(Occlusion, self).__init__(graph, session, y, x)
 
-        occlusion_scores = np.zeros_like(x_value)
+  def GetMask(self, x_value, feed_dict={}, size=15, value=0):
+    """Returns an occlusion mask."""
+    occlusion_window = np.array([size, size, x_value.shape[2]])
+    occlusion_window.fill(value)
 
-        feed_dict[self.x] = [x_value]
-        original_y_value = self.session.run(self.y, feed_dict=feed_dict)
+    occlusion_scores = np.zeros_like(x_value)
 
-        for row in range(x_value.shape[0] - size):
-            for col in range(x_value.shape[1] - size):
-                x_occluded = np.array(x_value)
+    feed_dict[self.x] = [x_value]
+    original_y_value = self.session.run(self.y, feed_dict=feed_dict)
 
-                x_occluded[row:row + size, col:col +
-                           size, :] = occlusion_window
+    for row in range(x_value.shape[0] - size):
+      for col in range(x_value.shape[1] - size):
+        x_occluded = np.array(x_value)
 
-                feed_dict[self.x] = [x_occluded]
-                y_value = self.session.run(self.y, feed_dict=feed_dict)
+        x_occluded[row:row + size, col:col + size, :] = occlusion_window
 
-                score_diff = original_y_value - y_value
-                occlusion_scores[row:row + size,
-                                 col:col + size, :] += score_diff
-        return occlusion_scores
+        feed_dict[self.x] = [x_occluded]
+        y_value = self.session.run(self.y, feed_dict=feed_dict)
+
+        score_diff = original_y_value - y_value
+        occlusion_scores[row:row + size, col:col + size, :] += score_diff
+    return occlusion_scores
