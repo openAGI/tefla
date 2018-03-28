@@ -1,0 +1,5 @@
+[style]
+based_on_style = pep8
+indent_width = 2
+column_limit = 100
+blank_line_before_nested_class_or_def = True
