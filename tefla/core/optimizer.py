@@ -1175,12 +1175,13 @@ class NadamOptimizer(tf.train.AdamOptimizer):
   def _apply_dense(self, grad, var):
     m = self.get_slot(var, "m")
     v = self.get_slot(var, "v")
+    beta1_power, beta2_power = self._get_beta_accumulators()
     return training_ops.apply_adam(
         var,
         m,
         v,
-        tf.cast(self._beta1_power, var.dtype.base_dtype),
-        tf.cast(self._beta2_power, var.dtype.base_dtype),
+        tf.cast(beta1_power, var.dtype.base_dtype),
+        tf.cast(beta2_power, var.dtype.base_dtype),
         tf.cast(self._lr_t, var.dtype.base_dtype),
         tf.cast(self._beta1_t, var.dtype.base_dtype),
         tf.cast(self._beta2_t, var.dtype.base_dtype),
@@ -1192,12 +1193,13 @@ class NadamOptimizer(tf.train.AdamOptimizer):
   def _resource_apply_dense(self, grad, var):
     m = self.get_slot(var, "m")
     v = self.get_slot(var, "v")
+    beta1_power, beta2_power = self._get_beta_accumulators()
     return training_ops.resource_apply_adam(
         var.handle,
         m.handle,
         v.handle,
-        tf.cast(self._beta1_power, grad.dtype.base_dtype),
-        tf.cast(self._beta2_power, grad.dtype.base_dtype),
+        tf.cast(beta1_power, grad.dtype.base_dtype),
+        tf.cast(beta2_power, grad.dtype.base_dtype),
         tf.cast(self._lr_t, grad.dtype.base_dtype),
         tf.cast(self._beta1_t, grad.dtype.base_dtype),
         tf.cast(self._beta2_t, grad.dtype.base_dtype),
@@ -1207,8 +1209,9 @@ class NadamOptimizer(tf.train.AdamOptimizer):
         use_nesterov=True)
 
   def _apply_sparse_shared(self, grad, var, indices, scatter_add):
-    beta1_power = tf.cast(self._beta1_power, var.dtype.base_dtype)
-    beta2_power = tf.cast(self._beta2_power, var.dtype.base_dtype)
+    beta1_power, beta2_power = self._get_beta_accumulators()
+    beta1_power = tf.cast(beta1_power, var.dtype.base_dtype)
+    beta2_power = tf.cast(beta2_power, var.dtype.base_dtype)
     lr_t = tf.cast(self._lr_t, var.dtype.base_dtype)
     beta1_t = tf.cast(self._beta1_t, var.dtype.base_dtype)
     beta2_t = tf.cast(self._beta2_t, var.dtype.base_dtype)
@@ -1251,8 +1254,9 @@ class LazyAdamOptimizer(tf.train.AdamOptimizer):
   """
 
   def _apply_sparse(self, grad, var):
-    beta1_power = tf.cast(self._beta1_power, var.dtype.base_dtype)
-    beta2_power = tf.cast(self._beta2_power, var.dtype.base_dtype)
+    beta1_power, beta2_power = self._get_beta_accumulators()
+    beta1_power = tf.cast(beta1_power, var.dtype.base_dtype)
+    beta2_power = tf.cast(beta2_power, var.dtype.base_dtype)
     lr_t = tf.cast(self._lr_t, var.dtype.base_dtype)
     beta1_t = tf.cast(self._beta1_t, var.dtype.base_dtype)
     beta2_t = tf.cast(self._beta2_t, var.dtype.base_dtype)
