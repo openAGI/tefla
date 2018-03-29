@@ -43,7 +43,7 @@ pip install git+https://github.com/lucasb-eyer/pydensecrf.git
 ```
 
 ## Tefla Installation version 
-# Tefla 1.5.0 released
+# Tefla 1.6.0 released
 For the latest stable version:
 ```python
 pip install tefla
@@ -51,12 +51,12 @@ pip install tefla
 
 for current version installation:
 ```python
-pip install git+https://github.com/n3011/tefla.git
+pip install git+https://github.com/openagi/tefla.git
 ```
 
 For Developer / TO Work with source and modifying source code:
 ```Shell
-git clone https://github.com/n3011/tefla.git
+git clone https://github.com/openagi/tefla.git
 cd tefla
 pip install -r requirements.txt
 export PYTHONPATH=.
@@ -88,7 +88,7 @@ Recent deep convolutional models are easy to implement using TEFLA, the state-of
 |   |-- validation_labels.csv
 ```
 # 2 b. TFRecords support available using tefla/dataset class
-    1. [Train v2](https://github.com/n3011/tefla/blob/master/tefla/trainv2.py)
+    1. [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
 
 # Run training:
   ```Shell
