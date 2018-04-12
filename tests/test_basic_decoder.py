@@ -66,7 +66,7 @@ class DecoderTests(object):
     decoder_output, _ = decoder_fn(initial_state, helper)
 
     losses = tf.nn.sparse_softmax_cross_entropy_with_logits(
-        logits=decoder_output.logits, labels=labels)
+        logits=tf.transpose(decoder_output.logits, [1, 0, 2]), labels=labels)
     optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
     grads_and_vars = optimizer.compute_gradients(tf.reduce_mean(losses))
 

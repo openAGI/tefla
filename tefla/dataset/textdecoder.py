@@ -81,9 +81,16 @@ class TextDecoder(object):
 
     with tf.name_scope("examples_in"):
       data_files = self.dataset.get_data_files(data_sources)
-      datasetreader = tf.contrib.data.TFRecordDataset(data_files)
+      # TODO(n3011) for multiple version supports, remove later
+      try:
+        datasetreader = tf.contrib.data.TFRecordDataset(data_files)
+      except Exception:
+        datasetreader = tf.data.TFRecordDataset(data_files)
       num_threads = min(4 if training else 1, len(data_files))
-      datasetreader = datasetreader.map(decode_record, num_threads=num_threads)
+      try:
+        datasetreader = datasetreader.map(decode_record, num_threads=num_threads)
+      except Exception:
+        datasetreader = datasetreader.map(decode_record, num_parallel_calls=num_threads)
       if training:
         datasetreader = datasetreader.shuffle(capacity)
       # Loop inifinitely if training, just once otherwise
