@@ -146,8 +146,8 @@ class TextDataflow(object):
             [(name, [None] * len(shape)) for name, shape in grouped_dataset.output_shapes.items()])
         return grouped_dataset.padded_batch(batch_size, padded_shapes)
 
-      dataset = tf.contrib.data.group_by_window(example_to_bucket_id, batching_fn, window_size)
-      return dataset
+      dataset_gbw = tf.contrib.data.group_by_window(example_to_bucket_id, batching_fn, window_size)
+      return dataset.apply(dataset_gbw)
 
   def _bucket_boundaries(self, max_length, min_length=8, length_bucket_step=1.1):
     """A default set of length-bucket boundaries."""
