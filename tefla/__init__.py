@@ -17,4 +17,4 @@ from . import train_seg
 from . import train_ss
 from . import trainv2
 
-__version__ = '1.5.4'
+__version__ = '1.7.0'
