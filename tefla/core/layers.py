@@ -2287,7 +2287,7 @@ def crelu(x, name='crelu', outputs_collections=None, **unused):
     return _collect_named_outputs(outputs_collections, name, output)
 
 
-def elu(x, name='elu', outputs_collections=None, **unused):
+def elu(x, alpha=1.0, name='elu', outputs_collections=None, **unused):
   """Computes exponential linear: exp(features) - 1 if < 0, features otherwise.
         See "Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)"
 
@@ -2302,6 +2302,8 @@ def elu(x, name='elu', outputs_collections=None, **unused):
   _check_unused(unused, name)
   with tf.name_scope(name):
     output = tf.nn.elu(x)
+    if alpha != 1.0:
+      output = tf.where(output > 0, output, alpha * output)
     return _collect_named_outputs(outputs_collections, name, output)
 
 
