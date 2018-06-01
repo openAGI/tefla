@@ -153,7 +153,7 @@ class TextDataset():
     return "%s-%.5d-of-%.5d" % (base_name, shard, total_shards)
 
   def shard_filepath(self, fname, num_shards):
-    return [self.sharded_name(fname, shard, num_shards) for shard in xrange(num_shards)]
+    return [self.sharded_name(fname, shard, num_shards) for shard in range(num_shards)]
 
   def get_data_filepatterns(self, mode='training'):
     datasets = []
