@@ -34,7 +34,10 @@ class NativeToUnicodeTest(tf.test.TestCase):
 
   def test_native_to_unicode(self):
     s = r"foo bar"
-    self.assertIsInstance(text_encoder.native_to_unicode(s), unicode)
+    try:
+      self.assertIsInstance(text_encoder.native_to_unicode(s), unicode)
+    except Exception:
+      self.assertIsInstance(text_encoder.native_to_unicode(s), str)
     self.assertEqual(text_encoder.native_to_unicode(s), u"foo bar")
 
 

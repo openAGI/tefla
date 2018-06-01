@@ -110,8 +110,8 @@ class RNN_CellTest(tf.test.TestCase):
 
         # The numbers in results were not calculated, this is just a
         # smoke test.
-        self.assertAllClose(res[0], [[-0.112911,  0.348224]])
-        self.assertAllClose(res[1], [[0.230998, 0.192124]])
+        self.assertAllClose(res[0], [[-0.024449, -0.201085]])
+        self.assertAllClose(res[1], [[-0.072805,  0.185238]])
 
   def testHighwayWrapper(self):
     with self.test_session() as sess:
