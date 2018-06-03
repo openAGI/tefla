@@ -82,7 +82,7 @@ def test_forced_update_moving_vars_and_output():
     expected_output = (image_values - images_mean) / \
         np.sqrt(images_var + epsilon)
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
-    for _ in xrange(n_times):
+    for _ in range(n_times):
       output = sess.run(output_s)
       sess.run(update_ops)
       mean, variance = sess.run([moving_mean, moving_variance])
