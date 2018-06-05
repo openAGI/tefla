@@ -21,7 +21,7 @@ before_install:
 install:
   - echo $TRAVIS_PYTHON_VERSION
   - pip install -U pip
-  - pip install pytest==3.6.0
+  - pip install pytest==3.6.1
   - pip install -U pytest-cov
   - pip install --upgrade pip setuptools wheel
   - pip install entrypoints
