@@ -10,6 +10,7 @@ Enhanced by Mrinal Haloi
 """
 from __future__ import division, print_function
 
+from six import string_types
 from PIL import Image
 from PIL import ImageEnhance
 
@@ -538,7 +539,7 @@ def load_image(img, preprocessor=image_no_preprocessing):
   Returns:
       a processed image
   """
-  if isinstance(img, basestring):
+  if isinstance(img, string_types):
     p_img = preprocessor(img)
     return np.array(p_img, dtype=np.float32).transpose(2, 1, 0)
   elif isinstance(img, np.ndarray):

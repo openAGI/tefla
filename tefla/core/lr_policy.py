@@ -321,7 +321,7 @@ class CosineDecayPolicy(AbstractInitialLr):
         updated_lr
     """
     updated_lr = self._base_lr * \
-        05 * (1 + np.cos(np.pi * (iter_idx %
+        5 * (1 + np.cos(np.pi * (iter_idx %
                                   self._cycle_steps) / self._cycle_steps))
     return updated_lr
 

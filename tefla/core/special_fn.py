@@ -222,7 +222,7 @@ def top_k_gpu(x, k):
   values = []
   indices = []
   depth = tf.shape(x)[1]
-  for i in xrange(k):
+  for i in range(k):
     values.append(tf.reduce_max(x, 1))
     argmax = tf.argmax(x, 1)
     indices.append(argmax)
@@ -629,7 +629,7 @@ def conv1d_memory_efficient(x,
     x_flat = tf.reshape(x, [-1, 1, tf.shape(x)[2]])
     xs = approximate_split(x_flat, num_splits)
     ys = []
-    for i in xrange(num_splits):
+    for i in range(num_splits):
       with tf.control_dependencies(ys[-1:]):
         n = _layer_norm_compute_python(xs[i], epsilon, scale, bias)
         y = tf.nn.conv1d(n, f1, 1, "SAME")
@@ -663,7 +663,7 @@ def conv1d_memory_efficient(x,
         dscale = 0
         dbias = 0
         deps = []
-        for i in xrange(num_splits):
+        for i in range(num_splits):
           with tf.control_dependencies(deps):
             n = _layer_norm_compute_python(xs[i], epsilon, scale, bias)
             y = tf.nn.conv1d(n, f1, 1, "SAME")
@@ -724,7 +724,7 @@ def approximate_split(x, num_splits, axis=0):
     a list of num_splits Tensors.
   """
   size = tf.shape(x)[axis]
-  size_splits = [tf.div(size + i, num_splits) for i in xrange(num_splits)]
+  size_splits = [tf.div(size + i, num_splits) for i in range(num_splits)]
   return tf.split(x, size_splits, axis=axis)
 
 
@@ -894,7 +894,7 @@ def _rev_block_forward(x1,
   """Forward for a series of reversible layers."""
   out = (x1, x2)
   with tf.variable_scope(name, default_name="revblock"):
-    for i in xrange(num_layers):
+    for i in range(num_layers):
       with tf.variable_scope("revlayer_%d" % i) as layer_vs:
         if layer_scopes is not None:
           layer_scopes.append(layer_vs)
@@ -1012,7 +1012,7 @@ def rev_block(x1, x2, f, g, num_layers=1, f_side_input=None, g_side_input=None, 
     f.reverse()
     g.reverse()
 
-    for i in xrange(num_layers):
+    for i in range(num_layers):
       with tf.variable_scope(layer_scopes[i], reuse=True):
 
         ys, grad_ys, f_ret, g_ret = _rev_layer_backward(ys, grad_ys, f[i], g[i], f_vars[i],
@@ -1405,7 +1405,7 @@ def shape_list(x):
   shape = tf.shape(x)
 
   ret = []
-  for i in xrange(len(static)):
+  for i in range(len(static)):
     dim = static[i]
     if dim is None:
       dim = shape[i]
@@ -1425,7 +1425,7 @@ def approximate_split(x, num_splits, axis=0):
     a list of num_splits Tensors.
   """
   size = shape_list(x)[axis]
-  size_splits = [tf.div(size + i, num_splits) for i in xrange(num_splits)]
+  size_splits = [tf.div(size + i, num_splits) for i in range(num_splits)]
   return tf.split(x, size_splits, axis=axis)
 
 

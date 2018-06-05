@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 language: python
 python:
-  - 2.7.11
+  - 3.5.5
 virtualenv:
   system_site_package: true
 addons:
@@ -20,13 +20,15 @@ before_install:
   - sudo apt-get update
 install:
   - echo $TRAVIS_PYTHON_VERSION
+  - pip install -U pip
+  - pip install pytest==3.6.1
   - pip install -U pytest-cov
   - pip install --upgrade pip setuptools wheel
   - pip install entrypoints
   - pip install --only-binary=numpy,scipy numpy scipy
   - pip install Cython
   - pip install git+https://github.com/lucasb-eyer/pydensecrf.git
-  - pip install tensorflow==1.7.0
+  - pip install tensorflow==1.8.0
   - pip install opencv-python
   - python setup.py install
 

@@ -1,15 +1,21 @@
 from __future__ import division, print_function, absolute_import
 
-import Queue
+import sys
 import SharedArray
 import multiprocessing
 import os
 import threading
 from uuid import uuid4
-
 import numpy as np
 
 from . import data
+
+is_py2 = sys.version[0] == '2'
+
+if is_py2:
+  import Queue
+else:
+  import queue as Queue
 
 
 class BatchIterator(object):
