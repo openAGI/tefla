@@ -21,3 +21,9 @@ python predictv2.py --frozen_model output_graph.pb --training_cnf models/multicl
 ```Shell
 python format_data.py --class_names person,bike --class_labels 0,1 --data_dir /path/to/inputdata
 ```
+
+
+## Tool to test model, useful to avoid common mistake while writing model
+```Shell
+python test_model.py --model model.py --input_shape 10,8,8,32 --loss_type softmax
+```
