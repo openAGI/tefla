@@ -34,6 +34,8 @@ install:
 
 script:
   - python setup.py test
+  - pytest
+    --ignore=tests/test_iterator.py
 
 matrix:
 fast_finish: true
