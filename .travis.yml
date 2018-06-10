@@ -3,6 +3,7 @@ dist: trusty
 language: python
 python:
   - 3.5.5
+  - 2.7.6
 virtualenv:
   system_site_package: true
 addons:
@@ -17,6 +18,7 @@ before_install:
   - sudo apt-get install -y python-opencv
   - sudo apt-get install -y cython
   - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7
+  - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python3.5
   - sudo apt-get update
 install:
   - echo $TRAVIS_PYTHON_VERSION
@@ -34,8 +36,6 @@ install:
 
 script:
   - python setup.py test
-  - pytest
-    --ignore=tests/test_iterator.py
 
 matrix:
 fast_finish: true
