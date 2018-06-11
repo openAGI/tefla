@@ -26,9 +26,8 @@ class DecoderOutput(namedtuple("DecoderOutput", ["logits", "predicted_ids", "cel
 
 
 class AttentionDecoderOutput(
-    namedtuple(
-        "DecoderOutput",
-        ["logits", "predicted_ids", "cell_output", "attention_scores", "attention_context"])):
+    namedtuple("DecoderOutput",
+               ["logits", "predicted_ids", "cell_output", "attention_scores", "attention_context"])):
   """Augmented decoder output that also includes the attention scores."""
   pass
 

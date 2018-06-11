@@ -14,10 +14,7 @@ from tefla.utils import util
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')
 @click.option(
-    '--training_cnf',
-    default=None,
-    show_default=True,
-    help='Relative path to training config file.')
+    '--training_cnf', default=None, show_default=True, help='Relative path to training config file.')
 @click.option('--predict_dir', help='Directory with Test Images')
 @click.option('--weights_from', help='Path to initial weights file.')
 @click.option('--dataset_name', default='dataset', help='Name of the dataset')

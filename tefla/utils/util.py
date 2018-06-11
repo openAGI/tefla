@@ -734,11 +734,7 @@ def advanced_indexing(inp, index):
   return relevant
 
 
-def pad_sequences(sequences,
-                  maxlen=None,
-                  dtype='int32',
-                  padding='post',
-                  truncating='post',
+def pad_sequences(sequences, maxlen=None, dtype='int32', padding='post', truncating='post',
                   value=0.):
   """pad_sequences. Pad each sequence to the same length: the length of the
   longest sequence. If maxlen is provided, any sequence longer than maxlen is

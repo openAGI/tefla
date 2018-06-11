@@ -259,8 +259,7 @@ class SegmentPredictor_v2(PredictSession):
     X = np.expand_dims(X, 0)
     raw_output_up = tf.nn.softmax(self.predictions)
     raw_output_up = tf.py_func(
-        dense_crf,
-        [raw_output_up, tf.expand_dims(img_orig, axis=0), self.num_classes], tf.float32)
+        dense_crf, [raw_output_up, tf.expand_dims(img_orig, axis=0), self.num_classes], tf.float32)
     raw_output_up = tf.argmax(raw_output_up, dimension=3)
     predictions = self.sess.run(raw_output_up, {self.inputs: X})
     predictions = predictions.transpose(0, 2, 1)

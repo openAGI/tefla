@@ -573,8 +573,7 @@ class HighwayCell(core_rnn_cell.RNNCell):
       else:
         transform_weight = tf.get_variable("transform_w", [input_size, input_size])
         transform_bias = tf.get_variable(
-            "transform_b", [input_size],
-            initializer=tf.constant_initializer(-self._carry_bias_init))
+            "transform_b", [input_size], initializer=tf.constant_initializer(-self._carry_bias_init))
         transform = tf.sigmoid(tf.nn.xw_plus_b(inp, transform_weight, transform_bias))
       return inp * carry + out * transform
 
@@ -738,9 +737,7 @@ class NASCell(core_rnn_cell.RNNCell):
       # Projection layer if specified
       if self._num_proj is not None:
         concat_w_proj = tf.get_variable(
-            "projection_weights", [self._num_units, self._num_proj],
-            dtype,
-            initializer=self._w_init)
+            "projection_weights", [self._num_units, self._num_proj], dtype, initializer=self._w_init)
         new_m = tf.matmul(new_m, concat_w_proj)
 
       new_state = core_rnn_cell.LSTMStateTuple(new_c, new_m)
@@ -1187,8 +1184,7 @@ class DropoutWrapper(core_rnn_cell.RNNCell):
       inputs = _dropout(inputs, self._is_training, keep_prob=self._input_keep_prob, seed=self._seed)
     output, new_state = self._cell(inputs, state)
     if (not isinstance(self._output_keep_prob, float) or self._output_keep_prob < 1):
-      output = _dropout(
-          output, self._is_training, keep_prob=self._output_keep_prob, seed=self._seed)
+      output = _dropout(output, self._is_training, keep_prob=self._output_keep_prob, seed=self._seed)
     return output, new_state
 
 
@@ -1419,9 +1415,7 @@ def layer_norm(x,
     beta, gamma = None, None
     if center:
       beta = tf.get_variable(
-          name='beta',
-          initializer=tf.constant(0.0, shape=[x.get_shape()[-1:]]),
-          trainable=trainable)
+          name='beta', initializer=tf.constant(0.0, shape=[x.get_shape()[-1:]]), trainable=trainable)
     if scale:
       gamma = tf.get_variable(
           name='gamma',

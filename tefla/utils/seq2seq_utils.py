@@ -240,8 +240,7 @@ class ScheduledEmbeddingTrainingHelper(TrainingHelper):
     Raises:
       ValueError: if `sampling_probability` is not a scalar or vector.
     """
-    with tf.name_scope(name, "ScheduledEmbeddingSamplingWrapper",
-                       [embedding, sampling_probability]):
+    with tf.name_scope(name, "ScheduledEmbeddingSamplingWrapper", [embedding, sampling_probability]):
       if callable(embedding):
         self._embedding_fn = embedding
       else:
@@ -266,9 +265,7 @@ class ScheduledEmbeddingTrainingHelper(TrainingHelper):
       select_sample = (self._sampling_probability > select_sample_noise)
       sample_id_sampler = distributions.Categorical(logits=outputs)
       return tf.where(
-          select_sample,
-          sample_id_sampler.sample(seed=self._seed),
-          tf.tile([-1], [self.batch_size]))
+          select_sample, sample_id_sampler.sample(seed=self._seed), tf.tile([-1], [self.batch_size]))
 
   def next_inputs(self, time, outputs, state, sample_ids, name=None):
     with tf.name_scope(name, "ScheduledEmbeddingTrainingHelperSample",
@@ -291,9 +288,9 @@ class ScheduledEmbeddingTrainingHelper(TrainingHelper):
         inputs_not_sampling = tf.gather(base_next_inputs, where_not_sampling_flat)
         sampled_next_inputs = self._embedding_fn(sample_ids_sampling)
         base_shape = tf.shape(base_next_inputs)
-        return (tf.scatter_nd(
-            indices=where_sampling, updates=sampled_next_inputs, shape=base_shape) + tf.scatter_nd(
-                indices=where_not_sampling, updates=inputs_not_sampling, shape=base_shape))
+        return (
+            tf.scatter_nd(indices=where_sampling, updates=sampled_next_inputs, shape=base_shape) +
+            tf.scatter_nd(indices=where_not_sampling, updates=inputs_not_sampling, shape=base_shape))
 
       all_finished = tf.reduce_all(finished)
       next_inputs = tf.cond(all_finished, lambda: base_next_inputs, maybe_sample)
@@ -411,9 +408,9 @@ class ScheduledOutputTrainingHelper(TrainingHelper):
             self._next_input_layer(outputs_sampling), where_sampling)
 
         base_shape = tf.shape(base_next_inputs)
-        return (tf.scatter_nd(
-            indices=where_sampling, updates=sampled_next_inputs, shape=base_shape) + tf.scatter_nd(
-                indices=where_not_sampling, updates=inputs_not_sampling, shape=base_shape))
+        return (
+            tf.scatter_nd(indices=where_sampling, updates=sampled_next_inputs, shape=base_shape) +
+            tf.scatter_nd(indices=where_not_sampling, updates=inputs_not_sampling, shape=base_shape))
 
       all_finished = tf.reduce_all(finished)
       next_inputs = tf.cond(all_finished, lambda: base_next_inputs, maybe_sample)
@@ -596,10 +593,7 @@ def sentence_to_token_ids(sentence, vocabulary, tokenizer=None, normalize_digits
   return [vocabulary.get(_DIGIT_RE.sub(b"0", w), UNK_ID) for w in words]
 
 
-def data_to_token_ids(data_path,
-                      target_path,
-                      vocabulary_path,
-                      tokenizer=None,
+def data_to_token_ids(data_path, target_path, vocabulary_path, tokenizer=None,
                       normalize_digits=True):
   """Tokenize data file and turn into token-ids using given vocabulary file.
 

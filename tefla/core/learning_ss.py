@@ -238,8 +238,7 @@ class SemiSupervisedTrainer(Base):
       log.info("Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
                (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - tic,
                 d_avg_loss, epoch_validation_loss, custom_metrics_string))
-      epoch_info = dict(
-          epoch=epoch, training_loss=d_avg_loss, validation_loss=epoch_validation_loss)
+      epoch_info = dict(epoch=epoch, training_loss=d_avg_loss, validation_loss=epoch_validation_loss)
 
       training_history.append(epoch_info)
       saver.save(sess, "%s/model-epoch-%d.ckpt" % (weights_dir, epoch))
@@ -266,11 +265,7 @@ class SemiSupervisedTrainer(Base):
 
     return feature_loss
 
-  def _tower_loss_semi_supervised(self,
-                                  inputs,
-                                  targets,
-                                  gpu_idx=0,
-                                  num_classes=11,
+  def _tower_loss_semi_supervised(self, inputs, targets, gpu_idx=0, num_classes=11,
                                   is_fm_loss=False):
     with tf.variable_scope("train_specific"):
       avg_error_rate = tf.get_variable(

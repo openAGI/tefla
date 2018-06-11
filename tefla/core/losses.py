@@ -347,8 +347,7 @@ def discretized_mix_logistic_loss(inputs,
     log_pdf_mid = mid_in - log_scales - 2. * tf.nn.softplus(mid_in)
     log_probs = tf.select(inputs < -0.999, log_cdf_plus,
                           tf.select(inputs > 0.999, log_one_minus_cdf_min,
-                                    tf.select(cdf_delta > 1e-5, tf.log(
-                                        tf.maximum(cdf_delta, 1e-12)),
+                                    tf.select(cdf_delta > 1e-5, tf.log(tf.maximum(cdf_delta, 1e-12)),
                                               log_pdf_mid - np.log(127.5))))
 
     log_probs = tf.reduce_sum(log_probs, 3) + \

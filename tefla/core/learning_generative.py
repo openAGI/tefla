@@ -146,8 +146,8 @@ class GenerativeLearner(Base):
           log.debug('2. Running training steps with summary...')
           _, _d_loss, d_loss_real, d_loss_fake, summary_str_train = sess.run(
               [
-                  self.train_op_d, self.tower_loss_d, self.tower_loss_d_real,
-                  self.tower_loss_d_fake, training_batch_summary_op
+                  self.train_op_d, self.tower_loss_d, self.tower_loss_d_real, self.tower_loss_d_fake,
+                  training_batch_summary_op
               ],
               feed_dict=feed_dict_train)
           _, _g_loss = sess.run([self.train_op_g, self.tower_loss_g], feed_dict=feed_dict_train)

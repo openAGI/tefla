@@ -477,8 +477,7 @@ class DistSupervisedLearner(Base):
       if is_classification:
         total_loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
       else:
-        total_loss = self._loss_regression(self.validation_end_points['logits'], labels,
-                                           is_training)
+        total_loss = self._loss_regression(self.validation_end_points['logits'], labels, is_training)
       self.validation_predictions = self.validation_end_points['predictions']
 
       return total_loss
@@ -504,13 +503,7 @@ class DistSupervisedLearner(Base):
     losses, total_loss = self._tower_loss(
         scope, self.model, inputs, labels, is_training, reuse, is_classification=True)
     val_total_loss = self._tower_loss(
-        scope,
-        self.model,
-        validation_inputs,
-        validation_labels,
-        False,
-        True,
-        is_classification=True)
+        scope, self.model, validation_inputs, validation_labels, False, True, is_classification=True)
     for i, (_, metric_function) in enumerate(self.validation_metrics_def):
       metric_score = metric_function(validation_labels, tf.argmax(self.validation_predictions, 1))
       validation_metric_tmp[i].append(metric_score)
@@ -586,11 +579,7 @@ class DistSupervisedLearner(Base):
     """
     if global_step is None:
       global_step = tf.get_variable(
-          'global_step',
-          shape=[],
-          dtype=tf.int64,
-          initializer=tf.zeros_initializer,
-          trainable=False)
+          'global_step', shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
 
     # Update ops use GraphKeys.UPDATE_OPS collection if update_ops is None.
     global_update_ops = set(tf.get_collection(tf.GraphKeys.UPDATE_OPS))

@@ -189,8 +189,7 @@ class TrainSampleHook(TrainingHook):
       target_slice = result["target_words"][1:target_len]
       result_str += self._target_delimiter.encode("utf-8").join(predicted_slice).decode(
           "utf-8") + "\n"
-      result_str += self._target_delimiter.encode("utf-8").join(target_slice).decode(
-          "utf-8") + "\n\n"
+      result_str += self._target_delimiter.encode("utf-8").join(target_slice).decode("utf-8") + "\n\n"
     result_str += ("=" * 100) + "\n\n"
     log.info(result_str)
     if self._sample_dir:

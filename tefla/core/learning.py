@@ -97,8 +97,7 @@ class SupervisedLearner(Base, BaseMixin):
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
     with tf.Session(
         config=tf.ConfigProto(
-            gpu_options=gpu_options, allow_soft_placement=True,
-            log_device_placement=False)) as sess:
+            gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=False)) as sess:
       if start_epoch > 1:
         weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
 
@@ -195,9 +194,8 @@ class SupervisedLearner(Base, BaseMixin):
           }
           log.debug('6. Loading batch %d validation data done.' % batch_num)
 
-          if (
-              epoch - 1
-          ) % summary_every == 0 and self.is_summary and validation_batch_summary_op is not None:
+          if (epoch - 1
+              ) % summary_every == 0 and self.is_summary and validation_batch_summary_op is not None:
             log.debug('7. Running validation steps with summary...')
             _validation_metric, summary_str_validate = sess.run(
                 [self.validation_metric, validation_batch_summary_op],

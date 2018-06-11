@@ -239,8 +239,8 @@ class PolyDecayPolicy(AbstractInitialLr):
     return learning_rate
 
   def __str__(self):
-    return 'PolyDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr,
-                                                                         self.power, self.max_epoch)
+    return 'PolyDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power,
+                                                                         self.max_epoch)
 
   def __repr__(self):
     return str(self)

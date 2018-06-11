@@ -19,10 +19,7 @@ import logging
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')
 @click.option(
-    '--training_cnf',
-    default=None,
-    show_default=True,
-    help='Relative path to training config file.')
+    '--training_cnf', default=None, show_default=True, help='Relative path to training config file.')
 @click.option('--data_dir', default=None, show_default=True, help='Path to training directory.')
 @click.option('--parallel', default=True, show_default=True, help='parallel or queued.')
 @click.option(
@@ -38,8 +35,7 @@ import logging
 @click.option(
     '--weights_from', default=None, show_default=True, help='Path to initial weights file.')
 @click.option('--resume_lr', default=0.01, show_default=True, help='Path to initial weights file.')
-@click.option(
-    '--is_summary', default=False, show_default=True, help='Path to initial weights file.')
+@click.option('--is_summary', default=False, show_default=True, help='Path to initial weights file.')
 @click.option(
     '--num_classes', default=1, show_default=True, help='Number of classes to train the model.')
 @click.option('--log_file_name', default='train_gen.log', show_default=True, help='Log file name.')

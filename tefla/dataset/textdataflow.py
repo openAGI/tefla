@@ -48,8 +48,7 @@ class TextDataflow(object):
     self.shard_multiplier = shard_multiplier
     self.length_multiplier = length_multiplier
 
-  def get_batch(self, batch_size, preprocessing_fn=None, mode='training',
-                drop_long_sequences=False):
+  def get_batch(self, batch_size, preprocessing_fn=None, mode='training', drop_long_sequences=False):
     """Input pipeline, returns a dictionary of batched and padded tensors.
 
     Args:

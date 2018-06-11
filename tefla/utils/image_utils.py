@@ -215,8 +215,8 @@ def calculate_camera_calibration(calib_path, rows, cols, cal_image_size):
 
   print("%s/%s camera calibration images processed." % (successfull_cnt, len(images)))
 
-  ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, cal_image_size[:-1],
-                                                     None, None)
+  ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, cal_image_size[:-1], None,
+                                                     None)
 
   calibration = {
       'objpoints': objpoints,

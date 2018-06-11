@@ -345,8 +345,7 @@ class SupervisedTrainer(object):
       for key, val in self.validation_end_points.iteritems():
         summary.summary_activation(val, name=key, collections=[VALIDATION_BATCH_SUMMARIES])
 
-      tf.summary.scalar(
-          'validation loss', self.epoch_loss, collections=[VALIDATION_EPOCH_SUMMARIES])
+      tf.summary.scalar('validation loss', self.epoch_loss, collections=[VALIDATION_EPOCH_SUMMARIES])
       self.validation_metric_placeholders = []
       for metric_name, _ in self.validation_metrics_def:
         validation_metric = tf.placeholder(tf.float32, shape=[], name=metric_name.replace(' ', '_'))

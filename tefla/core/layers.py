@@ -1858,8 +1858,7 @@ def global_max_pool(x, name="global_max_pool", outputs_collections=None, **unuse
     return _collect_named_outputs(outputs_collections, name, output)
 
 
-def feature_max_pool_1d(x, stride=2, name='feature_max_pool_1d', outputs_collections=None,
-                        **unused):
+def feature_max_pool_1d(x, stride=2, name='feature_max_pool_1d', outputs_collections=None, **unused):
   """Feature max pooling layer.
 
   Args:
@@ -1887,8 +1886,7 @@ def feature_max_pool_1d(x, stride=2, name='feature_max_pool_1d', outputs_collect
     return _collect_named_outputs(outputs_collections, name, output)
 
 
-def feature_max_pool_2d(x, stride=2, name='feature_max_pool_2d', outputs_collections=None,
-                        **unused):
+def feature_max_pool_2d(x, stride=2, name='feature_max_pool_2d', outputs_collections=None, **unused):
   """Feature max pooling layer.
 
   Args:
