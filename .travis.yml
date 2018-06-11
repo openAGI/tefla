@@ -23,6 +23,7 @@ before_install:
 install:
   - echo $TRAVIS_PYTHON_VERSION
   - pip install -U pip
+  - pip install requests[security]
   - pip install pytest==3.6.1
   - pip install -U pytest-cov
   - pip install --upgrade pip setuptools wheel
@@ -36,6 +37,7 @@ install:
 
 script:
   - python setup.py test
+  - bash tools/ci_build/ci_sanity.sh
 
 matrix:
 fast_finish: true
