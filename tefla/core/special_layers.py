@@ -2,7 +2,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.framework import ops
 import pydensecrf.densecrf as dcrf
-from .layers import conv2d, depthwise_conv2d, avg_pool_2d, max_pool, relu, crelu, batch_norm_tf as batch_norm
+from .layers import conv2d, depthwise_conv2d, avg_pool_2d, \
+    max_pool, relu, crelu, batch_norm_tf as batch_norm
 from ..utils import util
 from . import initializers as initz
 
@@ -24,7 +25,8 @@ def spatialtransformer(U,
           The output of a convolutional net should have the
           shape [batch_size, height, width, num_channels].
       theta: float
-          The output of the localisation network should be [batch_size, num_transform, 6] or [batch_size, 6] if num_transform=1
+          The output of the localisation network should be [batch_size,
+          num_transform, 6] or [batch_size, 6] if num_transform=1
           ```python
               `theta`` to :
                   identity = np.array([[1., 0., 0.],
@@ -32,13 +34,15 @@ def spatialtransformer(U,
                   identity = identity.flatten()
                   theta = tf.Variable(initial_value=identity)
           ```
-      downsample_factor: a float, determines output shape, downsample input shape by downsample_factor
+      downsample_factor: a float, determines output shape, downsample input
+           shape by downsample_factor
 
   Returns:
       spatial transformed output of the network
 
   References
-  .. [1]  "Spatial Transformer Networks", Max Jaderberg, Karen Simonyan, Andrew Zisserman, Koray Kavukcuoglu
+  .. [1]  "Spatial Transformer Networks", Max Jaderberg, Karen Simonyan,
+      Andrew Zisserman, Koray Kavukcuoglu
   .. [2]  https://github.com/skaae/transformer_network/blob/master/transformerlayer.py
   """
   with tf.variable_scope(name):
@@ -475,7 +479,8 @@ def dense_crf(probs,
       kernel_gaussian: kernel precision matrix for the colour-independent
           term (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
       normalisation_gaussian: normalisation for the colour-independent term
-          (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
+          (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER,
+           NORMALIZE_SYMMETRIC).
       sxy_bilateral: standard deviations for the location component of the colour-dependent term.
       compat_bilateral: label compatibilities for the colour-dependent
           term (can be a number, a 1D array, or a 2D array).
@@ -484,7 +489,8 @@ def dense_crf(probs,
       kernel_bilateral: kernel precision matrix for the colour-dependent term
           (can take values CONST_KERNEL, DIAG_KERNEL, or FULL_KERNEL).
       normalisation_bilateral: normalisation for the colour-dependent term
-          (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER, NORMALIZE_SYMMETRIC).
+          (possible values are NO_NORMALIZATION, NORMALIZE_BEFORE, NORMALIZE_AFTER,
+          NORMALIZE_SYMMETRIC).
 
   Returns:
       Refined predictions after MAP inference.

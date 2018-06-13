@@ -94,7 +94,7 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
     nom = tf.reduce_sum(weights * conf_mat)
     denom = tf.reduce_sum(weights * tf.matmul(
         tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) /
-                          tf.to_float(batch_size))
+                    tf.to_float(batch_size))
 
     try:
       return -(1 - nom / denom)
@@ -372,7 +372,8 @@ def pullaway_loss(embeddings, name='pullaway_loss'):
   """Pull Away loss calculation.
 
   Args:
-      embeddings: The embeddings to be orthogonalized for varied faces. Shape [batch_size, embeddings_dim]
+      embeddings: The embeddings to be orthogonalized for varied faces.
+         Shape [batch_size, embeddings_dim]
 
   Return: pull away term loss
   """

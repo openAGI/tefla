@@ -529,7 +529,8 @@ class Base(object):
     if self.update_ops is not None and len(self.update_ops) == 0:
       self.update_ops = None
       # if update_ops is not None:
-      #     regularized_training_loss = control_flow_ops.with_dependencies(update_ops, regularized_training_loss)
+      #     regularized_training_loss = control_flow_ops.with_dependencies(update_ops,
+      # regularized_training_loss)
 
   def _print_info(self, data_set=None):
     log.info('Config:')

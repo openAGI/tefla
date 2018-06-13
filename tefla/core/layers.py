@@ -542,7 +542,8 @@ def depthwise_conv2d(x,
       tensor of shape [filter_height, filter_width, in_channels, channel_multiplier] containing
       in_channels convolutional filters of depth 1, depthwise_conv2d applies a different filter
       to each input channel (expanding from 1 channel to channel_multiplier channels for each),
-      then concatenates the results together. The output has in_channels * channel_multiplier channels.
+      then concatenates the results together. The output has in_channels * channel_multiplier
+      channels.
       If a `batch_norm` is provided (such as
       `batch_norm`), it is then applied. Otherwise, if `batch_norm` is
       None and a `b_init` and `use_bias` is provided then a `biases` variable would be
@@ -1546,8 +1547,8 @@ def max_pool_3d(x,
 
   Args:
       x: A 5-D 'Tensor` of shape `[batch_size, depth, height, width, channels]`
-      filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of the
-          pooling kernel over which the op is computed. Can be an int if both
+      filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of
+          the pooling kernel over which the op is computed. Can be an int if both
           values are the same.
       stride: A int or list/tuple of length 3: [stride_depth, stride_height, stride_width].
       padding: The padding method, either 'VALID' or 'SAME'.
@@ -1704,8 +1705,8 @@ def rms_pool_3d(x,
 
   Args:
       x: A 5-D `Tensor` of shape `[batch_size, depth, height, width, channels]`
-      filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of the
-          pooling kernel over which the op is computed. Can be an int if both
+      filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of
+          the pooling kernel over which the op is computed. Can be an int if both
           values are the same.
       stride: A int or list/tuple of length 3: [stride_depth, stride_height, stride_width].
       padding: The padding method, either 'VALID' or 'SAME'.
@@ -1745,8 +1746,8 @@ def avg_pool_3d(x,
 
   Args:
       x: A 4-D `Tensor` of shape `[batch_size, depth, height, width, channels]`
-      filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of the
-          pooling kernel over which the op is computed. Can be an int if both
+      filter_size: A int or list/tuple of length 3: [kernel_depth, kernel_height, kernel_width] of
+          the pooling kernel over which the op is computed. Can be an int if both
           values are the same.
       stride: A int or list/tuple of length 3: [stride_depth, stride_height, stride_width].
       padding: The padding method, either 'VALID' or 'SAME'.
@@ -2097,7 +2098,8 @@ def batch_norm_lasagne(x,
       tf.add_to_collection(updates_collections, update_moving_inv_std)
       return mean, inv_std
 
-    mean_inv_std_with_relevant_update = mean_inv_std_with_pending_update if updates_collections is not None else mean_inv_std_with_update
+    mean_inv_std_with_relevant_update = mean_inv_std_with_pending_update if updates_collections \
+        is not None else mean_inv_std_with_update
 
     (mean, inv_std) = mean_inv_std_with_relevant_update() if is_training else (moving_mean,
                                                                                moving_inv_std)

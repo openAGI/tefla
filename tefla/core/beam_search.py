@@ -31,7 +31,7 @@ class BeamSearchState(namedtuple("BeamSearchState", ["log_probs", "finished", "l
 
 
 class BeamSearchStepOutput(
-    namedtuple("BeamSearchStepOutput", ["scores", "predicted_ids", "beam_parent_ids"])):
+      namedtuple("BeamSearchStepOutput", ["scores", "predicted_ids", "beam_parent_ids"])):
   """Outputs for a single step of beam search.
 
   Args:

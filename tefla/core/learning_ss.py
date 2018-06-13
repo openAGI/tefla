@@ -185,7 +185,7 @@ class SemiSupervisedTrainer(Base):
       epoch_validation_metrics = []
       batch_validation_sizes = []
       for batch_num, (validation_Xb, validation_y_true) in enumerate(
-          self.validation_iterator(validation_X, validation_y)):
+              self.validation_iterator(validation_X, validation_y)):
         feed_dict_val = {self.inputs: validation_Xb, self.labels: validation_y_true}
         log.debug('6. Loading batch %d validation data done.' % batch_num)
         if (epoch - 1) % summary_every == 0 and self.is_summary:

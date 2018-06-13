@@ -186,7 +186,8 @@ class DistSupervisedLearner(Base):
     if self.update_ops is not None and len(self.update_ops) == 0:
       self.update_ops = None
       # if update_ops is not None:
-      #     self.regularized_training_loss = tf.with_dependencies(update_ops, self.regularized_training_loss)
+      #     self.regularized_training_loss = tf.with_dependencies(update_ops,
+      # self.regularized_training_loss)
 
   def train(self,
             task_id,

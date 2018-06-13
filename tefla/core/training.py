@@ -245,7 +245,7 @@ class SupervisedTrainer(object):
         epoch_validation_metrics = []
         batch_validation_sizes = []
         for batch_num, (validation_Xb, validation_yb) in enumerate(
-            self.validation_iterator(validation_X, validation_y)):
+                self.validation_iterator(validation_X, validation_y)):
           feed_dict_validation = {
               self.validation_inputs: validation_Xb,
               self.target: self._adjust_ground_truth(validation_yb)

@@ -1,6 +1,7 @@
 """Class for generating captions from an image-to-text model.
 
-credit: https://github.com/tensorflow/models/blob/master/research/im2txt/im2txt/inference_utils/caption_generator.py
+credit: https://github.com/tensorflow/models/blob/master/research/im2txt/\
+im2txt/inference_utils/caption_generator.py
 """
 
 from __future__ import absolute_import

@@ -322,7 +322,7 @@ class CosineDecayPolicy(AbstractInitialLr):
     """
     updated_lr = self._base_lr * \
         5 * (1 + np.cos(np.pi * (iter_idx %
-                                  self._cycle_steps) / self._cycle_steps))
+                            self._cycle_steps) / self._cycle_steps))
     return updated_lr
 
   def epoch_update(self, learning_rate, training_history):

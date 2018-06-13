@@ -10,7 +10,8 @@ import tensorflow as tf
 from tensorflow.python.framework import function
 from tensorflow.python.util import nest
 from .layers import fully_connected, conv1d
-from .encoder import GraphModule, Configurable, _toggle_dropout, _default_rnn_cell_params, _get_rnn_cell
+from .encoder import GraphModule, Configurable, _toggle_dropout, _default_rnn_cell_params, \
+    _get_rnn_cell
 from ..utils.seq2seq_utils import CustomHelper
 from . import beam_search
 

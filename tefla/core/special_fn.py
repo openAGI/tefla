@@ -5,7 +5,8 @@ import contextlib
 import random
 import tensorflow as tf
 from tensorflow.python.framework import function
-from .layers import dilated_conv2d, conv1d, layer_norm, _layer_norm_compute_python, _collect_named_outputs
+from .layers import dilated_conv2d, conv1d, layer_norm, _layer_norm_compute_python, \
+    _collect_named_outputs
 from .optimizer import VariableClippingOptimizer
 from ..utils import util as helper
 from . import initializers as initz
@@ -260,7 +261,8 @@ def conv2d_v2(inputs, n_output_channels, is_training, reuse, **kwargs):
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use
+          Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
@@ -315,7 +317,8 @@ def conv2d_gru(inputs,
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the
+          input to use Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
@@ -387,7 +390,8 @@ def conv2d_lstm(inputs,
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the
+          input to use Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
@@ -455,7 +459,8 @@ def conv2d_diagonal_gru(inputs,
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the
+          input to use Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
