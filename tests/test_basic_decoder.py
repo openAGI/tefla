@@ -38,7 +38,7 @@ class DecoderTests(object):
 
     helper = decode_helper.TrainingHelper(inputs=inputs, sequence_length=seq_length)
     decoder_fn = self.create_decoder(
-        helper=helper, mode=tf.contrib.learn.ModeKeys.TRAIN, reuse=None)
+        helper=helper, mode=tf.estimator.ModeKeys.TRAIN, reuse=None)
     initial_state = decoder_fn.cell.zero_state(self.batch_size, dtype=tf.float32)
     decoder_output, _ = decoder_fn(initial_state, helper)
 
@@ -61,7 +61,7 @@ class DecoderTests(object):
 
     helper = decode_helper.TrainingHelper(inputs=inputs, sequence_length=seq_length)
     decoder_fn = self.create_decoder(
-        helper=helper, mode=tf.contrib.learn.ModeKeys.TRAIN, reuse=None)
+        helper=helper, mode=tf.estimator.ModeKeys.TRAIN, reuse=None)
     initial_state = decoder_fn.cell.zero_state(self.batch_size, dtype=tf.float32)
     decoder_output, _ = decoder_fn(initial_state, helper)
 
@@ -86,7 +86,7 @@ class DecoderTests(object):
     helper = decode_helper.GreedyEmbeddingHelper(
         embedding=embeddings, start_tokens=[0] * self.batch_size, end_token=-1)
     decoder_fn = self.create_decoder(
-        helper=helper, mode=tf.contrib.learn.ModeKeys.INFER, reuse=None)
+        helper=helper, mode=tf.estimator.ModeKeys.PREDICT, reuse=None)
     initial_state = decoder_fn.cell.zero_state(self.batch_size, dtype=tf.float32)
     decoder_output, _ = decoder_fn(initial_state, helper)
 
@@ -116,7 +116,7 @@ class DecoderTests(object):
     helper = decode_helper.GreedyEmbeddingHelper(
         embedding=embeddings, start_tokens=[0] * config.beam_width, end_token=-1)
     decoder_fn = self.create_decoder(
-        helper=helper, mode=tf.contrib.learn.ModeKeys.INFER, reuse=None)
+        helper=helper, mode=tf.estimator.ModeKeys.PREDICT, reuse=None)
     decoder_fn = BeamSearchDecoder(decoder=decoder_fn, config=config)
 
     initial_state = decoder_fn.cell.zero_state(self.batch_size, dtype=tf.float32)
@@ -171,7 +171,7 @@ class AttentionDecoderTest(tf.test.TestCase, DecoderTests):
 
   def create_decoder(self, helper, mode, reuse):
     attention_fn = AttentionLayerDot(
-        params={"num_units": self.attention_dim}, mode=tf.contrib.learn.ModeKeys.TRAIN, reuse=reuse)
+        params={"num_units": self.attention_dim}, mode=tf.estimator.ModeKeys.TRAIN, reuse=reuse)
     attention_values = tf.convert_to_tensor(
         np.random.randn(self.batch_size, self.input_seq_len, 32), dtype=tf.float32)
     attention_keys = tf.convert_to_tensor(
