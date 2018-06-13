@@ -1,28 +1,35 @@
-sudo: required
-dist: trusty
 language: python
 python:
-  - 3.5.5
-  - 2.7.6
-virtualenv:
-  system_site_package: true
+  - '2.7.6'
+  - '3.5.5'
+sudo: required
+dist: trusty
+
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
-
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y python-opencv
-  - sudo apt-get install -y cython
-  - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python2.7
-  - export PYTHONPATH=$PYTHONPATH:/usr/lib/pymodules/python3.5
   - sudo apt-get update
+
 install:
-  - echo $TRAVIS_PYTHON_VERSION
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O anaconda.sh;
+  - export python_version=$TRAVIS_PYTHON_VERSION
+  - bash anaconda.sh -b -p $HOME/anaconda
+  - export PATH="$HOME/anaconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda config --add channels http://conda.binstar.org/omnia
+  - conda create -y --name tefla python=$python_version
+  - source activate tefla
   - pip install -U pip
+  - pip install yapf==0.22.0
+  - pip install coveralls
   - pip install requests[security]
   - pip install pytest==3.6.1
   - pip install pep8==1.7.0
@@ -39,6 +46,9 @@ install:
 script:
   - python -m unittest discover tests/
   - bash tools/ci_build/ci_sanity.sh
+
+after_success:
+  - coveralls
 
 matrix:
 fast_finish: true
