@@ -112,8 +112,8 @@ class Memory(object):
     """Function that creates all the update ops."""
     mem_age_incr = self.mem_age.assign_add(tf.ones([self.memory_size], dtype=tf.float32))
     with tf.control_dependencies([mem_age_incr]):
-      mem_age_upd = tf.scatter_update(self.mem_age, upd_idxs,
-                                      tf.zeros([batch_size], dtype=tf.float32))
+      mem_age_upd = tf.scatter_update(self.mem_age, upd_idxs, tf.zeros(
+          [batch_size], dtype=tf.float32))
 
     mem_key_upd = tf.scatter_update(self.mem_keys, upd_idxs, upd_keys)
     mem_val_upd = tf.scatter_update(self.mem_vals, upd_idxs, upd_vals)

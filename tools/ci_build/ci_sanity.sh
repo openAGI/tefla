@@ -233,7 +233,7 @@ do_pep8() {
 
   rm -rf ${PEP8_OUTPUT_FILE}
 
-  ${PEP8_BIN} --config="${PEP8_CONFIG_FILE}" --statistics \
+  pep8 --config="${PEP8_CONFIG_FILE}" --statistics \
       ${PYTHON_SRC_FILES} 2>&1 | tee ${PEP8_OUTPUT_FILE}
   PEP8_END_TIME=$(date +'%s')
 

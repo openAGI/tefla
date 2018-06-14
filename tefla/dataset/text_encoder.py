@@ -489,8 +489,7 @@ class SubwordTextEncoder(TextEncoder):
       ValueError: If `min_val` is greater than `max_val`.
     """
     if min_val > max_val:
-      raise ValueError("Lower bound for the minimum token count "
-                       "is greater than the upper bound.")
+      raise ValueError("Lower bound for the minimum token count " "is greater than the upper bound.")
     if target_size < 1:
       raise ValueError("Target size must be positive.")
 
@@ -516,7 +515,7 @@ class SubwordTextEncoder(TextEncoder):
         return subtokenizer
 
       if (abs(other_subtokenizer.vocab_size - target_size) <
-          abs(subtokenizer.vocab_size - target_size)):
+              abs(subtokenizer.vocab_size - target_size)):
         return other_subtokenizer
       return subtokenizer
 

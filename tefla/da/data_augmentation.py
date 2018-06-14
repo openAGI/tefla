@@ -86,7 +86,8 @@ def distorted_inputs(dataflow,
           None defaults to cfg.num_preprocess_threads.
 
   Returns:
-      images: Images. 4D tensor of size [batch_size, cfg.TRAIN.crop_image_size, cfg.TRAIN.crop_image_size, 3].
+      images: Images. 4D tensor of size [batch_size, cfg.TRAIN.crop_image_size,
+          cfg.TRAIN.crop_image_size, 3].
       labels: 1-D integer Tensor of [cfg.TRAIN.batch_size].
   """
   with tf.device('/cpu:0'):
@@ -173,7 +174,8 @@ def random_crop(image, crop_size, padding=None):
 
   Args:
       image: 3-D float Tensor of image
-      crop_size:int/tuple, output image height, width, for deep network we prefer same width and height
+      crop_size:int/tuple, output image height, width, for deep network we prefer same width and
+          height
       padding: int, padding use to restore original image size, padded with 0's
 
   Returns:
@@ -299,7 +301,8 @@ def eval_image(image, crop_size, im_size=None, thread_id=0, scope=None):
   Args:
       image: 3-D float Tensor
       im_size: 1-D int `Tensor` of 2 elements, image height and width, for real time resizing
-      crop_size: 1-D int `Tensor` or `Tuple` or single int of 2 elemnts,  image crop height and width, for training crops
+      crop_size: 1-D int `Tensor` or `Tuple` or single int of 2 elemnts,  image crop
+          height and width, for training crops
       scope: Optional scope for name_scope.
 
   Returns:
@@ -338,7 +341,8 @@ def image_preprocessing(image, train, crop_size, im_size=None, thread_id=0, bbox
           [ymin, xmin, ymax, xmax].
       train: boolean
       im_size: 1-D int `Tensor` of 2 elements, image height and width, for real time resizing
-      crop_size: 1-D int `Tensor` or `Tuple` or single int of 2 elemnts,  image crop height and width, for training crops
+      crop_size: 1-D int `Tensor` or `Tuple` or single int of 2 elemnts,
+          image crop height and width, for training crops
       thread_id: integer indicating preprocessing thread
 
   Returns:

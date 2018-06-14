@@ -245,7 +245,7 @@ class SupervisedTrainer(object):
         epoch_validation_metrics = []
         batch_validation_sizes = []
         for batch_num, (validation_Xb, validation_yb) in enumerate(
-            self.validation_iterator(validation_X, validation_y)):
+                self.validation_iterator(validation_X, validation_y)):
           feed_dict_validation = {
               self.validation_inputs: validation_Xb,
               self.target: self._adjust_ground_truth(validation_yb)
@@ -345,8 +345,7 @@ class SupervisedTrainer(object):
       for key, val in self.validation_end_points.iteritems():
         summary.summary_activation(val, name=key, collections=[VALIDATION_BATCH_SUMMARIES])
 
-      tf.summary.scalar(
-          'validation loss', self.epoch_loss, collections=[VALIDATION_EPOCH_SUMMARIES])
+      tf.summary.scalar('validation loss', self.epoch_loss, collections=[VALIDATION_EPOCH_SUMMARIES])
       self.validation_metric_placeholders = []
       for metric_name, _ in self.validation_metrics_def:
         validation_metric = tf.placeholder(tf.float32, shape=[], name=metric_name.replace(' ', '_'))

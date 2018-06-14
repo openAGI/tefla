@@ -32,8 +32,8 @@ class TextTFRecord(object):
       elif isinstance(v[0], bytes):
         features[k] = tf.train.Feature(bytes_list=tf.train.BytesList(value=v))
       else:
-        raise ValueError("Value for %s is not a recognized type; v: %s type: %s" %
-                         (k, str(v[0]), str(type(v[0]))))
+        raise ValueError("Value for %s is not a recognized type; v: %s type: %s" % (k, str(v[0]),
+                                                                                    str(type(v[0]))))
     return tf.train.Example(features=tf.train.Features(feature=features))
 
   def generate_files_distributed(self,

@@ -277,8 +277,7 @@ def classifier_score(images, classifier_fn, num_batches=1):
 
 
 inception_score = functools.partial(
-    classifier_score,
-    classifier_fn=functools.partial(run_inception, output_tensor=INCEPTION_OUTPUT))
+    classifier_score, classifier_fn=functools.partial(run_inception, output_tensor=INCEPTION_OUTPUT))
 
 
 def trace_sqrt_product(sigma, sigma_v):

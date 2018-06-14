@@ -215,8 +215,7 @@ class YellowFinOptimizer(object):
       if isinstance(g, tf.IndexedSlices):
         tensor_to_avg.append(
             tf.reshape(
-                tf.unsorted_segment_sum(g.values, g.indices, g.dense_shape[0]),
-                shape=t.get_shape()))
+                tf.unsorted_segment_sum(g.values, g.indices, g.dense_shape[0]), shape=t.get_shape()))
       else:
         tensor_to_avg.append(g)
     avg_op = self._moving_averager.apply(tensor_to_avg)

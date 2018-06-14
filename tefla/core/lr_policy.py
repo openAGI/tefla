@@ -239,8 +239,8 @@ class PolyDecayPolicy(AbstractInitialLr):
     return learning_rate
 
   def __str__(self):
-    return 'PolyDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr,
-                                                                         self.power, self.max_epoch)
+    return 'PolyDecayPolicy(initial rate=%f, power=%f, max_epoch=%d)' % (self.initial_lr, self.power,
+                                                                         self.max_epoch)
 
   def __repr__(self):
     return str(self)
@@ -322,7 +322,7 @@ class CosineDecayPolicy(AbstractInitialLr):
     """
     updated_lr = self._base_lr * \
         5 * (1 + np.cos(np.pi * (iter_idx %
-                                  self._cycle_steps) / self._cycle_steps))
+                            self._cycle_steps) / self._cycle_steps))
     return updated_lr
 
   def epoch_update(self, learning_rate, training_history):

@@ -775,8 +775,7 @@ class AmortizedGaussianSanitizer(object):
     if add_noise:
       if num_examples is None:
         num_examples = tf.slice(tf.shape(x), [0], [1])
-      privacy_accum_op = self._accountant.accumulate_privacy_spending(eps_delta, sigma,
-                                                                      num_examples)
+      privacy_accum_op = self._accountant.accumulate_privacy_spending(eps_delta, sigma, num_examples)
       with tf.control_dependencies([privacy_accum_op]):
         saned_x = AddGaussianNoise(tf.reduce_sum(x, 0), sigma * l2norm_bound)
     else:
@@ -1232,8 +1231,7 @@ class NadamOptimizer(tf.train.AdamOptimizer):
     with tf.control_dependencies([v_t]):
       v_t = scatter_add(v, indices, v_scaled_g_values)
     v_sqrt = tf.sqrt(v_t)
-    var_update = tf.assign_sub(
-        var, lr * m_bar / (v_sqrt + epsilon_t), use_locking=self._use_locking)
+    var_update = tf.assign_sub(var, lr * m_bar / (v_sqrt + epsilon_t), use_locking=self._use_locking)
     return tf.group(*[var_update, m_bar, v_t])
 
 

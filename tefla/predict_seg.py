@@ -100,10 +100,7 @@ def plot_masks(cropped_image_path, prediction_map, output_image_path):
 @click.command()
 @click.option('--frozen_model', default=None, show_default=True, help='Relative path to model.')
 @click.option(
-    '--training_cnf',
-    default=None,
-    show_default=True,
-    help='Relative path to training config file.')
+    '--training_cnf', default=None, show_default=True, help='Relative path to training config file.')
 @click.option('--image_path', help='Directory with Test Images')
 @click.option('--image_size', default=448, show_default=True, help='Image size for conversion.')
 @click.option('--output_path', default='/tmp/test', help='Output Dir to save the segmented image')

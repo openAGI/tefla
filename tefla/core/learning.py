@@ -97,8 +97,7 @@ class SupervisedLearner(Base, BaseMixin):
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
     with tf.Session(
         config=tf.ConfigProto(
-            gpu_options=gpu_options, allow_soft_placement=True,
-            log_device_placement=False)) as sess:
+            gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=False)) as sess:
       if start_epoch > 1:
         weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
 
@@ -136,7 +135,8 @@ class SupervisedLearner(Base, BaseMixin):
           }
 
           log.debug('1. Loading batch %d data done.' % batch_num)
-          if epoch % summary_every == 0 and self.is_summary and training_batch_summary_op is not None:
+          if epoch % summary_every == 0 and self.is_summary and training_batch_summary_op \
+                  is not None:
             log.debug('2. Running training steps with summary...')
             training_loss_e, summary_str_train, _ = sess.run(
                 [self.training_loss, training_batch_summary_op, self.train_op],
@@ -186,7 +186,7 @@ class SupervisedLearner(Base, BaseMixin):
         epoch_validation_metrics = []
         batch_validation_sizes = []
         for batch_num, (validation_Xb, validation_yb) in enumerate(
-            self.validation_iterator(validation_X, validation_y)):
+                self.validation_iterator(validation_X, validation_y)):
           if validation_Xb.shape[0] < self.cnf['batch_size_test']:
             continue
           feed_dict_validation = {
@@ -195,9 +195,8 @@ class SupervisedLearner(Base, BaseMixin):
           }
           log.debug('6. Loading batch %d validation data done.' % batch_num)
 
-          if (
-              epoch - 1
-          ) % summary_every == 0 and self.is_summary and validation_batch_summary_op is not None:
+          if (epoch - 1) % summary_every == 0 and self.is_summary and \
+                  validation_batch_summary_op is not None:
             log.debug('7. Running validation steps with summary...')
             _validation_metric, summary_str_validate = sess.run(
                 [self.validation_metric, validation_batch_summary_op],
@@ -369,8 +368,8 @@ class SupervisedLearner(Base, BaseMixin):
         name="validation_input")
     self.grads_and_vars, self.training_loss = self._process_towers_grads(
         optimizer, self.model, is_classification=self.classification)
-    self.validation_loss, self.validation_predictions, self.validation_metric = self._process_towers_loss(
-        optimizer, self.model, is_classification=self.classification)
+    self.validation_loss, self.validation_predictions, self.validation_metric = \
+        self._process_towers_loss(optimizer, self.model, is_classification=self.classification)
     self.validation_metric.append(self.validation_loss)
 
     if self.clip_norm and not self.clip_by_global_norm:

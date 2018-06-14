@@ -143,8 +143,7 @@ def save(img, fname):
     show_default=True,
     help="Convert images one by one and examine them on screen.")
 @click.option('--crop_size', default=256, show_default=True, help="Size of converted images.")
-@click.option(
-    '--extension', default='tiff', show_default=True, help="Filetype of converted images.")
+@click.option('--extension', default='tiff', show_default=True, help="Filetype of converted images.")
 def main(directory, convert_directory, test, crop_size, extension):
   try:
     os.mkdir(convert_directory)
