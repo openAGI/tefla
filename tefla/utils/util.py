@@ -734,11 +734,7 @@ def advanced_indexing(inp, index):
   return relevant
 
 
-def pad_sequences(sequences,
-                  maxlen=None,
-                  dtype='int32',
-                  padding='post',
-                  truncating='post',
+def pad_sequences(sequences, maxlen=None, dtype='int32', padding='post', truncating='post',
                   value=0.):
   """pad_sequences. Pad each sequence to the same length: the length of the
   longest sequence. If maxlen is provided, any sequence longer than maxlen is
@@ -804,7 +800,8 @@ def string_to_semi_redundant_sequences(string, seq_maxlen=25, redun_step=3, char
       string: `str`. Lower-case text from input text file.
       seq_maxlen: `int`. Maximum length of a sequence. Default: 25.
       redun_step: `int`. Redundancy step. Default: 3.
-      char_idx: 'dict'. A dictionary to convert chars to positions. Will be automatically generated if None
+      char_idx: 'dict'. A dictionary to convert chars to positions. Will be
+         automatically generated if None
 
   Returns:
       A tuple: (inputs, targets, dictionary)
@@ -851,7 +848,8 @@ def textfile_to_semi_redundant_sequences(path,
       seq_maxlen: `int`. Maximum length of a sequence. Default: 25.
       redun_step: `int`. Redundancy step. Default: 3.
       to_lower_case: a `bool`, if true, convert to lowercase
-      pre_defined_char_idx: 'dict'. A dictionary to convert chars to positions. Will be automatically generated if None
+      pre_defined_char_idx: 'dict'. A dictionary to convert chars to positions.
+          Will be automatically generated if None
 
   Returns:
       A tuple: (inputs, targets, dictionary)
@@ -998,7 +996,7 @@ def BatchClipByL2norm(t, upper_bound, name=None):
 
   assert upper_bound > 0
   with tf.name_scope(
-      values=[t, upper_bound], name=name, default_name="batch_clip_by_l2norm") as name:
+          values=[t, upper_bound], name=name, default_name="batch_clip_by_l2norm") as name:
     saved_shape = tf.shape(t)
     batch_size = tf.slice(saved_shape, [0], [1])
     t2 = tf.reshape(t, tf.concat(axis=0, values=[batch_size, [-1]]))

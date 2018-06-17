@@ -108,20 +108,17 @@ class Base(object):
             ['scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
       if d_grads_and_var is not None:
         summary.summary_gradients(
-            d_grads_and_var, ['scalar', 'histogram', 'norm'],
-            collections=[TRAINING_BATCH_SUMMARIES])
+            d_grads_and_var, ['scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
       if g_grads_and_var is not None:
         summary.summary_gradients(
-            g_grads_and_var, ['scalar', 'histogram', 'norm'],
-            collections=[TRAINING_BATCH_SUMMARIES])
+            g_grads_and_var, ['scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
 
       # Validation summaries
       if activation_summary:
         for key, val in self.validation_end_points.iteritems():
           summary.summary_activation(val, name=key, collections=[VALIDATION_BATCH_SUMMARIES])
 
-      tf.summary.scalar(
-          'validation loss', self.epoch_loss, collections=[VALIDATION_EPOCH_SUMMARIES])
+      tf.summary.scalar('validation loss', self.epoch_loss, collections=[VALIDATION_EPOCH_SUMMARIES])
       self.validation_metric_placeholders = []
       for metric_name, _ in self.validation_metrics_def:
         validation_metric = tf.placeholder(tf.float32, shape=[], name=metric_name.replace(' ', '_'))
@@ -506,8 +503,7 @@ class Base(object):
     """function for adaptive gradient clipping."""
     grads, variables = zip(*grads_and_vars)
     norm = tf.global_norm(grads)
-    max_norm, log_mean = self._adaptive_max_norm(norm, std_factor, decay, global_step, epsilon,
-                                                 name)
+    max_norm, log_mean = self._adaptive_max_norm(norm, std_factor, decay, global_step, epsilon, name)
 
     # factor will be 1. if norm is smaller than max_norm
     factor = tf.where(norm < max_norm, tf.ones_like(norm), tf.exp(log_mean) / norm)
@@ -533,7 +529,8 @@ class Base(object):
     if self.update_ops is not None and len(self.update_ops) == 0:
       self.update_ops = None
       # if update_ops is not None:
-      #     regularized_training_loss = control_flow_ops.with_dependencies(update_ops, regularized_training_loss)
+      #     regularized_training_loss = control_flow_ops.with_dependencies(update_ops,
+      # regularized_training_loss)
 
   def _print_info(self, data_set=None):
     log.info('Config:')
@@ -784,8 +781,7 @@ class BaseMixin(object):
         elif loss_type == 'sigmoid_loss':
           loss = self._loss_sigmoid(self.validation_end_points['logits'], labels, is_training)
         elif loss_type == 'sparse_xentropy':
-          loss = self._sparse_loss_softmax(self.validation_end_points['logits'], labels,
-                                           is_training)
+          loss = self._sparse_loss_softmax(self.validation_end_points['logits'], labels, is_training)
         else:
           loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
       else:

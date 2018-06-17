@@ -328,8 +328,4 @@ ignore-exceptions=AssertionError,NotImplementedError,StopIteration,TypeError
 # is an open (, [, or {.
 indent-after-paren=4
 
-
-[GOOGLE LINES]
-
-# Regexp for a proper copyright notice.
-copyright=Copyright \d{4} The TensorFlow Authors\. +All [Rr]ights [Rr]eserved\.
+copyright=Copyright \d{4} The Tefla Authors\. +All [Rr]ights [Rr]eserved\.

@@ -17,10 +17,7 @@ from tefla.utils import util
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')
 @click.option(
-    '--training_cnf',
-    default=None,
-    show_default=True,
-    help='Relative path to training config file.')
+    '--training_cnf', default=None, show_default=True, help='Relative path to training config file.')
 @click.option('--data_dir', default=None, show_default=True, help='Path to training directory.')
 @click.option('--parallel', default=True, show_default=True, help='parallel or queued.')
 @click.option(
@@ -47,8 +44,7 @@ from tefla.utils import util
 @click.option('--resume_lr', default=0.01, show_default=True, help='Path to initial weights file.')
 @click.option('--loss_type', default='cross_entropy', show_default=True, help='Loss fuction type.')
 @click.option('--weighted', default=False, show_default=True, help='Whether to use weighted loss.')
-@click.option(
-    '--is_summary', default=False, show_default=True, help='Path to initial weights file.')
+@click.option('--is_summary', default=False, show_default=True, help='Path to initial weights file.')
 @click.option('--log_file_name', default='train_seg.log', show_default=True, help='Log file name.')
 @click.option(
     '--data_balancing',

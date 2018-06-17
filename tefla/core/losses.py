@@ -94,7 +94,7 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
     nom = tf.reduce_sum(weights * conf_mat)
     denom = tf.reduce_sum(weights * tf.matmul(
         tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) /
-                          tf.to_float(batch_size))
+                    tf.to_float(batch_size))
 
     try:
       return -(1 - nom / denom)
@@ -347,8 +347,7 @@ def discretized_mix_logistic_loss(inputs,
     log_pdf_mid = mid_in - log_scales - 2. * tf.nn.softplus(mid_in)
     log_probs = tf.select(inputs < -0.999, log_cdf_plus,
                           tf.select(inputs > 0.999, log_one_minus_cdf_min,
-                                    tf.select(cdf_delta > 1e-5, tf.log(
-                                        tf.maximum(cdf_delta, 1e-12)),
+                                    tf.select(cdf_delta > 1e-5, tf.log(tf.maximum(cdf_delta, 1e-12)),
                                               log_pdf_mid - np.log(127.5))))
 
     log_probs = tf.reduce_sum(log_probs, 3) + \
@@ -373,7 +372,8 @@ def pullaway_loss(embeddings, name='pullaway_loss'):
   """Pull Away loss calculation.
 
   Args:
-      embeddings: The embeddings to be orthogonalized for varied faces. Shape [batch_size, embeddings_dim]
+      embeddings: The embeddings to be orthogonalized for varied faces.
+         Shape [batch_size, embeddings_dim]
 
   Return: pull away term loss
   """

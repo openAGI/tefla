@@ -731,11 +731,11 @@ def compute_receptive_field_from_graph_def(graph_def,
               raise ValueError("Graph is not aligned since effective stride from different "
                                "paths is different in vertical direction")
             if (rf_sizes_x[inp_name] - 1) / 2 - effective_paddings_x[inp_name] != (
-                rf_size_input_x - 1) / 2 - effective_padding_input_x:
+                    rf_size_input_x - 1) / 2 - effective_padding_input_x:
               raise ValueError("Graph is not aligned since center shift from different "
                                "paths is different in horizontal direction")
             if (rf_sizes_y[inp_name] - 1) / 2 - effective_paddings_y[inp_name] != (
-                rf_size_input_y - 1) / 2 - effective_padding_input_y:
+                    rf_size_input_y - 1) / 2 - effective_padding_input_y:
               raise ValueError("Graph is not aligned since center shift from different "
                                "paths is different in vertical direction")
           # Keep track of path with largest RF, for both directions.

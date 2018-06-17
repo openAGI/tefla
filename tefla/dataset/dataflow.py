@@ -160,9 +160,7 @@ class Dataflow(object):
           image = image_preprocessing(image, crop_size[0], crop_size[1], train, bbox=bbox)
         images_and_labels.append([image, label])
       images, label_index_batch = tf.train.batch_join(
-          images_and_labels,
-          batch_size=batch_size,
-          capacity=2 * num_preprocess_threads * batch_size)
+          images_and_labels, batch_size=batch_size, capacity=2 * num_preprocess_threads * batch_size)
 
       # Reshape images into these desired dimensions.
       depth = 3

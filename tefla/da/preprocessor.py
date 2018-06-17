@@ -938,8 +938,7 @@ def normalize_image(image, original_minval, original_maxval, target_minval, targ
     target_maxval = float(target_maxval)
     image = tf.to_float(image)
     image = tf.subtract(image, original_minval)
-    image = tf.multiply(image,
-                        (target_maxval - target_minval) / (original_maxval - original_minval))
+    image = tf.multiply(image, (target_maxval - target_minval) / (original_maxval - original_minval))
     image = tf.add(image, target_minval)
     return image
 
@@ -1224,8 +1223,7 @@ def random_black_patches(image,
 
   with tf.name_scope('RandomBlackPatchInImage', values=[image]):
     for _ in range(max_black_patches):
-      random_prob = tf.random_uniform(
-          [], minval=0.0, maxval=1.0, dtype=tf.float32, seed=random_seed)
+      random_prob = tf.random_uniform([], minval=0.0, maxval=1.0, dtype=tf.float32, seed=random_seed)
       image = tf.cond(
           tf.greater(random_prob, probability), lambda: image,
           lambda: add_black_patch_to_image(image))
@@ -1730,8 +1728,7 @@ class SegPreprocessorv2(Preprocessor):
 
     if is_training:
       # Randomly left-right flip the image and label.
-      processed_image, label, _ = self._flip_dim(
-          [processed_image, label], self._prob_of_flip, dim=1)
+      processed_image, label, _ = self._flip_dim([processed_image, label], self._prob_of_flip, dim=1)
 
     return original_image, processed_image, label
 

@@ -566,8 +566,8 @@ def modified_generator_loss(discriminator_gen_outputs,
   """
   with tf.name_scope(scope, 'generator_modified_loss', [discriminator_gen_outputs]) as scope:
     loss = tf.losses.sigmoid_cross_entropy(
-        tf.ones_like(discriminator_gen_outputs), discriminator_gen_outputs, weights,
-        label_smoothing, scope, loss_collection, reduction)
+        tf.ones_like(discriminator_gen_outputs), discriminator_gen_outputs, weights, label_smoothing,
+        scope, loss_collection, reduction)
 
     if add_summaries:
       tf.summary.scalar('generator_modified_loss', loss)

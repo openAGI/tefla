@@ -31,7 +31,7 @@ class BeamSearchState(namedtuple("BeamSearchState", ["log_probs", "finished", "l
 
 
 class BeamSearchStepOutput(
-    namedtuple("BeamSearchStepOutput", ["scores", "predicted_ids", "beam_parent_ids"])):
+      namedtuple("BeamSearchStepOutput", ["scores", "predicted_ids", "beam_parent_ids"])):
   """Outputs for a single step of beam search.
 
   Args:
@@ -46,8 +46,7 @@ class BeamSearchStepOutput(
 class BeamSearchConfig(
     namedtuple(
         "BeamSearchConfig",
-        ["beam_width", "vocab_size", "eos_token", "length_penalty_weight", "choose_successors_fn"])
-):
+        ["beam_width", "vocab_size", "eos_token", "length_penalty_weight", "choose_successors_fn"])):
   """Configuration object for beam search.
 
   Args:
@@ -401,9 +400,8 @@ def beam_search(symbols_to_logits_fn,
     curr_finished_seq = tf.concat([finished_seq, curr_seq], axis=1)
     curr_finished_scores = tf.concat([finished_scores, curr_scores], axis=1)
     curr_finished_flags = tf.concat([finished_flags, curr_finished], axis=1)
-    return compute_topk_scores_and_seq(curr_finished_seq, curr_finished_scores,
-                                       curr_finished_scores, curr_finished_flags, beam_size,
-                                       batch_size)
+    return compute_topk_scores_and_seq(curr_finished_seq, curr_finished_scores, curr_finished_scores,
+                                       curr_finished_flags, beam_size, batch_size)
 
   def grow_alive(curr_seq, curr_scores, curr_log_probs, curr_finished):
     """Given sequences and scores, will gather the top k=beam size sequences.

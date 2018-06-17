@@ -38,7 +38,8 @@ def gradients_collection(ys, xs, grad_ys=None, **kwargs):
 def gradients(ys, xs, grad_ys=None, checkpoints='collection', **kwargs):
   '''
     Authors: Tim Salimans & Yaroslav Bulatov
-    memory efficient gradient implementation inspired by "Training Deep Nets with Sublinear Memory Cost"
+    memory efficient gradient implementation inspired by "Training Deep Nets with Sublinear
+    Memory Cost"
     by Chen et al. 2016 (https://arxiv.org/abs/1604.06174)
     ys,xs,grad_ys,kwargs are the arguments to standard tensorflow tf.gradients
     (https://www.tensorflow.org/versions/r0.12/api_docs/python/train.html#gradients)
@@ -47,15 +48,19 @@ def gradients(ys, xs, grad_ys=None, checkpoints='collection', **kwargs):
           that we should re-use when calculating the gradients in the backward pass
           all other tensors that do not appear in this list will be re-computed
         - a string specifying how this list should be determined. currently we support
-            - 'speed':  checkpoint all outputs of convolutions and matmuls. these ops are usually the most expensive,
+            - 'speed':  checkpoint all outputs of convolutions and matmuls. these ops are
+            usually the most expensive,
                         so checkpointing them maximizes the running speed
-                        (this is a good option if nonlinearities, concats, batchnorms, etc are taking up a lot of memory)
+                        (this is a good option if nonlinearities, concats, batchnorms, etc
+                        are taking up a lot of memory)
             - 'memory': try to minimize the memory usage
-                        (currently using a very simple strategy that identifies a number of bottleneck tensors in the graph to checkpoint)
-            - 'collection': look for a tensorflow collection named 'checkpoints', which holds the tensors to checkpoint
+                        (currently using a very simple strategy that identifies a number of
+                        bottleneck tensors in the graph to checkpoint)
+            - 'collection': look for a tensorflow collection named 'checkpoints', which holds
+            the tensors to checkpoint
     '''
 
-  #    print("Calling memsaving gradients with", checkpoints)
+  # print("Calling memsaving gradients with", checkpoints)
   if not isinstance(ys, list):
     ys = [ys]
   if not isinstance(xs, list):
@@ -138,7 +143,8 @@ def gradients(ys, xs, grad_ys=None, checkpoints='collection', **kwargs):
 
       if not bottleneck_ts:
         raise Exception(
-            'unable to find bottleneck tensors! please provide checkpoint nodes manually, or use checkpoints="speed".'
+            'unable to find bottleneck tensors! please provide checkpoint nodes manually,\
+             or use checkpoints="speed".'
         )
 
       # sort the bottlenecks

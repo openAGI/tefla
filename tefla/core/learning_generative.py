@@ -146,8 +146,8 @@ class GenerativeLearner(Base):
           log.debug('2. Running training steps with summary...')
           _, _d_loss, d_loss_real, d_loss_fake, summary_str_train = sess.run(
               [
-                  self.train_op_d, self.tower_loss_d, self.tower_loss_d_real,
-                  self.tower_loss_d_fake, training_batch_summary_op
+                  self.train_op_d, self.tower_loss_d, self.tower_loss_d_real, self.tower_loss_d_fake,
+                  training_batch_summary_op
               ],
               feed_dict=feed_dict_train)
           _, _g_loss = sess.run([self.train_op_g, self.tower_loss_g], feed_dict=feed_dict_train)
@@ -202,10 +202,10 @@ class GenerativeLearner(Base):
         train_writer.flush()
       log.debug('5. Writing epoch summary done.')
 
-      log.info(
-          "Epoch %d [(%s) images, %6.1fs]: d-loss: %.3f, d-real-loss: %.3f, d-fake-loss: %.3f, g-loss: %.3f, e-loss: %.3f"
-          % (epoch, np.sum(batch_train_sizes), time.time() - tic, d_avg_loss, d_real_avg_loss,
-             d_fake_avg_loss, g_avg_loss, e_avg_loss))
+      log.info("Epoch %d [(%s) images, %6.1fs]: d-loss: %.3f, d-real-loss: %.3f, \
+                  d-fake-loss: %.3f, g-loss: %.3f, e-loss: %.3f" %
+               (epoch, np.sum(batch_train_sizes), time.time() - tic, d_avg_loss, d_real_avg_loss,
+                d_fake_avg_loss, g_avg_loss, e_avg_loss))
       epoch_info = dict(
           epoch=epoch,
           d_loss=d_avg_loss,
@@ -362,8 +362,10 @@ class GenerativeLearner(Base):
       for i in xrange(self.cnf.get('num_gpus', 1)):
         with tf.device('/gpu:%d' % i):
           with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
-            d_loss, g_loss, e_loss, d_loss_real, d_loss_fake, kl_loss, like_loss = self._tower_loss_semi_supervised(
-                scope, is_training, reuse, model, images_gpus[i], num_classes=num_classes, gpu_id=i)
+            d_loss, g_loss, e_loss, d_loss_real, d_loss_fake, kl_loss, like_loss \
+                    = self._tower_loss_semi_supervised(
+                        scope, is_training, reuse, model, images_gpus[i],
+                        num_classes=num_classes, gpu_id=i)
             tf.get_variable_scope().reuse_variables()
             # reuse = True
 
@@ -441,14 +443,16 @@ class GenerativeLearner(Base):
         name="input")
     global_step = tf.get_variable(
         'global_step', [], initializer=tf.constant_initializer(0), trainable=False)
-    capped_d_grads, capped_g_grads, capped_e_grads, self.tower_loss_d, self.tower_loss_g, self.tower_loss_e, self.tower_loss_d_real, self.tower_loss_d_fake, self.tower_loss_kl, self.tower_loss_like = self._process_tower_grads(
-        d_optimizer,
-        g_optimizer,
-        e_optimizer,
-        self.model,
-        num_classes=num_classes,
-        is_training=True,
-        reuse=None)
+    capped_d_grads, capped_g_grads, capped_e_grads, self.tower_loss_d, self.tower_loss_g, \
+        self.tower_loss_e, self.tower_loss_d_real, self.tower_loss_d_fake, self.tower_loss_kl, \
+        self.tower_loss_like = self._process_tower_grads(
+                 d_optimizer,
+                 g_optimizer,
+                 e_optimizer,
+                 self.model,
+                 num_classes=num_classes,
+                 is_training=True,
+                 reuse=None)
     if self.gradient_multipliers is not None:
       with tf.name_scope('multiply_grads'):
         capped_d_grads = self._multiply_gradients(capped_d_grads, self.gradient_multipliers)

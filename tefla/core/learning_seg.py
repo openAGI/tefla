@@ -66,7 +66,8 @@ class SupervisedLearner(Base, BaseMixin):
         features_keys = {
             'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),
             'image/format': tf.FixedLenFeature((), tf.string, default_value='jpg'),
-            'image/class/label': tf.FixedLenFeature([], tf.int64, default_value=tf.zeros([], dtype=tf.int64)),
+            'image/class/label': tf.FixedLenFeature([], tf.int64, default_value=tf.zeros([],
+             dtype=tf.int64)),
         }
         weights_from: str, if not None, initializes model from exisiting weights
         training_set_size: int, number of training examples

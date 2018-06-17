@@ -5,7 +5,8 @@ import contextlib
 import random
 import tensorflow as tf
 from tensorflow.python.framework import function
-from .layers import dilated_conv2d, conv1d, layer_norm, _layer_norm_compute_python, _collect_named_outputs
+from .layers import dilated_conv2d, conv1d, layer_norm, _layer_norm_compute_python, \
+    _collect_named_outputs
 from .optimizer import VariableClippingOptimizer
 from ..utils import util as helper
 from . import initializers as initz
@@ -108,8 +109,7 @@ def _fn_with_custom_grad(fn, inputs, grad_fn, use_global_vars=False):
 def format_input_left_padding(inputs, **kwargs):
   static_shape = inputs.get_shape()
   if not static_shape or len(static_shape) != 4:
-    raise ValueError(
-        "Inputs to conv must have statically known rank 4. Shape: " + str(static_shape))
+    raise ValueError("Inputs to conv must have statically known rank 4. Shape: " + str(static_shape))
   dilation = (1, 1)
   assert kwargs['filter_size'] is not None
   filter_size = kwargs['filter_size']
@@ -261,7 +261,8 @@ def conv2d_v2(inputs, n_output_channels, is_training, reuse, **kwargs):
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use
+          Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
@@ -316,7 +317,8 @@ def conv2d_gru(inputs,
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the
+          input to use Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
@@ -388,7 +390,8 @@ def conv2d_lstm(inputs,
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the
+          input to use Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
@@ -456,7 +459,8 @@ def conv2d_diagonal_gru(inputs,
           the height and width dimensions. Equivalently, the rate by which we upsample the
           filter values by inserting zeros across the height and width dimensions. In the literature,
           the same parameter is sometimes called input stride/rate or dilation.
-      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the input to use Valid padding
+      padding: one of `"VALID"` or `"SAME"`. IF padding is LEFT, it preprocess the
+          input to use Valid padding
       activation: activation function, set to None to skip it and maintain
           a linear activation.
       batch_norm: normalization function to use. If
@@ -866,8 +870,7 @@ def _rev_layer_backward(ys, grad_ys, f, g, f_vars, f_side_input, g_vars, g_side_
   # Put returns in a tuple to ensure a constant memory budget (i.e. don't want
   # the subsequent layer to start computing and consuming memory based on a
   # subset of these values).
-  outs = tf.tuple(
-      [x1, x2, grad_x1, grad_x2] + grad_f_vars + grad_g_vars + grad_f_side + grad_g_side)
+  outs = tf.tuple([x1, x2, grad_x1, grad_x2] + grad_f_vars + grad_g_vars + grad_f_side + grad_g_side)
   x1, x2, grad_x1, grad_x2 = outs[:4]
   grad_f_vars_end = 4 + len(grad_f_vars)
   grad_g_vars_end = grad_f_vars_end + len(grad_g_vars)
@@ -1143,8 +1146,7 @@ def ffn_self_attention_layer(x,
     x_shape = tf.shape(x)
     part_depth = filter_depth // num_parts
     if not share_kv:
-      combined = conv1d(
-          x, filter_depth * 3, is_training, reuse, filter_size=1, name="qkv_transform")
+      combined = conv1d(x, filter_depth * 3, is_training, reuse, filter_size=1, name="qkv_transform")
       combined = tf.expand_dims(combined, axis=2)
       q, k, v = tf.split(combined, 3, axis=3)
     else:
@@ -1315,8 +1317,7 @@ def scale_gradient(net, scale, name="scale_gradient"):
     def _scale_gradient_backward(unused, grad):
       return tf.multiply(tf.convert_to_tensor(scale), grad)
 
-    @function.Defun(
-        tf.float32, python_grad_func=_scale_gradient_backward, func_name="ScaleGradient")
+    @function.Defun(tf.float32, python_grad_func=_scale_gradient_backward, func_name="ScaleGradient")
     def _scale_gradient_forward(x):
       return x
 

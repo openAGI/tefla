@@ -71,13 +71,15 @@ class SupervisedLearner(Base, BaseMixin):
 
     Args:
         data_dir: str, training dataset directory (where tfrecords are staored for training)
-        data_dir_val: str optional, validation dataset directory (where tfrecords are stored for validation)
+        data_dir_val: str optional, validation dataset directory (where tfrecords are stored
+             for validation)
         features_keys: a dict, tfrecords keys to datum features
         e.g.:
         features_keys = {
             'image/encoded/image': tf.FixedLenFeature((), tf.string, default_value=''),
             'image/format': tf.FixedLenFeature((), tf.string, default_value='jpg'),
-            'image/class/label': tf.FixedLenFeature([], tf.int64, default_value=tf.zeros([], dtype=tf.int64)),
+            'image/class/label': tf.FixedLenFeature([], tf.int64, default_value=tf.zeros([],
+             dtype=tf.int64)),
         }
         weights_from: str, if not None, initializes model from exisiting weights
         training_set_size: int, number of training examples
@@ -507,12 +509,13 @@ class SupervisedLearner(Base, BaseMixin):
     self.grads_and_vars, self.training_loss = self._process_towers_grads(
         dataflow, optimizer, self.model, is_classification=self.classification, loss_type=loss_type)
     if dataflow_val is not None:
-      self.validation_loss, self.validation_predictions, self.validation_metric = self._process_towers_loss(
-          dataflow_val,
-          optimizer,
-          self.model,
-          is_classification=self.classification,
-          loss_type=loss_type)
+      self.validation_loss, self.validation_predictions, \
+              self.validation_metric = self._process_towers_loss(
+                  dataflow_val,
+                  optimizer,
+                  self.model,
+                  is_classification=self.classification,
+                  loss_type=loss_type)
       self.validation_metric.append(self.validation_loss)
 
     if self.clip_norm and not self.clip_by_global_norm:

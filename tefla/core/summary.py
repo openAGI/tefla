@@ -80,7 +80,8 @@ def summary_param(op, tensor, ndims, name, collections=None):
 
   Args:
       op: name of the summary op; e.g. 'stddev'
-          available ops: ['scalar', 'histogram', 'sparsity', 'mean', 'rms', 'stddev', 'norm', 'max', 'min']
+          available ops: ['scalar', 'histogram', 'sparsity', 'mean', 'rms',
+          'stddev', 'norm', 'max', 'min']
       tensor: the tensor to add summary
       ndims: dimension of the tensor
       name: name of the op

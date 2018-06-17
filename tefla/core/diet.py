@@ -305,7 +305,7 @@ def _fn_with_diet_vars(fn, args, params):
   @fn_with_custom_grad(grad_fn, use_global_vars=True)
   def forward(*inputs):
     with tf.variable_scope(
-        None, default_name="diet", custom_getter=make_diet_var_getter(params)) as vs:
+            None, default_name="diet", custom_getter=make_diet_var_getter(params)) as vs:
       vs_ctr.append(vs)
       outputs = fn(*inputs)
       return outputs

@@ -25,10 +25,7 @@ import tensorflow as tf
 @click.command()
 @click.option('--frozen_model', default=None, show_default=True, help='Relative path to model.')
 @click.option(
-    '--training_cnf',
-    default=None,
-    show_default=True,
-    help='Relative path to training config file.')
+    '--training_cnf', default=None, show_default=True, help='Relative path to training config file.')
 @click.option('--predict_dir', help='Directory with Test Images and Labls (_final_mask.png)')
 @click.option('--image_size', default=448, show_default=True, help='image size for conversion.')
 @click.option('--num_classes', default=15, show_default=True, help='Number of classes.')

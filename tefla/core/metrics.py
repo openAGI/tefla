@@ -341,7 +341,7 @@ class KappaV2(Metric, MetricMixin):
       nom = tf.reduce_sum(weights * conf_mat)
       denom = tf.reduce_sum(weights * tf.matmul(
           tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) /
-                            tf.to_float(batch_size))
+          tf.to_float(batch_size))
 
       try:
         return (1 - nom / denom)
