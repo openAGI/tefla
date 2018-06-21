@@ -593,7 +593,7 @@ def mmd_loss(source_samples, target_samples, weight, name='mmd_loss'):
     loss_value = tf.maximum(1e-4, loss_value) * weight
   assert_op = tf.Assert(tf.is_finite(loss_value), [loss_value])
   with tf.control_dependencies([assert_op]):
-    tag = 'MMD Loss'
+    tag = 'MMD_Loss'
     barrier = tf.no_op(tag)
   return loss_value
 
