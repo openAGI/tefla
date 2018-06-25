@@ -421,10 +421,11 @@ def load_augmented_images(fnames,
                           fill_mode='constant',
                           fill_mode_cval=0,
                           standardizer=None,
-                          save_to_dir=None):
+                          save_to_dir=None,
+                          cutout=None):
   return np.array([
       load_augment(f, preprocessor, w, h, is_training, aug_params, transform, bbox, fill_mode,
-                   fill_mode_cval, standardizer, save_to_dir) for f in fnames
+                   fill_mode_cval, standardizer, save_to_dir, cutout) for f in fnames
   ])
 
 
@@ -439,7 +440,8 @@ def load_augment(fname,
                  fill_mode='constant',
                  fill_mode_cval=0,
                  standardizer=None,
-                 save_to_dir=None):
+                 save_to_dir=None,
+                 cutout=None):
   """Load augmented image with output shape (w, h).
 
   Default arguments return non augmented image of shape (w, h).
@@ -500,6 +502,9 @@ def load_augment(fname,
 
   if standardizer is not None:
     img = standardizer(img, is_training)
+  if cutout is not None:
+    if np.random.randint(2) > 0:
+      img = cutout(img)
 
   # convert to tf format
   return img.transpose(1, 2, 0)

@@ -102,7 +102,8 @@ class DAIterator(BatchIterator):
                fill_mode='constant',
                fill_mode_cval=0,
                standardizer=None,
-               save_to_dir=None):
+               save_to_dir=None,
+               cutout=None):
     self.preprocessor = preprocessor if preprocessor else data.image_no_preprocessing
     self.w = crop_size[0]
     self.h = crop_size[1]
@@ -111,6 +112,7 @@ class DAIterator(BatchIterator):
     self.fill_mode = fill_mode
     self.fill_mode_cval = fill_mode_cval
     self.standardizer = standardizer
+    self.cutout = cutout
     self.save_to_dir = save_to_dir
     if save_to_dir and not os.path.exists(save_to_dir):
       os.makedirs(save_to_dir)
@@ -125,7 +127,8 @@ class DAIterator(BatchIterator):
         'fill_mode': self.fill_mode,
         'fill_mode_cval': self.fill_mode_cval,
         'standardizer': self.standardizer,
-        'save_to_dir': self.save_to_dir
+        'save_to_dir': self.save_to_dir,
+        'cutout': self.cutout
     }
     if self.crop_bbox is not None:
       assert not self.is_training, "crop bbox only in validation/prediction mode"
@@ -174,11 +177,12 @@ class ParallelDAIterator(QueuedDAIterator):
                fill_mode='constant',
                fill_mode_cval=0,
                standardizer=None,
-               save_to_dir=None):
+               save_to_dir=None,
+               cutout=None):
     self.pool = multiprocessing.Pool()
     super(ParallelDAIterator,
           self).__init__(batch_size, shuffle, preprocessor, crop_size, is_training, aug_params,
-                         fill_mode, fill_mode_cval, standardizer, save_to_dir)
+                         fill_mode, fill_mode_cval, standardizer, save_to_dir, cutout)
 
   def transform(self, Xb, yb):
     shared_array_name = str(uuid4())
@@ -228,14 +232,15 @@ class BalancingDAIterator(ParallelDAIterator):
                fill_mode='constant',
                fill_mode_cval=0,
                standardizer=None,
-               save_to_dir=None):
+               save_to_dir=None,
+               cutout=None):
     self.count = balance_epoch_count
     self.balance_weights = balance_weights
     self.final_balance_weights = final_balance_weights
     self.balance_ratio = balance_ratio
     super(BalancingDAIterator,
           self).__init__(batch_size, shuffle, preprocessor, crop_size, is_training, aug_params,
-                         fill_mode, fill_mode_cval, standardizer, save_to_dir)
+                         fill_mode, fill_mode_cval, standardizer, save_to_dir, cutout)
 
   def __call__(self, X, y=None):
     if y is not None:
@@ -261,14 +266,15 @@ class BalancingQueuedDAIterator(QueuedDAIterator):
                fill_mode='constant',
                fill_mode_cval=0,
                standardizer=None,
-               save_to_dir=None):
+               save_to_dir=None,
+               cutout=None):
     self.count = balance_epoch_count
     self.balance_weights = balance_weights
     self.final_balance_weights = final_balance_weights
     self.balance_ratio = balance_ratio
     super(BalancingQueuedDAIterator,
           self).__init__(batch_size, shuffle, preprocessor, crop_size, is_training, aug_params,
-                         fill_mode, fill_mode_cval, standardizer, save_to_dir)
+                         fill_mode, fill_mode_cval, standardizer, save_to_dir, cutout)
 
   def __call__(self, X, y=None):
     if y is not None:

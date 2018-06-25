@@ -8,7 +8,7 @@ from ..da import iterator
 from . import logger
 
 
-def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True):
+def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True, cutout=None):
   """Creates training iterator to access and augment the dataset.
 
   Args:
@@ -41,6 +41,7 @@ def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, paralle
       balance_ratio=cnf['balance_ratio'],
       balance_epoch_count=epoch - 1,
       standardizer=standardizer,
+      cutout=cutout,
       fill_mode='constant'
       # save_to_dir=da_training_preview_dir
   )

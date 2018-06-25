@@ -1,6 +1,6 @@
 numpy
 pandas==0.18.1
-SharedArray==1.0
+SharedArray==3.0.0
 click==6.6
 scikit-image==0.12.3
 scikit-learn==0.14.1
@@ -14,6 +14,6 @@ Pillow==2.3.0
 progress
 opencv-python
 h5py
-Cython
+Cython=0.27
 git+https://github.com/lucasb-eyer/pydensecrf.git
 tensorflow-gpu==1.8.0
