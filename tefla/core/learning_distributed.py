@@ -7,7 +7,6 @@ from __future__ import division, print_function, absolute_import
 
 import os
 import re
-import pprint
 import time
 from datetime import datetime
 
@@ -16,7 +15,6 @@ import tensorflow as tf
 
 from .base import Base
 from . import logger as log
-from ..utils import util
 from ..da.data_augmentation import inputs, distorted_inputs
 from ..dataset.base import Dataset
 from ..dataset.decoder import Decoder

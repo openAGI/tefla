@@ -1,13 +1,6 @@
-import tensorflow as tf
-import os
-
 import click
-import numpy as np
-import cv2
+import tensorflow as tf
 
-from tefla.core.iter_ops import create_prediction_iter, convert_preprocessor
-from tefla.core.prediction import QuasiCropPredictor
-from tefla.da import data
 from tefla.utils import util
 
 # pylint: disable=no-value-for-parameter

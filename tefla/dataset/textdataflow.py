@@ -2,15 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
-import random
-
 import numpy as np
-
-import six
-from six.moves import zip
-from six.moves import xrange
 import tensorflow as tf
+from six.moves import xrange
 
 
 class TextDataflow(object):

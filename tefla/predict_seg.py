@@ -85,7 +85,7 @@ def plot_masks(cropped_image_path, prediction_map, output_image_path):
   plt.axis("off")
   plt.savefig(
       output_image_path.strip('.jpg') + '_segmented.png',
-      bbox_extra_artists=(lgd, ),
+      bbox_extra_artists=(lgd,),
       bbox_inches='tight')
   plt.show()
 

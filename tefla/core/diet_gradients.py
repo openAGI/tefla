@@ -160,7 +160,7 @@ def gradients(ys, xs, grad_ys=None, checkpoints='collection', **kwargs):
         checkpoints = sorted_bottlenecks[step::step]
 
     else:
-      raise Exception('%s is unsupported input for "checkpoints"' % (checkpoints, ))
+      raise Exception('%s is unsupported input for "checkpoints"' % (checkpoints,))
 
   checkpoints = list(set(checkpoints).intersection(ts_all))
 

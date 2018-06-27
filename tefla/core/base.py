@@ -11,7 +11,7 @@ import os
 
 from ..da.iterator import BatchIterator
 from .lr_policy import NoDecayPolicy
-from .losses import kappa_log_loss_clipped, segment_loss, dice_loss
+from .losses import kappa_log_loss_clipped, dice_loss
 from . import summary
 from . import logger as log
 import tensorflow as tf
@@ -427,7 +427,7 @@ class Base(object):
       def gradient_scaler(x, unused_scale):
         return x
 
-      output = gradient_scaler(layer_grad, scale_tensor, name=name)
+      output = gradient_scaler(layer_grad, scale_tensor)
       output.set_shape(net.get_shape())
 
     return output
@@ -570,7 +570,7 @@ class Base(object):
       return reduce(lambda x, y: x * y, v.get_shape().as_list())
 
     n = sum(variable_params(v) for v in tf.trainable_variables())
-    print("Number of trainable network params: %dK" % (n / 1000, ))
+    print("Number of trainable network params: %dK" % (n / 1000,))
 
   def write_params(self):
     opts = tf.contrib.tfprof.model_analyzer.TRAINABLE_VARS_PARAMS_STAT_OPTIONS

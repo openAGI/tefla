@@ -6,8 +6,6 @@ from __future__ import unicode_literals
 
 import abc
 import os
-
-import numpy as np
 import six
 import yaml
 

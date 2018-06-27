@@ -1713,7 +1713,7 @@ def _range_to_anchors_and_delta(precision_range, num_anchors, dtype):
   # Sets precision_values uniformly between min_precision and max_precision.
   values = np.linspace(start=precision_range[0],
                           stop=precision_range[1],
-                          num=num_anchors+2)[1:-1]
+                          num=num_anchors + 2)[1:-1]
   precision_values = losses_utils.convert_and_cast(
       values, 'precision_values', dtype)
   delta = losses_utils.convert_and_cast(

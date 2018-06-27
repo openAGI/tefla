@@ -6,10 +6,9 @@ import abc
 from collections import namedtuple
 import copy
 import yaml
-from pydoc import locate
 import numpy as np
 
-from .layers import conv2d, conv1d, avg_pool_1d
+from .layers import conv1d, avg_pool_1d
 from .rnn_cell import LSTMCell, MultiRNNCell, ExtendedMultiRNNCell
 from . import logger as log
 import six

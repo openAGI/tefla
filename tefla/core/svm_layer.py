@@ -2,11 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import numpy as np
 import scipy as sp
-import scipy.stats
 import sklearn as sk
-import sklearn.model_selection
 
 
 class exp2var(object):

@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.contrib.layers import variance_scaling_initializer
 
 # For external users
+# pylint: disable=unused-import
 from tensorflow.contrib.layers import xavier_initializer
 
 

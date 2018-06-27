@@ -47,13 +47,13 @@ class Loss(object):
 class WeightedLognLoss(Loss):
   """Log loss function with anchorwise output support."""
 
-  def _compute_loss(self, prediction_tensor, target_tensor, eps=1e-7, weights=1.0):
+  def _compute_loss(self, predictions, labels, eps=1e-7, weights=1.0):
     """Compute loss function.
 
     Args:
-      prediction_tensor: A float tensor of shape [batch_size, num_anchors,
+      predictions: A float tensor of shape [batch_size, num_anchors,
         code_size] representing the (encoded) predicted locations of objects.
-      target_tensor: A float tensor of shape [batch_size, num_anchors,
+      labels: A float tensor of shape [batch_size, num_anchors,
         code_size] representing the regression targets
       eps: a constant to set upper or lower limit for labels, smoothening factor
       weights: a float tensor

@@ -1,7 +1,6 @@
 from __future__ import division, print_function, absolute_import
 
 import functools
-import logging
 
 from .. import convert
 from ..da import iterator

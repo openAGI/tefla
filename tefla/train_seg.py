@@ -1,7 +1,6 @@
 from __future__ import division, print_function, absolute_import
 
 import click
-import numpy as np
 import os
 
 np.random.seed(127)
@@ -10,8 +9,6 @@ import tensorflow as tf
 tf.set_random_seed(127)
 
 from tefla.core.learning_seg import SupervisedLearner
-from tefla.da.standardizer import NoOpStandardizer
-from tefla.da.standardizer import AggregateStandardizerTF
 from tefla.utils import util
 
 # pylint: disable=no-value-for-parameter
