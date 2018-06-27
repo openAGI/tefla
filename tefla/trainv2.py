@@ -10,7 +10,6 @@ import tensorflow as tf
 tf.set_random_seed(127)
 
 from tefla.core.learningv2 import SupervisedLearner
-from tefla.da.standardizer import NoOpStandardizer
 from tefla.utils import util
 
 # pylint: disable=no-value-for-parameter

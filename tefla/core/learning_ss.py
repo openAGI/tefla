@@ -376,7 +376,7 @@ class SemiSupervisedTrainer(Base):
 
     return {'d_vars': d_vars, 'g_vars': g_vars}
 
-  def sigmoid_kl_with_logits(logits, targets):
+  def sigmoid_kl_with_logits(self, logits, targets):
     """ Sigmoid cross entropy with smooth labels
         Args:
             logits: logits
@@ -415,7 +415,7 @@ class SemiSupervisedTrainer(Base):
         tf.float32,
         shape=(None, self.model.image_size[0], self.model.image_size[0], 3),
         name="input")
-    self.labels = tf.placeholder(tf.int32, shape=(None, ))
+    self.labels = tf.placeholder(tf.int32, shape=(None,))
 
     self._tower_loss_semi_supervised(
         self.inputs, self.labels, num_classes=num_classes, is_fm_loss=True)

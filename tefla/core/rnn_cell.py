@@ -1622,7 +1622,6 @@ def gru(inputs,
         dropout=None,
         use_bias=True,
         w_init=initz.he_normal(),
-        forget_bias=1.0,
         return_seq=False,
         return_state=False,
         initial_state=None,
@@ -1643,7 +1642,6 @@ def gru(inputs,
           input and output keep probability.
       use_bias: `bool`. If True, a bias is used.
       w_init: `function` (returning a `Tensor`). Weights initialization.
-      forget_bias: `float`. Bias of the forget gate. Default: 1.0.
       return_seq: `bool`. If True, returns the full sequence instead of
           last sequence output only.
       return_state: `bool`. If True, returns a tuple with output and
@@ -1670,7 +1668,6 @@ def gru(inputs,
       reuse,
       activation=activation,
       inner_activation=inner_activation,
-      forget_bias=forget_bias,
       use_bias=use_bias,
       w_init=w_init,
       trainable=trainable)

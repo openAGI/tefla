@@ -440,7 +440,7 @@ class SupervisedTrainer(object):
             batch_size=self.training_iterator.batch_size)
       else:
         with tf.name_scope('predictions'):
-          self.target = tf.placeholder(tf.int32, shape=(None, ))
+          self.target = tf.placeholder(tf.int32, shape=(None,))
         training_loss = tf.reduce_mean(
             tf.nn.sparse_softmax_cross_entropy_with_logits(
                 logits=training_logits, labels=self.target))

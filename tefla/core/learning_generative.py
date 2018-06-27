@@ -103,6 +103,7 @@ class GenerativeLearner(Base):
     if start_epoch > 1:
       weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
 
+    # pylint: disable=no-value-for-parameter
     if weights_from:
       self._load_weights(sess, weights_from)
 
@@ -144,7 +145,7 @@ class GenerativeLearner(Base):
         log.debug('1. Loading batch %d data done.' % batch_num)
         if epoch % summary_every == 0 and self.is_summary:
           log.debug('2. Running training steps with summary...')
-          _, _d_loss, d_loss_real, d_loss_fake, summary_str_train = sess.run(
+          _, _d_loss, _d_loss_real, _d_loss_fake, summary_str_train = sess.run(
               [
                   self.train_op_d, self.tower_loss_d, self.tower_loss_d_real, self.tower_loss_d_fake,
                   training_batch_summary_op
@@ -157,7 +158,7 @@ class GenerativeLearner(Base):
           log.debug('2. Running training steps with summary done.')
           log.debug(
               "Epoch %d, Batch %d D_loss_real: %s, D_loss_fake: %s,D_loss_class: %s, G_loss: %s" %
-              (epoch, batch_num, _d_loss_real, _d_loss_fake, _d_loss_class, _g_loss))
+              (epoch, batch_num, _d_loss_real, _d_loss_fake, _d_loss, _g_loss))
         else:
           log.debug('2. Running training steps without summary...')
           _, _d_loss_real, _d_loss_fake, _d_loss = sess.run(

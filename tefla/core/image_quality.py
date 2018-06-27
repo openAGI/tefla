@@ -2,7 +2,6 @@
 import numpy as np
 from scipy import signal
 from scipy.ndimage.filters import convolve
-import tensorflow as tf
 
 
 def FSpecialGauss(size, sigma):

@@ -1,8 +1,7 @@
 from __future__ import division, print_function, absolute_import
 
 import click
-import os
-
+import numpy as np
 np.random.seed(127)
 import tensorflow as tf
 

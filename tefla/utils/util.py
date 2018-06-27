@@ -355,7 +355,7 @@ def one_hot(labels, num_classes, name='one_hot'):
   Returns:
       one hot encoding of the labels.
   """
-  with tf.op_scope(name):
+  with tf.variable_scope(name):
     batch_size = labels.get_shape()[0]
     indices = tf.expand_dims(tf.range(0, batch_size), 1)
     labels = tf.cast(tf.expand_dims(labels, 1), indices.dtype)
@@ -521,10 +521,10 @@ def get_var_maybe_avg(var_name, ema, **kwargs):
 
 def get_vars_maybe_avg(var_names, ema, **kwargs):
   """utility for retrieving polyak averaged params."""
-  vars = []
+  vars_tf = []
   for vn in var_names:
-    vars.append(get_var_maybe_avg(vn, ema, **kwargs))
-  return vars
+    vars_tf.append(get_var_maybe_avg(vn, ema, **kwargs))
+  return vars_tf
 
 
 def save_images(fname, flat_img, width=28, height=28, sep=3, channels=3):

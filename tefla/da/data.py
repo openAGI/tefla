@@ -56,7 +56,7 @@ def fast_warp(img, tf, output_shape, mode='constant', mode_cval=0, order=0):
       warped, double `ndarray`
   """
   m = tf.params
-  t_img = np.zeros((img.shape[0], ) + output_shape, img.dtype)
+  t_img = np.zeros((img.shape[0],) + output_shape, img.dtype)
   for i in range(t_img.shape[0]):
     t_img[i] = _warp_fast(
         img[i], m, output_shape=output_shape, mode=mode, cval=mode_cval, order=order)
