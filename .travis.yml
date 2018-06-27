@@ -36,7 +36,8 @@ install:
   - pip install --upgrade pip setuptools wheel
   - pip install entrypoints
   - pip install --only-binary=numpy,scipy numpy scipy
-  - pip install Cython
+  - pip install Cython==0.27
+  - pip install pyaml==17.12.1
   - pip install git+https://github.com/lucasb-eyer/pydensecrf.git
   - pip install tensorflow==1.8.0
   - pip install opencv-python==3.4.1.15 
