@@ -160,7 +160,7 @@ class AggregateStandardizerTF(object):
     self.mean = tf.reshape(tf.to_float(mean), shape=(1, 1, 3))
     self.std = tf.reshape(tf.to_float(std), shape=(1, 1, 3))
     self.u = tf.reshape(tf.to_float(u), shape=(3, 3))
-    self.ev = tf.reshape(tf.to_float(ev), shape=(3, ))
+    self.ev = tf.reshape(tf.to_float(ev), shape=(3,))
     self.sigma = tf.to_float(sigma)
     self.color_vec = color_vec
 
@@ -189,7 +189,7 @@ class AggregateStandardizerTF(object):
         color_vec: an optional color vec
     """
     if color_vec is None:
-      color_vec = tf.random_normal(shape=(3, ), mean=0.0, stddev=sigma)
+      color_vec = tf.random_normal(shape=(3,), mean=0.0, stddev=sigma)
 
     alpha = tf.multiply(tf.to_float(color_vec), self.ev)
     noise = tf.reshape(tf.matmul(self.u, tf.reshape(alpha, (3, 1))), shape=(1, 1, 3))

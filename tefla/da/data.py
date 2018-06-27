@@ -405,9 +405,9 @@ def perturb_fixed(img, tform_augment, target_shape=(50, 50), mode='constant', mo
       mode_cval=mode_cval)
 
 
-def load_perturbed(fname):
+def load_perturbed(fname, target_size, aug_params=no_augmentaioon_params):
   img = load_image(fname).astype(np.float32)
-  return perturb(img)
+  return perturb(img, aug_params, target_size)
 
 
 def load_augmented_images(fnames,

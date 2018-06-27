@@ -1,24 +1,17 @@
-import os
 import click
 import numpy as np
-import cv2
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
-import scipy
-import scipy.misc
 from PIL import Image
 from skimage.segmentation import mark_boundaries
 from skimage import io
-from skimage import transform
-from skimage.util import img_as_float
 
-from tefla.core.iter_ops import create_prediction_iter, convert_preprocessor
+from tefla.core.iter_ops import convert_preprocessor
 from tefla.core.prediction_v2 import SegmentPredictor_v2 as SegmentPredictor
 from tefla.da import data
 from tefla.utils import util
-from tefla.convert import convert
 
-import tensorflow as tf
+# pylint: disable=no-value-for-parameter
 
 
 class SegParams(object):

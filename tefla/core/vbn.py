@@ -194,14 +194,14 @@ class VBN(object):
       if center:
         self._beta = tf.get_variable(
             name='beta',
-            shape=(params_shape, ),
+            shape=(params_shape,),
             initializer=beta_initializer,
             regularizer=beta_regularizer,
             trainable=trainable)
       if scale:
         self._gamma = tf.get_variable(
             name='gamma',
-            shape=(params_shape, ),
+            shape=(params_shape,),
             initializer=gamma_initializer,
             regularizer=gamma_regularizer,
             trainable=trainable)

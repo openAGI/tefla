@@ -3,7 +3,6 @@ from __future__ import division, print_function, absolute_import
 import abc
 import six
 import math
-import bisect
 import numpy as np
 from . import logger as log
 
@@ -263,7 +262,7 @@ class InvDecayPolicy(AbstractInitialLr):
     self.power = power
     self.max_epoch = max_epoch
     self._n_iters_per_epoch = n_iters_per_epoch
-    super(PolyDecayPolicy, self).__init__(base_lr)
+    super(InvDecayPolicy, self).__init__(base_lr)
 
   def batch_update(self, learning_rate, iter_idx):
     """Update learning rate after every training batch It follows a inverse

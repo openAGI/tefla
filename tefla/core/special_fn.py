@@ -8,7 +8,6 @@ from tensorflow.python.framework import function
 from .layers import dilated_conv2d, conv1d, layer_norm, _layer_norm_compute_python, \
     _collect_named_outputs
 from .optimizer import VariableClippingOptimizer
-from ..utils import util as helper
 from . import initializers as initz
 
 _function_cache = {}
@@ -727,7 +726,7 @@ def approximate_split(x, num_splits, axis=0):
   Returns:
     a list of num_splits Tensors.
   """
-  size = tf.shape(x)[axis]
+  size = shape_list(x)[axis]
   size_splits = [tf.div(size + i, num_splits) for i in range(num_splits)]
   return tf.split(x, size_splits, axis=axis)
 
@@ -1322,7 +1321,7 @@ def scale_gradient(net, scale, name="scale_gradient"):
       return x
 
     with tf.name_scope(name, values=[net]):
-      output = _scale_gradient_forward(net, name=name)
+      output = _scale_gradient_forward(net)
       output.set_shape(net.shape)
     return output
 
@@ -1343,7 +1342,7 @@ def normalize_gradient(grad_scales=None, name='normalize_gradient'):
     return x
 
   with tf.name_scope(name):
-    output = _normalize_grad_forward(net, name=name)
+    output = _normalize_grad_forward(net)
     output.set_shape(net.shape)
   return output
 
@@ -1412,22 +1411,6 @@ def shape_list(x):
       dim = shape[i]
     ret.append(dim)
   return ret
-
-
-def approximate_split(x, num_splits, axis=0):
-  """Split approximately equally into num_splits parts.
-
-  Args:
-    x: a Tensor
-    num_splits: an integer
-    axis: an integer.
-
-  Returns:
-    a list of num_splits Tensors.
-  """
-  size = shape_list(x)[axis]
-  size_splits = [tf.div(size + i, num_splits) for i in range(num_splits)]
-  return tf.split(x, size_splits, axis=axis)
 
 
 class FactoredTensor(object):

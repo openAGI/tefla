@@ -3,13 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import abc
-import collections
 import sys
 import unicodedata
 
 import six
 from six.moves import xrange
-import tensorflow as tf
 
 # This set contains all letter and number characters.
 _ALPHANUMERIC_CHAR_SET = set(

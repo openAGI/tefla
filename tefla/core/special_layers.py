@@ -188,7 +188,7 @@ def subsample(inputs, factor, name=None):
     return max_pool(inputs, filter_size=(1, 1), stride=(factor, factor), name=name)
 
 
-def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, name=None, **kwargs):
+def conv2d_same(inputs, num_outputs, kernel_size, stride, name=None, **kwargs):
   """Strided 2-D convolution with 'SAME' padding.
 
   When stride > 1, then we do explicit zero-padding, followed by conv2d with
@@ -215,7 +215,6 @@ def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, name=None, **k
       num_outputs: An integer, the number of output filters.
       kernel_size: An int with the kernel_size of the filters.
       stride: An integer, the output stride.
-      rate: An integer, rate for atrous convolution.
       name: name.
 
   Returns:
@@ -228,7 +227,6 @@ def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, name=None, **k
         num_outputs,
         filter_size=(kernel_size, kernel_size),
         stride=(1, 1),
-        dilaton=rate,
         padding='SAME',
         name=name,
         **kwargs)
@@ -243,7 +241,6 @@ def conv2d_same(inputs, num_outputs, kernel_size, stride, rate=1, name=None, **k
         num_outputs,
         kernel_size,
         stride=stride,
-        dilation=rate,
         padding='VALID',
         name=name,
         **kwargs)
@@ -427,7 +424,7 @@ def memory_module(inputs,
 
     for h in range(nhop):
       hid3dim = tf.reshape(hid[-1], [-1, 1, edim])
-      Aout = tf.matmul(hid3dim, Ain, adj_y=True)
+      Aout = tf.matmul(hid3dim, Ain, adjoint_b=True)
       Aout2dim = tf.reshape(Aout, [-1, mem_size])
       P = tf.nn.softmax(Aout2dim)
 

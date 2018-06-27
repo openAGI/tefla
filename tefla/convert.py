@@ -18,6 +18,8 @@ from tefla.da import data
 
 N_PROC = cpu_count()
 
+# pylint: disable=no-value-for-parameter
+
 
 def convert(fname, target_size=512):
   img = Image.open(fname).convert('RGB')

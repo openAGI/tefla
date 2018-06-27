@@ -14,6 +14,8 @@ from tefla.core.learning_ss import SemiSupervisedTrainer
 from tefla.da.standardizer import NoOpStandardizer
 from tefla.utils import util
 
+# pylint: disable=no-value-for-parameter
+
 
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')

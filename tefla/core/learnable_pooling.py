@@ -7,7 +7,6 @@ import six
 import math
 import tensorflow as tf
 from collections import namedtuple
-import numpy as np
 
 from .layers import batch_norm_tf as batch_norm
 
@@ -88,7 +87,7 @@ class PoolingBaseModel(object):
     else:
       gating_biases = tf.get_variable(
           "gating_biases", [input_dim],
-          initializer=tf.random_normal(stddev=1 / math.sqrt(input_dim)))
+          initializer=tf.random_normal_initializer(stddev=1 / math.sqrt(input_dim)))
       gates += gating_biases
 
     gates = tf.sigmoid(gates)
@@ -115,7 +114,7 @@ class NetVLAD(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(self.__class__, self).__init__(feature_size, max_samples, cluster_size, output_dim,
+    super(NetVLAD, self).__init__(feature_size, max_samples, cluster_size, output_dim,
                                          **kwargs)
 
   def forward(self, reshaped_input):
@@ -176,7 +175,7 @@ class NetVLAD(PoolingBaseModel):
     vlad = tf.matmul(vlad, hidden1_weights)
 
     if self.gating:
-      vlad = super(self.__class__, self).context_gating(vlad)
+      vlad = super(NetVLAD, self).context_gating(vlad)
 
     return vlad
 
@@ -198,7 +197,7 @@ class NetRVLAD(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(self.__class__, self).__init__(feature_size, max_samples, cluster_size, output_dim,
+    super(NetRVLAD, self).__init__(feature_size, max_samples, cluster_size, output_dim,
                                          **kwargs)
 
   def forward(self, reshaped_input):
@@ -250,7 +249,7 @@ class NetRVLAD(PoolingBaseModel):
     vlad = tf.matmul(vlad, hidden1_weights)
 
     if self.gating:
-      vlad = super(self.__class__, self).context_gating(vlad)
+      vlad = super(NetRVLAD, self).context_gating(vlad)
 
     return vlad
 
@@ -272,7 +271,7 @@ class SoftDBoW(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(self.__class__, self).__init__(feature_size, max_samples, cluster_size, output_dim,
+    super(SoftDBoW, self).__init__(feature_size, max_samples, cluster_size, output_dim,
                                          **kwargs)
 
   def forward(self, reshaped_input):
@@ -298,7 +297,7 @@ class SoftDBoW(PoolingBaseModel):
     else:
       cluster_biases = tf.get_variable(
           "cluster_biases", [self.cluster_size],
-          initializer=tf.random_normal(stddev=1 / math.sqrt(self.feature_size)))
+          initializer=tf.random_normal_initializer(stddev=1 / math.sqrt(self.feature_size)))
       activation += cluster_biases
 
     activation = tf.nn.softmax(activation)
@@ -315,7 +314,7 @@ class SoftDBoW(PoolingBaseModel):
     bof = tf.matmul(bof, hidden1_weights)
 
     if self.gating:
-      bof = super(self.__class__, self).context_gating(bof)
+      bof = super(SoftDBoW, self).context_gating(bof)
 
     return bof
 
@@ -337,7 +336,7 @@ class NetFV(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(self.__class__, self).__init__(feature_size, max_samples, cluster_size, output_dim,
+    super(NetFV, self).__init__(feature_size, max_samples, cluster_size, output_dim,
                                          **kwargs)
 
   def forward(self, reshaped_input):
@@ -370,7 +369,7 @@ class NetFV(PoolingBaseModel):
     else:
       cluster_biases = tf.get_variable(
           "cluster_biases", [self.cluster_size],
-          initializer=tf.random_normal(stddev=1 / math.sqrt(self.feature_size)))
+          initializer=tf.random_normal_initializer(stddev=1 / math.sqrt(self.feature_size)))
       activation += cluster_biases
 
     activation = tf.nn.softmax(activation)
@@ -426,7 +425,7 @@ class NetFV(PoolingBaseModel):
     fv = tf.matmul(fv, hidden1_weights)
 
     if self.gating:
-      fv = super(self.__class__, self).context_gating(fv)
+      fv = super(NetFV, self).context_gating(fv)
 
     return fv
 

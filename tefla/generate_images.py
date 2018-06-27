@@ -10,6 +10,8 @@ from tefla.core.prediction import QuasiCropPredictor
 from tefla.da import data
 from tefla.utils import util
 
+# pylint: disable=no-value-for-parameter
+
 
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')

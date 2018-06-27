@@ -8,6 +8,8 @@ from tefla.core.prediction import QuasiCropPredictor
 from tefla.da import data
 from tefla.utils import util
 
+# pylint: disable=no-value-for-parameter
+
 
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')
@@ -35,7 +37,7 @@ def predict(model, training_cnf, predict_dir, weights_from, dataset_name, conver
                                                sync)
 
   if test_type == 'quasi':
-    predictor = QuasiPredictor(model, cnf, weights_from, prediction_iterator, 20)
+    predictor = QuasiCropPredictor(model, cnf, weights_from, prediction_iterator, 20)
     predictions = predictor.predict(images)
 
   if not os.path.exists(os.path.join(predict_dir, '..', 'results')):

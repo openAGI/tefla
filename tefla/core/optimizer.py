@@ -5,11 +5,9 @@ from __future__ import print_function
 import types
 import six
 import contextlib
-import numpy as np
 import numbers
 import tensorflow as tf
 import collections
-from tensorflow import random_normal, shape
 from tensorflow.python.training import optimizer
 from tensorflow.python.training import saver
 from tensorflow.python.training import training_ops
@@ -152,7 +150,7 @@ class AdagradDAOptimizer(optimizer.Optimizer):
 
   def _create_slots(self, var_list):
     for v in var_list:
-      with tf.Graph.colocate_with(v):
+      with tf.Graph().colocate_with(v):
         g_val = tf.constant(0.0, shape=v.get_shape(), dtype=v.dtype.base_dtype)
         gg_val = tf.constant(
             self._initial_gradient_squared_accumulator_value,

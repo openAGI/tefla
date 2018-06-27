@@ -1,6 +1,4 @@
 import os
-import numpy as np
-import scipy.misc
 import math
 from ..da.preprocessor import SegPreprocessor
 from ..da.standardizer import SamplewiseStandardizer
@@ -157,13 +155,12 @@ if __name__ == '__main__':
       name='pascal_voc',
       data_dir='/home/server/data/VOCdevkit/segment/',
       batch_size=1,
-      height=224,
       extension='.jpg',
       is_train=True,
       capacity=1024,
       min_queue_examples=256,
       num_preprocess_threads=8)
-  images, labels = data_voc.get_batch(batch_size=1, label_filename=None)
+  images, labels = data_voc.get_batch(batch_size=1)
   coord = tf.train.Coordinator()
   tf.train.start_queue_runners(sess=sess, coord=coord)
   import itertools

@@ -17,6 +17,7 @@ rng = np.random.RandomState([2018, 1, 1])
 NamedOutputs = namedtuple('NamedOutputs', ['name', 'outputs'])
 
 
+# pylint: disable=redefined-builtin
 def input(shape, name='inputs', outputs_collections=None, **unused):
   """Define input layer.
 
@@ -1378,7 +1379,7 @@ def down_shifted_conv2d(x,
       reuse,
       trainable=trainable,
       filter_size=filter_size,
-      pad='VALID',
+      padding='VALID',
       stride=stride,
       **kwargs)
 
@@ -1423,7 +1424,7 @@ def down_right_shifted_conv2d(x,
       reuse,
       trainable=trainable,
       filter_size=filter_size,
-      pad='VALID',
+      padding='VALID',
       stride=stride,
       **kwargs)
 
@@ -1444,7 +1445,7 @@ def down_right_upsample2d(x,
       reuse,
       trainable=trainable,
       filter_size=filter_size,
-      pad='VALID',
+      padding='VALID',
       stride=stride,
       **kwargs)
   xs = list(map(int, x.get_shape()))
@@ -1475,7 +1476,7 @@ def gated_resnet(x,
       c1 += conv(activation(a), num_filters, is_training, reuse, filter_size=(1, 1), **kwargs)
     c1 = activation(c1)
     if dropout_p > 0:
-      c1 = dropout(c1, drop_p=dropout_p)
+      c1 = dropout(c1, is_training, drop_p=dropout_p)
     c2 = conv(c1, num_filters * 2, is_training, reuse, init_scale=0.1, **kwargs)
 
     if h is not None:
@@ -1567,10 +1568,10 @@ def max_pool_3d(x,
   assert len(input_shape) == 5, "Input Tensor shape must be 4-D"
   with tf.name_scope(name):
     output = tf.nn.max_pool3d(
-        value=x,
-        ksize=helper.kernel_3d(filter_size),
-        strides=helper.stride_3d(stride),
-        padding=helper.kernel_padding(padding),
+        x,
+        helper.kernel_3d(filter_size),
+        helper.stride_3d(stride),
+        helper.kernel_padding(padding),
     )
     return _collect_named_outputs(outputs_collections, name, output)
 
@@ -1583,7 +1584,7 @@ def fractional_pool(x,
                     name='fractional_pool',
                     seed=None,
                     seed2=None,
-                    type='avg',
+                    pool_type='avg',
                     outputs_collections=None,
                     **unused):
   """Fractional pooling layer.
@@ -1613,7 +1614,7 @@ def fractional_pool(x,
           it is seeded by a random seed.
       seed2: An optional int. Defaults to 0. An second seed to avoid seed collision.
       outputs_collections: The collections to which the outputs are added.
-      type: avg or max pool
+      pool_type: avg or max pool
       name: Optional scope/name for name_scope.
 
   Returns:
@@ -1627,7 +1628,7 @@ def fractional_pool(x,
   input_shape = helper.get_input_shape(x)
   assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
   with tf.name_scope(name):
-    if type == 'avg':
+    if pool_type == 'avg':
       outputs = tf.nn.fractional_avg_pool(
           x,
           pooling_ratio,
@@ -1726,7 +1727,7 @@ def rms_pool_3d(x,
   assert len(input_shape) == 4, "Input Tensor shape must be 4-D"
   with tf.name_scope(name):
     output = tf.nn.avg_pool3d(
-        value=tf.square(x),
+        tf.square(x),
         ksize=helper.kernel_3d(filter_size),
         strides=helper.stride_3d(stride),
         padding=helper.kernel_padding(padding),
@@ -1766,7 +1767,7 @@ def avg_pool_3d(x,
   assert len(input_shape) == 5, "Input Tensor shape must be 5-D"
   with tf.name_scope(name or "pool"):
     output = tf.nn.avg_pool3d(
-        value=x,
+        x,
         ksize=helper.kernel_3d(filter_size),
         strides=helper.stride_3d(stride),
         padding=helper.kernel_padding(padding),
@@ -2199,7 +2200,7 @@ def prelu(x, reuse, alpha_init=0.2, trainable=True, name='prelu', outputs_collec
 
 
 def relu(x, name='relu', outputs_collections=None, **unused):
-  """Rectifier linear layer.
+  """Computes relu.
 
   Args:
       x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
@@ -2207,7 +2208,7 @@ def relu(x, name='relu', outputs_collections=None, **unused):
       outputs_collections: The collections to which the outputs are added.
 
   Returns:
-      A `Tensor` representing the results of the relu activation operation.
+      A `Tensor` representing the results of the activation operation.
   """
   _check_unused(unused, name)
   with tf.name_scope(name):
@@ -2343,23 +2344,6 @@ def leaky_relu(x, alpha=0.01, name='leaky_relu', outputs_collections=None, **unu
       output = tf.nn.relu(x) + tf.mul(alpha, (x - tf.abs(x))) * 0.5
     except Exception:
       output = tf.nn.relu(x) + tf.multiply(alpha, (x - tf.abs(x))) * 0.5
-    return _collect_named_outputs(outputs_collections, name, output)
-
-
-def relu(x, name='relu', outputs_collections=None, **unused):
-  """Computes relu.
-
-  Args:
-      x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
-      name: a optional scope/name of the layer
-      outputs_collections: The collections to which the outputs are added.
-
-  Returns:
-      A `Tensor` representing the results of the activation operation.
-  """
-  _check_unused(unused, name)
-  with tf.name_scope(name):
-    output = tf.nn.relu(x)
     return _collect_named_outputs(outputs_collections, name, output)
 
 

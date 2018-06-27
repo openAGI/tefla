@@ -2,8 +2,6 @@
 corresponding label files."""
 from __future__ import division, print_function, absolute_import
 
-import logging
-
 import numpy as np
 
 from . import data_load_ops as data

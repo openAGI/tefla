@@ -18,6 +18,8 @@ import numpy as np
 
 from tefla.da import data
 
+# pylint: disable=no-value-for-parameter
+
 N_PROC = cpu_count()
 
 

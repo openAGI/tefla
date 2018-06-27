@@ -6,8 +6,6 @@
 from __future__ import division, print_function, absolute_import
 
 import os
-import re
-import pprint
 import time
 
 import numpy as np
@@ -16,7 +14,6 @@ import tensorflow as tf
 from .base import Base, BaseMixin
 from . import summary as summary
 from . import logger as log
-from ..utils import util
 from ..da.data_augmentation import inputs, distorted_inputs
 from ..dataset.base import Dataset
 from ..dataset.decoder import Decoder

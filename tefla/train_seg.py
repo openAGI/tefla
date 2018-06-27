@@ -14,6 +14,8 @@ from tefla.da.standardizer import NoOpStandardizer
 from tefla.da.standardizer import AggregateStandardizerTF
 from tefla.utils import util
 
+# pylint: disable=no-value-for-parameter
+
 
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')

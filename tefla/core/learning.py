@@ -6,8 +6,6 @@
 from __future__ import division, print_function, absolute_import
 
 import os
-import re
-import pprint
 import time
 
 import numpy as np
@@ -16,7 +14,6 @@ import tensorflow as tf
 from .base import Base, BaseMixin
 from . import summary as summary
 from . import logger as log
-from ..utils import util
 from .optimizer import MovingAverageOptimizer
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -354,17 +351,17 @@ class SupervisedLearner(Base, BaseMixin):
       log.info('Using Moving Average Optimizer')
       optimizer = MovingAverageOptimizer(optimizer)
     self.inputs = tf.placeholder(
-        tf.float32, shape=(self.cnf['batch_size_train'], ) + self.cnf['input_size'], name="input")
+        tf.float32, shape=(self.cnf['batch_size_train'],) + self.cnf['input_size'], name="input")
     if self.loss_type == 'kappa_log':
       self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
       self.validation_labels = tf.placeholder(
           tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
     else:
-      self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], ))
-      self.validation_labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_test'], ))
+      self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'],))
+      self.validation_labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_test'],))
     self.validation_inputs = tf.placeholder(
         tf.float32,
-        shape=(self.cnf['batch_size_test'], ) + self.cnf['input_size'],
+        shape=(self.cnf['batch_size_test'],) + self.cnf['input_size'],
         name="validation_input")
     self.grads_and_vars, self.training_loss = self._process_towers_grads(
         optimizer, self.model, is_classification=self.classification)

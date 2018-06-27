@@ -1,16 +1,10 @@
 import numpy as np
-from PIL import Image
 import cv2
 import h5py
-import os
-import math
-import random
 import pickle
 from tqdm import tqdm
 import pprint
 import scipy.misc
-import tensorflow as tf
-from time import gmtime, strftime
 
 pp = pprint.PrettyPrinter()
 

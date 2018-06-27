@@ -88,8 +88,8 @@ class TextDataset():
     """
     raise NotImplementedError()
 
-  def feature_encoders(self):
-    return {"inputs": text_encoder.TextEncoder(), "targets": text_encoder.TextEncoder()}
+  # def feature_encoders(self):
+  #  return {"inputs": text_encoder.TextEncoder(), "targets": text_encoder.TextEncoder()}
 
   def example_reading_spec(self):
     data_fields = {"inputs": tf.VarLenFeature(tf.int64), "targets": tf.VarLenFeature(tf.int64)}
@@ -190,7 +190,7 @@ class TextDataset():
       else:
         data_files = [data_sources]
     if not data_files:
-      raise ValueError('No data files found in %s' % (data_sources, ))
+      raise ValueError('No data files found in %s' % (data_sources,))
     return data_files
 
 

@@ -94,7 +94,7 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
     nom = tf.reduce_sum(weights * conf_mat)
     denom = tf.reduce_sum(weights * tf.matmul(
         tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) /
-                    tf.to_float(batch_size))
+                          tf.to_float(batch_size))
 
     try:
       return -(1 - nom / denom)
@@ -278,7 +278,7 @@ def l2_regularizer(scale, name='l2_regularizer'):
     ValueError: If scale is negative or if scale is not a float.
   """
   if isinstance(scale, numbers.Integral):
-    raise ValueError('scale cannot be an integer: %s' % (scale, ))
+    raise ValueError('scale cannot be an integer: %s' % (scale,))
   if isinstance(scale, numbers.Real):
     if scale < 0.:
       raise ValueError('Setting a scale less than 0 on a regularizer: %g.' % scale)
@@ -889,7 +889,7 @@ def virtual_adversarial_loss_brnn(logits,
 
   perturbs = [_scale_l2(_mask_by_length(d, length), perturb_norm_length) for d in perturbs]
   vadv_logits = logits_from_embedding_fn([emb + d for (emb, d) in zip(embedded, perturbs)])
-  return _kl_divergence_with_logits(logits, vadv_logits, weights)
+  return _kl_divergence_with_logits(logits, vadv_logits, weights, num_classes)
 
 
 def _mask_by_length(t, length):

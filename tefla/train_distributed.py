@@ -10,8 +10,9 @@ import tensorflow as tf
 tf.set_random_seed(127)
 
 from tefla.core.learning_distributed import DistSupervisedLearner
-from tefla.da.standardizer import NoOpStandardizer
 from tefla.utils import util
+
+# pylint: disable=no-value-for-parameter
 
 
 @click.command()

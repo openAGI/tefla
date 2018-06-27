@@ -27,8 +27,7 @@ def get_labels(names, labels=None, label_file='data/trainLabels.csv', per_patien
   if per_patient:
     left = np.array(['left' in n for n in names])
     return np.vstack([labels[left], labels[~left]]).T
-  else:
-    return labels
+  return labels
 
 
 def get_some_image_files(datadir, n):

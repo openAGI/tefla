@@ -14,6 +14,8 @@ from tefla.core.learning import SupervisedLearner
 from tefla.da.standardizer import NoOpStandardizer
 from tefla.utils import util
 
+# pylint: disable=no-value-for-parameter
+
 
 @click.command()
 @click.option('--model', default=None, show_default=True, help='Relative path to model.')
@@ -55,7 +57,13 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
   cutout = cnf.get('cutout', None)
 
   training_iter, validation_iter = create_training_iters(
-      cnf, data_set, standardizer, model_def.crop_size, start_epoch, parallel=parallel, cutout=cutout)
+      cnf,
+      data_set,
+      standardizer,
+      model_def.crop_size,
+      start_epoch,
+      parallel=parallel,
+      cutout=cutout)
   learner = SupervisedLearner(
       model,
       cnf,

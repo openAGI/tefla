@@ -30,7 +30,6 @@ import numpy as np
 import random
 import scipy.ndimage
 import tensorflow as tf
-from ..core import logger as log
 
 
 def inputs(dataflow,

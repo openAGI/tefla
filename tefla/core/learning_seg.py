@@ -1,21 +1,15 @@
 from __future__ import division, print_function, absolute_import
 
 import os
-import re
-import pprint
 import time
 import traceback
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 from .base import Base, BaseMixin
 from . import summary as summary
 from . import logger as log
-from ..utils import util
 from ..dataset.pascal_voc import PascalVoc
-from .losses import segment_loss
-from .metrics import compute_hist
 import tensorflow as tf
 
 TRAINING_BATCH_SUMMARIES = 'training_batch_summaries'
@@ -260,7 +254,7 @@ class SupervisedLearner(Base, BaseMixin):
                 width=self.cnf.get('im_width', 512),
                 output_height=self.cnf.get('output_height', 224),
                 output_width=self.cnf.get('output_width', 224))
-            labels = tf.reshape(labels, shape=(-1, ))
+            labels = tf.reshape(labels, shape=(-1,))
             loss = self._tower_loss(
                 scope,
                 model,
