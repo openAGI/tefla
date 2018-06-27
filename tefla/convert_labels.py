@@ -7,16 +7,13 @@
 from __future__ import division, print_function
 
 import os
-from PIL import Image, ImageFilter
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool
 import scipy.misc
-from skimage.io import imread, imsave
+from skimage.io import imsave
 
 import click
 import numpy as np
-
-from tefla.da import data
 
 # pylint: disable=no-value-for-parameter
 
