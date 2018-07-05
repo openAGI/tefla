@@ -26,6 +26,22 @@ class NoOpStandardizer(NoDAMixin):
     return img
 
 
+class ScalingStandardizer(NoDAMixin):
+  """Scaling Standardizer.
+
+  Args:
+      scale: `float`, a scale to scale the image
+          e.g.: 1.0/255.
+  """
+
+  def __init__(self, scale):
+    self.scale = scale
+    super(ScalingStandardizer, self).__init__()
+
+  def __call__(self, img, is_training):
+    return img * self.scale
+
+
 class SamplewiseStandardizer(NoDAMixin):
   """Samplewise Standardizer.
 
