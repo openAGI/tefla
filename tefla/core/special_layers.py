@@ -1027,3 +1027,23 @@ def spatial_pyramid_pool(inputs, dimensions=[2, 1], mode='max', implementation='
           inputs, ksize=[1, ph, pw, 1], strides=[1, sh, sw, 1], padding='SAME')
       pool_list.append(tf.reshape(pool_result, [tf.shape(inputs)[0], -1]))
   return tf.concat(1, pool_list)
+
+
+def group_norm(x, filters=None, num_groups=8, epsilon=1e-5):
+  x_shape = util.shape_list(x)
+  if filters is None:
+    filters = x_shape[-1]
+  assert len(x_shape) == 4
+  assert filters % num_groups == 0
+  # Prepare variables.
+  scale = tf.get_variable(
+      "group_norm_scale", [filters], initializer=tf.ones_initializer())
+  bias = tf.get_variable(
+      "group_norm_bias", [filters], initializer=tf.zeros_initializer())
+  epsilon, scale, bias = [tf.cast(t, x.dtype) for t in [epsilon, scale, bias]]
+  # Reshape and compute group norm.
+  x = tf.reshape(x, x_shape[:-1] + [num_groups, filters // num_groups])
+  # Calculate mean and variance on heights, width, channels (not groups).
+  mean, variance = tf.nn.moments(x, [1, 2, 4], keep_dims=True)
+  norm_x = (x - mean) * tf.rsqrt(variance + epsilon)
+  return tf.reshape(norm_x, x_shape) * scale + bias
