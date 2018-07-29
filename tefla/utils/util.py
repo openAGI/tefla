@@ -1195,3 +1195,28 @@ def shape_list(x):
       dim = shape[i]
     ret.append(dim)
   return ret
+
+
+def convert_rgb_to_real(x):
+  """Conversion of pixel values to real numbers."""
+  with tf.name_scope("rgb_to_real", values=[x]):
+    x = tf.to_float(x)
+    x /= 255.0
+    return x
+
+
+def convert_rgb_to_symmetric_real(x):
+  """Conversion of pixel values to real numbers."""
+  with tf.name_scope("rgb_to_real", values=[x]):
+    x = tf.to_float(x)
+    # Convert each pixel intensity in [0, 1, 2, ..., 255] into a real number in
+    # the range [-1, 1].
+    x = (x / 127.5) - 1
+    return x
+
+
+def convert_real_to_rgb(x):
+  """Conversion of real numbers to pixel values."""
+  with tf.name_scope("real_to_rgb", values=[x]):
+    x *= 255.0
+    return x
