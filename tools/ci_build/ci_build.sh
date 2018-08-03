@@ -34,8 +34,6 @@ run_sanity_tests()
 
 TESTS_STEPS=("run_unit_tests PYTHON3" "run_sanity_tests")
 TESTS_STEPS_DESC=("Python3 Unit tests" "Sanity tests")
-# TESTS_STEPS=("run_sanity_tests")
-# TESTS_STEPS_DESC=("Sanity tests")
 
 INCREMENTAL_FLAG=""
 DEFAULT_BAZEL_CONFIGS="--config=hdfs --config=gcp"
