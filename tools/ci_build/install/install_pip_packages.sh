@@ -20,7 +20,7 @@ pip install pandas==0.18.1
 pip install SharedArray==3.0.0
 pip install click==6.6
 pip install scikit-image==0.12.3
-pip install scikit-learn==0.18.2
+pip install scikit-learn==0.19.2
 pip install scipy==0.18.0
 pip install six==1.10.0
 pip install setuptools==28.8.0

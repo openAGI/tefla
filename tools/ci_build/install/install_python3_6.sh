@@ -14,7 +14,7 @@ apt-get update
 apt-get install -y build-essential python3.6 python3.6-dev python3-pip python3.6-venv 
 apt-get install -y --no-install-recommends python3-tk
 apt-get install -y git
-apt install -y libsm6 libxext6
+apt-get install -y libsm6 libxext6
 apt-get install -y libxrender-dev
 
 # update pip

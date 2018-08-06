@@ -17,4 +17,4 @@ RUN chmod +x ./tools/ci_build/ci_build.sh
 RUN ./tools/ci_build/install/install_python3_6.sh
 RUN ./tools/ci_build/install/install_pip_packages.sh
 
-RUN ./tools/ci_build/ci_build.sh
+CMD ["./tools/ci_build/ci_build.sh"]
