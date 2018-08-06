@@ -28,4 +28,5 @@ pip install jupyter==1.0.0
 pip install ghalton==0.6
 pip install progress
 pip install h5py
+pip install portpicker==1.2.0
 pip install git+https://github.com/openAGI/tefla.git

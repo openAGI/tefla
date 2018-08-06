@@ -4,6 +4,7 @@ FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
 LABEL maintainer="Ishant Mrinal Haloi <mrinalhaloi11@gmail.com>"
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBIAN_FRONTEND teletype
+ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tefla
 
