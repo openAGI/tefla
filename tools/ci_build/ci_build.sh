@@ -11,7 +11,7 @@ run_unit_tests()
   pytest -v "${ROOT_DIR}/tests/"
   echo "Done running tests"
   echo "#########################################"
-  if [[$? ! =0]]; then
+  if [[$? != 0]]; then
     return 1
   else
     return 0
@@ -25,7 +25,7 @@ run_sanity_tests()
   bash "${SCRIPT_DIR}/ci_sanity.sh"
   echo "Done running tests"
   echo "#########################################"
-  if [[$? ! =0]]; then
+  if [[$? != 0]]; then
     return 1
   else
     return 0
