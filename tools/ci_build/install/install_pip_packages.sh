@@ -20,13 +20,13 @@ pip install pandas==0.18.1
 pip install SharedArray==3.0.0
 pip install click==6.6
 pip install scikit-image==0.12.3
-pip install scikit-learn==0.19.2
 pip install scipy==0.18.0
 pip install six==1.10.0
 pip install setuptools==28.8.0
 pip install jupyter==1.0.0
-pip install ghalton==0.6
 pip install progress
 pip install h5py
 pip install portpicker==1.2.0
+pip install scikit-learn==0.19.2
+pip install ghalton==0.6
 pip install git+https://github.com/openAGI/tefla.git
