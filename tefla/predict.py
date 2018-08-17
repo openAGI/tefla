@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Tool for prediction
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2018 The Tefla Authors. All Rights Reserved.
+# -------------------------------------------------------------------#
 import os
 
 import click

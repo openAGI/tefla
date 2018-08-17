@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Tool to eval segmentation performance
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 import os
 import click
 

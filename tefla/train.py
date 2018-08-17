@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Tool to train on images
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2018 The Tefla Authors. All Rights Reserved.
+# -------------------------------------------------------------------#
 from __future__ import division, print_function, absolute_import
 
 import click

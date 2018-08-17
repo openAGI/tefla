@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Tool to predict seg images
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2018 The Tefla Authors. All Rights Reserved.
+# -------------------------------------------------------------------#
 import click
 import numpy as np
 import matplotlib as mpl
