@@ -1,3 +1,8 @@
+# -------------------------------------------------------------------#
+# Tool to generate images
+# Contact: mrinalhaloi11@gmail.com
+# Copyright 2017, Mrinal Haloi
+# -------------------------------------------------------------------#
 import click
 import tensorflow as tf
 
