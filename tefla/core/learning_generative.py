@@ -121,7 +121,7 @@ class GenerativeLearner(Base):
     batch_iter_idx = 1
     n_iters_per_epoch = len(dataset.training_X) // self.training_iterator.batch_size
     self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
-    for epoch in xrange(start_epoch, self.cnf.get('mum_epochs', 550) + 1):
+    for epoch in range(start_epoch, self.cnf.get('mum_epochs', 550) + 1):
       np.random.seed(epoch + seed_delta)
       tf.set_random_seed(epoch + seed_delta)
       tic = time.time()
@@ -360,7 +360,7 @@ class GenerativeLearner(Base):
       images_gpus = []
       images_gpus.append(self.inputs)
     with tf.variable_scope(tf.get_variable_scope()):
-      for i in xrange(self.cnf.get('num_gpus', 1)):
+      for i in range(self.cnf.get('num_gpus', 1)):
         with tf.device('/gpu:%d' % i):
           with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
             d_loss, g_loss, e_loss, d_loss_real, d_loss_fake, kl_loss, like_loss \

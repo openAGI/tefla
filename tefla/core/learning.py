@@ -115,7 +115,7 @@ class SupervisedLearner(Base, BaseMixin):
       self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
       self.total_network_params()
       self.write_graph(sess.graph_def, weights_dir)
-      for epoch in xrange(start_epoch, self.num_epochs + 1):
+      for epoch in range(start_epoch, self.num_epochs + 1):
         np.random.seed(epoch + seed_delta)
         tf.set_random_seed(epoch + seed_delta)
         tic = time.time()
@@ -272,7 +272,7 @@ class SupervisedLearner(Base, BaseMixin):
       images_gpus = [self.inputs]
       labels_gpus = [self.labels]
     with tf.variable_scope(tf.get_variable_scope()):
-      for i in xrange(self.cnf.get('num_gpus', 1)):
+      for i in range(self.cnf.get('num_gpus', 1)):
         with tf.device('/gpu:%d' % i):
           with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
             loss = self._tower_loss(
@@ -314,7 +314,7 @@ class SupervisedLearner(Base, BaseMixin):
     else:
       images_gpus = [self.validation_inputs]
       labels_gpus = [self.validation_labels]
-    for i in xrange(self.cnf.get('num_gpus', 1)):
+    for i in range(self.cnf.get('num_gpus', 1)):
       with tf.device('/gpu:%d' % i):
         with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
           loss_pred = self._tower_loss(

@@ -4,7 +4,7 @@
 """Test-time augmentation tools."""
 from __future__ import division, print_function, absolute_import
 
-import ghalton
+# import ghalton
 import numpy as np
 from scipy.special import erfinv
 

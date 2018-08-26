@@ -789,7 +789,7 @@ def virtual_adversarial_loss(logits,
 
   d = _mask_by_length(tf.random_normal(shape=tf.shape(embedded)), length)
 
-  for _ in xrange(num_power_iteration):
+  for _ in range(num_power_iteration):
     d = _scale_l2(d, small_constant_for_finite_diff)
     d_logits = logits_from_embedding_fn(embedded + d)
     kl = _kl_divergence_with_logits(logits, d_logits, weights, num_classes)
@@ -880,7 +880,7 @@ def virtual_adversarial_loss_brnn(logits,
   weights = _end_of_seq_mask(labels, vocab_size)
 
   perturbs = [_mask_by_length(tf.random_normal(shape=tf.shape(emb)), length) for emb in embedded]
-  for _ in xrange(num_power_iteration):
+  for _ in range(num_power_iteration):
     perturbs = [_scale_l2(d, small_constant_for_finite_diff) for d in perturbs]
     d_logits = logits_from_embedding_fn([emb + d for (emb, d) in zip(embedded, perturbs)])
     kl = _kl_divergence_with_logits(logits, d_logits, weights, num_classes)

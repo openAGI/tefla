@@ -116,7 +116,7 @@ class SemiSupervisedTrainer(Base):
     batch_iter_idx = 1
     n_iters_per_epoch = len(dataset.training_X) // self.training_iterator.batch_size
     self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
-    for epoch in xrange(start_epoch, self.cnf.get('mum_epochs', 550) + 1):
+    for epoch in range(start_epoch, self.cnf.get('mum_epochs', 550) + 1):
       np.random.seed(epoch + seed_delta)
       tf.set_random_seed(epoch + seed_delta)
       tic = time.time()

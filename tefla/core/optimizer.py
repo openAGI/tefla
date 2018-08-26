@@ -555,11 +555,11 @@ class Conv2DPXG(object):
     batch_size = input_shape[0]
     input_px = [
         tf.slice(input_, [example] + [0] * 3, [1] + input_shape[1:])
-        for example in xrange(batch_size)
+        for example in range(batch_size)
     ]
     for input_x in input_px:
       assert int(input_x.get_shape()[0]) == 1
-    w_px = [tf.identity(w) for example in xrange(batch_size)]
+    w_px = [tf.identity(w) for example in range(batch_size)]
     conv_px = [
         tf.nn.conv2d(input_x, w_x, strides=strides, padding=padding)
         for input_x, w_x in zip(input_px, w_px)

@@ -149,14 +149,14 @@ class SupervisedLearner(Base, BaseMixin):
     coord = tf.train.Coordinator()
     tf.train.start_queue_runners(sess=sess, coord=coord)
     try:
-      for epoch in xrange(start_epoch, self.num_epochs + 1):
+      for epoch in range(start_epoch, self.num_epochs + 1):
         np.random.seed(epoch + seed_delta)
         tf.set_random_seed(epoch + seed_delta)
         tic = time.time()
         training_losses = []
         batch_train_sizes = []
 
-        for batch_num in xrange(1, n_iters_per_epoch + 1):
+        for batch_num in range(1, n_iters_per_epoch + 1):
           feed_dict_train = {self.learning_rate: learning_rate_value}
 
           log.debug('1. Loading batch %d data done.' % batch_num)
@@ -245,7 +245,7 @@ class SupervisedLearner(Base, BaseMixin):
     tower_grads = []
     tower_loss = []
     with tf.variable_scope(tf.get_variable_scope()):
-      for i in xrange(self.cnf.get('num_gpus', 1)):
+      for i in range(self.cnf.get('num_gpus', 1)):
         with tf.device('/gpu:%d' % i):
           with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
             images, labels = self.data_voc.get_batch(

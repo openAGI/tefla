@@ -227,14 +227,14 @@ class SupervisedLearner(Base, BaseMixin):
     self.write_graph(sess.graph_def, weights_dir)
     coord = tf.train.Coordinator()
     tf.train.start_queue_runners(sess=sess, coord=coord)
-    for epoch in xrange(start_epoch, self.num_epochs + 1):
+    for epoch in range(start_epoch, self.num_epochs + 1):
       np.random.seed(epoch + seed_delta)
       tf.set_random_seed(epoch + seed_delta)
       tic = time.time()
       training_losses = []
       batch_train_sizes = []
 
-      for batch_num in xrange(1, n_iters_per_epoch + 1):
+      for batch_num in range(1, n_iters_per_epoch + 1):
         feed_dict_train = {
             self.learning_rate: learning_rate_value,
             self.target_probs: list(current_probs)
@@ -300,7 +300,7 @@ class SupervisedLearner(Base, BaseMixin):
       epoch_validation_loss = 0
       batch_validation_sizes = []
       if dataset_val is not None:
-        for batch_num in xrange(dataset_val.n_iters_per_epoch):
+        for batch_num in range(dataset_val.n_iters_per_epoch):
           log.debug('6. Loading batch %d validation data done.' % batch_num)
 
           if (epoch - 1) % summary_every == 0 and self.is_summary:
@@ -399,7 +399,7 @@ class SupervisedLearner(Base, BaseMixin):
         ],
         name="target_probs")
     with tf.variable_scope(tf.get_variable_scope()):
-      for i in xrange(self.cnf.get('num_gpus', 1)):
+      for i in range(self.cnf.get('num_gpus', 1)):
         with tf.device('/gpu:%d' % i):
           with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
             images, labels = distorted_inputs(
@@ -454,7 +454,7 @@ class SupervisedLearner(Base, BaseMixin):
     predictions = []
     validation_metric = []
     validation_metric_tmp = [[] for _, _ in self.validation_metrics_def]
-    for i in xrange(self.cnf.get('num_gpus', 1)):
+    for i in range(self.cnf.get('num_gpus', 1)):
       with tf.device('/gpu:%d' % i):
         with tf.name_scope('%s_%d' % (self.cnf.get('TOWER_NAME', 'tower'), i)) as scope:
           images, labels = inputs(
