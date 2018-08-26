@@ -8,6 +8,7 @@ from __future__ import division, print_function, absolute_import
 import pprint
 import numpy as np
 import os
+from functools import reduce
 
 from ..da.iterator import BatchIterator
 from .lr_policy import NoDecayPolicy
@@ -101,7 +102,7 @@ class Base(object):
           summary.summary_image(
               self.inputs, 'inputs', max_images=10, collections=[TRAINING_BATCH_SUMMARIES])
       if activation_summary:
-        for key, val in self.training_end_points.iteritems():
+        for key, val in self.training_end_points.items():
           summary.summary_activation(val, name=key, collections=[TRAINING_BATCH_SUMMARIES])
       if params_summary:
         summary.summary_trainable_params(
@@ -115,7 +116,7 @@ class Base(object):
 
       # Validation summaries
       if activation_summary:
-        for key, val in self.validation_end_points.iteritems():
+        for key, val in self.validation_end_points.items():
           summary.summary_activation(val, name=key, collections=[VALIDATION_BATCH_SUMMARIES])
 
       tf.summary.scalar('validation loss', self.epoch_loss, collections=[VALIDATION_EPOCH_SUMMARIES])
@@ -271,7 +272,7 @@ class Base(object):
 
   def _print_layer_shapes(self, end_points, log):
     log.info("\nModel layer output shapes:")
-    for k, v in end_points.iteritems():
+    for k, v in end_points.items():
       log.info("%s - %s" % (k, v.get_shape()))
 
   def _adjust_ground_truth(self, y):
