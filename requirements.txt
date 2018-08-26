@@ -1,5 +1,5 @@
 numpy
-pandas==0.18.1
+pandas
 SharedArray==3.0.0
 click==6.6
 scikit-image==0.12.3
