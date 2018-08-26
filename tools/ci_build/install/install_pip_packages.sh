@@ -16,7 +16,7 @@ pip install opencv-python==3.4.1.15
 pip install mock==2.0.0 
 pip install pylint==1.9.2
 pip install Pillow==2.3.0
-pip install pandas==0.18.1
+pip install pandas==0.23.4
 pip install SharedArray==3.0.0
 pip install click==6.6
 pip install scikit-image==0.12.3
