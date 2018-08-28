@@ -7,7 +7,14 @@ from ..da import iterator
 from . import logger
 
 
-def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True, cutout=None, data_balancing=True):
+def create_training_iters(cnf,
+                          data_set,
+                          standardizer,
+                          crop_size,
+                          epoch,
+                          parallel=True,
+                          cutout=None,
+                          data_balancing=True):
   """Creates training iterator to access and augment the dataset.
 
   Args:
