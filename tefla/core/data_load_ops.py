@@ -16,10 +16,13 @@ def get_names(files):
   return [x[0:x.rfind('.')] for x in map(lambda f: os.path.basename(f), files)]
 
 
-def get_labels(names, labels=None, label_file='data/trainLabels.csv', per_patient=False):
+def get_labels(names, labels=None, label_file='data/trainLabels.csv', per_patient=False, multilabel=False):
   try:
     if labels is None:
-      labels = pd.read_csv(label_file, index_col=0).loc[names].values.flatten()
+      labels = pd.read_csv(label_file, index_col=0).loc[names].values
+      if multilabel:
+        return labels
+      return labels.flatten()
   except Exception:
     logger.info('No labels found!')
     labels = np.zeros(shape=[len(names)])

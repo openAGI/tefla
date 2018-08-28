@@ -7,43 +7,66 @@ from ..da import iterator
 from . import logger
 
 
-def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True, cutout=None):
+def create_training_iters(cnf, data_set, standardizer, crop_size, epoch, parallel=True, cutout=None, data_balancing=True):
   """Creates training iterator to access and augment the dataset.
 
   Args:
-      cnf: configs dict with all training and augmentation params
-      data_set: an instance of the dataset class
-      standardizer: data samples standardization; either samplewise or aggregate
-      crop_size: training time crop_size of the data samples
-      epoch: the current epoch number; used for data balancing
-      parallel: iterator type; either parallel or queued
+      cnf: configs dict with all training and augmentation params.
+      data_set: an instance of the dataset class.
+      standardizer: data samples standardization; either samplewise or aggregate.
+      crop_size: training time crop_size of the data samples.
+      epoch: the current epoch number; used for data balancing.
+      parallel: iterator type; either parallel or queued.
+      data_balancing: Bool, whether to use data balancing iterator, doesnt support multilabel
+        dataset yet, but supports multiclass datasets.
   """
   if parallel:
-    training_iterator_maker = iterator.BalancingDAIterator
+    if data_balancing:
+      training_iterator_maker = iterator.BalancingDAIterator
+    else:
+      training_iterator_maker = iterator.ParallelDAIterator
     validation_iterator_maker = iterator.ParallelDAIterator
     logger.info('Using parallel iterators')
   else:
-    training_iterator_maker = iterator.BalancingQueuedDAIterator
+    if data_balancing:
+      training_iterator_maker = iterator.BalancingQueuedDAIterator
+    else:
+      training_iterator_maker = iterator.ParallelDAIterator
     validation_iterator_maker = iterator.ParallelDAIterator
     logger.info('Using queued iterators')
 
   preprocessor = None
-  training_iterator = training_iterator_maker(
-      batch_size=cnf['batch_size_train'],
-      shuffle=True,
-      preprocessor=preprocessor,
-      crop_size=crop_size,
-      is_training=True,
-      aug_params=cnf['aug_params'],
-      balance_weights=data_set.balance_weights(),
-      final_balance_weights=cnf['final_balance_weights'],
-      balance_ratio=cnf['balance_ratio'],
-      balance_epoch_count=epoch - 1,
-      standardizer=standardizer,
-      cutout=cutout,
-      fill_mode='constant'
-      # save_to_dir=da_training_preview_dir
-  )
+
+  if data_balancing:
+    training_iterator = training_iterator_maker(
+        batch_size=cnf['batch_size_train'],
+        shuffle=True,
+        preprocessor=preprocessor,
+        crop_size=crop_size,
+        is_training=True,
+        aug_params=cnf['aug_params'],
+        balance_weights=data_set.balance_weights(),
+        final_balance_weights=cnf['final_balance_weights'],
+        balance_ratio=cnf['balance_ratio'],
+        balance_epoch_count=epoch - 1,
+        standardizer=standardizer,
+        cutout=cutout,
+        fill_mode='constant'
+        # save_to_dir=da_training_preview_dir
+    )
+  else:
+    training_iterator = training_iterator_maker(
+        batch_size=cnf['batch_size_train'],
+        shuffle=True,
+        preprocessor=preprocessor,
+        crop_size=crop_size,
+        is_training=True,
+        aug_params=cnf['aug_params'],
+        standardizer=standardizer,
+        cutout=cutout,
+        fill_mode='constant'
+        # save_to_dir=da_training_preview_dir
+    )
 
   validation_iterator = validation_iterator_maker(
       batch_size=cnf['batch_size_test'],

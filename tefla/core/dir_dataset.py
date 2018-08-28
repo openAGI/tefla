@@ -10,7 +10,7 @@ from . import logger
 
 class DataSet(object):
 
-  def __init__(self, data_dir, img_size):
+  def __init__(self, data_dir, img_size, mode='classification'):
     self.data_dir = data_dir
     training_images_dir = "%s/training_%d" % (data_dir, img_size)
     training_labels_file = "%s/training_labels.csv" % data_dir
@@ -26,6 +26,19 @@ class DataSet(object):
     names = data.get_names(self._validation_files)
     self._validation_labels = data.get_labels(
         names, label_file=validation_labels_file).astype(np.int32)
+
+    # make sure no wrong labels exist
+    if mode == 'classification':
+      self._training_labels = self.check_labels(self._training_labels, 'training')
+      self._validation_labels = self.check_labels(self._validation_labels, 'validation')
+
+  def check_labels(self, labels, split):
+    negative_ids = np.where(labels < 0)[0]
+    if negative_ids.shape[0] > 0:
+      logger.info('Possible mistakes in the {} dataset, found negative labels Total: {}'.format(split, negative_ids.shape[0]))
+      logger.info('Setting negative labels to zero, take action if ncessary')
+      labels[negative_ids] = 0
+    return labels
 
   @property
   def training_X(self):
