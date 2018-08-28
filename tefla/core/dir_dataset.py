@@ -35,7 +35,8 @@ class DataSet(object):
   def check_labels(self, labels, split):
     negative_ids = np.where(labels < 0)[0]
     if negative_ids.shape[0] > 0:
-      logger.info('Possible mistakes in the {} dataset, found negative labels Total: {}'.format(split, negative_ids.shape[0]))
+      logger.info('Possible mistakes in the {} dataset, found negative labels \
+          Total: {}'.format(split, negative_ids.shape[0]))
       logger.info('Setting negative labels to zero, take action if ncessary')
       labels[negative_ids] = 0
     return labels
