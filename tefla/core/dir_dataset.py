@@ -64,14 +64,22 @@ class DataSet(object):
     return len(self._validation_files)
 
   def num_classes(self):
+    if len(self._training_labels.shape) > 1:
+      return self._training_labels.shape[1]
     return len(np.unique(self._training_labels))
 
   def class_frequencies(self):
-    return zip(np.unique(self._training_labels), np.bincount(self._training_labels))
+    if len(self._training_labels.shape) > 1:
+      return list(zip(list(range(self.num_classes())), np.sum(self._training_labels, axis=0)))
+    else:
+      return list(zip(np.unique(self._training_labels), np.bincount(self._training_labels)))
 
   def balance_weights(self):
     total = self.num_training_files()
-    class_counts = np.bincount(self._training_labels)
+    if len(self._training_labels.shape) > 1:
+      class_counts = np.sum(self._training_labels, axis=0)
+    else:
+      class_counts = np.bincount(self._training_labels)
     return np.array([total / class_count for class_count in class_counts])
 
   def final_balance_weights(self):
