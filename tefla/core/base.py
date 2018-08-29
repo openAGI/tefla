@@ -237,7 +237,7 @@ class Base(object):
         list_variables = var_to_shape_map.keys()
       else:
         list_variables = [tensor_name]
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e: # pylint: disable=broad-except
       if "corrupted compressed block contents" in str(e):
         log.debug("It's likely that your checkpoint file has been compressed with SNAPPY.")
     return list_variables
@@ -610,16 +610,22 @@ class BaseMixin(object):
       return sq_loss_mean
 
   def _sparse_loss_softmax(self, logits, labels, is_training, weighted=False):
-    log.info('Using sparse softmax loss')
     labels = tf.cast(labels, tf.int64)
     if weighted:
+      log.info('Using weighted sparse softmax  cross entropy loss')
       if tf.rank(labels) != 2:
         labels = tf.one_hot(labels, self.num_classes)
-      weights = self._compute_weights(labels)
-      weights = tf.reduce_max(tf.multiply(weights, labels), axis=1)
+      if self.cnf.get('weights'):
+        weights = tf.tile(
+            tf.reshape(tf.constant(self.cnf.get('weights'), dtype=tf.float32), [1, -1]),
+            [batch_size, 1])
+      else:
+        weights = self._compute_weights(labels)
+        weights = tf.reduce_max(tf.multiply(weights, labels), axis=1)
       ce_loss = tf.losses.sparse_softmax_cross_entropy(
           tf.argmax(labels, axis=1), logits=logits, weights=weights, scope='cross_entropy_loss')
     else:
+      log.info('Using sparse softmax cross entropy loss')
       ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
           labels=labels, logits=logits, name='cross_entropy_loss')
     ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
@@ -635,13 +641,18 @@ class BaseMixin(object):
       return ce_loss_mean
 
   def _loss_softmax(self, logits, labels, is_training, weighted=False):
-    log.info('Using softmax loss')
     labels = tf.cast(labels, tf.int64)
     if tf.rank(labels) != 2:
       labels = tf.one_hot(labels, self.num_classes)
     if weighted:
-      weights = self._compute_weights(labels)
-      weights = tf.reduce_max(tf.multiply(weights, labels), axis=1)
+      log.info('Using weighted softmax cross entropy loss')
+      if self.cnf.get('weights'):
+        weights = tf.tile(
+            tf.reshape(tf.constant(self.cnf.get('weights'), dtype=tf.float32), [1, -1]),
+            [batch_size, 1])
+      else:
+        weights = self._compute_weights(labels)
+        weights = tf.reduce_max(tf.multiply(weights, labels), axis=1)
       ce_loss = tf.losses.softmax_cross_entropy(
           labels,
           logits=logits,
@@ -649,6 +660,7 @@ class BaseMixin(object):
           label_smoothing=self.label_smoothing,
           scope='cross_entropy_loss')
     else:
+      log.info('Using softmax cross entropy loss')
       ce_loss = tf.nn.softmax_cross_entropy_with_logits(
           labels=labels, logits=logits, name='cross_entropy_loss')
     ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
@@ -663,13 +675,16 @@ class BaseMixin(object):
     else:
       return ce_loss_mean
 
-  def _loss_sigmoid(self, logits, labels, is_training, weighted=False):
-    log.info('Using sigmoid loss')
-    labels = tf.cast(labels, tf.int64)
-    if tf.rank(labels) != 2:
-      labels = tf.one_hot(labels, self.num_classes)
+  def _loss_sigmoid(self, logits, labels, is_training, batch_size, weighted=False):
+    labels = tf.cast(labels, tf.float32)
     if weighted:
-      weights = self._compute_weights(labels)
+      log.info('Using weighted sigmoid cross entropy loss')
+      if self.cnf.get('weights'):
+        weights = tf.tile(
+            tf.reshape(tf.constant(self.cnf.get('weights'), dtype=tf.float32), [1, -1]),
+            [batch_size, 1])
+      else:
+        weights = self._compute_weights(labels)
       ce_loss = tf.losses.sigmoid_cross_entropy(
           labels,
           logits=logits,
@@ -677,6 +692,7 @@ class BaseMixin(object):
           label_smoothing=self.label_smoothing,
           scope='sigmoid_cross_entropy_loss')
     else:
+      log.info('Using sigmoid cross entropy loss')
       ce_loss = tf.nn.sigmoid_cross_entropy_with_logits(
           labels=labels, logits=logits, name='sigmoid_cross_entropy_loss')
     ce_loss_mean = tf.reduce_mean(ce_loss, name='sigmoid_cross_entropy')
@@ -760,7 +776,11 @@ class BaseMixin(object):
           loss_temp = self._loss_dice(self.training_end_points['predictions'], labels, is_training)
         elif loss_type == 'sigmoid_loss':
           loss_temp = self._loss_sigmoid(
-              self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
+              self.training_end_points['logits'],
+              labels,
+              is_training,
+              self.cnf.get('batch_size_train'),
+              weighted=self.weighted)
         elif loss_type == 'sparse_xentropy':
           loss_temp = self._sparse_loss_softmax(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
@@ -780,7 +800,7 @@ class BaseMixin(object):
         if loss_type == 'kappa_log':
           loss = self._loss_kappa(self.validation_end_points['predictions'], labels, is_training)
         elif loss_type == 'sigmoid_loss':
-          loss = self._loss_sigmoid(self.validation_end_points['logits'], labels, is_training)
+          loss = self._loss_sigmoid(self.validation_end_points['logits'], labels, is_training, None)
         elif loss_type == 'sparse_xentropy':
           loss = self._sparse_loss_softmax(self.validation_end_points['logits'], labels, is_training)
         else:
