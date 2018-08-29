@@ -679,7 +679,7 @@ class BaseMixin(object):
     labels = tf.cast(labels, tf.float32)
     if weighted:
       log.info('Using weighted sigmoid cross entropy loss')
-      if self.cnf.get('weights'):
+      if self.cnf.get('weights').shape[0] > 0:
         weights = tf.tile(
             tf.reshape(tf.constant(self.cnf.get('weights'), dtype=tf.float32), [1, -1]),
             [batch_size, 1])
