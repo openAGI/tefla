@@ -336,7 +336,7 @@ class SupervisedLearner(Base, BaseMixin):
     predictions = tf.convert_to_tensor(predictions)
     predictions = tf.reshape(predictions, [-1, self.num_classes])
     for i, (_, _) in enumerate(self.validation_metrics_def):
-      validation_metric.append(sum(validation_metric_tmp[i]))
+      validation_metric.append(sum(validation_metric_tmp[i]) / self.cnf.get('num_gpus', 1))
     return sum(tower_loss), predictions, validation_metric
 
   def _setup_model_loss(self, val=True, keep_moving_averages=False):
@@ -356,6 +356,10 @@ class SupervisedLearner(Base, BaseMixin):
       self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
       self.validation_labels = tf.placeholder(
           tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
+    elif self.loss_type == 'sigmoid_loss':
+      self.labels = tf.placeholder(tf.float32, shape=(self.cnf['batch_size_train'], self.num_classes))
+      self.validation_labels = tf.placeholder(
+          tf.float32, shape=(self.cnf['batch_size_test'], self.num_classes))
     else:
       self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'],))
       self.validation_labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_test'],))
