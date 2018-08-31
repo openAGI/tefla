@@ -184,7 +184,7 @@ class SupervisedLearner(Base, BaseMixin):
         epoch_validation_metrics = []
         batch_validation_sizes = []
         for batch_num, (validation_Xb, validation_yb) in enumerate(
-            self.validation_iterator(validation_X, validation_y)):
+              self.validation_iterator(validation_X, validation_y)):
           if validation_Xb.shape[0] < self.cnf['batch_size_test']:
             continue
           feed_dict_validation = {
@@ -378,8 +378,9 @@ class SupervisedLearner(Base, BaseMixin):
         name="validation_input")
     self.grads_and_vars, self.training_loss = self._process_towers_grads(
         optimizer, self.model, is_classification=self.classification)
-    self.validation_loss, self.validation_predictions, self.validation_metric, self.validation_metrics_update_ops = self._process_towers_loss(
-        optimizer, self.model, is_classification=self.classification)
+    self.validation_loss, self.validation_predictions, self.validation_metric, \
+        self.validation_metrics_update_ops = self._process_towers_loss(
+               optimizer, self.model, is_classification=self.classification)
 
     if self.clip_norm and not self.clip_by_global_norm:
       self.grads_and_vars = self._clip_grad_norms(self.grads_and_vars, max_norm=self.norm_threshold)
