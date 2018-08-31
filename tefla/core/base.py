@@ -587,6 +587,70 @@ class Base(object):
     log.info('Writing model graph .pbtxt to %s' % output_dir)
     tf.train.write_graph(graph_def, output_dir, self.model_name)
 
+  def calculate_metrics(self, metrics, labels, predictions, metrics_scores, metrics_update_ops):
+    """ Calculate metrics
+
+    Args:
+      metrics: a dict, key as metric name and value as metric function
+      labels: `Tensor`, 1D/2D, groundtruth labels
+      predictions: `Tensor` matching the shape and type of `labels`
+      metrics_scores: `dict`, metric scores dict to update
+      metrics_update_ops: `dict`, metric update os dict to update
+
+    Returns:
+      `metric_scores` and `metric_update_ops` dict
+    """
+    for _, (metric_name, metric_function) in enumerate(metrics):
+      log.info('Using {} metrics'.format(metric_name))
+      if metric_name == 'accuracy' and self.loss_type != 'sigmoid_loss':
+        metric_score, update_ops = metric_function(
+            labels, tf.argmax(predictions, 1), name=metric_name)
+        metrics_scores[metric_name].append(metric_score)
+        metrics_update_ops[metric_name].append(update_ops)
+      elif metric_name == 'kappa' and self.loss_type != 'sigmoid_loss':
+        metric_score, update_ops = metric_function(
+            labels, tf.argmax(predictions, 1), self.num_classes, name=metric_name)
+        metrics_scores[metric_name].append(metric_score)
+        metrics_update_ops[metric_name].append(update_ops)
+      elif metric_name in ('accuracy', 'auc', 'f1score') and self.loss_type == 'sigmoid_loss':
+        for i in range(self.num_classes):
+          metric_score, update_ops = metric_function(
+              labels[:, i], predictions[:, i], name=metric_name + str(i))
+          metrics_scores[metric_name + str(i)].append(metric_score)
+          metrics_update_ops[metric_name + str(i)].append(update_ops)
+      else:
+        metric_score, update_ops = metric_function(
+            labels, tf.round(predictions), name=metric_name)
+        metrics_scores[metric_name].append(metric_score)
+        metrics_update_ops[metric_name].append(update_ops)
+
+    return metrics_scores, metrics_update_ops
+
+  def get_metrics_local_vars(self, metrics):
+    """ Get the local variables for tensorflow metrics
+
+    Args:
+      metrics: a dict, key as metric name and value as metric function
+
+    Returns:
+      a list with local variables
+    """
+    local_ops = []
+    for _, (metric_name, _) in enumerate(metrics):
+      local_ops.append([var for var in tf.local_variables() if metric_name in var.name])
+    return self.flatten_list(local_ops)
+
+  def flatten_list(self, list_of_list):
+    """ Convert a list of list to a single list, flatten a double list
+
+    Args:
+      list_of_list: a list of list
+
+    Returns:
+      a `list`, flattened output list
+    """
+    return [item for sublist in list_of_list for item in sublist]
+
 
 class BaseMixin(object):
 
