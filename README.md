@@ -2,9 +2,9 @@
 [![Build Status](https://travis-ci.org/openAGI/tefla.svg?branch=master)](https://travis-ci.org/openAGI/tefla)
 [![PyPI version](https://badge.fury.io/py/tefla.svg)](https://badge.fury.io/py/tefla)
 [![Build Status](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/openagi/tefla/blob/master/LICENSE)
-# Tefla: Deep Learning library, a Higher level API for TensorFlow
+# Tefla
 
-Tefla is built on top of Tensorflow. It provides higher level access to tensorflow's features. Inerface, Easy to build complex models. 
+Tefla is built on top of Tensorflow for fast prototyping of deep learning algorithms. It provides higher level access to tensorflow's features. Inerface, Easy to build complex models. 
 
 Tefla features:
 
@@ -14,17 +14,22 @@ Tefla features:
        
         . Support for text datasets
 
-        . easy to define complex deep models
+        . Easy to define complex deep models
 
-        . single and multi GPU training
+        . Single and multi GPU training
 
-        . various prediction functions including ensembling of models
+        . Various prediction functions including ensembling of models
 
-        . different metrics for performance measurement
+        . Different metrics for performance measurement
 
-        . custom losses
+        . Custom losses
 
-        . learning rate schedules, polynomial, step, validation_loss based
+        . Learning rate schedules, polynomial, step, validation_loss based
+
+        . Semantic segmentation learning
+
+        . Semi-supervised learning
+         
 
 
 
@@ -74,7 +79,7 @@ Recent deep convolutional models are easy to implement using TEFLA, the state-of
 >>>convolved = conv2d(input, 48, False, None)
 
 ```
-# 2 a. Data Directory structure for using normal images
+## 2a. Data Directory structure for using normal images
 ```Shell
 |-- Data_Dir
 |   |-- training_image_size (eg. training_256, for 256 image size)
@@ -82,10 +87,10 @@ Recent deep convolutional models are easy to implement using TEFLA, the state-of
 |   |-- training_labels.csv
 |   |-- validation_labels.csv
 ```
-# 2 b. TFRecords support available using tefla/dataset class
+## 2b. TFRecords support available using tefla/dataset class
     1. [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
 
-# Run training:
+## Run training:
   ```Shell
 python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
   ```
