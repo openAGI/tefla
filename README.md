@@ -90,7 +90,7 @@ Recent deep convolutional models are easy to implement using TEFLA, the state-of
 ## 2b. TFRecords support available using tefla/dataset class
     1. [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
 
-# Run training:
+## Run training:
   ```Shell
 python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
   ```
