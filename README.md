@@ -37,8 +37,8 @@ or
 pip install tensorflow
 ```
 
-## Tefla Installation version 
-# Tefla 1.8.0 released
+### Tefla Installation version 
+## Tefla 1.9.0 released
 For the latest stable version:
 ```python
 pip install tefla
