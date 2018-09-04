@@ -7,13 +7,15 @@ scikit-learn==0.14.1
 scipy==0.18.0
 six==1.10.0
 setuptools==28.8.0
-#matplotlib==1.5.1
+matplotlib==2.2.3
 jupyter==1.0.0
+opencv-python==3.3.0.10
+pyyaml
 ghalton==0.6
 Pillow==2.3.0
 progress
 opencv-python
 h5py
 Cython=0.27
-git+https://github.com/lucasb-eyer/pydensecrf.git
+pydensecrf==1.0rc3
 tensorflow-gpu==1.10.0
