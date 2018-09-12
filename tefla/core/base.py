@@ -665,9 +665,11 @@ class BaseMixin(object):
     if is_training:
       tf.add_to_collection('losses', sq_loss_mean)
 
-      l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-      l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-      tf.add_to_collection('losses', l2_loss)
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
 
       return tf.add_n(tf.get_collection('losses'), name='total_loss')
     else:
@@ -696,9 +698,11 @@ class BaseMixin(object):
     if is_training:
       tf.add_to_collection('losses', ce_loss_mean)
 
-      l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-      l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-      tf.add_to_collection('losses', l2_loss)
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
 
       return tf.add_n(tf.get_collection('losses'), name='total_loss')
     else:
@@ -731,9 +735,11 @@ class BaseMixin(object):
     if is_training:
       tf.add_to_collection('losses', ce_loss_mean)
 
-      l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-      l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-      tf.add_to_collection('losses', l2_loss)
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
 
       return tf.add_n(tf.get_collection('losses'), name='total_loss')
     else:
@@ -763,9 +769,11 @@ class BaseMixin(object):
     if is_training:
       tf.add_to_collection('losses', ce_loss_mean)
 
-      l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-      l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-      tf.add_to_collection('losses', l2_loss)
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
 
       return tf.add_n(tf.get_collection('losses'), name='total_loss')
     else:
@@ -781,9 +789,11 @@ class BaseMixin(object):
     if is_training:
       tf.add_to_collection('losses', dc_loss_mean)
 
-      l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-      l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-      tf.add_to_collection('losses', l2_loss)
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
 
       return tf.add_n(tf.get_collection('losses'), name='total_loss')
     else:
@@ -808,9 +818,11 @@ class BaseMixin(object):
           batch_size=self.cnf['batch_size_train'],
           num_classes=self.num_classes)
       tf.add_to_collection('losses', kappa_loss)
-      l2_loss = tf.add_n(tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES))
-      l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
-      tf.add_to_collection('losses', l2_loss)
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
 
       return tf.add_n(tf.get_collection('losses'), name='total_loss')
     else:
