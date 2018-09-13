@@ -1013,8 +1013,8 @@ def conv1d(x,
   input_shape = helper.get_input_shape(x)
   assert len(input_shape) == 3, "Input Tensor shape must be 4-D"
   with tf.variable_scope(name, reuse=reuse):
-    shape = (filter_size, x.get_shape()[-1], n_output_channels) if hasattr(w_init,
-                                                                           '__call__') else None
+    shape = (filter_size, x.get_shape()[-1],
+             n_output_channels) if hasattr(w_init, '__call__') else None
     W = tf.get_variable(
         name='W', shape=shape, initializer=w_init, regularizer=w_regularizer, trainable=trainable)
 
@@ -2415,6 +2415,23 @@ def offset_maxout(x, k=2, name='maxout', outputs_collections=None, **unused):
     return _collect_named_outputs(outputs_collections, name, output)
 
 
+def sigmoid(x, name='softmax', outputs_collections=None, **unused):
+  """Computes sigmoid activation.
+
+  Args:
+      x: a `Tensor` with type `float`, `double`, `int32`, `int64`, `uint8`, int16`, or `int8`.
+      name: a optional scope/name of the layer
+      outputs_collections: The collections to which the outputs are added.
+
+  Returns:
+      A `Tensor` representing the results of the activation operation.
+  """
+  _check_unused(unused, name)
+  with tf.name_scope(name):
+    output = tf.sigmoid(x)
+    return _collect_named_outputs(outputs_collections, name, output)
+
+
 def softmax(x, name='softmax', outputs_collections=None, **unused):
   """Computes softmax activation.
 
@@ -2573,9 +2590,8 @@ def dropout_selu(x,
     binary_tensor = tf.floor(random_tensor)
     ret = x * binary_tensor + alpha * (1 - binary_tensor)
 
-    a = tf.sqrt(fixedPointVar /
-                (keep_prob *
-                 ((1 - keep_prob) * math_ops.pow(alpha - fixedPointMean, 2) + fixedPointVar)))
+    a = tf.sqrt(fixedPointVar / (keep_prob * (
+        (1 - keep_prob) * math_ops.pow(alpha - fixedPointMean, 2) + fixedPointVar)))
 
     b = fixedPointMean - a * \
         (keep_prob * fixedPointMean + (1 - keep_prob) * alpha)

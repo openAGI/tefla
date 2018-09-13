@@ -326,15 +326,15 @@ def discretized_mix_logistic_loss(inputs,
     inputs = tf.reshape(inputs, inputs_shape + [1]) + tf.zeros(inputs_shape + [nr_mix])
     m2 = tf.reshape(means[:, :, :, 1, :] + coeffs[:, :, :, 0, :] * inputs[:, :, :, 0, :],
                     [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
-    m3 = tf.reshape(means[:, :, :, 2, :] + coeffs[:, :, :, 1, :] * inputs[:, :, :, 0, :] +
-                    coeffs[:, :, :, 2, :] * inputs[:, :, :, 1, :],
-                    [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
-    means = tf.concat(
-        [
-            tf.reshape(means[:, :, :, 0, :],
-                       [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix]), m2, m3
-        ],
-        axis=3)
+    m3 = tf.reshape(
+        means[:, :, :, 2, :] + coeffs[:, :, :, 1, :] * inputs[:, :, :, 0, :] +
+        coeffs[:, :, :, 2, :] * inputs[:, :, :, 1, :],
+        [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
+    means = tf.concat([
+        tf.reshape(means[:, :, :, 0, :],
+                   [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix]), m2, m3
+    ],
+                      axis=3)
     centered_inputs = inputs - means
     inv_stdv = tf.exp(-log_scales)
     plus_in = inv_stdv * (centered_inputs + 1. / 255.)
@@ -346,10 +346,12 @@ def discretized_mix_logistic_loss(inputs,
     cdf_delta = cdf_plus - cdf_min
     mid_in = inv_stdv * centered_inputs
     log_pdf_mid = mid_in - log_scales - 2. * tf.nn.softplus(mid_in)
-    log_probs = tf.select(inputs < -0.999, log_cdf_plus,
-                          tf.select(inputs > 0.999, log_one_minus_cdf_min,
-                                    tf.select(cdf_delta > 1e-5, tf.log(tf.maximum(cdf_delta, 1e-12)),
-                                              log_pdf_mid - np.log(127.5))))
+    log_probs = tf.select(
+        inputs < -0.999, log_cdf_plus,
+        tf.select(
+            inputs > 0.999, log_one_minus_cdf_min,
+            tf.select(cdf_delta > 1e-5, tf.log(tf.maximum(cdf_delta, 1e-12)),
+                      log_pdf_mid - np.log(127.5))))
 
     log_probs = tf.reduce_sum(log_probs, 3) + \
         log_prob_from_logits(logit_probs)
@@ -989,20 +991,19 @@ def dice_loss(predictions, targets, weights=1., name='dice_loss'):
   return loss
 
 
-def precision_recall_auc_loss(
-    labels,
-    logits,
-    precision_range=(0.0, 1.0),
-    num_anchors=20,
-    weights=1.0,
-    dual_rate_factor=0.1,
-    label_priors=None,
-    surrogate_type='xent',
-    lambdas_initializer=tf.constant_initializer(1.0),
-    reuse=None,
-    variables_collections=None,
-    trainable=True,
-    scope=None):
+def precision_recall_auc_loss(labels,
+                              logits,
+                              precision_range=(0.0, 1.0),
+                              num_anchors=20,
+                              weights=1.0,
+                              dual_rate_factor=0.1,
+                              label_priors=None,
+                              surrogate_type='xent',
+                              lambdas_initializer=tf.constant_initializer(1.0),
+                              reuse=None,
+                              variables_collections=None,
+                              trainable=True,
+                              scope=None):
   """Computes precision-recall AUC loss.
   The loss is based on a sum of losses for recall at a range of
   precision values (anchor points). This sum is a Riemann sum that
@@ -1061,21 +1062,16 @@ def precision_recall_auc_loss(
   Raises:
     ValueError: If `surrogate_type` is not `xent` or `hinge`.
   """
-  with tf.variable_scope(scope,
-                         'precision_recall_auc',
-                         [labels, logits, label_priors],
-                         reuse=reuse):
-    labels, logits, weights, original_shape = _prepare_labels_logits_weights(
-        labels, logits, weights)
+  with tf.variable_scope(scope, 'precision_recall_auc', [labels, logits, label_priors], reuse=reuse):
+    labels, logits, weights, original_shape = _prepare_labels_logits_weights(labels, logits, weights)
     num_labels = losses_utils.get_num_labels(logits)
 
     # Convert other inputs to tensors and standardize dtypes.
-    dual_rate_factor = losses_utils.convert_and_cast(
-        dual_rate_factor, 'dual_rate_factor', logits.dtype)
+    dual_rate_factor = losses_utils.convert_and_cast(dual_rate_factor, 'dual_rate_factor',
+                                                     logits.dtype)
 
     # Create Tensor of anchor points and distance between anchors.
-    precision_values, delta = _range_to_anchors_and_delta(
-        precision_range, num_anchors, logits.dtype)
+    precision_values, delta = _range_to_anchors_and_delta(precision_range, num_anchors, logits.dtype)
     # Create lambdas with shape [1, num_labels, num_anchors].
     lambdas, lambdas_variable = _create_dual_variable(
         'lambdas',
@@ -1094,8 +1090,7 @@ def precision_recall_auc_loss(
         collections=variables_collections,
         trainable=trainable)
     # Maybe create label_priors.
-    label_priors = maybe_create_label_priors(
-        label_priors, labels, weights, variables_collections)
+    label_priors = maybe_create_label_priors(label_priors, labels, weights, variables_collections)
     label_priors = tf.reshape(label_priors, [1, num_labels, 1])
 
     # Expand logits, labels, and weights to shape [batch_size, num_labels, 1].
@@ -1121,29 +1116,27 @@ def precision_recall_auc_loss(
     # but only num_anchors terms are included in the Riemann sum, the
     # effective length of the integration interval is `delta` less than the
     # length of precision_range.
-    scaled_loss = tf.div(per_label_loss,
-                         precision_range[1] - precision_range[0] - delta,
-                         name='AUC_Normalize')
+    scaled_loss = tf.div(
+        per_label_loss, precision_range[1] - precision_range[0] - delta, name='AUC_Normalize')
     scaled_loss = tf.reshape(scaled_loss, original_shape)
 
     other_outputs = {
-        'lambdas': lambdas_variable,
-        'biases': biases,
-        'label_priors': label_priors,
-        'true_positives_lower_bound': true_positives_lower_bound(
-            labels, logits, weights, surrogate_type),
-        'false_positives_upper_bound': false_positives_upper_bound(
-            labels, logits, weights, surrogate_type)}
+        'lambdas':
+        lambdas_variable,
+        'biases':
+        biases,
+        'label_priors':
+        label_priors,
+        'true_positives_lower_bound':
+        true_positives_lower_bound(labels, logits, weights, surrogate_type),
+        'false_positives_upper_bound':
+        false_positives_upper_bound(labels, logits, weights, surrogate_type)
+    }
 
     return scaled_loss, other_outputs
 
 
-def roc_auc_loss(
-    labels,
-    logits,
-    weights=1.0,
-    surrogate_type='xent',
-    scope=None):
+def roc_auc_loss(labels, logits, weights=1.0, surrogate_type='xent', scope=None):
   """Computes ROC AUC loss.
   The area under the ROC curve is the probability p that a randomly chosen
   positive example will be scored higher than a randomly chosen negative
@@ -1169,8 +1162,7 @@ def roc_auc_loss(
   """
   with tf.name_scope(scope, 'roc_auc', [labels, logits, weights]):
     # Convert inputs to tensors and standardize dtypes.
-    labels, logits, weights, original_shape = _prepare_labels_logits_weights(
-        labels, logits, weights)
+    labels, logits, weights, original_shape = _prepare_labels_logits_weights(labels, logits, weights)
 
     # Create tensors of pairwise differences for logits and labels, and
     # pairwise products of weights. These have shape
@@ -1193,19 +1185,18 @@ def roc_auc_loss(
     return loss, {}
 
 
-def recall_at_precision_loss(
-    labels,
-    logits,
-    target_precision,
-    weights=1.0,
-    dual_rate_factor=0.1,
-    label_priors=None,
-    surrogate_type='xent',
-    lambdas_initializer=tf.constant_initializer(1.0),
-    reuse=None,
-    variables_collections=None,
-    trainable=True,
-    scope=None):
+def recall_at_precision_loss(labels,
+                             logits,
+                             target_precision,
+                             weights=1.0,
+                             dual_rate_factor=0.1,
+                             label_priors=None,
+                             surrogate_type='xent',
+                             lambdas_initializer=tf.constant_initializer(1.0),
+                             reuse=None,
+                             variables_collections=None,
+                             trainable=True,
+                             scope=None):
   """Computes recall at precision loss.
   The loss is based on a surrogate of the form
       wt * w(+) * loss(+) + wt * w(-) * loss(-) - c * pi,
@@ -1268,19 +1259,15 @@ def recall_at_precision_loss(
   Raises:
     ValueError: If `logits` and `labels` do not have the same shape.
   """
-  with tf.variable_scope(scope,
-                         'recall_at_precision',
-                         [logits, labels, label_priors],
-                         reuse=reuse):
-    labels, logits, weights, original_shape = _prepare_labels_logits_weights(
-        labels, logits, weights)
+  with tf.variable_scope(scope, 'recall_at_precision', [logits, labels, label_priors], reuse=reuse):
+    labels, logits, weights, original_shape = _prepare_labels_logits_weights(labels, logits, weights)
     num_labels = losses_utils.get_num_labels(logits)
 
     # Convert other inputs to tensors and standardize dtypes.
-    target_precision = losses_utils.convert_and_cast(
-        target_precision, 'target_precision', logits.dtype)
-    dual_rate_factor = losses_utils.convert_and_cast(
-        dual_rate_factor, 'dual_rate_factor', logits.dtype)
+    target_precision = losses_utils.convert_and_cast(target_precision, 'target_precision',
+                                                     logits.dtype)
+    dual_rate_factor = losses_utils.convert_and_cast(dual_rate_factor, 'dual_rate_factor',
+                                                     logits.dtype)
 
     # Create lambdas.
     lambdas, lambdas_variable = _create_dual_variable(
@@ -1292,8 +1279,7 @@ def recall_at_precision_loss(
         trainable=trainable,
         dual_rate_factor=dual_rate_factor)
     # Maybe create label_priors.
-    label_priors = maybe_create_label_priors(
-        label_priors, labels, weights, variables_collections)
+    label_priors = maybe_create_label_priors(label_priors, labels, weights, variables_collections)
 
     # Calculate weighted loss and other outputs. The log(2.0) term corrects for
     # logloss not being an upper bound on the indicator function.
@@ -1308,29 +1294,31 @@ def recall_at_precision_loss(
     lambda_term = lambdas * (1.0 - target_precision) * label_priors * maybe_log2
     loss = tf.reshape(weighted_loss - lambda_term, original_shape)
     other_outputs = {
-        'lambdas': lambdas_variable,
-        'label_priors': label_priors,
-        'true_positives_lower_bound': true_positives_lower_bound(
-            labels, logits, weights, surrogate_type),
-        'false_positives_upper_bound': false_positives_upper_bound(
-            labels, logits, weights, surrogate_type)}
+        'lambdas':
+        lambdas_variable,
+        'label_priors':
+        label_priors,
+        'true_positives_lower_bound':
+        true_positives_lower_bound(labels, logits, weights, surrogate_type),
+        'false_positives_upper_bound':
+        false_positives_upper_bound(labels, logits, weights, surrogate_type)
+    }
 
     return loss, other_outputs
 
 
-def precision_at_recall_loss(
-    labels,
-    logits,
-    target_recall,
-    weights=1.0,
-    dual_rate_factor=0.1,
-    label_priors=None,
-    surrogate_type='xent',
-    lambdas_initializer=tf.constant_initializer(1.0),
-    reuse=None,
-    variables_collections=None,
-    trainable=True,
-    scope=None):
+def precision_at_recall_loss(labels,
+                             logits,
+                             target_recall,
+                             weights=1.0,
+                             dual_rate_factor=0.1,
+                             label_priors=None,
+                             surrogate_type='xent',
+                             lambdas_initializer=tf.constant_initializer(1.0),
+                             reuse=None,
+                             variables_collections=None,
+                             trainable=True,
+                             scope=None):
   """Computes precision at recall loss.
   The loss is based on a surrogate of the form
      wt * loss(-) + lambdas * (pi * (b - 1) + wt * loss(+))
@@ -1388,19 +1376,14 @@ def precision_at_recall_loss(
         given `labels` and `logits`. This is the same upper bound which is used
         in the loss expression to be optimized.
   """
-  with tf.variable_scope(scope,
-                         'precision_at_recall',
-                         [logits, labels, label_priors],
-                         reuse=reuse):
-    labels, logits, weights, original_shape = _prepare_labels_logits_weights(
-        labels, logits, weights)
+  with tf.variable_scope(scope, 'precision_at_recall', [logits, labels, label_priors], reuse=reuse):
+    labels, logits, weights, original_shape = _prepare_labels_logits_weights(labels, logits, weights)
     num_labels = losses_utils.get_num_labels(logits)
 
     # Convert other inputs to tensors and standardize dtypes.
-    target_recall = losses_utils.convert_and_cast(
-        target_recall, 'target_recall', logits.dtype)
-    dual_rate_factor = losses_utils.convert_and_cast(
-        dual_rate_factor, 'dual_rate_factor', logits.dtype)
+    target_recall = losses_utils.convert_and_cast(target_recall, 'target_recall', logits.dtype)
+    dual_rate_factor = losses_utils.convert_and_cast(dual_rate_factor, 'dual_rate_factor',
+                                                     logits.dtype)
 
     # Create lambdas.
     lambdas, lambdas_variable = _create_dual_variable(
@@ -1412,45 +1395,42 @@ def precision_at_recall_loss(
         trainable=trainable,
         dual_rate_factor=dual_rate_factor)
     # Maybe create label_priors.
-    label_priors = maybe_create_label_priors(
-        label_priors, labels, weights, variables_collections)
+    label_priors = maybe_create_label_priors(label_priors, labels, weights, variables_collections)
 
     # Calculate weighted loss and other outputs. The log(2.0) term corrects for
     # logloss not being an upper bound on the indicator function.
     weighted_loss = weights * losses_utils.weighted_surrogate_loss(
-        labels,
-        logits,
-        surrogate_type,
-        positive_weights=lambdas,
-        negative_weights=1.0)
+        labels, logits, surrogate_type, positive_weights=lambdas, negative_weights=1.0)
     maybe_log2 = tf.log(2.0) if surrogate_type == 'xent' else 1.0
     maybe_log2 = tf.cast(maybe_log2, logits.dtype.base_dtype)
     lambda_term = lambdas * label_priors * (target_recall - 1.0) * maybe_log2
     loss = tf.reshape(weighted_loss + lambda_term, original_shape)
     other_outputs = {
-        'lambdas': lambdas_variable,
-        'label_priors': label_priors,
-        'true_positives_lower_bound': true_positives_lower_bound(
-            labels, logits, weights, surrogate_type),
-        'false_positives_upper_bound': false_positives_upper_bound(
-            labels, logits, weights, surrogate_type)}
+        'lambdas':
+        lambdas_variable,
+        'label_priors':
+        label_priors,
+        'true_positives_lower_bound':
+        true_positives_lower_bound(labels, logits, weights, surrogate_type),
+        'false_positives_upper_bound':
+        false_positives_upper_bound(labels, logits, weights, surrogate_type)
+    }
 
     return loss, other_outputs
 
 
-def false_positive_rate_at_true_positive_rate_loss(
-    labels,
-    logits,
-    target_rate,
-    weights=1.0,
-    dual_rate_factor=0.1,
-    label_priors=None,
-    surrogate_type='xent',
-    lambdas_initializer=tf.constant_initializer(1.0),
-    reuse=None,
-    variables_collections=None,
-    trainable=True,
-    scope=None):
+def false_positive_rate_at_true_positive_rate_loss(labels,
+                                                   logits,
+                                                   target_rate,
+                                                   weights=1.0,
+                                                   dual_rate_factor=0.1,
+                                                   label_priors=None,
+                                                   surrogate_type='xent',
+                                                   lambdas_initializer=tf.constant_initializer(1.0),
+                                                   reuse=None,
+                                                   variables_collections=None,
+                                                   trainable=True,
+                                                   scope=None):
   """Computes false positive rate at true positive rate loss.
   Note that `true positive rate` is a synonym for Recall, and that minimizing
   the false positive rate and maximizing precision are equivalent for a fixed
@@ -1506,33 +1486,33 @@ def false_positive_rate_at_true_positive_rate_loss(
   Raises:
     ValueError: If `surrogate_type` is not `xent` or `hinge`.
   """
-  return precision_at_recall_loss(labels=labels,
-                                  logits=logits,
-                                  target_recall=target_rate,
-                                  weights=weights,
-                                  dual_rate_factor=dual_rate_factor,
-                                  label_priors=label_priors,
-                                  surrogate_type=surrogate_type,
-                                  lambdas_initializer=lambdas_initializer,
-                                  reuse=reuse,
-                                  variables_collections=variables_collections,
-                                  trainable=trainable,
-                                  scope=scope)
+  return precision_at_recall_loss(
+      labels=labels,
+      logits=logits,
+      target_recall=target_rate,
+      weights=weights,
+      dual_rate_factor=dual_rate_factor,
+      label_priors=label_priors,
+      surrogate_type=surrogate_type,
+      lambdas_initializer=lambdas_initializer,
+      reuse=reuse,
+      variables_collections=variables_collections,
+      trainable=trainable,
+      scope=scope)
 
 
-def true_positive_rate_at_false_positive_rate_loss(
-    labels,
-    logits,
-    target_rate,
-    weights=1.0,
-    dual_rate_factor=0.1,
-    label_priors=None,
-    surrogate_type='xent',
-    lambdas_initializer=tf.constant_initializer(1.0),
-    reuse=None,
-    variables_collections=None,
-    trainable=True,
-    scope=None):
+def true_positive_rate_at_false_positive_rate_loss(labels,
+                                                   logits,
+                                                   target_rate,
+                                                   weights=1.0,
+                                                   dual_rate_factor=0.1,
+                                                   label_priors=None,
+                                                   surrogate_type='xent',
+                                                   lambdas_initializer=tf.constant_initializer(1.0),
+                                                   reuse=None,
+                                                   variables_collections=None,
+                                                   trainable=True,
+                                                   scope=None):
   """Computes true positive rate at false positive rate loss.
   The loss is based on a surrogate of the form
       wt * loss(+) + lambdas * (wt * loss(-) - r * (1 - pi))
@@ -1593,19 +1573,14 @@ def true_positive_rate_at_false_positive_rate_loss(
   Raises:
     ValueError: If `surrogate_type` is not `xent` or `hinge`.
   """
-  with tf.variable_scope(scope,
-                         'tpr_at_fpr',
-                         [labels, logits, label_priors],
-                         reuse=reuse):
-    labels, logits, weights, original_shape = _prepare_labels_logits_weights(
-        labels, logits, weights)
+  with tf.variable_scope(scope, 'tpr_at_fpr', [labels, logits, label_priors], reuse=reuse):
+    labels, logits, weights, original_shape = _prepare_labels_logits_weights(labels, logits, weights)
     num_labels = losses_utils.get_num_labels(logits)
 
     # Convert other inputs to tensors and standardize dtypes.
-    target_rate = losses_utils.convert_and_cast(
-        target_rate, 'target_rate', logits.dtype)
-    dual_rate_factor = losses_utils.convert_and_cast(
-        dual_rate_factor, 'dual_rate_factor', logits.dtype)
+    target_rate = losses_utils.convert_and_cast(target_rate, 'target_rate', logits.dtype)
+    dual_rate_factor = losses_utils.convert_and_cast(dual_rate_factor, 'dual_rate_factor',
+                                                     logits.dtype)
 
     # Create lambdas.
     lambdas, lambdas_variable = _create_dual_variable(
@@ -1617,8 +1592,7 @@ def true_positive_rate_at_false_positive_rate_loss(
         trainable=trainable,
         dual_rate_factor=dual_rate_factor)
     # Maybe create label_priors.
-    label_priors = maybe_create_label_priors(
-        label_priors, labels, weights, variables_collections)
+    label_priors = maybe_create_label_priors(label_priors, labels, weights, variables_collections)
 
     # Loss op and other outputs. The log(2.0) term corrects for
     # logloss not being an upper bound on the indicator function.
@@ -1633,12 +1607,15 @@ def true_positive_rate_at_false_positive_rate_loss(
     lambda_term = lambdas * target_rate * (1.0 - label_priors) * maybe_log2
     loss = tf.reshape(weighted_loss - lambda_term, original_shape)
     other_outputs = {
-        'lambdas': lambdas_variable,
-        'label_priors': label_priors,
-        'true_positives_lower_bound': true_positives_lower_bound(
-            labels, logits, weights, surrogate_type),
-        'false_positives_upper_bound': false_positives_upper_bound(
-            labels, logits, weights, surrogate_type)}
+        'lambdas':
+        lambdas_variable,
+        'label_priors':
+        label_priors,
+        'true_positives_lower_bound':
+        true_positives_lower_bound(labels, logits, weights, surrogate_type),
+        'false_positives_upper_bound':
+        false_positives_upper_bound(labels, logits, weights, surrogate_type)
+    }
 
   return loss, other_outputs
 
@@ -1669,8 +1646,8 @@ def _prepare_labels_logits_weights(labels, logits, weights):
   try:
     labels.get_shape().merge_with(logits.get_shape())
   except ValueError:
-    raise ValueError('logits and labels must have the same shape (%s vs %s)' %
-                     (logits.get_shape(), labels.get_shape()))
+    raise ValueError('logits and labels must have the same shape (%s vs %s)' % (logits.get_shape(),
+                                                                                labels.get_shape()))
 
   original_shape = labels.get_shape().as_list()
   if labels.get_shape().ndims > 0:
@@ -1704,27 +1681,21 @@ def _range_to_anchors_and_delta(precision_range, num_anchors, dtype):
   """
   # Validate precision_range.
   if not 0 <= precision_range[0] <= precision_range[-1] <= 1:
-    raise ValueError('precision values must obey 0 <= %f <= %f <= 1' %
-                     (precision_range[0], precision_range[-1]))
+    raise ValueError(
+        'precision values must obey 0 <= %f <= %f <= 1' % (precision_range[0], precision_range[-1]))
   if not 0 < len(precision_range) < 3:
-    raise ValueError('length of precision_range (%d) must be 1 or 2' %
-                     len(precision_range))
+    raise ValueError('length of precision_range (%d) must be 1 or 2' % len(precision_range))
 
   # Sets precision_values uniformly between min_precision and max_precision.
-  values = np.linspace(start=precision_range[0],
-                          stop=precision_range[1],
-                          num=num_anchors + 2)[1:-1]
-  precision_values = losses_utils.convert_and_cast(
-      values, 'precision_values', dtype)
-  delta = losses_utils.convert_and_cast(
-      values[0] - precision_range[0], 'delta', dtype)
+  values = np.linspace(start=precision_range[0], stop=precision_range[1], num=num_anchors + 2)[1:-1]
+  precision_values = losses_utils.convert_and_cast(values, 'precision_values', dtype)
+  delta = losses_utils.convert_and_cast(values[0] - precision_range[0], 'delta', dtype)
   # Makes precision_values [1, 1, num_anchors].
   precision_values = losses_utils.expand_outer(precision_values, 3)
   return precision_values, delta
 
 
-def _create_dual_variable(name, shape, dtype, initializer, collections,
-                          trainable, dual_rate_factor):
+def _create_dual_variable(name, shape, dtype, initializer, collections, trainable, dual_rate_factor):
   """Creates a new dual variable.
   Dual variables are required to be nonnegative. If trainable, their gradient
   is reversed so that they are maximized (rather than minimized) by the
@@ -1766,15 +1737,12 @@ def _create_dual_variable(name, shape, dtype, initializer, collections,
   if trainable:
     # To reverse the gradient on the dual variable, multiply the gradient by
     # -dual_rate_factor
-    dual_value = (tf.stop_gradient((1.0 + dual_rate_factor) * dual_value)
-                  - dual_rate_factor * dual_value)
+    dual_value = (tf.stop_gradient(
+        (1.0 + dual_rate_factor) * dual_value) - dual_rate_factor * dual_value)
   return dual_value, dual_variable
 
 
-def maybe_create_label_priors(label_priors,
-                              labels,
-                              weights,
-                              variables_collections):
+def maybe_create_label_priors(label_priors, labels, weights, variables_collections):
   """Creates moving average ops to track label priors, if necessary.
   Args:
     label_priors: As required in e.g. precision_recall_auc_loss.
@@ -1792,9 +1760,7 @@ def maybe_create_label_priors(label_priors,
     return tf.squeeze(label_priors)
 
   label_priors = losses_utils.build_label_priors(
-      labels,
-      weights,
-      variables_collections=variables_collections)
+      labels, weights, variables_collections=variables_collections)
   return label_priors
 
 

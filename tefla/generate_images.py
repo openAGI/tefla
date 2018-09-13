@@ -40,8 +40,10 @@ def predict(model, training_cnf, predict_dir, weights_from, dataset_name, conver
       gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=gpu_memory_fraction)
       sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
     saver.restore(sess, weights_from)
-    end_points_G_val = model.generator(
-        [cnf['batch_size_test'], 100], False, True, batch_size=cnf['batch_size_test'])
+    end_points_G_val = model.generator([cnf['batch_size_test'], 100],
+                                       False,
+                                       True,
+                                       batch_size=cnf['batch_size_test'])
 
     util.save_images(
         'generated_images.png', sess.run(end_points_G_val['softmax']), width=128, height=128)

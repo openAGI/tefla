@@ -237,13 +237,7 @@ def conv2d_same(inputs, num_outputs, kernel_size, stride, name=None, **kwargs):
     pad_end = pad_total - pad_beg
     inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end], [pad_beg, pad_end], [0, 0]])
     return conv2d(
-        inputs,
-        num_outputs,
-        kernel_size,
-        stride=stride,
-        padding='VALID',
-        name=name,
-        **kwargs)
+        inputs, num_outputs, kernel_size, stride=stride, padding='VALID', name=name, **kwargs)
 
 
 def bottleneck_v1(inputs, depth, depth_bottleneck, stride, rate=1, name=None, **kwargs):
@@ -1036,10 +1030,8 @@ def group_norm(x, filters=None, num_groups=8, epsilon=1e-5):
   assert len(x_shape) == 4
   assert filters % num_groups == 0
   # Prepare variables.
-  scale = tf.get_variable(
-      "group_norm_scale", [filters], initializer=tf.ones_initializer())
-  bias = tf.get_variable(
-      "group_norm_bias", [filters], initializer=tf.zeros_initializer())
+  scale = tf.get_variable("group_norm_scale", [filters], initializer=tf.ones_initializer())
+  bias = tf.get_variable("group_norm_bias", [filters], initializer=tf.zeros_initializer())
   epsilon, scale, bias = [tf.cast(t, x.dtype) for t in [epsilon, scale, bias]]
   # Reshape and compute group norm.
   x = tf.reshape(x, x_shape[:-1] + [num_groups, filters // num_groups])

@@ -57,7 +57,8 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
   if weights_from:
     weights_from = str(weights_from)
 
-  data_set = DataSet(data_dir, model_def.image_size[0], mode=cnf.get('mode'))
+  data_set = DataSet(
+      data_dir, model_def.image_size[0], mode=cnf.get('mode'), multilabel=cnf.get('multilabel', False))
   standardizer = cnf.get('standardizer', NoOpStandardizer())
   cutout = cnf.get('cutout', None)
 
@@ -68,7 +69,8 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
       model_def.crop_size,
       start_epoch,
       parallel=parallel,
-      cutout=cutout)
+      cutout=cutout,
+      data_balancing=cnf.get('data_balancing', False))
   learner = SupervisedLearner(
       model,
       cnf,

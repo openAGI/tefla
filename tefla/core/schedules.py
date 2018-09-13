@@ -404,8 +404,8 @@ class Config(dict):
           self[k] = self[k].strict_update(v)
         else:
           if not isinstance(v, type(self[k])):
-            raise TypeError('Expecting type %s for key %s, got type %s' % (type(self[k]), k,
-                                                                           type(v)))
+            raise TypeError(
+                'Expecting type %s for key %s, got type %s' % (type(self[k]), k, type(v)))
           self[k] = v
       else:
         raise KeyError('Key %s does not exist. New key creation not allowed in '

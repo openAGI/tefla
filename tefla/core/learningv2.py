@@ -257,8 +257,8 @@ class SupervisedLearner(Base, BaseMixin):
                                                                      training_predictions_e))
         else:
           log.debug('2. Running training steps without summary...')
-          training_loss_e, _ = sess.run(
-              [self.training_loss, self.train_op], feed_dict=feed_dict_train)
+          training_loss_e, _ = sess.run([self.training_loss, self.train_op],
+                                        feed_dict=feed_dict_train)
           log.debug('2. Running training steps without summary done.')
 
         training_losses.append(training_loss_e)
@@ -276,9 +276,8 @@ class SupervisedLearner(Base, BaseMixin):
       current_probs += diff_probs
       log.debug('The value of current_probs {}'.format(current_probs))
       epoch_training_loss = np.average(training_losses, weights=batch_train_sizes)
-      log.info("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" % (epoch, np.sum(batch_train_sizes),
-                                                                 time.time() - tic,
-                                                                 epoch_training_loss))
+      log.info("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" %
+               (epoch, np.sum(batch_train_sizes), time.time() - tic, epoch_training_loss))
 
       # Plot training loss every epoch
       log.debug('5. Writing epoch summary...')

@@ -149,8 +149,8 @@ def get_graph_def_from_url_tarball(url, filename):
   """Get a GraphDef proto from a tarball on the web."""
 
   def _progress(count, block_size, total_size):
-    sys.stdout.write('\r>> Downloading %s %.1f%%' %
-                     (url, float(count * block_size) / float(total_size) * 100.0))
+    sys.stdout.write(
+        '\r>> Downloading %s %.1f%%' % (url, float(count * block_size) / float(total_size) * 100.0))
     sys.stdout.flush()
 
   tar_filename, _ = urllib.request.urlretrieve(url, reporthook=_progress)

@@ -176,8 +176,8 @@ class SupervisedLearner(Base, BaseMixin):
                                                                        training_predictions_e))
           else:
             log.debug('2. Running training steps without summary...')
-            training_loss_e, _ = sess.run(
-                [self.training_loss, self.train_op], feed_dict=feed_dict_train)
+            training_loss_e, _ = sess.run([self.training_loss, self.train_op],
+                                          feed_dict=feed_dict_train)
             log.debug('2. Running training steps without summary done.')
 
           training_losses.append(training_loss_e)
@@ -196,9 +196,8 @@ class SupervisedLearner(Base, BaseMixin):
           log.debug('4. Training batch %d done.' % batch_num)
 
         epoch_training_loss = np.average(training_losses, weights=batch_train_sizes)
-        log.info("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" % (epoch, np.sum(batch_train_sizes),
-                                                                   time.time() - tic,
-                                                                   epoch_training_loss))
+        log.info("Epoch %d [(%s) images, %6.1fs]: t-loss: %.3f" %
+                 (epoch, np.sum(batch_train_sizes), time.time() - tic, epoch_training_loss))
         if self.data_voc_val is None:
           epoch_validation_loss = 0.0
 
@@ -216,10 +215,8 @@ class SupervisedLearner(Base, BaseMixin):
         log.debug('5. Writing epoch summary done.')
         if epoch > 0:
           saver.save(sess, "%s/model-epoch-%d.ckpt" % (weights_dir, epoch))
-        log.info("Epoch %d [%s training images, %6.1fs]: t-loss: %.3f" % (epoch,
-                                                                          np.sum(batch_train_sizes),
-                                                                          time.time() - tic,
-                                                                          epoch_training_loss))
+        log.info("Epoch %d [%s training images, %6.1fs]: t-loss: %.3f" %
+                 (epoch, np.sum(batch_train_sizes), time.time() - tic, epoch_training_loss))
         epoch_info = dict(
             epoch=epoch, training_loss=epoch_training_loss, validation_loss=epoch_validation_loss)
 

@@ -144,8 +144,7 @@ def gradients(ys, xs, grad_ys=None, checkpoints='collection', **kwargs):
       if not bottleneck_ts:
         raise Exception(
             'unable to find bottleneck tensors! please provide checkpoint nodes manually,\
-             or use checkpoints="speed".'
-        )
+             or use checkpoints="speed".')
 
       # sort the bottlenecks
       bottlenecks_sorted_lists = tf_toposort(bottleneck_ts, within_ops=fwd_ops)

@@ -147,8 +147,8 @@ class SupervisedLearner(Base, BaseMixin):
                                                                        training_predictions_e))
           else:
             log.debug('2. Running training steps without summary...')
-            training_loss_e, _ = sess.run(
-                [self.training_loss, self.train_op], feed_dict=feed_dict_train)
+            training_loss_e, _ = sess.run([self.training_loss, self.train_op],
+                                          feed_dict=feed_dict_train)
             log.debug('2. Running training steps without summary done.')
 
           training_losses.append(training_loss_e)
@@ -184,7 +184,7 @@ class SupervisedLearner(Base, BaseMixin):
         epoch_validation_metrics = []
         batch_validation_sizes = []
         for batch_num, (validation_Xb, validation_yb) in enumerate(
-              self.validation_iterator(validation_X, validation_y)):
+            self.validation_iterator(validation_X, validation_y)):
           if validation_Xb.shape[0] < self.cnf['batch_size_test']:
             continue
           feed_dict_validation = {

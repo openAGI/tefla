@@ -104,16 +104,15 @@ class Dataflow(object):
       image, label = self.get(['image', 'label'], image_size, resize_size)
     if data_balancing:
       log.info('Using Stratified Data ReSampling')
-      [data_batch], label_batch = balanced_sample(
-          [image],
-          label,
-          target_probs,
-          batch_size,
-          init_probs=init_probs,
-          enqueue_many=enqueue_many,
-          queue_capacity=queue_capacity,
-          threads_per_queue=threads_per_queue,
-          name=name)
+      [data_batch], label_batch = balanced_sample([image],
+                                                  label,
+                                                  target_probs,
+                                                  batch_size,
+                                                  init_probs=init_probs,
+                                                  enqueue_many=enqueue_many,
+                                                  queue_capacity=queue_capacity,
+                                                  threads_per_queue=threads_per_queue,
+                                                  name=name)
       return data_batch, label_batch
     else:
       return image, label

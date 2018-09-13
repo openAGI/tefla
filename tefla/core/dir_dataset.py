@@ -10,7 +10,7 @@ from . import logger
 
 class DataSet(object):
 
-  def __init__(self, data_dir, img_size, mode='classification'):
+  def __init__(self, data_dir, img_size, mode='classification', multilabel=False):
     self.data_dir = data_dir
     training_images_dir = "%s/training_%d" % (data_dir, img_size)
     training_labels_file = "%s/training_labels.csv" % data_dir
@@ -20,12 +20,13 @@ class DataSet(object):
 
     self._training_files = data.get_image_files(training_images_dir)
     names = data.get_names(self._training_files)
-    self._training_labels = data.get_labels(names, label_file=training_labels_file).astype(np.int32)
+    self._training_labels = data.get_labels(
+        names, label_file=training_labels_file, multilabel=multilabel).astype(np.int32)
 
     self._validation_files = data.get_image_files(validation_images_dir)
     names = data.get_names(self._validation_files)
     self._validation_labels = data.get_labels(
-        names, label_file=validation_labels_file).astype(np.int32)
+        names, label_file=validation_labels_file, multilabel=multilabel).astype(np.int32)
 
     # make sure no wrong labels exist
     if mode == 'classification':
@@ -76,6 +77,7 @@ class DataSet(object):
 
   def balance_weights(self):
     total = self.num_training_files()
+    print(self._training_labels.shape)
     if len(self._training_labels.shape) > 1:
       class_counts = np.sum(self._training_labels, axis=0)
     else:

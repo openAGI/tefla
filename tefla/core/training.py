@@ -202,14 +202,14 @@ class SupervisedTrainer(object):
             train_writer.flush()
             logger.debug('2. Running training steps with summary done.')
             if verbose > 3:
-              logger.debug("Epoch %d, Batch %d training loss: %s" % (epoch, batch_num,
-                                                                     training_loss_e))
+              logger.debug(
+                  "Epoch %d, Batch %d training loss: %s" % (epoch, batch_num, training_loss_e))
               logger.debug("Epoch %d, Batch %d training predictions: %s" % (epoch, batch_num,
                                                                             training_predictions_e))
           else:
             logger.debug('2. Running training steps without summary...')
-            training_loss_e, _ = sess.run(
-                [self.regularized_training_loss, self.optimizer_step], feed_dict=feed_dict_train)
+            training_loss_e, _ = sess.run([self.regularized_training_loss, self.optimizer_step],
+                                          feed_dict=feed_dict_train)
             logger.debug('2. Running training steps without summary done.')
 
           training_losses.append(training_loss_e)
@@ -245,7 +245,7 @@ class SupervisedTrainer(object):
         epoch_validation_metrics = []
         batch_validation_sizes = []
         for batch_num, (validation_Xb, validation_yb) in enumerate(
-                self.validation_iterator(validation_X, validation_y)):
+            self.validation_iterator(validation_X, validation_y)):
           feed_dict_validation = {
               self.validation_inputs: validation_Xb,
               self.target: self._adjust_ground_truth(validation_yb)
@@ -261,8 +261,8 @@ class SupervisedTrainer(object):
             validation_writer.flush()
             logger.debug('7. Running validation steps with summary done.')
             if verbose > 3:
-              logger.debug("Epoch %d, Batch %d validation loss: %s" % (epoch, batch_num,
-                                                                       validation_loss_e))
+              logger.debug(
+                  "Epoch %d, Batch %d validation loss: %s" % (epoch, batch_num, validation_loss_e))
               logger.debug("Epoch %d, Batch %d validation predictions: %s" %
                            (epoch, batch_num, validation_predictions_e))
           else:
@@ -302,10 +302,10 @@ class SupervisedTrainer(object):
         ]
         custom_metrics_string = ''.join(custom_metrics_string)
 
-        logger.info("Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
-                    (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes),
-                     time.time() - tic, epoch_training_loss, epoch_validation_loss,
-                     custom_metrics_string))
+        logger.info(
+            "Epoch %d [(%s, %s) images, %6.1fs]: t-loss: %.3f, v-loss: %.3f%s" %
+            (epoch, np.sum(batch_train_sizes), np.sum(batch_validation_sizes), time.time() - tic,
+             epoch_training_loss, epoch_validation_loss, custom_metrics_string))
 
         saver.save(sess, "%s/model-epoch-%d.ckpt" % (weights_dir, epoch))
 
@@ -335,8 +335,8 @@ class SupervisedTrainer(object):
             self.inputs, 'inputs', max_images=10, collections=[TRAINING_BATCH_SUMMARIES])
       for key, val in self.training_end_points.iteritems():
         summary.summary_activation(val, name=key, collections=[TRAINING_BATCH_SUMMARIES])
-      summary.summary_trainable_params(
-          ['scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
+      summary.summary_trainable_params(['scalar', 'histogram', 'norm'],
+                                       collections=[TRAINING_BATCH_SUMMARIES])
       summary.summary_gradients(
           self.grads_and_vars, ['scalar', 'histogram', 'norm'],
           collections=[TRAINING_BATCH_SUMMARIES])

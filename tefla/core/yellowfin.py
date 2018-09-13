@@ -186,9 +186,11 @@ class YellowFinOptimizer(object):
     self._curv_win = tf.scatter_update(self._curv_win, self._step % self.curvature_window_width,
                                        tf.log(self._grad_norm_squared))
     # Note here the iterations start from iteration 0
-    valid_window = tf.slice(self._curv_win, tf.constant([
-        0,
-    ]), tf.expand_dims(tf.minimum(tf.constant(self.curvature_window_width), self._step + 1), dim=0))
+    valid_window = tf.slice(
+        self._curv_win, tf.constant([
+            0,
+        ]),
+        tf.expand_dims(tf.minimum(tf.constant(self.curvature_window_width), self._step + 1), dim=0))
     self._h_min_t = tf.reduce_min(valid_window)
     self._h_max_t = tf.reduce_max(valid_window)
 

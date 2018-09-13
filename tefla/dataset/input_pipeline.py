@@ -226,20 +226,19 @@ class TFRecordInputPipeline(InputPipeline):
     items_to_handlers = {}
     items_to_handlers["source_tokens"] = tfexample_decoder.ItemHandlerCallback(
         keys=[self.params["source_field"]],
-        func=lambda dict: splitter_source.decode(dict[self.params["source_field"]],
-                ["source_tokens"])[0])
+        func=
+        lambda dict: splitter_source.decode(dict[self.params["source_field"]], ["source_tokens"])[0])
     items_to_handlers["source_len"] = tfexample_decoder.ItemHandlerCallback(
         keys=[self.params["source_field"]],
-        func=lambda dict: splitter_source.decode(dict[self.params["source_field"]],
-        ["source_len"])[0])
+        func=lambda dict: splitter_source.decode(dict[self.params["source_field"]], ["source_len"])[0]
+    )
     items_to_handlers["target_tokens"] = tfexample_decoder.ItemHandlerCallback(
         keys=[self.params["target_field"]],
-        func=lambda dict: splitter_target.decode(dict[self.params["target_field"]],
-                ["target_tokens"])[0])
+        func=
+        lambda dict: splitter_target.decode(dict[self.params["target_field"]], ["target_tokens"])[0])
     items_to_handlers["target_len"] = tfexample_decoder.ItemHandlerCallback(
         keys=[self.params["target_field"]],
-        func=lambda dict: splitter_target.decode(dict[self.params["target_field"]],
-                ["target_len"])[0]
+        func=lambda dict: splitter_target.decode(dict[self.params["target_field"]], ["target_len"])[0]
     )
 
     decoder = tfexample_decoder.TFExampleDecoder(keys_to_features, items_to_handlers)

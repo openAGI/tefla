@@ -146,8 +146,8 @@ class TextDataset():
     return self._data_filenames(self.dataset_name + "-test", self._data_dir, num_shards)
 
   def combined_data_filenames(self, num_training_shards):
-    return (self.train_data_filenames(num_training_shards) +
-            self.dev_data_filenames(1) + self.test_data_filenames(1))
+    return (self.train_data_filenames(num_training_shards) + self.dev_data_filenames(1) +
+            self.test_data_filenames(1))
 
   def sharded_name(self, base_name, shard, total_shards):
     return "%s-%.5d-of-%.5d" % (base_name, shard, total_shards)

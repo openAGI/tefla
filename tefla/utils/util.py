@@ -221,8 +221,8 @@ def assert_valid_dtypes(tensors):
   for t in tensors:
     dtype = t.dtype.base_dtype
     if dtype not in valid_dtype:
-      raise ValueError("Invalid type %r for %s, expected: %s." % (dtype, t.name,
-                                                                  [v for v in valid_dtype]))
+      raise ValueError(
+          "Invalid type %r for %s, expected: %s." % (dtype, t.name, [v for v in valid_dtype]))
 
 
 def constant_value(value_or_tensor_or_var, dtype=None):
@@ -245,8 +245,8 @@ def constant_value(value_or_tensor_or_var, dtype=None):
   value = value_or_tensor_or_var
   if isinstance(value_or_tensor_or_var, (ops.Tensor, variables.Variable)):
     if dtype and value_or_tensor_or_var.dtype != dtype:
-      raise ValueError('It has the wrong type %s instead of %s' % (value_or_tensor_or_var.dtype,
-                                                                   dtype))
+      raise ValueError(
+          'It has the wrong type %s instead of %s' % (value_or_tensor_or_var.dtype, dtype))
     if isinstance(value_or_tensor_or_var, variables.Variable):
       value = None
     else:
@@ -549,8 +549,8 @@ def stride_2d(strides):
     elif len(strides) == 4:
       return [strides[0], strides[1], strides[2], strides[3]]
     else:
-      raise Exception(
-          "strides length error: " + str(len(strides)) + ", only a length of 2 or 4 is supported.")
+      raise Exception("strides length error: " + str(len(strides)) +
+                      ", only a length of 2 or 4 is supported.")
   else:
     raise Exception("strides format error: " + str(type(strides)))
 
@@ -564,8 +564,8 @@ def kernel_2d(kernel):
     elif len(kernel) == 4:
       return [kernel[0], kernel[1], kernel[2], kernel[3]]
     else:
-      raise Exception(
-          "kernel length error: " + str(len(kernel)) + ", only a length of 2 or 4 is supported.")
+      raise Exception("kernel length error: " + str(len(kernel)) +
+                      ", only a length of 2 or 4 is supported.")
   else:
     raise Exception("kernel format error: " + str(type(kernel)))
 
@@ -577,8 +577,8 @@ def filter_2d(fsize, in_depth, out_depth):
     if len(fsize) == 2:
       return [fsize[0], fsize[1], in_depth, out_depth]
     else:
-      raise Exception(
-          "filter length error: " + str(len(fsize)) + ", only a length of 2 is supported.")
+      raise Exception("filter length error: " + str(len(fsize)) +
+                      ", only a length of 2 is supported.")
   else:
     raise Exception("filter format error: " + str(type(fsize)))
 
@@ -597,8 +597,8 @@ def filter_3d(fsize, in_depth, out_depth):
     if len(fsize) == 3:
       return [fsize[0], fsize[1], fsize[2], in_depth, out_depth]
     else:
-      raise Exception(
-          "filter length error: " + str(len(fsize)) + ", only a length of 3 is supported.")
+      raise Exception("filter length error: " + str(len(fsize)) +
+                      ", only a length of 3 is supported.")
   else:
     raise Exception("filter format error: " + str(type(fsize)))
 
@@ -613,8 +613,8 @@ def stride_3d(strides):
       assert strides[0] == strides[4] == 1, "Must have strides[0] = strides[4] = 1"
       return [strides[0], strides[1], strides[2], strides[3], strides[4]]
     else:
-      raise Exception(
-          "strides length error: " + str(len(strides)) + ", only a length of 3 or 5 is supported.")
+      raise Exception("strides length error: " + str(len(strides)) +
+                      ", only a length of 3 or 5 is supported.")
   else:
     raise Exception("strides format error: " + str(type(strides)))
 
@@ -629,8 +629,8 @@ def kernel_3d(kernel):
       assert kernel[0] == kernel[4] == 1, "Must have kernel[0] = kernel[4] = 1"
       return [kernel[0], kernel[1], kernel[2], kernel[3], kernel[4]]
     else:
-      raise Exception(
-          "kernels length error: " + str(len(kernel)) + ", only a length of 3 or 5 is supported.")
+      raise Exception("kernels length error: " + str(len(kernel)) +
+                      ", only a length of 3 or 5 is supported.")
   else:
     raise Exception("kernel format error: " + str(type(kernel)))
 
@@ -995,7 +995,7 @@ def BatchClipByL2norm(t, upper_bound, name=None):
 
   assert upper_bound > 0
   with tf.name_scope(
-          values=[t, upper_bound], name=name, default_name="batch_clip_by_l2norm") as name:
+      values=[t, upper_bound], name=name, default_name="batch_clip_by_l2norm") as name:
     saved_shape = tf.shape(t)
     batch_size = tf.slice(saved_shape, [0], [1])
     t2 = tf.reshape(t, tf.concat(axis=0, values=[batch_size, [-1]]))

@@ -554,8 +554,7 @@ class Conv2DPXG(object):
     input_shape = [int(e) for e in input_.get_shape()]
     batch_size = input_shape[0]
     input_px = [
-        tf.slice(input_, [example] + [0] * 3, [1] + input_shape[1:])
-        for example in range(batch_size)
+        tf.slice(input_, [example] + [0] * 3, [1] + input_shape[1:]) for example in range(batch_size)
     ]
     for input_x in input_px:
       assert int(input_x.get_shape()[0]) == 1
@@ -914,8 +913,9 @@ class VariableClippingOptimizer(optimizer.Optimizer):
     assert isinstance(grad, tf.IndexedSlices)
     clip_dims = self._vars_to_clip_dims[var]
     if 0 in clip_dims:
-      log.warn("Clipping norm across dims %s for %s is inefficient "
-               "when including sparse dimension 0.", clip_dims, var.op.name)
+      log.warn(
+          "Clipping norm across dims %s for %s is inefficient "
+          "when including sparse dimension 0.", clip_dims, var.op.name)
       return self._clip_dense(var)
 
     with tf.colocate_with(var):

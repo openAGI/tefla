@@ -31,7 +31,7 @@ class BeamSearchState(namedtuple("BeamSearchState", ["log_probs", "finished", "l
 
 
 class BeamSearchStepOutput(
-      namedtuple("BeamSearchStepOutput", ["scores", "predicted_ids", "beam_parent_ids"])):
+    namedtuple("BeamSearchStepOutput", ["scores", "predicted_ids", "beam_parent_ids"])):
   """Outputs for a single step of beam search.
 
   Args:
@@ -589,8 +589,8 @@ def beam_search(symbols_to_logits_fn,
     # we have to replace it by -ve INF if it is. The score of any seq in alive
     # will be much higher than -ve INF and the termination condition will not
     # be met.
-    lowest_score_of_fininshed_in_finished += ((
-        1. - tf.to_float(tf.reduce_any(finished_in_finished, 1))) * -INF)
+    lowest_score_of_fininshed_in_finished += (
+        (1. - tf.to_float(tf.reduce_any(finished_in_finished, 1))) * -INF)
 
     bound_is_met = tf.reduce_all(
         tf.greater(lowest_score_of_fininshed_in_finished, lower_bound_alive_scores))

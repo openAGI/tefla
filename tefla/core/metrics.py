@@ -190,8 +190,8 @@ class IOUSeg(object):
     for class_id, class_name in enumerate(classes, 1):
       per_class_iou_dict[class_name] = np.nanmean(
           np.diag(per_class_iou_hist[class_name]) /
-          (per_class_iou_hist[class_name].sum(1) + per_class_iou_hist[class_name].sum(0) -
-           np.diag(per_class_iou_hist[class_name])))
+          (per_class_iou_hist[class_name].sum(1) + per_class_iou_hist[class_name].sum(0) - np.diag(
+              per_class_iou_hist[class_name])))
     return per_class_iou_dict
 
 
@@ -341,7 +341,7 @@ class KappaV2(Metric, MetricMixin):
       nom = tf.reduce_sum(weights * conf_mat)
       denom = tf.reduce_sum(weights * tf.matmul(
           tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) /
-          tf.to_float(batch_size))
+                            tf.to_float(batch_size))
 
       try:
         return (1 - nom / denom)

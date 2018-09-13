@@ -170,13 +170,11 @@ class DietAdamOptimizer(DietVariableOptimizer):
     beta2_pow = tf.pow(params.beta2, global_step)
     if params.factored_second_moment_accumulator and len(var.shape) == 2:
       vr_update = tf.assign(
-          slots["adam_vr"],
-          slots["adam_vr"] * params.beta2 + tf.reduce_mean(grad_squared, 1, keep_dims=True) *
-          (1.0 - params.beta2))
+          slots["adam_vr"], slots["adam_vr"] * params.beta2 +
+          tf.reduce_mean(grad_squared, 1, keep_dims=True) * (1.0 - params.beta2))
       vc_update = tf.assign(
-          slots["adam_vc"],
-          slots["adam_vc"] * params.beta2 + tf.reduce_mean(grad_squared, 0, keep_dims=True) *
-          (1.0 - params.beta2))
+          slots["adam_vc"], slots["adam_vc"] * params.beta2 +
+          tf.reduce_mean(grad_squared, 0, keep_dims=True) * (1.0 - params.beta2))
       with tf.control_dependencies([vr_update, vc_update]):
         vr = tf.sqrt(slots["adam_vr"] / (1.0 - beta2_pow)) + params.epsilon
         vc = tf.sqrt(slots["adam_vc"] / (1.0 - beta2_pow)) + params.epsilon
@@ -305,7 +303,7 @@ def _fn_with_diet_vars(fn, args, params):
   @fn_with_custom_grad(grad_fn, use_global_vars=True)
   def forward(*inputs):
     with tf.variable_scope(
-            None, default_name="diet", custom_getter=make_diet_var_getter(params)) as vs:
+        None, default_name="diet", custom_getter=make_diet_var_getter(params)) as vs:
       vs_ctr.append(vs)
       outputs = fn(*inputs)
       return outputs

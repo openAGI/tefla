@@ -182,12 +182,12 @@ class GenerativeLearner(Base):
       e_avg_loss = np.average(e_train_losses, weights=batch_train_sizes)
       d_real_avg_loss = np.average(d_real_train_losses, weights=batch_train_sizes)
       d_fake_avg_loss = np.average(d_fake_train_losses, weights=batch_train_sizes)
-      log.debug("Epoch %d [(%s) images, %6.1fs]:, D_avg_loss: %s, G_avg_loss %s, E-avg_loss %s" %
-                (epoch, np.sum(batch_train_sizes), time.time() - tic, d_avg_loss, g_avg_loss,
-                 e_avg_loss))
-      print("Epoch %d [(%s) images, %6.1fs]:, D_avg_loss: %s, G_avg_loss %s, E-avg_loss %s" %
-            (epoch, np.sum(batch_train_sizes), time.time() - tic, d_avg_loss, g_avg_loss,
-             e_avg_loss))
+      log.debug(
+          "Epoch %d [(%s) images, %6.1fs]:, D_avg_loss: %s, G_avg_loss %s, E-avg_loss %s" %
+          (epoch, np.sum(batch_train_sizes), time.time() - tic, d_avg_loss, g_avg_loss, e_avg_loss))
+      print(
+          "Epoch %d [(%s) images, %6.1fs]:, D_avg_loss: %s, G_avg_loss %s, E-avg_loss %s" %
+          (epoch, np.sum(batch_train_sizes), time.time() - tic, d_avg_loss, g_avg_loss, e_avg_loss))
       # Plot training loss every epoch
       log.debug('5. Writing epoch summary...')
       if self.is_summary:
@@ -299,8 +299,9 @@ class GenerativeLearner(Base):
     d_conv4_2_e = tf.slice(end_points_D_G['d_conv4_2'], [batch_size_train, 0, 0, 0],
                            [batch_size_train, 8, 8, 192])
     like_loss = tf.reduce_mean(tf.square(end_points_D_IMG['d_conv4_2'] - d_conv4_2_e)) / 2.
-    kl_loss = tf.reduce_mean(-end_points_E['e_logits2'] + .5 * (
-        -1 + tf.exp(2. * end_points_E['e_logits2']) + tf.square(end_points_E['e_logits1'])))
+    kl_loss = tf.reduce_mean(
+        -end_points_E['e_logits2'] +
+        .5 * (-1 + tf.exp(2. * end_points_E['e_logits2']) + tf.square(end_points_E['e_logits1'])))
 
     d_label_smooth = self.cnf.get('d_label_smooth', 0.05)
     d_loss_real = tf.reduce_mean(
