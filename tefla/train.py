@@ -58,7 +58,10 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
     weights_from = str(weights_from)
 
   data_set = DataSet(
-      data_dir, model_def.image_size[0], mode=cnf.get('mode'), multilabel=cnf.get('multilabel', False))
+      data_dir,
+      model_def.image_size[0],
+      mode=cnf.get('mode'),
+      multilabel=cnf.get('multilabel', False))
   standardizer = cnf.get('standardizer', NoOpStandardizer())
   cutout = cnf.get('cutout', None)
 
