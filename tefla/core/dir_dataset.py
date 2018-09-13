@@ -77,7 +77,6 @@ class DataSet(object):
 
   def balance_weights(self):
     total = self.num_training_files()
-    print(self._training_labels.shape)
     if len(self._training_labels.shape) > 1:
       class_counts = np.sum(self._training_labels, axis=0)
     else:
