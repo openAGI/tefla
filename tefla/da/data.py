@@ -203,7 +203,7 @@ def build_center_uncenter_transforms(image_shape):
 
 
 def build_augmentation_transform(
-     zoom=(1.0, 1.0), rotation=0, shear=0, translation=(0, 0), flip=False):
+    zoom=(1.0, 1.0), rotation=0, shear=0, translation=(0, 0), flip=False):
   """Augmentation transform.
 
   It performs zooming, rotation, shear, translation and flip operation

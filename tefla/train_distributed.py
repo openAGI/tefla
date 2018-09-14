@@ -52,11 +52,12 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, task_id, job_name
   ps_hosts = ps_hosts.split(',')
   worker_hosts = worker_hosts.split(',')
   cluster_spec = tf.train.ClusterSpec({'ps': ps_hosts, 'worker': worker_hosts})
-  server = tf.train.Server(
-      {
-          'ps': ps_hosts,
-          'worker': worker_hosts
-      }, job_name=job_name, task_index=task_id)
+  server = tf.train.Server({
+      'ps': ps_hosts,
+      'worker': worker_hosts
+  },
+                           job_name=job_name,
+                           task_index=task_id)
 
   if weights_from:
     weights_from = str(weights_from)

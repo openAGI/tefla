@@ -55,13 +55,13 @@ def _transpose_batch_time(x):
   """
   x_static_shape = x.get_shape()
   if x_static_shape.ndims is not None and x_static_shape.ndims < 2:
-    raise ValueError("Expected input tensor %s to have rank at least 2, but saw shape: %s" %
-                     (x, x_static_shape))
+    raise ValueError(
+        "Expected input tensor %s to have rank at least 2, but saw shape: %s" % (x, x_static_shape))
   x_rank = tf.rank(x)
   x_t = tf.transpose(x, tf.concat(([1, 0], tf.range(2, x_rank)), axis=0))
   x_t.set_shape(
-      tf.TensorShape([x_static_shape[1].value, x_static_shape[0].value]).concatenate(
-          x_static_shape[2:]))
+      tf.TensorShape([x_static_shape[1].value,
+                      x_static_shape[0].value]).concatenate(x_static_shape[2:]))
   return x_t
 
 
@@ -264,8 +264,8 @@ class ScheduledEmbeddingTrainingHelper(TrainingHelper):
       select_sample_noise = tf.random_uniform([self.batch_size], seed=self._scheduling_seed)
       select_sample = (self._sampling_probability > select_sample_noise)
       sample_id_sampler = distributions.Categorical(logits=outputs)
-      return tf.where(
-          select_sample, sample_id_sampler.sample(seed=self._seed), tf.tile([-1], [self.batch_size]))
+      return tf.where(select_sample, sample_id_sampler.sample(seed=self._seed),
+                      tf.tile([-1], [self.batch_size]))
 
   def next_inputs(self, time, outputs, state, sample_ids, name=None):
     with tf.name_scope(name, "ScheduledEmbeddingTrainingHelperSample",

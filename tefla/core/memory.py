@@ -112,8 +112,8 @@ class Memory(object):
     """Function that creates all the update ops."""
     mem_age_incr = self.mem_age.assign_add(tf.ones([self.memory_size], dtype=tf.float32))
     with tf.control_dependencies([mem_age_incr]):
-      mem_age_upd = tf.scatter_update(self.mem_age, upd_idxs, tf.zeros(
-          [batch_size], dtype=tf.float32))
+      mem_age_upd = tf.scatter_update(self.mem_age, upd_idxs, tf.zeros([batch_size],
+                                                                       dtype=tf.float32))
 
     mem_key_upd = tf.scatter_update(self.mem_keys, upd_idxs, upd_keys)
     mem_val_upd = tf.scatter_update(self.mem_vals, upd_idxs, upd_vals)
@@ -293,8 +293,8 @@ class LSHMemory(Memory):
     ]
     hash_slot_idxs = [
         tf.reduce_sum(
-            tf.to_int32(binary_hash[i]) * tf.constant(
-                [[2**i for i in range(self.num_hashes)]], dtype=tf.int32), 1)
+            tf.to_int32(binary_hash[i]) * tf.constant([[2**i for i in range(self.num_hashes)]],
+                                                      dtype=tf.int32), 1)
         for i in range(self.num_libraries)
     ]
     return hash_slot_idxs

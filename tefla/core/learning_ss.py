@@ -145,9 +145,8 @@ class SemiSupervisedTrainer(Base):
           train_writer.add_summary(summary_str_train, epoch)
           train_writer.flush()
           log.debug('2. Running training steps with summary done.')
-          log.info(
-              "Epoch %d, Batch %d D_loss_real: %s, D_loss_fake: %s,D_loss_class: %s, G_loss: %s" %
-              (epoch, batch_num, _d_loss_real, _d_loss_fake, _d_loss_class, _g_loss))
+          log.info("Epoch %d, Batch %d D_loss_real: %s, D_loss_fake: %s,D_loss_class: %s, G_loss: %s"
+                   % (epoch, batch_num, _d_loss_real, _d_loss_fake, _d_loss_class, _g_loss))
         else:
           log.debug('2. Running training steps without summary...')
           _, _d_loss_real, _d_loss_fake, _d_loss_class = sess.run(
@@ -185,7 +184,7 @@ class SemiSupervisedTrainer(Base):
       epoch_validation_metrics = []
       batch_validation_sizes = []
       for batch_num, (validation_Xb, validation_y_true) in enumerate(
-              self.validation_iterator(validation_X, validation_y)):
+          self.validation_iterator(validation_X, validation_y)):
         feed_dict_val = {self.inputs: validation_Xb, self.labels: validation_y_true}
         log.debug('6. Loading batch %d validation data done.' % batch_num)
         if (epoch - 1) % summary_every == 0 and self.is_summary:
@@ -202,8 +201,8 @@ class SemiSupervisedTrainer(Base):
                                                                        validation_y_pred))
         else:
           log.debug('7. Running validation steps without summary...')
-          validation_y_pred, _val_loss = sess.run(
-              [self.predictions, self.test_loss], feed_dict=feed_dict_val)
+          validation_y_pred, _val_loss = sess.run([self.predictions, self.test_loss],
+                                                  feed_dict=feed_dict_val)
 
           log.debug('7. Running validation steps without summary done.')
         validation_losses.append(_val_loss)
@@ -245,8 +244,10 @@ class SemiSupervisedTrainer(Base):
 
       learning_rate_value = self.lr_policy.epoch_update(learning_rate_value, training_history)
       log.info("Current learning rate: %f " % learning_rate_value)
-      end_points_G_val = self.model.generator(
-          [self.cnf['batch_size_test'], 100], False, True, batch_size=self.cnf['batch_size_test'])
+      end_points_G_val = self.model.generator([self.cnf['batch_size_test'], 100],
+                                              False,
+                                              True,
+                                              batch_size=self.cnf['batch_size_test'])
 
       util.save_images(
           'generated_images.jpg', sess.run(end_points_G_val['softmax']), width=128, height=128)

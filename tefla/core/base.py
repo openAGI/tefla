@@ -105,8 +105,8 @@ class Base(object):
         for key, val in self.training_end_points.items():
           summary.summary_activation(val, name=key, collections=[TRAINING_BATCH_SUMMARIES])
       if params_summary:
-        summary.summary_trainable_params(
-            ['scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
+        summary.summary_trainable_params(['scalar', 'histogram', 'norm'],
+                                         collections=[TRAINING_BATCH_SUMMARIES])
       if d_grads_and_var is not None:
         summary.summary_gradients(
             d_grads_and_var, ['scalar', 'histogram', 'norm'], collections=[TRAINING_BATCH_SUMMARIES])
@@ -237,7 +237,7 @@ class Base(object):
         list_variables = var_to_shape_map.keys()
       else:
         list_variables = [tensor_name]
-    except Exception as e: # pylint: disable=broad-except
+    except Exception as e:  # pylint: disable=broad-except
       if "corrupted compressed block contents" in str(e):
         log.debug("It's likely that your checkpoint file has been compressed with SNAPPY.")
     return list_variables
@@ -619,8 +619,7 @@ class Base(object):
           metrics_scores[metric_name + str(i)].append(metric_score)
           metrics_update_ops[metric_name + str(i)].append(update_ops)
       else:
-        metric_score, update_ops = metric_function(
-            labels, tf.round(predictions), name=metric_name)
+        metric_score, update_ops = metric_function(labels, tf.round(predictions), name=metric_name)
         metrics_scores[metric_name].append(metric_score)
         metrics_update_ops[metric_name].append(update_ops)
 

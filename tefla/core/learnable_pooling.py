@@ -114,8 +114,7 @@ class NetVLAD(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(NetVLAD, self).__init__(feature_size, max_samples, cluster_size, output_dim,
-                                         **kwargs)
+    super(NetVLAD, self).__init__(feature_size, max_samples, cluster_size, output_dim, **kwargs)
 
   def forward(self, reshaped_input):
     """Forward pass of a NetVLAD block.
@@ -197,8 +196,7 @@ class NetRVLAD(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(NetRVLAD, self).__init__(feature_size, max_samples, cluster_size, output_dim,
-                                         **kwargs)
+    super(NetRVLAD, self).__init__(feature_size, max_samples, cluster_size, output_dim, **kwargs)
 
   def forward(self, reshaped_input):
     """Forward pass of a NetRVLAD block.
@@ -271,8 +269,7 @@ class SoftDBoW(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(SoftDBoW, self).__init__(feature_size, max_samples, cluster_size, output_dim,
-                                         **kwargs)
+    super(SoftDBoW, self).__init__(feature_size, max_samples, cluster_size, output_dim, **kwargs)
 
   def forward(self, reshaped_input):
     """Forward pass of a Soft-DBoW block.
@@ -336,8 +333,7 @@ class NetFV(PoolingBaseModel):
         name: a string, name of the layer
         outputs_collections: The collections to which the outputs are added.
     """
-    super(NetFV, self).__init__(feature_size, max_samples, cluster_size, output_dim,
-                                         **kwargs)
+    super(NetFV, self).__init__(feature_size, max_samples, cluster_size, output_dim, **kwargs)
 
   def forward(self, reshaped_input):
     """Forward pass of a NetFV block.

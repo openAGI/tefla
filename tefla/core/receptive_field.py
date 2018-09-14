@@ -222,12 +222,10 @@ def get_layer_params(node, name_to_node, input_resolution=None, force=False):
     stride_x, stride_y = _stride_size(node)
     kernel_size_x, kernel_size_y = _conv_kernel_size(node, name_to_node)
     # Compute the padding for this node separately for each direction.
-    total_padding_x, padding_x = _padding_size_conv_pool(node, kernel_size_x, stride_x,
-                                                         input_resolution[1]
-                                                         if input_resolution is not None else None)
-    total_padding_y, padding_y = _padding_size_conv_pool(node, kernel_size_y, stride_y,
-                                                         input_resolution[0]
-                                                         if input_resolution is not None else None)
+    total_padding_x, padding_x = _padding_size_conv_pool(
+        node, kernel_size_x, stride_x, input_resolution[1] if input_resolution is not None else None)
+    total_padding_y, padding_y = _padding_size_conv_pool(
+        node, kernel_size_y, stride_y, input_resolution[0] if input_resolution is not None else None)
   elif node.op == "Pad":
     # Kernel and stride are simply 1 in this case.
     kernel_size_x = 1
@@ -240,12 +238,10 @@ def get_layer_params(node, name_to_node, input_resolution=None, force=False):
     stride_x, stride_y = _stride_size(node)
     kernel_size_x, kernel_size_y = _pool_kernel_size(node)
     # Compute the padding for this node separately for each direction.
-    total_padding_x, padding_x = _padding_size_conv_pool(node, kernel_size_x, stride_x,
-                                                         input_resolution[1]
-                                                         if input_resolution is not None else None)
-    total_padding_y, padding_y = _padding_size_conv_pool(node, kernel_size_y, stride_y,
-                                                         input_resolution[0]
-                                                         if input_resolution is not None else None)
+    total_padding_x, padding_x = _padding_size_conv_pool(
+        node, kernel_size_x, stride_x, input_resolution[1] if input_resolution is not None else None)
+    total_padding_y, padding_y = _padding_size_conv_pool(
+        node, kernel_size_y, stride_y, input_resolution[0] if input_resolution is not None else None)
   elif node.op in _UNCHANGED_RF_LAYER_OPS:
     # These nodes do not modify the RF parameters.
     kernel_size_x = 1
@@ -534,9 +530,9 @@ class ReceptiveField(object):
     axis = list(axis)
     x = np.asarray(x)
     if x.shape[-1] != len(axis):
-      raise ValueError("Dimensionality of the input center coordinates `x` "
-                       "(%d) does not match dimensionality of `axis` (%d)" % (x.shape[-1],
-                                                                              len(axis)))
+      raise ValueError(
+          "Dimensionality of the input center coordinates `x` "
+          "(%d) does not match dimensionality of `axis` (%d)" % (x.shape[-1], len(axis)))
     return (x + self.padding[axis] + (1 - self.size[axis]) / 2) / self.stride[axis]
 
   def __iter__(self):
@@ -731,11 +727,11 @@ def compute_receptive_field_from_graph_def(graph_def,
               raise ValueError("Graph is not aligned since effective stride from different "
                                "paths is different in vertical direction")
             if (rf_sizes_x[inp_name] - 1) / 2 - effective_paddings_x[inp_name] != (
-                    rf_size_input_x - 1) / 2 - effective_padding_input_x:
+                rf_size_input_x - 1) / 2 - effective_padding_input_x:
               raise ValueError("Graph is not aligned since center shift from different "
                                "paths is different in horizontal direction")
             if (rf_sizes_y[inp_name] - 1) / 2 - effective_paddings_y[inp_name] != (
-                    rf_size_input_y - 1) / 2 - effective_padding_input_y:
+                rf_size_input_y - 1) / 2 - effective_padding_input_y:
               raise ValueError("Graph is not aligned since center shift from different "
                                "paths is different in vertical direction")
           # Keep track of path with largest RF, for both directions.

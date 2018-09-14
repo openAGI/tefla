@@ -126,12 +126,11 @@ class PascalVoc(object):
           image, label, output_height, output_width, True, standardizer=self.standardizer)
       image = tf.transpose(image, perm=[1, 0, 2])
       label = tf.transpose(label, perm=[1, 0])
-      image_batch, label_batch = tf.train.shuffle_batch(
-          [image, label],
-          batch_size=batch_size,
-          num_threads=self.num_preprocess_threads,
-          capacity=self.capacity,
-          min_after_dequeue=self.min_queue_examples)
+      image_batch, label_batch = tf.train.shuffle_batch([image, label],
+                                                        batch_size=batch_size,
+                                                        num_threads=self.num_preprocess_threads,
+                                                        capacity=self.capacity,
+                                                        min_after_dequeue=self.min_queue_examples)
     else:
       filename_queue = self.datafiles(height)
       image, label = self.decode_file(filename_queue, height=height, width=width)
@@ -140,11 +139,10 @@ class PascalVoc(object):
       image = tf.transpose(image, perm=[1, 0, 2])
       label = tf.transpose(label, perm=[1, 0])
       image, label = seg_input_aug(image, label)
-      image_batch, label_batch = tf.train.batch(
-          [image, label],
-          batch_size=batch_size,
-          num_threads=self.num_preprocess_threads,
-          capacity=self.capacity)
+      image_batch, label_batch = tf.train.batch([image, label],
+                                                batch_size=batch_size,
+                                                num_threads=self.num_preprocess_threads,
+                                                capacity=self.capacity)
 
     return image_batch, label_batch
 

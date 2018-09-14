@@ -60,14 +60,13 @@ class BasicRNNCell(core_rnn_cell.RNNCell):
     """Most basic RNN: output = new_state = act(W * input + U * state + B)."""
     with tf.variable_scope(scope):
       output = self._activation(
-          _linear(
-              [inputs, state],
-              self._num_units,
-              self.reuse,
-              w_init=self._w_init,
-              use_bias=self._use_bias,
-              trainable=self.trainable,
-              name=scope))
+          _linear([inputs, state],
+                  self._num_units,
+                  self.reuse,
+                  w_init=self._w_init,
+                  use_bias=self._use_bias,
+                  trainable=self.trainable,
+                  name=scope))
       if self.layer_norm is not None:
         output = self.layer_norm(
             output, self.reuse, trainable=self.trainable, **self.layer_norm_args)
@@ -150,14 +149,13 @@ class LSTMCell(core_rnn_cell.RNNCell):
     """Long short-term memory cell (LSTM)."""
     with tf.variable_scope(scope):
       c, h = state
-      concat = _linear(
-          [inputs, h],
-          4 * self._num_units,
-          self.reuse,
-          trainable=self.trainable,
-          w_init=self._w_init,
-          use_bias=self._use_bias,
-          name=scope)
+      concat = _linear([inputs, h],
+                       4 * self._num_units,
+                       self.reuse,
+                       trainable=self.trainable,
+                       w_init=self._w_init,
+                       use_bias=self._use_bias,
+                       name=scope)
 
       # i = input_gate, j = new_input, f = forget_gate, o = output_gate
       i, j, f, o = tf.split(concat, 4, axis=1)
@@ -269,14 +267,13 @@ class AttentionCell(core_rnn_cell.RNNCell):
       input_size = self._input_size
       if input_size is None:
         input_size = inputs.get_shape().as_list()[1]
-      inputs = _linear(
-          [inputs, attns],
-          input_size,
-          self.reuse,
-          w_init=self._w_init,
-          use_bias=self._use_bias,
-          trainable=self.trainable,
-          name=scope)
+      inputs = _linear([inputs, attns],
+                       input_size,
+                       self.reuse,
+                       w_init=self._w_init,
+                       use_bias=self._use_bias,
+                       trainable=self.trainable,
+                       name=scope)
       lstm_output, new_state = self._cell(inputs, state)
       new_state_cat = tf.concat(helper.flatten_sq(new_state), 1)
       new_attns, new_attn_states = _attention(
@@ -289,14 +286,13 @@ class AttentionCell(core_rnn_cell.RNNCell):
           self._attn_length,
           trainable=self.trainable)
       with tf.variable_scope("attn_output_projection"):
-        output = _linear(
-            [lstm_output, new_attns],
-            self._attn_size,
-            self.reuse,
-            w_init=self._w_init,
-            use_bias=self._use_bias,
-            trainable=self.trainable,
-            name=scope)
+        output = _linear([lstm_output, new_attns],
+                         self._attn_size,
+                         self.reuse,
+                         w_init=self._w_init,
+                         use_bias=self._use_bias,
+                         trainable=self.trainable,
+                         name=scope)
       new_attn_states = tf.concat([new_attn_states, tf.expand_dims(output, 1)], 1)
       new_attn_states = tf.reshape(new_attn_states, [-1, self._attn_length * self._attn_size])
       new_state = (new_state, new_attns, new_attn_states)
@@ -366,29 +362,27 @@ class GRUCell(core_rnn_cell.RNNCell):
       with tf.variable_scope("gates"):  # Reset gate and update gate.
         # We start with bias of 1.0 to not reset and not update.
         r, u = tf.split(
-            _linear(
-                [inputs, state],
-                2 * self._num_units,
-                self.reuse,
-                w_init=self._w_init,
-                b_init=self._b_init,
-                use_bias=self._use_bias,
-                trainable=self.trainable,
-                name=scope), 2, 1)
+            _linear([inputs, state],
+                    2 * self._num_units,
+                    self.reuse,
+                    w_init=self._w_init,
+                    b_init=self._b_init,
+                    use_bias=self._use_bias,
+                    trainable=self.trainable,
+                    name=scope), 2, 1)
         r, u = self._inner_activation(r), self._inner_activation(u)
         if self.layer_norm is not None:
           u = self.layer_norm(u, self.reuse, trainable=self.trainable, **self.layer_norm_args)
           r = self.layer_norm(r, self.reuse, trainable=self.trainable, **self.layer_norm_args)
       with tf.variable_scope("candidate"):
         c = self._activation(
-            _linear(
-                [inputs, r * state],
-                self._num_units,
-                self.reuse,
-                w_init=self._w_init,
-                b_init=self._b_init,
-                use_bias=self._use_bias,
-                name=scope))
+            _linear([inputs, r * state],
+                    self._num_units,
+                    self.reuse,
+                    w_init=self._w_init,
+                    b_init=self._b_init,
+                    use_bias=self._use_bias,
+                    name=scope))
       new_h = u * state + (1 - u) * c
       if self.layer_norm is not None:
         c = self.layer_norm(c, self.reuse, trainable=self.trainable, **self.layer_norm_args)
@@ -500,8 +494,8 @@ class ExtendedMultiRNNCell(MultiRNNCell):
       for i, cell in enumerate(self._cells):
         with tf.variable_scope("cell_%d" % i):
           if not helper.is_sequence(state):
-            raise ValueError("Expected state to be a tuple of length %d, but received: %s" %
-                             (len(self.state_size), state))
+            raise ValueError("Expected state to be a tuple of length %d, but received: %s" % (len(
+                self.state_size), state))
           cur_state = state[i]
           next_input, new_state = cell(cur_inp, cur_state)
 
@@ -816,14 +810,13 @@ class ConvLSTMCell(core_rnn_cell.RNNCell):
 
   def call(self, inputs, state, scope=None):
     cell, hidden = state
-    new_hidden = _conv(
-        [inputs, hidden],
-        self._kernel_shape,
-        4 * self._output_channels,
-        self._use_bias,
-        self._reuse,
-        w_init=self._w_init,
-        b_init=self._b_init)
+    new_hidden = _conv([inputs, hidden],
+                       self._kernel_shape,
+                       4 * self._output_channels,
+                       self._use_bias,
+                       self._reuse,
+                       w_init=self._w_init,
+                       b_init=self._b_init)
     gates = tf.split(value=new_hidden, num_or_size_splits=4, axis=self._conv_ndims + 1)
 
     input_gate, new_input, forget_gate, output_gate = gates
@@ -1072,12 +1065,11 @@ class GLSTMCell(core_rnn_cell.RNNCell):
 
       for group_id in range(self._number_of_groups):
         with tf.variable_scope("group%d" % group_id):
-          x_g_id = tf.concat(
-              [
-                  self._get_input_for_group(inputs, group_id, self._group_shape[0]),
-                  self._get_input_for_group(m_prev, group_id, self._group_shape[0])
-              ],
-              axis=1)
+          x_g_id = tf.concat([
+              self._get_input_for_group(inputs, group_id, self._group_shape[0]),
+              self._get_input_for_group(m_prev, group_id, self._group_shape[0])
+          ],
+                             axis=1)
           R_k = _linear(
               x_g_id,
               4 * self._group_shape[1],
@@ -1255,8 +1247,8 @@ class ZoneoutWrapper(core_rnn_cell.RNNCell):
         final_new_state[i] = (new_state[i] - state_element) * binary_tensor + state_element
     else:
       for i, state_element in enumerate(state):
-        final_new_state[
-            i] = state_element * self._zoneout_prob + new_state[i] * (1 - self._zoneout_prob)
+        final_new_state[i] = state_element * self._zoneout_prob + new_state[i] * (
+            1 - self._zoneout_prob)
     if isinstance(self._cell.state_size, tuple):
       return output, tf.contrib.rnn.LSTMStateTuple(final_new_state[0], final_new_state[1])
     return output, tf.concat([final_new_state[0], final_new_state[1]], 1)
@@ -1330,8 +1322,8 @@ def _linear(x,
     if shape.ndims != 2:
       raise ValueError("linear is expecting 2D arguments: %s" % shapes)
     if shape[1].value is None:
-      raise ValueError("linear expects shape[1] to be provided for shape %s, but saw %s" %
-                       (shape, shape[1]))
+      raise ValueError(
+          "linear expects shape[1] to be provided for shape %s, but saw %s" % (shape, shape[1]))
     else:
       n_input += shape[1].value
 

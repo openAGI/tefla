@@ -211,8 +211,8 @@ class PrintModelAnalysisHook(TrainingHook):
 
   def begin(self):
     if self.is_chief:
-      opts = (tf.profiler.ProfileOptionBuilder().with_max_depth(10)
-              .select(['accelerator_micros']).with_file_output(self._filename).build())
+      opts = (tf.profiler.ProfileOptionBuilder().with_max_depth(10).select(
+          ['accelerator_micros']).with_file_output(self._filename).build())
 
       tf.profiler.profile(tf.get_default_graph(), options=opts)
     with gfile.GFile(self._filename) as file:

@@ -590,8 +590,8 @@ class SubwordTextEncoder(TextEncoder):
       new_subtoken_strings.sort(reverse=True)
 
       # Reinitialize to the candidate vocabulary.
-      self._init_subtokens_from_list(
-          [subtoken for _, subtoken in new_subtoken_strings], reserved=num_reserved_ids)
+      self._init_subtokens_from_list([subtoken for _, subtoken in new_subtoken_strings],
+                                     reserved=num_reserved_ids)
       tf.logging.info("vocab_size = %d" % self.vocab_size)
 
   def dump(self):

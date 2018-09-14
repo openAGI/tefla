@@ -460,8 +460,10 @@ class VggPreprocessor(Preprocessor):
     Returns:
       A preprocessed image.
     """
-    resize_side = tf.random_uniform(
-        [], minval=resize_side_min, maxval=resize_side_max + 1, dtype=tf.int32)
+    resize_side = tf.random_uniform([],
+                                    minval=resize_side_min,
+                                    maxval=resize_side_max + 1,
+                                    dtype=tf.int32)
 
     image = self._aspect_preserving_resize(image, resize_side)
     image = self._random_crop([image], output_height, output_width)[0]
@@ -684,8 +686,10 @@ class ImagenetPreprocessor(Preprocessor):
                            resize_side_min=256,
                            resize_side_max=512,
                            standardizer=None):
-    resize_side = tf.random_uniform(
-        [], minval=resize_side_min, maxval=resize_side_max + 1, dtype=tf.int32)
+    resize_side = tf.random_uniform([],
+                                    minval=resize_side_min,
+                                    maxval=resize_side_max + 1,
+                                    dtype=tf.int32)
 
     image = self._aspect_preserving_resize(image, resize_side)
     image = self._random_crop([image], output_height, output_width)[0]
@@ -1210,10 +1214,14 @@ def random_black_patches(image,
     box_size = tf.to_int32(
         tf.multiply(
             tf.minimum(tf.to_float(image_height), tf.to_float(image_width)), size_to_image_ratio))
-    normalized_y_min = tf.random_uniform(
-        [], minval=0.0, maxval=(1.0 - size_to_image_ratio), seed=random_seed)
-    normalized_x_min = tf.random_uniform(
-        [], minval=0.0, maxval=(1.0 - size_to_image_ratio), seed=random_seed)
+    normalized_y_min = tf.random_uniform([],
+                                         minval=0.0,
+                                         maxval=(1.0 - size_to_image_ratio),
+                                         seed=random_seed)
+    normalized_x_min = tf.random_uniform([],
+                                         minval=0.0,
+                                         maxval=(1.0 - size_to_image_ratio),
+                                         seed=random_seed)
     y_min = tf.to_int32(normalized_y_min * tf.to_float(image_height))
     x_min = tf.to_int32(normalized_x_min * tf.to_float(image_width))
     black_box = tf.ones([box_size, box_size, 3], dtype=tf.float32)

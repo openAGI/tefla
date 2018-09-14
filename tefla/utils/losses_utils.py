@@ -53,26 +53,17 @@ def weighted_sigmoid_cross_entropy_with_logits(labels,
     A `Tensor` of the same shape as `logits` with the componentwise
       weighted logistic losses.
   """
-  with tf.name_scope(
-      name,
-      'weighted_logistic_loss',
-      [logits, labels, positive_weights, negative_weights]) as name:
+  with tf.name_scope(name, 'weighted_logistic_loss',
+                     [logits, labels, positive_weights, negative_weights]) as name:
     labels, logits, positive_weights, negative_weights = prepare_loss_args(
         labels, logits, positive_weights, negative_weights)
 
-    softplus_term = tf.add(tf.maximum(-logits, 0.0),
-                           tf.log(1.0 + tf.exp(-tf.abs(logits))))
-    weight_dependent_factor = (
-        negative_weights + (positive_weights - negative_weights) * labels)
-    return (negative_weights * (logits - labels * logits) +
-            weight_dependent_factor * softplus_term)
+    softplus_term = tf.add(tf.maximum(-logits, 0.0), tf.log(1.0 + tf.exp(-tf.abs(logits))))
+    weight_dependent_factor = (negative_weights + (positive_weights - negative_weights) * labels)
+    return (negative_weights * (logits - labels * logits) + weight_dependent_factor * softplus_term)
 
 
-def weighted_hinge_loss(labels,
-                        logits,
-                        positive_weights=1.0,
-                        negative_weights=1.0,
-                        name=None):
+def weighted_hinge_loss(labels, logits, positive_weights=1.0, negative_weights=1.0, name=None):
   """Computes weighted hinge loss given logits `logits`.
   The loss applies to multi-label classification tasks where labels are
   independent and not mutually exclusive. See also
@@ -99,15 +90,13 @@ def weighted_hinge_loss(labels,
     A `Tensor` of the same shape as `logits` with the componentwise
       weighted hinge loss.
   """
-  with tf.name_scope(
-      name, 'weighted_hinge_loss',
-      [logits, labels, positive_weights, negative_weights]) as name:
+  with tf.name_scope(name, 'weighted_hinge_loss',
+                     [logits, labels, positive_weights, negative_weights]) as name:
     labels, logits, positive_weights, negative_weights = prepare_loss_args(
         labels, logits, positive_weights, negative_weights)
 
     positives_term = positive_weights * labels * tf.maximum(1.0 - logits, 0)
-    negatives_term = (negative_weights * (1.0 - labels)
-                      * tf.maximum(1.0 + logits, 0))
+    negatives_term = (negative_weights * (1.0 - labels) * tf.maximum(1.0 + logits, 0))
     return positives_term + negatives_term
 
 
@@ -145,10 +134,8 @@ def weighted_surrogate_loss(labels,
   Raises:
     ValueError: If value of `surrogate_type` is not supported.
   """
-  with tf.name_scope(
-      name, 'weighted_loss',
-      [logits, labels, surrogate_type, positive_weights,
-       negative_weights]) as name:
+  with tf.name_scope(name, 'weighted_loss',
+                     [logits, labels, surrogate_type, positive_weights, negative_weights]) as name:
     if surrogate_type == 'xent':
       return weighted_sigmoid_cross_entropy_with_logits(
           logits=logits,
@@ -182,9 +169,8 @@ def expand_outer(tensor, rank):
   if tensor.get_shape().ndims is None:
     raise ValueError('tensor dimension must be known.')
   if len(tensor.get_shape()) > rank:
-    raise ValueError(
-        '`rank` must be at least the current tensor dimension: (%s vs %s).' %
-        (rank, len(tensor.get_shape())))
+    raise ValueError('`rank` must be at least the current tensor dimension: (%s vs %s).' %
+                     (rank, len(tensor.get_shape())))
   while len(tensor.get_shape()) < rank:
     tensor = tf.expand_dims(tensor, 0)
   return tensor
@@ -232,8 +218,7 @@ def build_label_priors(labels,
         name='weighted_label_counts',
         shape=[num_labels],
         dtype=dtype,
-        initializer=tf.constant_initializer(
-            [positive_pseudocount] * num_labels, dtype=dtype),
+        initializer=tf.constant_initializer([positive_pseudocount] * num_labels, dtype=dtype),
         collections=variables_collections,
         trainable=False)
     weighted_label_counts_update = weighted_label_counts.assign_add(
@@ -245,8 +230,7 @@ def build_label_priors(labels,
         shape=[num_labels],
         dtype=dtype,
         initializer=tf.constant_initializer(
-            [positive_pseudocount + negative_pseudocount] * num_labels,
-            dtype=dtype),
+            [positive_pseudocount + negative_pseudocount] * num_labels, dtype=dtype),
         collections=variables_collections,
         trainable=False)
     weight_sum_update = weight_sum.assign_add(tf.reduce_sum(weights, 0))
@@ -254,9 +238,7 @@ def build_label_priors(labels,
   finally:
     tf.get_variable_scope().set_partitioner(partitioner)
 
-  label_priors = tf.div(
-      weighted_label_counts_update,
-      weight_sum_update)
+  label_priors = tf.div(weighted_label_counts_update, weight_sum_update)
   return label_priors
 
 
@@ -289,11 +271,9 @@ def prepare_loss_args(labels, logits, positive_weights, negative_weights):
   if len(labels.get_shape()) == 2 and len(logits.get_shape()) == 3:
     labels = tf.expand_dims(labels, [2])
 
-  positive_weights = convert_and_cast(positive_weights, 'positive_weights',
-                                      logits.dtype)
+  positive_weights = convert_and_cast(positive_weights, 'positive_weights', logits.dtype)
   positive_weights = expand_outer(positive_weights, logits.get_shape().ndims)
-  negative_weights = convert_and_cast(negative_weights, 'negative_weights',
-                                      logits.dtype)
+  negative_weights = convert_and_cast(negative_weights, 'negative_weights', logits.dtype)
   negative_weights = expand_outer(negative_weights, logits.get_shape().ndims)
   return labels, logits, positive_weights, negative_weights
 
