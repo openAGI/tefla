@@ -24,13 +24,13 @@ class PyTest(TestCommand):
 setup(
     name='tefla',
     packages=find_packages(),
-    version='1.9.0',
+    version='1.9.2',
     description='Simple end-to-end deep learning with tensorflow. Datasets, \
         data-augmentation, models, training, prediction, and metrics',
     author='Tefla contributors',
     author_email='mrinalhaloi11@gmail.com',
     url='https://github.com/openAGI/tefla',
-    download_url='https://github.com/openAGI/tefla/archive/1.9.0.zip',
+    download_url='https://github.com/openAGI/tefla/archive/1.9.2.zip',
     keywords=['tensorflow', 'deeplearning', 'cnn', 'deepcnn'],
     classifiers=[],
     install_requires=[
