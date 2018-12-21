@@ -761,7 +761,7 @@ def pad_sequences(sequences, maxlen=None, dtype='int32', padding='post', truncat
   x = (np.ones((nb_samples, maxlen)) * value).astype(dtype)
   for idx, s in enumerate(sequences):
     if len(s) == 0:
-      continue  # empty list was found
+      continue # empty list was found
     if truncating == 'pre':
       trunc = s[-maxlen:]
     elif truncating == 'post':
@@ -1107,7 +1107,7 @@ def _deep_merge_dict(dict_x, dict_y, path=None):
       if isinstance(dict_x[key], dict) and isinstance(dict_y[key], dict):
         _deep_merge_dict(dict_x[key], dict_y[key], path + [str(key)])
       elif dict_x[key] == dict_y[key]:
-        pass  # same leaf value
+        pass # same leaf value
       else:
         dict_x[key] = dict_y[key]
     else:
@@ -1220,3 +1220,60 @@ def convert_real_to_rgb(x):
   with tf.name_scope("real_to_rgb", values=[x]):
     x *= 255.0
     return x
+
+
+import functools
+
+
+def name_scope(name=None):
+  """
+  Args:
+    name_scope:  a `str`, the default scope to use. If None, will use the name of the function.
+
+  Returns:
+    A decorator which makes the function run under a name scope.
+  """
+
+  def _impl(func):
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+      scopename = kwargs.pop('name', name)
+      if scopename is None:
+        scopename = func.__name__
+      with tf.name_scope(scopename):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+  return _impl
+
+
+def variable_scope(reuse=None, name=None):
+  """
+  Args:
+    reuse: True, None, or tf.AUTO_REUSE; if True, we go into reuse mode for this scope as well as
+      all sub-scopes; if tf.AUTO_REUSE, we create variables if they do not exist, and return
+      them otherwise; if None, we inherit the parent scope's reuse flag. When eager execution
+      is enabled, new variables are always created unless an EagerVariableStore or template
+      is currently active.
+    name_scope:  a `str`, the default scope to use. If None, will use the name of the function.
+
+  Returns:
+    A decorator which makes the function run under a name scope.
+  """
+
+  def _impl(func):
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+      scopename = kwargs.pop('name', name)
+      scopename = kwargs.pop('reuse', reuse)
+      if scopename is None:
+        scopename = func.__name__
+      with tf.variable_scope(scopename, reuse=reuse):
+        return func(*args, **kwargs)
+
+    return wrapper
+
+  return _impl
