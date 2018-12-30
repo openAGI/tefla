@@ -45,7 +45,7 @@ install:
   - python setup.py install
 
 script:
-  - python -m unittest discover tests/
+  - pytest -v tests/
   - bash tools/ci_build/ci_sanity.sh
 
 after_success:
