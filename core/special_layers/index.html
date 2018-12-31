@@ -13,19 +13,19 @@
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
-  <link rel="stylesheet" href="../../css/highlight.css">
-  <link href="../../css/extra.css" rel="stylesheet">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
     var mkdocs_page_name = "Special Layers";
     var mkdocs_page_input_path = "core/special_layers.md";
-    var mkdocs_page_url = "/core/special_layers/";
+    var mkdocs_page_url = null;
   </script>
   
-  <script src="../../js/jquery-2.1.1.min.js"></script>
-  <script src="../../js/modernizr-2.8.3.min.js"></script>
-  <script type="text/javascript" src="../../js/highlight.pack.js"></script> 
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
   
 </head>
 
@@ -39,7 +39,7 @@
         <a href="../.." class="icon icon-home"> Tefla</a>
         <div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
@@ -291,7 +291,7 @@
             <div class="section">
               
                 <h1 id="spatial-transformer-layer">Spatial Transformer Layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L10 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L10 target="_blank"><b>tefla.core.special_layers.spatialtransformer</b></a></span>  (U,  theta,  batch_size=64,  downsample_factor=1.0,  num_transform=1,  name='SpatialTransformer',  **kwargs)</span></p>
 <p>Implements a spatial transformer layer as described in [1]<em>.
 It's based on lasagne implementation in [2]</em>, modified by Mrinal Haloi</p>
 <h3>Args</h3>
@@ -310,7 +310,7 @@ The output of the localisation network should be [batch_size, num_transform, 6] 
 <p>spatial transformed output of the network</p>
 <hr />
 <h1 id="subsamples-the-input-along-the-spatial-dimensions">Subsamples the input along the spatial dimensions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L164 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L164 target="_blank"><b>tefla.core.special_layers.subsample</b></a></span>  (inputs,  factor,  name=None)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -324,7 +324,7 @@ The output of the localisation network should be [batch_size, num_transform, 6] 
 input, either intact (if factor == 1) or subsampled (if factor &gt; 1).</p>
 <hr />
 <h1 id="strided-2-d-convolution-with-same-padding">Strided 2-D convolution with 'SAME' padding</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L182 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L182 target="_blank"><b>tefla.core.special_layers.conv2d_same</b></a></span>  (inputs,  num_outputs,  kernel_size,  stride,  rate=1,  name=None,  **kwargs)</span></p>
 <p>When stride &gt; 1, then we do explicit zero-padding, followed by conv2d with
 'VALID' padding.</p>
 <p>Note that</p>
@@ -352,7 +352,7 @@ current function. For more details, see ResnetUtilsTest.testConv2DSameEven().</p
 the convolution output.</p>
 <hr />
 <h1 id="bottleneck-residual-unit-variant-with-bn-before-convolutions">Bottleneck residual unit variant with BN before convolutions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L230 target="_blank"><b>tefla.core.special_layers.bottleneck_v1</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L230 target="_blank"><b>tefla.core.special_layers.bottleneck_v1</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
 <p>This is the full preactivation residual unit variant proposed in [2]. See
 Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
 variant which has an extra bottleneck layer.</p>
@@ -375,7 +375,7 @@ the units output compared to its input.</li>
 <p>The ResNet unit's output.</p>
 <hr />
 <h1 id="bottleneck-residual-unit-variant-with-bn-before-convolutions_1">Bottleneck residual unit variant with BN before convolutions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L277 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L277 target="_blank"><b>tefla.core.special_layers.bottleneck_v2</b></a></span>  (inputs,  depth,  depth_bottleneck,  stride,  rate=1,  name=None,  **kwargs)</span></p>
 <p>This is the full preactivation residual unit variant proposed in [2]. See
 Fig. 1(b) of [2] for its definition. Note that we use here the bottleneck
 variant which has an extra bottleneck layer.</p>
@@ -398,7 +398,7 @@ the units output compared to its input.</li>
 <p>The ResNet unit's output.</p>
 <hr />
 <h1 id="densecrf-over-unnormalised-predictions">DenseCRF over unnormalised predictions</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L405 target="_blank"><b>tefla.core.special_layers.dense_crf</b></a></span>  (probs,  img=None,  n_classes=21,  n_iters=10,  sxy_gaussian=  (1,  1),  compat_gaussian=4,  kernel_gaussian=<KernelType.DIAG_KERNEL:  1>,  normalisation_gaussian=<NormalizationType.NORMALIZE_SYMMETRIC:  3>,  sxy_bilateral=  (49,  49),  compat_bilateral=2,  srgb_bilateral=  (13,  13,  13),  kernel_bilateral=<KernelType.DIAG_KERNEL:  1>,  normalisation_bilateral=<NormalizationType.NORMALIZE_SYMMETRIC:  3>)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L405 target="_blank"><b>tefla.core.special_layers.dense_crf</b></a></span>  (probs,  img=None,  n_classes=21,  n_iters=10,  sxy_gaussian=  (1,  1),  compat_gaussian=4,  kernel_gaussian=<KernelType.DIAG_KERNEL:  1>,  normalisation_gaussian=<NormalizationType.NORMALIZE_SYMMETRIC:  3>,  sxy_bilateral=  (49,  49),  compat_bilateral=2,  srgb_bilateral=  (13,  13,  13),  kernel_bilateral=<KernelType.DIAG_KERNEL:  1>,  normalisation_bilateral=<NormalizationType.NORMALIZE_SYMMETRIC:  3>)</span>
    More details on the arguments at https://github.com/lucasb-eyer/pydensecrf.</p>
 <h3>Args</h3>
 
@@ -429,7 +429,7 @@ of the colour-dependent term.</li>
 <p>Refined predictions after MAP inference.</p>
 <hr />
 <h1 id="resnext-block">ResNeXt Block</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f8535ecf5f0>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L487 target="_blank"><b>tefla.core.special_layers.resnext_block</b></a></span>  (inputs,  nb_blocks,  out_channels,  is_training,  reuse,  cardinality,  downsample=False,  downsample_strides=2,  activation=<function  relu  at  0x7f8538be0668>,  batch_norm=None,  batch_norm_args=None,  name='ResNeXtBlock',  **kwargs)</span>
 resnext paper https://arxiv.org/pdf/1611.05431.pdf</p>
 <h3>Args</h3>
 
@@ -460,7 +460,7 @@ override name.</li>
 <p>4-D Tensor [batch, new height, new width, out_channels].</p>
 <hr />
 <h1 id="embedding">Embedding</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f8533d04250>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L562 target="_blank"><b>tefla.core.special_layers.embedding</b></a></span>  (inputs,  vocab_dim,  embedding_dim,  reuse,  validate_indices=False,  w_init=<tensorflow.python.ops.init_ops.RandomUniform  object  at  0x7f8533e99110>,  trainable=True,  normalize=False,  vocab_freqs=None,  name='Embedding')</span>
 Embedding layer for a sequence of integer ids or floats.</p>
 <h3>Args</h3>
 
@@ -480,7 +480,7 @@ will be reused (shared).</li>
 <p>3-D Tensor [samples, embedded_ids, features].</p>
 <hr />
 <h1 id="gated-unit-for-language-modelling">Gated unit for language modelling</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L613 target="_blank"><b>tefla.core.special_layers.gated_layer</b></a></span>  (inputs,  layer,  num_units,  is_training,  reuse,  name='gated_layer',  **kwargs)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L613 target="_blank"><b>tefla.core.special_layers.gated_layer</b></a></span>  (inputs,  layer,  num_units,  is_training,  reuse,  name='gated_layer',  **kwargs)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -498,7 +498,7 @@ will be reused (shared).</li>
 <p>a 3-D/4-D <code>Tensor</code>, output of the gated unit</p>
 <hr />
 <h1 id="returns-glimpses-at-the-locations">Returns glimpses at the locations</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L643 target="_blank"><b>tefla.core.special_layers.glimpseSensor</b></a></span>  (img,  normLoc,  minRadius=4,  depth=1,  sensorBandwidth=12)</span></p>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L643 target="_blank"><b>tefla.core.special_layers.glimpseSensor</b></a></span>  (img,  normLoc,  minRadius=4,  depth=1,  sensorBandwidth=12)</span></p>
 <h3>Args</h3>
 
 <ul>
@@ -513,7 +513,7 @@ will be reused (shared).</li>
 <p>a 5-D <code>tensor</code> of glimpses</p>
 <hr />
 <h1 id="adds-a-pva-block-layer">Adds a PVA block layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L690 target="_blank"><b>tefla.core.special_layers.pva_block_v1</b></a></span>  (x,  num_units,  name='pva_block_v1',  **kwargs)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L690 target="_blank"><b>tefla.core.special_layers.pva_block_v1</b></a></span>  (x,  num_units,  name='pva_block_v1',  **kwargs)</span>
 convolution followed by crelu and scaling</p>
 <h3>Args</h3>
 
@@ -551,7 +551,7 @@ default set to None for no normalizer function</li>
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
 <h1 id="adds-a-pva-block-v2-layer">Adds a PVA block v2 layer</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L744 target="_blank"><b>tefla.core.special_layers.pva_block_v2</b></a></span>  (x,  num_units,  name='pva_block_v2',  **kwargs)</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L744 target="_blank"><b>tefla.core.special_layers.pva_block_v2</b></a></span>  (x,  num_units,  name='pva_block_v2',  **kwargs)</span>
 first batch normalization followed by crelu and scaling, convolution is applied after scalling</p>
 <h3>Args</h3>
 
@@ -589,7 +589,7 @@ default set to None for no normalizer function</li>
 e.g.: 4-D <code>Tensor</code> [batch, new_height, new_width, n_output].</p>
 <hr />
 <h1 id="performs-a-pooling-operation-that-results-in-a-fixed-size">Performs a pooling operation that results in a fixed size:</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L804 target="_blank"><b>tefla.core.special_layers.max_pool_2d_nxn_regions</b></a></span>  (inputs,  output_size,  mode='max')</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L804 target="_blank"><b>tefla.core.special_layers.max_pool_2d_nxn_regions</b></a></span>  (inputs,  output_size,  mode='max')</span>
 output_size x output_size.</p>
 <p>Used by spatial_pyramid_pool. Refer to appendix A in [1].</p>
 <h3>Args</h3>
@@ -606,7 +606,7 @@ The list contains output_size * output_size elements, where
 each elment is a Tensor (N, C).</p>
 <hr />
 <h1 id="performs-spatial-pyramid-pooling-spp-over-the-input">Performs spatial pyramid pooling (SPP) over the input</h1>
-<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/n3011/tefla/blob/master/tefla/core/special_layers.py#L856 target="_blank"><b>tefla.core.special_layers.spatial_pyramid_pool</b></a></span>  (inputs,  dimensions=[2,  1],  mode='max',  implementation='kaiming')</span>
+<p><span class="extra_h1"><span style="color:black;"><a href=https://github.com/openagi/tefla/blob/master/tefla/core/special_layers.py#L856 target="_blank"><b>tefla.core.special_layers.spatial_pyramid_pool</b></a></span>  (inputs,  dimensions=[2,  1],  mode='max',  implementation='kaiming')</span>
 It will turn a 2D input of arbitrary size into an output of fixed
 dimenson.
 Hence, the convlutional part of a DNN can be connected to a dense part
@@ -657,18 +657,18 @@ of pooling operations per dimension level :math:<code>i</code>.</p>
 
   Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
-	  
+      
         </div>
       </div>
 
     </section>
-    
+
   </div>
 
   <div class="rst-versions" role="note" style="cursor: pointer">
     <span class="rst-current-version" data-toggle="rst-current-version">
       
-          <a href="https://github.com/n3011/tefla" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+          <a href="https://github.com/n3011/tefla/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
       
       
         <span><a href="../rnn_cell/" style="color: #fcfcfc;">&laquo; Previous</a></span>
@@ -678,7 +678,9 @@ of pooling operations per dimension level :math:<code>i</code>.</p>
       
     </span>
 </div>
-    <script src="../../js/theme.js"></script>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
 
 </body>
 </html>
