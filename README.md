@@ -43,18 +43,18 @@ pip install tensorflow
 ```
 
 ### Install Tefla 
-## Tefla 1.9.0 released
-To install the latest stable version:
+The latest release of Tefla is version 1.9.0.
+- To install the latest stable version: </p>
 ```python
 pip install tefla
 ```
 
-To install the current version:
+- To install the current version:
 ```python
 pip install git+https://github.com/openagi/tefla.git
 ```
 
-To develop or work with source and modifying source code:
+- To develop or work with source and modifying source code:
 ```Shell
 git clone https://github.com/openagi/tefla.git
 cd tefla
@@ -78,8 +78,7 @@ Recent deep convolutional models are easy to implement using Tefla. For more inf
 
 ```
 2. Create the data directory and download the TFRecords
-
-a. Data Directory structure for using normal images
+- Data Directory structure for using normal images
 ```Shell
 |-- Data_Dir
 |   |-- training_image_size (eg. training_256, for 256 image size)
@@ -87,10 +86,10 @@ a. Data Directory structure for using normal images
 |   |-- training_labels.csv
 |   |-- validation_labels.csv
 ```
- b. Download the TFRecords support available using tefla/dataset class
+- Download the TFRecords support available using tefla/dataset class
        [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
 
-## 3 Run the training
+3. Run the training
   ```Shell
 python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
   ```
@@ -138,9 +137,7 @@ trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every
 
 ## Contributions
 
-Welcome to the fourth release of Tefla, if you find any bug, please report it in the GitHub issues section.
-
-Improvements and requests for new features are more than welcome! Do not hesitate to twist and tweak Tefla, and send pull-requests.
+Welcome to the fourth release of Tefla, if you find any bug, please report the issue on GitHub. Improvements and requests for new features are more than welcome. Do not hesitate to twist and tweak Tefla, and send pull-requests.
 
 
 ## License
