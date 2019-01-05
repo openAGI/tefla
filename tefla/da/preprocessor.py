@@ -1,5 +1,7 @@
 import abc
 import six
+from scipy.misc import imresize
+import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops import control_flow_ops
 
