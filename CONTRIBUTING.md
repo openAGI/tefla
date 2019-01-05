@@ -19,10 +19,7 @@ The official support channels, for both users and contributors, are:
 
 - GitHub issues: each repository has its own list of issues.
 
-- Slack: join the [openAGI] Slack] (maintainers please add the link to this channel. I am not sure if it already exists) community.
-
-
-
+- Slack: join the [openAGI Slack](https://openagi.slack.com) community. Drop in and say, "Hello". A short introduction about yourself and your area of interest may be an ice breaker to welcome and warm up the conversation among the community members.
 
 
 Before opening a new issue or submitting a new pull request, it's helpful to search the project - it's likely that another user has already reported the issue you're facing, or it's a known issue that we're already aware of.
