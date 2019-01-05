@@ -1,4 +1,4 @@
-# [WIP] Contributor Covenant Code of Conduct
+# [WIP] OpenAGI Code of Conduct
 
 ## Our Pledge
 
@@ -45,12 +45,26 @@ threatening, offensive, or harmful.
 
 ## Scope
 
-This Code of Conduct applies both within project spaces and in public spaces
-when an individual is representing the project or its community. Examples of
-representing a project or community include using an official project e-mail
-address, posting via an official social media account, or acting as an appointed
-representative at an online or offline event. Representation of a project may be
-further defined and clarified by project maintainers.
+
+This Code of Conduct applies to to all content on [OpenAGI's GitHub organization](https://openagi.github.io), any other official OpenAGI web presence for community interactions, official OpenAGI events whether offline or online where an individual is representing the project or OpenAGI community. Examples of representing a project or community include using an official project e-mail address, posting via an official social media account, or acting as an appointed representative at an online or offline event. Representation of a project may be further defined and clarified by project maintainers.
+
+## Conflict Resolution
+
+Conflicts in an open source project can take many forms, from someone having a bad day and using harsh and hurtful language in the issue queue, to more serious instances such as sexist/racist statements or threats of violence, and everything in between.
+
+However, for the vast majority of issues, we aim to empower individuals to first resolve conflicts themselves, asking for help when needed, and if that fails, then escalate. This approach gives people more control over the outcome of their dispute.
+If you are experiencing or witnessing conflict, we ask you to use the following escalation strategy to address the conflict:
+
+   - Address the perceived conflict directly with those involved, preferably in a real-time medium.
+   - If this fails, get a third party (for example, a mutual friend, or someone with background on the issue, but not involved in the conflict) to intercede.
+   - If you are still unable to resolve the conflict, and you believe it rises to harassment or another code of conduct violation, report it.
+
+If the behavior is threatening or harassing, or for other reasons requires immediate escalation, please see read the following guidelines:
+
+   ### Reporting Violations
+
+Instances of abusive, harassing or otherwise unacceptable behavior may be reported by writing to the project team at openagiosf@gmail.com.
+
 
 ## Enforcement
 
