@@ -4,7 +4,7 @@
 [![Build Status](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/openagi/tefla/blob/master/LICENSE)
 # Tefla
 
-Tefla is built on top of Tensorflow for fast prototyping of deep learning algorithms. It provides higher level access to tensorflow's features. Inerface, Easy to build complex models. 
+Tefla is built on top of Tensorflow for fast prototyping of deep learning algorithms. It provides high level access to the features of tensorflow. An interface to easily build complex models. 
 
 Tefla features:
 
@@ -33,28 +33,28 @@ Tefla features:
 
 
 
-## TensorFlow Installation
+## Prerequisite to install Tefla
 
-Tefla requires Tensorflow(version >=r1.8.0)
+Before you install Tefla you need to install Tensorflow version r1.8.0 or later.
 ```Shell
 pip install tensorflow-gpu
 or 
 pip install tensorflow
 ```
 
-### Tefla Installation version 
+### Install Tefla 
 ## Tefla 1.9.0 released
-For the latest stable version:
+To install the latest stable version:
 ```python
 pip install tefla
 ```
 
-for current version installation:
+To install the current version:
 ```python
 pip install git+https://github.com/openagi/tefla.git
 ```
 
-For Developer / TO Work with source and modifying source code:
+To develop or work with source and modifying source code:
 ```Shell
 git clone https://github.com/openagi/tefla.git
 cd tefla
@@ -63,23 +63,23 @@ export PYTHONPATH=.
 ```
 ## Documentation
 
-[Tefla Docs](https://openAGI.github.io/tefla/)
+For more information about installing, configuring, and managing see, [Tefla Docs](https://openAGI.github.io/tefla/)
 
 
 ## Tefla Models
-Recent deep convolutional models are easy to implement using TEFLA, the state-of-the-art models are implemented using tefla.
- 
-1. [Recent Models](https://github.com/openagi/models)
+Recent deep convolutional models are easy to implement using Tefla. For more information about the latest state-of-the-art models that are implemented using tefla, see [Recent Models](https://github.com/openagi/models)
 
-## Getting Started
+## Getting Started with just three easy steps
 
-1. Its as easy as
+1. Import the layers
 ```python
 >>>from tefla.core.layers import conv2d
 >>>convolved = conv2d(input, 48, False, None)
 
 ```
-## 2a. Data Directory structure for using normal images
+2. Create the data directory and download the TFRecords
+
+a. Data Directory structure for using normal images
 ```Shell
 |-- Data_Dir
 |   |-- training_image_size (eg. training_256, for 256 image size)
@@ -87,14 +87,14 @@ Recent deep convolutional models are easy to implement using TEFLA, the state-of
 |   |-- training_labels.csv
 |   |-- validation_labels.csv
 ```
-## 2b. TFRecords support available using tefla/dataset class
-    1. [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
+ b. Download the TFRecords support available using tefla/dataset class
+       [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
 
-## Run training:
+## 3 Run the training
   ```Shell
 python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
   ```
-3. Mnist example gives a overview about Tefla usages
+## Mnist example that gives a overview about how to use Tefla
  
 ```python
 image_size =(32, 32)
