@@ -63,13 +63,13 @@ If the behavior is threatening or harassing, or for other reasons requires immed
 
    ### Reporting Violations
 
-Instances of abusive, harassing or otherwise unacceptable behavior may be reported by writing to the project team at openagiosf@gmail.com.
+Instances of abusive, harassing or otherwise unacceptable behavior may be reported by writing to the project team at  maintainer@openagi.io.
 
 
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at [please provide an email id]. All
+reported by contacting the project team at maintainer@openagi.io. All
 complaints will be reviewed and investigated and will result in a response that
 is deemed necessary and appropriate to the circumstances. The project team is
 obligated to maintain confidentiality with regard to the reporter of an incident.
