@@ -1,4 +1,4 @@
-# [WIP] openAGI Contributing Guidelines
+# openAGI Contributing Guidelines
 
 
 
