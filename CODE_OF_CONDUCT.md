@@ -1,4 +1,4 @@
-# [WIP] OpenAGI Code of Conduct
+# OpenAGI Code of Conduct
 
 ## Our Pledge
 
