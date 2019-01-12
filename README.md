@@ -14,7 +14,7 @@ Tefla has several advantages over Keras or any other library. You may always ask
 
  2. Tefla's models repo provides state-of-the-art deep learning methods implementation for free.
 
- 3. Tefla make the deep model deployment very easy; it has inbuilt API to serve the trained model.
+ 3. Tefla makes the deep model deployment very easy; it has inbuilt API to serve the trained model.
 
  4. Tefla comes with API for segmentation learning, semi-supervised learning, and generative model training.
 
