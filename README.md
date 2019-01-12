@@ -8,7 +8,7 @@ Tefla is built on top of Tensorflow for fast prototyping of deep learning algori
 
 ## Why Tefla?
 
-Tefla has several advantages over Keras or any other library. You may always ask why Tensorflow instead of PyTorch, Caffe, MXNet, and others? Its an effort from an Indian AI company and an AI developer to make AI accessible to all.
+Tefla has several advantages over Keras or any other library. You may always ask why Tensorflow instead of PyTorch, Caffe, MXNet, and others? Its an effort from an Indian AI company and AI developers to make AI accessible to all.
 
  1. Tefla allows you to design simpler models.
 
