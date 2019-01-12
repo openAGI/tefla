@@ -6,13 +6,34 @@
 
 Tefla is built on top of Tensorflow for fast prototyping of deep learning algorithms. It provides high level access to the features of tensorflow. An interface to easily build complex models. 
 
+## Why Tefla?
+
+Tefla has several advantages over Keras or any other library. You may always ask why Tensorflow instead of PyTorch, Caffe, MXNet, and others? Its an effort from an Indian AI company and an AI developer to make AI accessible to all.
+
+ 1. Tefla allows you to design simpler models.
+
+ 2. Tefla's models repo provides state-of-the-art deep learning methods implementation for free.
+
+ 3. Tefla make the deep model deployment very easy; it has inbuilt API to serve the trained model.
+
+ 4. Tefla comes with API for segmentation learning, semi-supervised learning, and generative model training.
+
+ 5. Tefla has faster input pipeline.
+
+ 6. Tefla enables faster model training with Multi-GPU support.
+
+ 7. Tefla also comes with language modeling tools, encoder, decoder framework support.
+
+ 8. Tefla also supports reinforcement learning modeling and training.
+
+
 Tefla features:
 
-        - Support for custom optimizers
+        . Supports custom optimizers
 
-        . Support for data-sets, data-augmentation
+        . Supports data-sets, data-augmentation, and others
        
-        . Support for text datasets
+        . Supports text datasets
 
         . Easy to define complex deep models
 
@@ -33,7 +54,9 @@ Tefla features:
 
 
 
-## Prerequisite to install Tefla
+## Installation
+
+### Prerequisite to install Tefla
 
 Before you install Tefla you need to install Tensorflow version r1.8.0 or later.
 ```Shell
@@ -93,7 +116,7 @@ Recent deep convolutional models are easy to implement using Tefla. For more inf
   ```Shell
 python tefla/train.py --model models/alexnet.py --training_cnf models/multiclass_cnf.py --data_dir /path/to/data/dir (as per instructions 2.a)
   ```
-## Mnist example that gives a overview about how to use Tefla
+## MNIST example that gives a overview about how to use Tefla
  
 ```python
 image_size =(32, 32)
