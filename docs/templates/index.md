@@ -1,39 +1,68 @@
 # Tefla: Deep Learning library, a Higher level API for TensorFlow
 
-Tefla is built on top of Tensorflow. It provides higher level access to tensorflow's features.  
+Tefla is built on top of Tensorflow for fast prototyping of deep learning algorithms. It provides high level access to the features of tensorflow. An interface to easily build complex models. 
 
 Tefla features:
 
-        . Support for data-sets, data-augmentation
+        . Supports custom optimizers
 
-        . easy to define complex deep models
+        . Supports data-sets, data-augmentation, and others
+       
+        . Supports text datasets
 
-        . single and multi GPU training
+        . Easy to define complex deep models
 
-        . various prediction fnctions including ensembling of models
+        . Single and multi GPU training
 
-        . different metrics for performance measurement\
+        . Various prediction functions including ensembling of models
 
-        . custom losses
+        . Different metrics for performance measurement
 
-        . learning rate schedules, polynomial, step, validation_loss based
+        . Custom losses
+
+        . Learning rate schedules, polynomial, step, validation_loss based
+
+        . Semantic segmentation learning
+
+        . Semi-supervised learning
+         
 
 
 
-**TensorFlow Installation**
+## Installation
 
-Tefla requires Tensorflow(version >=r0.12)
+### Prerequisite to install Tefla
 
-**Tefla Installation**
-
-for current version installation:
-```python
-pip install git+https://github.com/n3011/tefla.git
+Before you install Tefla you need to install Tensorflow version r1.8.0 or later.
+```Shell
+pip install tensorflow-gpu
+or 
+pip install tensorflow
 ```
 
-## Examples
+### Install Tefla 
+The latest release of Tefla is version 1.9.0.
+- To install the latest stable version: </p>
+```python
+pip install tefla
+```
 
-Mnist example gives a overview about Tefla usages
+- To install the current version:
+```python
+pip install git+https://github.com/openagi/tefla.git
+```
+
+- To develop or work with source and modifying source code:
+```Shell
+git clone https://github.com/openagi/tefla.git
+cd tefla
+pip install -r requirements.txt
+export PYTHONPATH=.
+```
+
+## Example
+
+## MNIST example that gives a overview about how to use Tefla
  
 ```python
 def model(is_training, reuse):
