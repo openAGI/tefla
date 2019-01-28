@@ -62,7 +62,11 @@
     
         <ul>
         
-            <li><a class="toctree-l3" href="#examples">Examples</a></li>
+            <li><a class="toctree-l3" href="#installation">Installation</a></li>
+        
+            <li><a class="toctree-l3" href="#example">Example</a></li>
+        
+            <li><a class="toctree-l3" href="#mnist-example-that-gives-a-overview-about-how-to-use-tefla">MNIST example that gives a overview about how to use Tefla</a></li>
         
         </ul>
     
@@ -254,31 +258,61 @@
             <div class="section">
               
                 <h1 id="tefla-deep-learning-library-a-higher-level-api-for-tensorflow">Tefla: Deep Learning library, a Higher level API for TensorFlow</h1>
-<p>Tefla is built on top of Tensorflow. It provides higher level access to tensorflow's features.  </p>
+<p>Tefla is built on top of Tensorflow for fast prototyping of deep learning algorithms. It provides high level access to the features of tensorflow. An interface to easily build complex models. </p>
 <p>Tefla features:</p>
-<pre><code>    . Support for data-sets, data-augmentation
+<pre><code>    . Supports custom optimizers
 
-    . easy to define complex deep models
+    . Supports data-sets, data-augmentation, and others
 
-    . single and multi GPU training
+    . Supports text datasets
 
-    . various prediction fnctions including ensembling of models
+    . Easy to define complex deep models
 
-    . different metrics for performance measurement\
+    . Single and multi GPU training
 
-    . custom losses
+    . Various prediction functions including ensembling of models
 
-    . learning rate schedules, polynomial, step, validation_loss based
+    . Different metrics for performance measurement
+
+    . Custom losses
+
+    . Learning rate schedules, polynomial, step, validation_loss based
+
+    . Semantic segmentation learning
+
+    . Semi-supervised learning
 </code></pre>
-<p><strong>TensorFlow Installation</strong></p>
-<p>Tefla requires Tensorflow(version &gt;=r0.12)</p>
-<p><strong>Tefla Installation</strong></p>
-<p>for current version installation:</p>
-<pre><code class="python">pip install git+https://github.com/n3011/tefla.git
+<h2 id="installation">Installation</h2>
+<h3 id="prerequisite-to-install-tefla">Prerequisite to install Tefla</h3>
+<p>Before you install Tefla you need to install Tensorflow version r1.8.0 or later.</p>
+<pre><code class="Shell">pip install tensorflow-gpu
+or 
+pip install tensorflow
 </code></pre>
 
-<h2 id="examples">Examples</h2>
-<p>Mnist example gives a overview about Tefla usages</p>
+<h3 id="install-tefla">Install Tefla</h3>
+<p>The latest release of Tefla is version 1.9.0.
+- To install the latest stable version: </p></p>
+<pre><code class="python">pip install tefla
+</code></pre>
+
+<ul>
+<li>To install the current version:</li>
+</ul>
+<pre><code class="python">pip install git+https://github.com/openagi/tefla.git
+</code></pre>
+
+<ul>
+<li>To develop or work with source and modifying source code:</li>
+</ul>
+<pre><code class="Shell">git clone https://github.com/openagi/tefla.git
+cd tefla
+pip install -r requirements.txt
+export PYTHONPATH=.
+</code></pre>
+
+<h2 id="example">Example</h2>
+<h2 id="mnist-example-that-gives-a-overview-about-how-to-use-tefla">MNIST example that gives a overview about how to use Tefla</h2>
 <pre><code class="python">def model(is_training, reuse):
     common_args = common_layer_args(is_training, reuse)
     conv_args = make_args(batch_norm=True, activation=prelu, **common_args)
@@ -367,5 +401,5 @@ trainer.fit(data_set, weights_from=None, start_epoch=1, verbose=1, summary_every
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-01-01 05:58:30
+Build Date UTC : 2019-01-28 14:27:10
 -->
