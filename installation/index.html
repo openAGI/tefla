@@ -69,8 +69,6 @@
         
             <li><a class="toctree-l3" href="#tensorflow-installation">Tensorflow Installation</a></li>
         
-            <li><a class="toctree-l3" href="#tefla-installation">Tefla Installation</a></li>
-        
             <li><a class="toctree-l3" href="#upgrade-tensorflow">Upgrade Tensorflow</a></li>
         
             <li><a class="toctree-l3" href="#using-latest-tensorflow">Using Latest Tensorflow</a></li>
@@ -263,59 +261,27 @@
 <h2 id="tensorflow-installation">Tensorflow Installation</h2>
 <p>Tefla requires Tensorflow (version &gt;= 0.12.0) to be installed.</p>
 <p>Select the correct binary to install, according to your system:</p>
-<pre><code class="python"># Ubuntu/Linux 64-bit, CPU only, Python 2.7
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.12.0-cp27-none-linux_x86_64.whl
+<pre><code class="python"># Ubuntu/Linux/macOS 64-bit, CPU only, Python 3.6
+pip install tensorflow
 
-# Ubuntu/Linux 64-bit, GPU enabled, Python 2.7
-# Requires CUDA toolkit 8.0 and CuDNN v5. For other versions, see &quot;Installing from sources&quot; below.
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-0.12.0-cp27-none-linux_x86_64.whl
-
-# Mac OS X, CPU only, Python 2.7:
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py2-none-any.whl
-
-# Mac OS X, GPU enabled, Python 2.7:
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/gpu/tensorflow_gpu-0.12.0-py2-none-any.whl
-
-# Ubuntu/Linux 64-bit, CPU only, Python 3.4
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.12.0-cp34-cp34m-linux_x86_64.whl
-
-# Ubuntu/Linux 64-bit, GPU enabled, Python 3.4
-# Requires CUDA toolkit 8.0 and CuDNN v5. For other versions, see &quot;Installing from sources&quot; below.
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-0.12.0-cp34-cp34m-linux_x86_64.whl
-
-# Ubuntu/Linux 64-bit, CPU only, Python 3.5
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.12.0-cp35-cp35m-linux_x86_64.whl
-
-# Ubuntu/Linux 64-bit, GPU enabled, Python 3.5
-# Requires CUDA toolkit 8.0 and CuDNN v5. For other versions, see &quot;Installing from sources&quot; below.
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-0.12.0-cp35-cp35m-linux_x86_64.whl
-
-# Mac OS X, CPU only, Python 3.4 or 3.5:
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-0.12.0-py3-none-any.whl
-
-# Mac OS X, GPU enabled, Python 3.4 or 3.5:
-$ export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/gpu/tensorflow_gpu-0.12.0-py3-none-any.whl
+# Ubuntu/Linux/macOS 64-bit, GPU enabled, Python 3.6
+# Requires CUDA toolkit 8.0/9.0 and CuDNN v5/v7. For other versions, see &quot;Installing from sources&quot; below.
+pip install tensorflow-gpu
 </code></pre>
 
-<p>Then install TensorFlow:</p>
-<pre><code class="python"># Python 2
-$ sudo pip install $TF_BINARY_URL
+<pre><code>- For more details: [Tensorflow installation instructions](https://www.tensorflow.org/install).
 
-# Python 3
-$ sudo pip3 install $TF_BINARY_URL
-</code></pre>
+## Tefla Installation
 
-<ul>
-<li>For more details: <a href="https://www.tensorflow.org/get_started/os_setup#pip_installation">Tensorflow installation instructions</a>.</li>
-</ul>
-<h2 id="tefla-installation">Tefla Installation</h2>
-<p>To install Tefla, the easiest way is to run</p>
-<p>For the bleeding edge version:</p>
-<pre><code class="python">pip install git+https://github.com/n3011/tefla.git
+To install Tefla, the easiest way is to run
+
+For the bleeding edge version:
+```python
+pip install git+https://github.com/n3011/tefla.git
 </code></pre>
 
 <p>Otherwise, you can also install from source by running (from source folder):</p>
-<pre><code class="python">python setup.py install
+<pre><code class="python">pip install tefla
 </code></pre>
 
 <h2 id="upgrade-tensorflow">Upgrade Tensorflow</h2>
