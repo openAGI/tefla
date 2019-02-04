@@ -1,11 +1,13 @@
-# Tefla
+<p align="center"><img src="docs/tefla-logo.png" alt="Logo" width="200"/></p>
+
+----------------
+
 
 [![Build Status](https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat)](https://openagi.github.io/tefla/)
 [![Build Status](https://travis-ci.org/openAGI/tefla.svg?branch=master)](https://travis-ci.org/openAGI/tefla)
 [![PyPI version](https://badge.fury.io/py/tefla.svg)](https://badge.fury.io/py/tefla)
 [![Build Status](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/openagi/tefla/blob/master/LICENSE)
 
-<p align="center"><img src="docs/tefla-logo.png" alt="Logo" width="200"/></p>
 
 Tefla is built on top of Tensorflow for fast prototyping of deep learning algorithms. It provides high level access to the features of tensorflow. An interface to easily build complex models. 
 
@@ -13,21 +15,23 @@ Tefla is built on top of Tensorflow for fast prototyping of deep learning algori
 
 Tefla has several advantages over Keras or any other library. You may always ask why Tensorflow instead of PyTorch, Caffe, MXNet, and others? Its an effort from an Indian AI company and AI developers to make AI accessible to all.
 
- 1. Tefla allows you to design simpler models.
+ 1. Tefla allows you to design complex models at ease.
 
- 2. Tefla's models repo provides state-of-the-art deep learning methods implementation for free.
+ 2. Tefla guarantees scalability, portability and reproducibility.
 
- 3. Tefla makes the deep model deployment very easy; it has inbuilt API to serve the trained model.
+ 3. Tefla's models repo provides state-of-the-art deep learning methods implementation for free.
 
- 4. Tefla comes with API for segmentation learning, semi-supervised learning, and generative model training.
+ 4. Tefla makes the deep model deployment very easy; it has inbuilt API to serve the trained model.
 
- 5. Tefla has faster input pipeline.
+ 5. Tefla comes with API for segmentation learning, semi-supervised learning, and generative model training.
 
- 6. Tefla enables faster model training with Multi-GPU support.
+ 6. Tefla has faster input pipeline.
 
- 7. Tefla also comes with language modeling tools, encoder, decoder framework support.
+ 7. Tefla enables faster model training with Multi-GPU support.
 
- 8. Tefla also supports reinforcement learning modeling and training.
+ 8. Tefla also comes with language modeling tools, encoder, decoder framework support.
+
+ 9. Tefla also supports reinforcement learning modeling and training.
 
 
 Tefla features:
@@ -103,7 +107,7 @@ Recent deep convolutional models are easy to implement using Tefla. For more inf
 >>>convolved = conv2d(input, 48, False, None)
 
 ```
-2. Create the data directory and download the TFRecords
+2. Create the data directory
 - Data Directory structure for using normal images
 ```Shell
 |-- Data_Dir
@@ -112,8 +116,7 @@ Recent deep convolutional models are easy to implement using Tefla. For more inf
 |   |-- training_labels.csv
 |   |-- validation_labels.csv
 ```
-- Download the TFRecords support available using tefla/dataset class
-       [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
+- TFRecords support available using tefla/dataset class and [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
 
 3. Run the training
   ```Shell
