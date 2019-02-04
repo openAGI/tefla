@@ -19,19 +19,19 @@ Tefla has several advantages over Keras or any other library. You may always ask
 
  2. Tefla guarantees scalability, portability and reproducibility.
 
- 2. Tefla's models repo provides state-of-the-art deep learning methods implementation for free.
+ 3. Tefla's models repo provides state-of-the-art deep learning methods implementation for free.
 
- 3. Tefla makes the deep model deployment very easy; it has inbuilt API to serve the trained model.
+ 4. Tefla makes the deep model deployment very easy; it has inbuilt API to serve the trained model.
 
- 4. Tefla comes with API for segmentation learning, semi-supervised learning, and generative model training.
+ 5. Tefla comes with API for segmentation learning, semi-supervised learning, and generative model training.
 
- 5. Tefla has faster input pipeline.
+ 6. Tefla has faster input pipeline.
 
- 6. Tefla enables faster model training with Multi-GPU support.
+ 7. Tefla enables faster model training with Multi-GPU support.
 
- 7. Tefla also comes with language modeling tools, encoder, decoder framework support.
+ 8. Tefla also comes with language modeling tools, encoder, decoder framework support.
 
- 8. Tefla also supports reinforcement learning modeling and training.
+ 9. Tefla also supports reinforcement learning modeling and training.
 
 
 Tefla features:
