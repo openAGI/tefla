@@ -107,7 +107,7 @@ Recent deep convolutional models are easy to implement using Tefla. For more inf
 >>>convolved = conv2d(input, 48, False, None)
 
 ```
-2. Create the data directory and download the TFRecords
+2. Create the data directory
 - Data Directory structure for using normal images
 ```Shell
 |-- Data_Dir
@@ -116,8 +116,7 @@ Recent deep convolutional models are easy to implement using Tefla. For more inf
 |   |-- training_labels.csv
 |   |-- validation_labels.csv
 ```
-- Download the TFRecords support available using tefla/dataset class
-       [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
+- TFRecords support available using tefla/dataset class and [Train v2](https://github.com/openagi/tefla/blob/master/tefla/trainv2.py)
 
 3. Run the training
   ```Shell
