@@ -1,3 +1,5 @@
+![Tefla](docs/tefla-logo.png)
+
 [![Build Status](https://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat)](https://openagi.github.io/tefla/)
 [![Build Status](https://travis-ci.org/openAGI/tefla.svg?branch=master)](https://travis-ci.org/openAGI/tefla)
 [![PyPI version](https://badge.fury.io/py/tefla.svg)](https://badge.fury.io/py/tefla)
