@@ -1,0 +1,15 @@
+id,val
+inst_0,"['A', 'B']"
+inst_1,"['A', 'B']"
+inst_2,['B']
+inst_3,['C']
+inst_4,"['A', 'B', 'C']"
+inst_5,"['A', 'C']"
+inst_6,"['A', 'B', 'C']"
+inst_7,"['A', 'B', 'C']"
+inst_8,"['A', 'C']"
+inst_9,['B']
+inst_10,"['A', 'B', 'C']"
+inst_11,"['B', 'C']"
+inst_12,"['A', 'C']"
+inst_13,['C']
