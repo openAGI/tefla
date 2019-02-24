@@ -38,28 +38,8 @@ Old versions of the documentation are available in the `rX.X` branches. An "old-
 
 In the rare case that a there is a major update for a new feature that we do not wish to publish to the site in the mean time, the docs will be developed in a feature-branch, and merged to master when ready.
 
-## API documentation
 
-The following reference documentation is automatically generated from comments
-in the code:
-
-- C++ API reference docs
-- Java API reference docs
-- Python API reference docs
-
-To modify the reference documentation, you edit the appropriate code comments and doc strings. These are only updated with new releases, as they reflect the contents of the default installation.
-
-The Python API documentation is generated from the main Tefla repository using the `//tensorflow/tools/docs:generate` bazel build target:
-
-```sh
-bazel run //tensorflow/tools/docs:generate -- --output_dir=/tmp/master_out
-```
-
-The C++ API documentation is generated from XML files generated via doxygen;
-however, those tools are not available in open source at this time.
-
-
-## Markdown and Notebooks
+## Markdown 
 
 Tefla documentation is written in Markdown (`.md`) or Notebooks (`.ipynb`). With a few exceptions,
 Tefla uses the [standard Markdown rules](https://daringfireball.net/projects/markdown/).
@@ -83,26 +63,6 @@ file extension.
 These links will work on GitHub (linking to the source file), and Tefla
 (linking to the rendered page).
 
-#### Links to Tefla API documentation
-
-Links to the Tefla API documentation are converted when the site is
-published.
-
-For the Python API, enclose the full symbol path in backticks:
-
-<code>
-\`tf.data.Dataset\`
-</code>
-
-> `tf.data.Dataset`
-
-For the C++ API, use the namespace path in backticks:
-
-```
-`tensorflow::Tensor`
-```
-
-> `tensorflow::Tensor`
 
 #### Links to Tefla source code
 
@@ -134,28 +94,6 @@ Use regular Markdown links for:
 In these cases, follow the standard Markdown link syntax, and include the full
 URL.
 
-## Op documentation style guide
-
-Long, descriptive module-level documentation for modules should go in the [API
-Guides](../api_guides/python/).
-
-For classes and ops, ideally, you should provide the following information, in
-order of presentation:
-
-* A short sentence that describes what the op does.
-* A short description of what happens when you pass arguments to the op.
-* An example showing how the op works (pseudocode is best).
-* Requirements, caveats, important notes (if there are any).
-* Descriptions of inputs, outputs, and Attrs or other parameters of the op
-  constructor.
-
-Each of these is described in more
-detail [below](#description-of-the-docstring-sections).
-
-Write your text in Markdown format. A basic syntax reference
-is [here](https://daringfireball.net/projects/markdown/). You are allowed to
-use [MathJax](https://www.mathjax.org) notation for equations (see above for
-restrictions).
 
 ### Writing about code
 
