@@ -7,13 +7,13 @@ particular, this document explains the following:
 * Where the documentation is located.
 * How to make conformant edits.
 
-You can view Tefla documentation at [tensorflow.org](https://www.tensorflow.org), and you
+You can view Tefla documentation at [Tefla](https://openagi.github.io/tefla), and you
 can view and edit the raw files at the corresponding paths in
-[the `site/en` directory](https://github.com/tensorflow/docs/tree/master/site/en).
+[the `docs` directory](https://github.com/openAGI/tefla/tree/master).
 
 We're publishing our docs on GitHub so everybody can contribute. Whatever gets
-checked in to `tensorflow/docs/site/en` will be published soon after on
-[tensorflow.org](https://www.tensorflow.org).
+checked in to `tefla/docs/site` will be published soon after on
+[Tefla](https://openagi.github.io/tefla).
 
 Republishing Tefla documentation in different forms is absolutely allowed,
 but we are unlikely to accept other documentation formats (or the tooling to
@@ -22,17 +22,17 @@ documentation in another form, please be sure to include:
 
 * The version of the API this represents (for example, r1.0, master, etc.)
 * The commit or version from which the documentation was generated
-* Where to get the latest documentation (that is, https://www.tensorflow.org)
+* Where to get the latest documentation (that is, https://openagi.github.io/tefla)
 * The Apache 2.0 license.
 
 ## Versions and branches
 
-[tensorflow.org](https://www.tensorflow.org), at root, shows documentation for the latest stable binary.  This
+[Tefla](https://openagi.github.io/tefla), at root, shows documentation for the latest stable binary.  This
 is the documentation you should be reading if you are using `pip install tensorflow`.
 
-The default Tefla pip package is built from the stable branch `rX.X` in the [main TensorFlow repository](https://github.com/tensorflow/tensorflow/). 
+The default Tefla pip package is built from the stable branch `rX.X` in the [main Tefla repository](https://github.com/openAGI/tefla/tree/master/tefla). 
 
-In contrast, to quickly publish fixes, the docs on the site are built from the [`docs/master` branch](https://github.com/tensorflow/docs/blob/master/site/en/). 
+In contrast, to quickly publish fixes, the docs on the site are built from the [`docs/master` branch](https://github.com/openAGI/tefla/tree/master). 
 
 Old versions of the documentation are available in the `rX.X` branches. An "old-version" branch will only be created when the next version is released: When `r1.11` is released, we will create the `r1.10` branch.
 
@@ -49,7 +49,7 @@ in the code:
 
 To modify the reference documentation, you edit the appropriate code comments and doc strings. These are only updated with new releases, as they reflect the contents of the default installation.
 
-The Python API documentation is generated from the main TensorFlow repository using the `//tensorflow/tools/docs:generate` bazel build target:
+The Python API documentation is generated from the main Tefla repository using the `//tensorflow/tools/docs:generate` bazel build target:
 
 ```sh
 bazel run //tensorflow/tools/docs:generate -- --output_dir=/tmp/master_out
@@ -61,27 +61,13 @@ however, those tools are not available in open source at this time.
 
 ## Markdown and Notebooks
 
-TensorFlow documentation is written in Markdown (`.md`) or Notebooks (`.ipynb`). With a few exceptions,
-TensorFlow uses the [standard Markdown rules](https://daringfireball.net/projects/markdown/).
+Tefla documentation is written in Markdown (`.md`) or Notebooks (`.ipynb`). With a few exceptions,
+Tefla uses the [standard Markdown rules](https://daringfireball.net/projects/markdown/).
 
-Use
-[this template](https://github.com/tensorflow/docs/blob/master/tools/templates/notebook.ipynb)
-for TensorFlow notebooks.
 
 This section explains the primary differences between standard Markdown rules
-and the Markdown rules that TensorFlow documentation uses.
+and the Markdown rules that Tefla documentation uses.
 
-### Math in Markdown
-
-You may use MathJax within TensorFlow when editing Markdown files, but note the
-following:
-
-- MathJax renders properly on [tensorflow.org](https://www.tensorflow.org)
-- MathJax does not render properly on [GitHub](https://github.com/tensorflow/tensorflow).
-
-When writing MathJax, you can use <code>&#36;&#36;</code> and `\\(` and `\\)` to
-surround your math.  <code>&#36;&#36;</code> guards will cause line breaks, so
-within text, use `\\(` `\\)` instead.
 
 ### Links in Markdown
 
@@ -94,12 +80,12 @@ file extension.
 
 > [Eager Basics](../tutorials/eager/eager_basics.ipynb)
 
-These links will work on GitHub (linking to the source file), and tensorflow.org
+These links will work on GitHub (linking to the source file), and Tefla
 (linking to the rendered page).
 
-#### Links to TensorFlow API documentation
+#### Links to Tefla API documentation
 
-Links to the TensorFlow API documentation are converted when the site is
+Links to the Tefla API documentation are converted when the site is
 published.
 
 For the Python API, enclose the full symbol path in backticks:
@@ -118,10 +104,10 @@ For the C++ API, use the namespace path in backticks:
 
 > `tensorflow::Tensor`
 
-#### Links to TensorFlow source code
+#### Links to Tefla source code
 
 To link to source code, use a link starting with:
-`https://github.com/tensorflow/tensorflow/blob/master`, followed by the file
+`https://github.com/openAGI/tefla/tree/master/tefla`, followed by the file
 path starting *from* the GitHub project root. (That is, don't repeat the name of
 the GitHub repository a second time).
 
