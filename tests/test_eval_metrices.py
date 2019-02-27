@@ -1,6 +1,7 @@
 import tempfile
 import random
 import csv
+import pytest
 import numpy as np
 import tensorflow as tf
 from tefla.core.eval_metrices import Evaluation
@@ -10,6 +11,11 @@ class TestEvalMetrices(tf.test.TestCase):
   """
     Tests for Eval metrices
   """
+  tmpdir = tempfile.TemporaryDirectory(dir="")
+  tmpdirname = tmpdir.name
+  @pytest.fixture(autouse=True)
+  def data_gen(self):
+    generate_datafiles(self.tmpdirname)
 
   def test_metrices(self):
     with self.test_session():
@@ -27,8 +33,8 @@ class TestEvalMetrices(tf.test.TestCase):
         'f1score']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(tmpdirname +
-                      '/truth_binary.csv', [tmpdirname +
+      res = evl.eval_classification(self.tmpdirname +
+                      '/truth_binary.csv', [self.tmpdirname +
                                 '/pred_binary.csv'], evaluation_list, plot_list)
       target = {1: {'accuracy': 0.5,
               'recall': 0.2,
@@ -48,8 +54,8 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['accuracy', 'recall']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(tmpdirname +
-                      '/truth_multi.csv', [tmpdirname +
+      res = evl.eval_classification(self.tmpdirname +
+                      '/truth_multi.csv', [self.tmpdirname +
                                  '/pred_multi.csv'], evaluation_list, plot_list)
       target = {
         0: {'accuracy': 0.72, 'recall': 0.2},
@@ -59,10 +65,10 @@ class TestEvalMetrices(tf.test.TestCase):
         4: {'accuracy': 0.68, 'recall': 0.0}}
       self.assertDictEqual(res, target)
       res_2 = evl.eval_classification(
-        tmpdirname +
+        self.tmpdirname +
         '/truth_multi.csv',
         [
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi.csv'],
         evaluation_list,
         plot_list,
@@ -76,10 +82,10 @@ class TestEvalMetrices(tf.test.TestCase):
       plot_list = []
       evl = Evaluation()
       res = evl.eval_classification(
-        tmpdirname +
+        self.tmpdirname +
         '/truth_multi_withlabel.csv',
         [
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_withlabel.csv'],
         evaluation_list,
         plot_list,
@@ -103,16 +109,16 @@ class TestEvalMetrices(tf.test.TestCase):
       plot_list = []
       evl = Evaluation()
       res = evl.eval_classification(
-        tmpdirname +
+        self.tmpdirname +
         '/truth_multi_ens.csv',
         [
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens.csv',
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens_2.csv',
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens_3.csv',
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens_4.csv'],
         evaluation_list,
         plot_list,
@@ -125,16 +131,16 @@ class TestEvalMetrices(tf.test.TestCase):
         4.0: {'accuracy': 0.68, 'recall': 0.2}}
       self.assertDictEqual(target, res)
       res_2 = evl.eval_classification(
-        tmpdirname +
+        self.tmpdirname +
         '/truth_multi_ens.csv',
         [
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens.csv',
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens_2.csv',
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens_3.csv',
-          tmpdirname +
+          self.tmpdirname +
           '/pred_multi_ens_4.csv'],
         evaluation_list,
         plot_list,
@@ -152,8 +158,8 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['accuracy', 'recall', 'precision']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(tmpdirname +
-                      '/truth_multilabel.csv', [tmpdirname +
+      res = evl.eval_classification(self.tmpdirname +
+                      '/truth_multilabel.csv', [self.tmpdirname +
                                   '/pred_multilabel.csv'], evaluation_list, plot_list)
       target = {
         'A': {'accuracy': 0.786, 'recall': 0.667, 'precision': 1.0},
@@ -166,8 +172,8 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['mae', 'rmse', 'mse']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_regression(tmpdirname +
-                    '/truth_reg.csv', [tmpdirname +
+      res = evl.eval_regression(self.tmpdirname +
+                    '/truth_reg.csv', [self.tmpdirname +
                              '/truth_reg.csv'], evaluation_list, plot_list)
       target = {'mae': 0.0, 'rmse': 0.0, 'mse': 0.0}
       self.assertDictEqual(target, res)
@@ -177,8 +183,8 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['mae', 'rmse', 'mse']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_regression(tmpdirname +
-                    '/truth_reg.csv', [tmpdirname +
+      res = evl.eval_regression(self.tmpdirname +
+                    '/truth_reg.csv', [self.tmpdirname +
                              '/pred_reg_1.csv'], evaluation_list, plot_list)
       target = {'mae': 0.539, 'rmse': 0.619, 'mse': 0.383}
       self.assertDictEqual(target, res)
@@ -188,10 +194,10 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['mae', 'rmse', 'mse']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_regression(tmpdirname +
-                    '/truth_reg.csv', [tmpdirname +
-                             '/pred_reg_1.csv', tmpdirname +
-                             '/pred_reg_2.csv', tmpdirname +
+      res = evl.eval_regression(self.tmpdirname +
+                    '/truth_reg.csv', [self.tmpdirname +
+                             '/pred_reg_1.csv', self.tmpdirname +
+                             '/pred_reg_2.csv', self.tmpdirname +
                              '/pred_reg_3.csv'], evaluation_list, plot_list)
       target = {'mae': 0.53, 'rmse': 0.554, 'mse': 0.307}
       self.assertDictEqual(target, res)
@@ -382,6 +388,4 @@ def generate_datafiles(dir_name):
 
 
 if __name__ == "__main__":
-  with tempfile.TemporaryDirectory() as tmpdirname:
-    generate_datafiles(tmpdirname)
     tf.test.main()
