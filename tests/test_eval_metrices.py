@@ -76,6 +76,19 @@ class TestEvalMetrices(tf.test.TestCase):
       target_2 = {'overall': {'accuracy': 0.632, 'recall': 0.08}}
       self.assertDictEqual(res_2, target_2)
 
+  def test_multi_convert_binary(self):
+    with self.test_session():
+      evaluation_list = ['accuracy', 'recall']
+      plot_list = []
+      evl = Evaluation()
+      res = evl.eval_classification(self.tmpdirname +
+                      '/truth_multi.csv', [self.tmpdirname +
+                                 '/pred_multi.csv'], evaluation_list, plot_list,convert_binary=True,binary_threshold=0.3)
+      target = {
+        0: {'accuracy': 0.72, 'recall': 0.2},
+        1: {'accuracy': 0.72, 'recall': 0.85}}
+      self.assertDictEqual(res, target)
+
   def test_multi_withlabels(self):
     with self.test_session():
       evaluation_list = ['accuracy', 'recall']

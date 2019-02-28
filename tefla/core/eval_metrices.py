@@ -359,7 +359,9 @@ class Evaluation():
                           over_all=False,
                           ensemble_voting="soft",
                           ensemble_weights=None,
-                          class_names=None):
+                          class_names=None,
+                          convert_binary=False,
+                          binary_threshold=None):
     """
       This function calculates the evaluation measures
       required by the user for classification problems.
@@ -373,6 +375,9 @@ class Evaluation():
       ensemble_voting: Type of voting in case of multiple prediction(soft/hard) default soft.
       ensemble_weights: Weights for each class in case of ensemble, default None.
       calss_names: An array containing class names, default None.
+      convert_binary: Indicator if multiclass should be evaluated as binary problem
+                      (normal vs abnormal).first value should represent probability of normal class.
+      binary_threshold: threshold for normal, to be used in case of multiclass to binary conversion.
     Returns:
       A dictionary containing evaluation result.
     Raises:
@@ -399,7 +404,10 @@ class Evaluation():
     else:
       self.truth = np.array([class_names.index(tval) for tval in self.truth])
     if not self.multilabel:
-      if len(self.pred.shape) > 1:
+      if len(self.pred.shape) > 1 and convert_binary and binary_threshold:
+        self.pred_max = np.array([0 if prd_n[0] >= binary_threshold else 1 for prd_n in self.pred])
+        self.truth = np.array([1 if truth_n != 0 else truth_n for truth_n in self.truth])
+      elif len(self.pred.shape) > 1:
         self.pred_max = np.argmax(self.pred, axis=1)
       else:
         self.pred_max = self.pred
