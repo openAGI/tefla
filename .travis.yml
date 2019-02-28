@@ -13,6 +13,7 @@ addons:
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y python-opencv
+  - sudo apt-get install libtcmalloc-minimal4
   - sudo apt-get update
 
 install:
@@ -20,6 +21,7 @@ install:
   - export python_version=$TRAVIS_PYTHON_VERSION
   - bash anaconda.sh -b -p $HOME/anaconda
   - export PATH="$HOME/anaconda/bin:$PATH"
+  - export LD_PRELOAD="/usr/lib/libtcmalloc_minimal.so.4"
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
