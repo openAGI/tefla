@@ -230,8 +230,8 @@ class PolyDecayPolicy(AbstractInitialLr):
         updated_lr
     """
     updated_lr = self._base_lr * \
-        math.pow(1 - iter_idx / float(self.max_epoch *
-                                      self._n_iters_per_epoch), self.power)
+        math.pow(1 - iter_idx / float(self.max_epoch
+                                      * self._n_iters_per_epoch), self.power)
     return updated_lr
 
   def epoch_update(self, learning_rate, training_history):

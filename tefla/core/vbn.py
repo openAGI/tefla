@@ -57,8 +57,8 @@ def _validate_init_input_and_get_axis(reference_batch, axis):
   else:
     used_axis = axis
   if used_axis < 0 or used_axis >= ndims:
-    raise ValueError('Value of `axis` argument ' + str(used_axis) +
-                     ' is out of range for input with rank ' + str(ndims))
+    raise ValueError('Value of `axis` argument ' + str(used_axis)
+                     + ' is out of range for input with rank ' + str(ndims))
   return used_axis
 
 

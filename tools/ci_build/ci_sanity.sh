@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Copyright 2018 The Tefla Authors. All Rights Reserved.
 #
-# Usage: ci_sanity.sh [--pep8] [--incremental]
+# Usage: ci_sanity.sh [--pycodestyle] [--incremental]
 #
 # Options:
 #           run sanity checks: python 2&3 pylint checks and bazel nobuild
-#  --pep8   run pep8 test only
+#  --pycodestyle   run pycodestyle test only
 #  --incremental  Performs checks incrementally, by using the files changed in
 #                 the latest commit
 
@@ -190,21 +190,21 @@ do_pylint() {
   fi
 }
 
-# Run pep8 check
-do_pep8() {
-  # Usage: do_pep8 [--incremental]
+# Run pycodestyle check
+do_pycodestyle() {
+  # Usage: do_pycodestyle [--incremental]
   # Options:
   #   --incremental  Performs check on only the python files changed in the
   #                  last non-merge git commit.
 
-  PEP8_BIN="/usr/local/bin/pep8"
-  PEP8_CONFIG_FILE="${SCRIPT_DIR}/pep8"
+  PEP8_BIN="/usr/local/bin/pycodestyle"
+  PEP8_CONFIG_FILE="${SCRIPT_DIR}/pycodestyle"
 
   if [[ "$1" == "--incremental" ]]; then
     PYTHON_SRC_FILES=$(get_py_files_to_check --incremental)
     NUM_PYTHON_SRC_FILES=$(echo ${PYTHON_SRC_FILES} | wc -w)
 
-    echo "do_pep8 will perform checks on only the ${NUM_PYTHON_SRC_FILES} "\
+    echo "do_pycodestyle will perform checks on only the ${NUM_PYTHON_SRC_FILES} "\
 "Python file(s) changed in the last non-merge git commit due to the "\
 "--incremental flag:"
     echo "${PYTHON_SRC_FILES}"
@@ -214,38 +214,38 @@ do_pep8() {
   fi
 
   if [[ -z ${PYTHON_SRC_FILES} ]]; then
-    echo "do_pep8 found no Python files to check. Returning."
+    echo "do_pycodestyle found no Python files to check. Returning."
     return 0
   fi
 
   if [[ ! -f "${PEP8_CONFIG_FILE}" ]]; then
-    die "ERROR: Cannot find pep8 config file at ${PEP8_CONFIG_FILE}"
+    die "ERROR: Cannot find pycodestyle config file at ${PEP8_CONFIG_FILE}"
   fi
-  echo "See \"${PEP8_CONFIG_FILE}\" for pep8 config( e.g., ignored errors)"
+  echo "See \"${PEP8_CONFIG_FILE}\" for pycodestyle config( e.g., ignored errors)"
 
   NUM_SRC_FILES=$(echo ${PYTHON_SRC_FILES} | wc -w)
 
-  echo "Running pep8 on ${NUM_SRC_FILES} files"
+  echo "Running pycodestyle on ${NUM_SRC_FILES} files"
   echo ""
 
   PEP8_START_TIME=$(date +'%s')
-  PEP8_OUTPUT_FILE="$(mktemp)_pep8_output.log"
+  PEP8_OUTPUT_FILE="$(mktemp)_pycodestyle_output.log"
 
   rm -rf ${PEP8_OUTPUT_FILE}
 
-  pep8 --config="${PEP8_CONFIG_FILE}" --statistics \
+  pycodestyle --config="${PEP8_CONFIG_FILE}" --statistics \
       ${PYTHON_SRC_FILES} 2>&1 | tee ${PEP8_OUTPUT_FILE}
   PEP8_END_TIME=$(date +'%s')
 
   echo ""
-  echo "pep8 took $((PEP8_END_TIME - PEP8_START_TIME)) s"
+  echo "pycodestyle took $((PEP8_END_TIME - PEP8_START_TIME)) s"
   echo ""
 
   if [[ -s ${PEP8_OUTPUT_FILE} ]]; then
-    echo "FAIL: pep8 found above errors and/or warnings."
+    echo "FAIL: pycodestyle found above errors and/or warnings."
     return 1
   else
-    echo "PASS: No pep8 errors or warnings were found"
+    echo "PASS: No pycodestyle errors or warnings were found"
     return 0
   fi
 }
@@ -266,8 +266,8 @@ cmd_status(){
 }
 
 # Supply all sanity step commands and descriptions
-SANITY_STEPS=("do_pylint PYTHON2" "do_pylint PYTHON3" "do_pep8 PYTHON2", "do_pep8 PYTHON3")
-SANITY_STEPS_DESC=("Python 2 pylint" "Python 3 pylint" "pep8 test" "Check that python files have certain __future__ imports" "buildifier check" "bazel nobuild" "pip: license check for external dependencies")
+SANITY_STEPS=("do_pylint PYTHON2" "do_pylint PYTHON3" "do_pycodestyle PYTHON2", "do_pycodestyle PYTHON3")
+SANITY_STEPS_DESC=("Python 2 pylint" "Python 3 pylint" "pycodestyle test" "Check that python files have certain __future__ imports" "buildifier check" "bazel nobuild" "pip: license check for external dependencies")
 
 INCREMENTAL_FLAG=""
 DEFAULT_BAZEL_CONFIGS="--config=hdfs --config=gcp"

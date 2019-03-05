@@ -549,8 +549,8 @@ def stride_2d(strides):
     elif len(strides) == 4:
       return [strides[0], strides[1], strides[2], strides[3]]
     else:
-      raise Exception("strides length error: " + str(len(strides)) +
-                      ", only a length of 2 or 4 is supported.")
+      raise Exception("strides length error: " + str(len(strides))
+                      + ", only a length of 2 or 4 is supported.")
   else:
     raise Exception("strides format error: " + str(type(strides)))
 
@@ -564,8 +564,8 @@ def kernel_2d(kernel):
     elif len(kernel) == 4:
       return [kernel[0], kernel[1], kernel[2], kernel[3]]
     else:
-      raise Exception("kernel length error: " + str(len(kernel)) +
-                      ", only a length of 2 or 4 is supported.")
+      raise Exception("kernel length error: " + str(len(kernel))
+                      + ", only a length of 2 or 4 is supported.")
   else:
     raise Exception("kernel format error: " + str(type(kernel)))
 
@@ -577,8 +577,8 @@ def filter_2d(fsize, in_depth, out_depth):
     if len(fsize) == 2:
       return [fsize[0], fsize[1], in_depth, out_depth]
     else:
-      raise Exception("filter length error: " + str(len(fsize)) +
-                      ", only a length of 2 is supported.")
+      raise Exception("filter length error: " + str(len(fsize))
+                      + ", only a length of 2 is supported.")
   else:
     raise Exception("filter format error: " + str(type(fsize)))
 
@@ -597,8 +597,8 @@ def filter_3d(fsize, in_depth, out_depth):
     if len(fsize) == 3:
       return [fsize[0], fsize[1], fsize[2], in_depth, out_depth]
     else:
-      raise Exception("filter length error: " + str(len(fsize)) +
-                      ", only a length of 3 is supported.")
+      raise Exception("filter length error: " + str(len(fsize))
+                      + ", only a length of 3 is supported.")
   else:
     raise Exception("filter format error: " + str(type(fsize)))
 
@@ -613,8 +613,8 @@ def stride_3d(strides):
       assert strides[0] == strides[4] == 1, "Must have strides[0] = strides[4] = 1"
       return [strides[0], strides[1], strides[2], strides[3], strides[4]]
     else:
-      raise Exception("strides length error: " + str(len(strides)) +
-                      ", only a length of 3 or 5 is supported.")
+      raise Exception("strides length error: " + str(len(strides))
+                      + ", only a length of 3 or 5 is supported.")
   else:
     raise Exception("strides format error: " + str(type(strides)))
 
@@ -629,8 +629,8 @@ def kernel_3d(kernel):
       assert kernel[0] == kernel[4] == 1, "Must have kernel[0] = kernel[4] = 1"
       return [kernel[0], kernel[1], kernel[2], kernel[3], kernel[4]]
     else:
-      raise Exception("kernels length error: " + str(len(kernel)) +
-                      ", only a length of 3 or 5 is supported.")
+      raise Exception("kernels length error: " + str(len(kernel))
+                      + ", only a length of 3 or 5 is supported.")
   else:
     raise Exception("kernel format error: " + str(type(kernel)))
 

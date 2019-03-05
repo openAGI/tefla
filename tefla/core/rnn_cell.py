@@ -170,8 +170,8 @@ class LSTMCell(core_rnn_cell.RNNCell):
       j = self._activation(j)
       if (not isinstance(self._keep_prob, float)) or self._keep_prob < 1:
         j = dropout(j, self._keep_prob, seed=self._dropout_seed)
-      new_c = (c * self._inner_activation(f + self._forget_bias) +
-               self._inner_activation(i) * self._activation(j))
+      new_c = (c * self._inner_activation(f + self._forget_bias)
+               + self._inner_activation(i) * self._activation(j))
 
       if self._cell_clip is not None:
         new_c = tf.clip_by_value(new_c, -self._cell_clip, self._cell_clip)

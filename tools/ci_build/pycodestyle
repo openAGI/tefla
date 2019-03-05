@@ -1,0 +1,16 @@
+[pycodestyle]
+
+# Skip errors and warnings
+# E111 indentation is not a multiple of four
+# E114 indentation is not a multiple of four (comment)
+# [E128] continuation line under-indented for visual indent
+# [E125] continuation line with same indent as next logical line
+# [E126] continuation line over-indented for hanging indent
+# [W503] line break before binary operator
+ignore=E114,E111,E402,E251,E261,E125,E126,E128,W503,E127,E129
+
+# Set maximum allowed line length (default: 101)
+max-line-length=101
+
+# Set the error format [default|pylint|<custom>]
+format=pylint

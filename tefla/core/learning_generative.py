@@ -300,8 +300,8 @@ class GenerativeLearner(Base):
                            [batch_size_train, 8, 8, 192])
     like_loss = tf.reduce_mean(tf.square(end_points_D_IMG['d_conv4_2'] - d_conv4_2_e)) / 2.
     kl_loss = tf.reduce_mean(
-        -end_points_E['e_logits2'] +
-        .5 * (-1 + tf.exp(2. * end_points_E['e_logits2']) + tf.square(end_points_E['e_logits1'])))
+        -end_points_E['e_logits2']
+        + .5 * (-1 + tf.exp(2. * end_points_E['e_logits2']) + tf.square(end_points_E['e_logits1'])))
 
     d_label_smooth = self.cnf.get('d_label_smooth', 0.05)
     d_loss_real = tf.reduce_mean(

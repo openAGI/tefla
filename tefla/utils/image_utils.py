@@ -37,8 +37,8 @@ def im_normalized(img):
   img_std = np.std(img)
   img_mean = np.mean(img)
   img_normalized = (img - img_mean) / img_std
-  img_normalized = ((img_normalized - np.min(img_normalized)) /
-                    (np.max(img_normalized) - np.min(img_normalized))) * 255
+  img_normalized = ((img_normalized - np.min(img_normalized))
+                    / (np.max(img_normalized) - np.min(img_normalized))) * 255
   return img_normalized
 
 

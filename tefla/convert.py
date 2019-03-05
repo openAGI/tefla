@@ -11,7 +11,6 @@ from multiprocessing import cpu_count
 from multiprocessing.pool import Pool
 
 import click
-import numpy as np
 
 from tefla.da import data
 from tefla.utils.convert_utils import convert

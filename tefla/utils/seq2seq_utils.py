@@ -289,8 +289,9 @@ class ScheduledEmbeddingTrainingHelper(TrainingHelper):
         sampled_next_inputs = self._embedding_fn(sample_ids_sampling)
         base_shape = tf.shape(base_next_inputs)
         return (
-            tf.scatter_nd(indices=where_sampling, updates=sampled_next_inputs, shape=base_shape) +
-            tf.scatter_nd(indices=where_not_sampling, updates=inputs_not_sampling, shape=base_shape))
+            tf.scatter_nd(indices=where_sampling, updates=sampled_next_inputs, shape=base_shape)
+            + tf.scatter_nd(indices=where_not_sampling, updates=inputs_not_sampling,
+            shape=base_shape))
 
       all_finished = tf.reduce_all(finished)
       next_inputs = tf.cond(all_finished, lambda: base_next_inputs, maybe_sample)
@@ -409,8 +410,9 @@ class ScheduledOutputTrainingHelper(TrainingHelper):
 
         base_shape = tf.shape(base_next_inputs)
         return (
-            tf.scatter_nd(indices=where_sampling, updates=sampled_next_inputs, shape=base_shape) +
-            tf.scatter_nd(indices=where_not_sampling, updates=inputs_not_sampling, shape=base_shape))
+            tf.scatter_nd(indices=where_sampling, updates=sampled_next_inputs, shape=base_shape)
+            + tf.scatter_nd(indices=where_not_sampling, updates=inputs_not_sampling,
+            shape=base_shape))
 
       all_finished = tf.reduce_all(finished)
       next_inputs = tf.cond(all_finished, lambda: base_next_inputs, maybe_sample)

@@ -75,7 +75,7 @@ def square_bbox(img, fname):
 
 def convert_square(fname, target_size):
   img = Image.open(fname)
-  bbox = square_bbox(img)
+  bbox = square_bbox(img, fname)
   cropped = img.crop(bbox)
   resized = cropped.resize([target_size, target_size])
   return resized

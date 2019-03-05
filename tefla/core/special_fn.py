@@ -508,8 +508,8 @@ def conv2d_diagonal_gru(inputs,
 
     # Diagonal shift.
     shift_filters = n_output_channels // 3
-    base_filter = ([[0, 1, 0]] * (n_output_channels - 2 * shift_filters) +
-                   [[1, 0, 0]] * shift_filters + [[0, 0, 1]] * shift_filters)
+    base_filter = ([[0, 1, 0]] * (n_output_channels - 2 * shift_filters)
+                   + [[1, 0, 0]] * shift_filters + [[0, 0, 1]] * shift_filters)
     shift_filter = tf.constant(np.transpose(base_filter), dtype=tf.float32)
     shift_filter = tf.expand_dims(tf.expand_dims(shift_filter, 0), 3)
     x_shifted = tf.nn.depthwise_conv2d(x, shift_filter, [1, 1, 1, 1], padding="SAME")

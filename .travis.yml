@@ -33,7 +33,8 @@ install:
   - pip install coveralls
   - pip install requests[security]
   - pip install pytest==3.6.1
-  - pip install pep8==1.7.0
+  - pip install pycodestyle==2.5.0
+  - pip install pylint==2.1.0
   - pip install -U pytest-cov
   - pip install --upgrade pip setuptools wheel
   - pip install entrypoints
