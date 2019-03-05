@@ -189,8 +189,8 @@ class IOUSeg(object):
 
     for class_id, class_name in enumerate(classes, 1):
       per_class_iou_dict[class_name] = np.nanmean(
-          np.diag(per_class_iou_hist[class_name]) /
-          (per_class_iou_hist[class_name].sum(1) + per_class_iou_hist[class_name].sum(0) - np.diag(
+          np.diag(per_class_iou_hist[class_name])
+          / (per_class_iou_hist[class_name].sum(1) + per_class_iou_hist[class_name].sum(0) - np.diag(
               per_class_iou_hist[class_name])))
     return per_class_iou_dict
 
@@ -340,8 +340,8 @@ class KappaV2(Metric, MetricMixin):
 
       nom = tf.reduce_sum(weights * conf_mat)
       denom = tf.reduce_sum(weights * tf.matmul(
-          tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) /
-                            tf.to_float(batch_size))
+          tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings]))
+                            / tf.to_float(batch_size))
 
       try:
         return (1 - nom / denom)
@@ -741,7 +741,7 @@ def moses_multi_bleu(hypotheses, references, lowercase=False):
         "https://raw.githubusercontent.com/moses-smt/mosesdecoder/"
         "master/scripts/generic/multi-bleu.perl")
     os.chmod(multi_bleu_path, 0o755)
-  except:
+  except Exception:
     tf.logging.info("Unable to fetch multi-bleu.perl script, using local.")
     metrics_dir = os.path.dirname(os.path.realpath(__file__))
     bin_dir = os.path.abspath(os.path.join(metrics_dir, "..", "..", "tools"))

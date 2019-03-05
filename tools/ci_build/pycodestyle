@@ -1,4 +1,4 @@
-[pep8]
+[pycodestyle]
 
 # Skip errors and warnings
 # E111 indentation is not a multiple of four

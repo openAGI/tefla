@@ -514,8 +514,8 @@ class SubwordTextEncoder(TextEncoder):
       if other_subtokenizer is None:
         return subtokenizer
 
-      if (abs(other_subtokenizer.vocab_size - target_size) <
-          abs(subtokenizer.vocab_size - target_size)):
+      if (abs(other_subtokenizer.vocab_size - target_size)
+          < abs(subtokenizer.vocab_size - target_size)):
         return other_subtokenizer
       return subtokenizer
 

@@ -94,8 +94,8 @@ def kappa_loss(predictions, labels, y_pow=1, eps=1e-15, num_ratings=5, batch_siz
 
     nom = tf.reduce_sum(weights * conf_mat)
     denom = tf.reduce_sum(weights * tf.matmul(
-        tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings])) /
-                          tf.to_float(batch_size))
+        tf.reshape(hist_rater_a, [num_ratings, 1]), tf.reshape(hist_rater_b, [1, num_ratings]))
+                          / tf.to_float(batch_size))
 
     try:
       return -(1 - nom / denom)
@@ -327,8 +327,8 @@ def discretized_mix_logistic_loss(inputs,
     m2 = tf.reshape(means[:, :, :, 1, :] + coeffs[:, :, :, 0, :] * inputs[:, :, :, 0, :],
                     [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
     m3 = tf.reshape(
-        means[:, :, :, 2, :] + coeffs[:, :, :, 1, :] * inputs[:, :, :, 0, :] +
-        coeffs[:, :, :, 2, :] * inputs[:, :, :, 1, :],
+        means[:, :, :, 2, :] + coeffs[:, :, :, 1, :] * inputs[:, :, :, 0, :]
+        + coeffs[:, :, :, 2, :] * inputs[:, :, :, 1, :],
         [inputs_shape[0], inputs_shape[1], inputs_shape[2], 1, nr_mix])
     means = tf.concat([
         tf.reshape(means[:, :, :, 0, :],
@@ -943,8 +943,8 @@ def _kl_divergence_with_logits(q_logits, p_logits, weights, num_classes):
   if num_classes == 2:
     q = tf.nn.sigmoid(q_logits)
     p = tf.nn.sigmoid(p_logits)
-    kl = (-tf.nn.sigmoid_cross_entropy_with_logits(logits=q_logits, labels=q) +
-          f.nn.sigmoid_cross_entropy_with_logits(logits=p_logits, labels=q))
+    kl = (-tf.nn.sigmoid_cross_entropy_with_logits(logits=q_logits, labels=q)
+          + f.nn.sigmoid_cross_entropy_with_logits(logits=p_logits, labels=q))
 
   else:
     q = tf.nn.softmax(q_logits)
@@ -1810,3 +1810,21 @@ def false_positives_upper_bound(labels, logits, weights, surrogate_type):
   loss_on_negatives = losses_utils.weighted_surrogate_loss(
       labels, logits, surrogate_type, positive_weights=0.0) / maybe_log2
   return tf.reduce_sum(weights * loss_on_negatives, 0)
+
+
+def binary_focal_loss(logits, targets, gamma=2):
+  """ Binary focal loss fo mulit-label classification.
+
+    Args:
+      logits: a `2D` `Tensor`, [batch_size, num_classes] network logits without activation.
+      targets: a `2D` `Tensor`, [batch_size, num_classes] inputs ground ruth labels.
+
+    Returns:
+      a `2D` `Tensor`, outputs loss.
+    """
+  assert logits.shape == targets.shape
+  max_val = tf.nn.relu(-logits)
+  loss = logits - logits * targets + max_val + tf.log(tf.exp(-max_val) + tf.exp(-logits - max_val))
+  invprobs = tf.log_sigmoid(-logits * (targets * 2 - 1))
+  loss = tf.exp(invprobs * gamma) * loss
+  return loss

@@ -228,8 +228,8 @@ class YellowFinOptimizer(object):
 
     # Compute Variance
     self._grad_var = tf.maximum(
-        tf.constant(1e-6, dtype=self._grad_norm_squared_avg.dtype), self._grad_norm_squared_avg -
-        tf.add_n([tf.reduce_sum(val) for val in self._grad_avg_squared]))
+        tf.constant(1e-6, dtype=self._grad_norm_squared_avg.dtype), self._grad_norm_squared_avg
+        - tf.add_n([tf.reduce_sum(val) for val in self._grad_avg_squared]))
     if self._sparsity_debias:
       self._grad_var *= self._sparsity_avg
     return grad_var_ops  # C_t

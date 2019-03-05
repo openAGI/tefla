@@ -92,7 +92,8 @@ class SupervisedLearner(Base, BaseMixin):
       validation_batch_summary_op = tf.summary.merge_all(key=VALIDATION_BATCH_SUMMARIES)
       validation_epoch_summary_op = tf.summary.merge_all(key=VALIDATION_EPOCH_SUMMARIES)
 
-    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
+    gpu_options = tf.GPUOptions(
+        per_process_gpu_memory_fraction=self.gpu_memory_fraction, allow_growth=True)
     with tf.Session(
         config=tf.ConfigProto(
             gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=False)) as sess:
@@ -364,7 +365,7 @@ class SupervisedLearner(Base, BaseMixin):
       self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
       self.validation_labels = tf.placeholder(
           tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
-    elif self.loss_type == 'sigmoid_loss':
+    elif self.loss_type in ('sigmoid_loss', 'binary_focal_loss'):
       self.labels = tf.placeholder(
           tf.float32, shape=(self.cnf['batch_size_train'], self.num_classes))
       self.validation_labels = tf.placeholder(

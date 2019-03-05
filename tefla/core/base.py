@@ -12,7 +12,7 @@ from functools import reduce
 
 from ..da.iterator import BatchIterator
 from .lr_policy import NoDecayPolicy
-from .losses import kappa_log_loss_clipped, dice_loss
+from .losses import kappa_log_loss_clipped, dice_loss, binary_focal_loss
 from . import summary
 from . import logger as log
 import tensorflow as tf
@@ -237,7 +237,7 @@ class Base(object):
         list_variables = var_to_shape_map.keys()
       else:
         list_variables = [tensor_name]
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e: # pylint: disable=broad-except
       if "corrupted compressed block contents" in str(e):
         log.debug("It's likely that your checkpoint file has been compressed with SNAPPY.")
     return list_variables
@@ -602,7 +602,7 @@ class Base(object):
     """
     for _, (metric_name, metric_function) in enumerate(metrics):
       log.info('Using {} metrics'.format(metric_name))
-      if metric_name == 'accuracy' and self.loss_type != 'sigmoid_loss':
+      if metric_name == 'accuracy' and self.loss_type not in ('sigmoid_loss', 'binary_focal_loss'):
         metric_score, update_ops = metric_function(
             labels, tf.argmax(predictions, 1), name=metric_name)
         metrics_scores[metric_name].append(metric_score)
@@ -612,12 +612,17 @@ class Base(object):
             labels, tf.argmax(predictions, 1), self.num_classes, name=metric_name)
         metrics_scores[metric_name].append(metric_score)
         metrics_update_ops[metric_name].append(update_ops)
-      elif metric_name in ('accuracy', 'auc', 'f1score') and self.loss_type == 'sigmoid_loss':
+      elif metric_name in ('accuracy', 'auc', 'f1score') and self.loss_type in ('sigmoid_loss',
+                                                                                'binary_focal_loss'):
         for i in range(self.num_classes):
           metric_score, update_ops = metric_function(
               labels[:, i], predictions[:, i], name=metric_name + str(i))
           metrics_scores[metric_name + str(i)].append(metric_score)
           metrics_update_ops[metric_name + str(i)].append(update_ops)
+        metric_score, update_ops = metric_function(labels, predictions, name='Avg-' + metric_name)
+        metrics_scores['Avg-' + metric_name].append(metric_score)
+        metrics_update_ops['Avg-' + metric_name].append(update_ops)
+
       else:
         metric_score, update_ops = metric_function(labels, tf.round(predictions), name=metric_name)
         metrics_scores[metric_name].append(metric_score)
@@ -798,6 +803,24 @@ class BaseMixin(object):
     else:
       return dc_loss_mean
 
+  def _loss_binary_focal(self, logits, labels, is_training, gamma=2):
+    log.info('Using Binary Focal loss')
+    labels = tf.cast(labels, tf.float32)
+    focal_loss = binary_focal_loss(logits, labels, gamma=gamma)
+    focal_loss_mean = tf.reduce_mean(focal_loss, name='dice_loss_')
+    if is_training:
+      tf.add_to_collection('losses', focal_loss_mean)
+
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
+
+      return tf.add_n(tf.get_collection('losses'), name='total_loss')
+    else:
+      return focal_loss_mean
+
   def _compute_weights(self, labels):
     log.debug('Computing weights from batch labels')
     labels = tf.cast(labels, dtype=tf.float32)
@@ -838,8 +861,10 @@ class BaseMixin(object):
                   reuse,
                   loss_type='kappa_log',
                   y_pow=2,
+                  gamma=2,
                   is_classification=True,
                   gpu_id=0):
+    print(loss_type)
     if is_training:
       self.training_end_points = model(
           images, is_training=is_training, reuse=reuse, num_classes=self.num_classes)
@@ -849,6 +874,9 @@ class BaseMixin(object):
               self.training_end_points['predictions'], labels, is_training, y_pow=y_pow)
         elif loss_type == 'dice_loss':
           loss_temp = self._loss_dice(self.training_end_points['predictions'], labels, is_training)
+        elif loss_type == 'binary_focal_loss':
+          loss_temp = self._loss_binary_focal(
+              self.training_end_points['logits'], labels, is_training, gamma=gamma)
         elif loss_type == 'sigmoid_loss':
           loss_temp = self._loss_sigmoid(
               self.training_end_points['logits'],
@@ -878,6 +906,9 @@ class BaseMixin(object):
           loss = self._loss_sigmoid(self.validation_end_points['logits'], labels, is_training, None)
         elif loss_type == 'sparse_xentropy':
           loss = self._sparse_loss_softmax(self.validation_end_points['logits'], labels, is_training)
+        elif loss_type == 'binary_focal_loss':
+          loss = self._loss_binary_focal(
+              self.validation_end_points['logits'], labels, is_training, gamma=gamma)
         else:
           loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
       else:
