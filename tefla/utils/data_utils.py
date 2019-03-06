@@ -5,7 +5,6 @@ import shutil
 import click
 import csv
 
-
 class Data_utils:
   """ 
     Class creates dataset required for training
