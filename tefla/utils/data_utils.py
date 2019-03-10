@@ -4,7 +4,6 @@ from os import path
 import shutil
 import csv
 
-
 class Data_utils:
   """Class creates dataset required for training."""
 
