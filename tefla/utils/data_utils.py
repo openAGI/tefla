@@ -2,14 +2,11 @@ import random
 import os
 from os import path
 import shutil
-import click
 import csv
 
 
 class Data_utils:
-  """ 
-    Class creates dataset required for training
-  """
+  """Class creates dataset required for training."""
 
   def __init__(self, input_csv_path, input_filepath, output_path, train_percentage, val_percentage):
 
@@ -23,12 +20,10 @@ class Data_utils:
     self.val_percentage = val_percentage
 
   def createDirectoryForDataset(self, dataname):
-    """
-    Function to create directiry for dataset.
-    """
+    """Function to create directiry for dataset."""
     try:
       os.makedirs(os.path.join(self.output_path, dataname))
-    except:
+    except Exception as e:
       pass
 
   def create_datasets(self):
@@ -69,7 +64,7 @@ class Data_utils:
     """
     Function stores the split train data in specified location
     Returns:
-      None 
+     None 
     """
     self.createDirectoryForDataset(self.traindata)
     for i in self.createdtraindata:
@@ -83,7 +78,7 @@ class Data_utils:
     """ 
     Function to store the split validation data in the specified location
     Returns:
-      None
+     None
     """
     self.createDirectoryForDataset(self.valdata)
     for i in self.createdval_data:
