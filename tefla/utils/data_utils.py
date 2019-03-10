@@ -1,11 +1,13 @@
 import random
 import os
-from os import path
+# from os import path
 import shutil
-import csv
+# import csv
+
 
 class Data_utils:
   """Class creates dataset required for training."""
+
 
   def __init__(self, input_csv_path, input_filepath, output_path, train_percentage, val_percentage):
 
@@ -27,8 +29,10 @@ class Data_utils:
 
   def create_datasets(self):
     """
-    Function to create datasets 
+    Function to create datasets
     """
+
+
     self.createdtraindata, self.createdval_data, self.createdtest_data = self.split_dataset()
     traindata = self.create_traindataset()
     valdata = self.create_validationdataset()
@@ -41,6 +45,7 @@ class Data_utils:
      train_filenames,val_filenames and test_filenames as list
 
     """
+
 
     file = open(self.input_csv_path, "r")
     for _ in range(1):
