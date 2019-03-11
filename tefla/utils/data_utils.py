@@ -6,7 +6,7 @@ import shutil
 class Data_utils:
   """Class creates dataset required for training."""
 
-  def __init__(self, input_csv_path, input_filepath, output_path, train_percentage, val_percentage):
+  def __init__(self, input_csv_path, input_filepath, output_path, train_percentage, val_percentage,extension):
     self.traindata = 'train_dataset'
     self.valdata = 'val_dataset'
     self.testdata = 'test_dataset'
@@ -15,6 +15,7 @@ class Data_utils:
     self.output_path = output_path
     self.train_percentage = train_percentage
     self.val_percentage = val_percentage
+    self.extension = extension
 
   def createDirectoryForDataset(self, dataname):
     """Function to create directiry for dataset."""
@@ -32,8 +33,8 @@ class Data_utils:
 
   def split_dataset(self):
     """Function to split the data into training,validation and test set
-    Returns:
-    train_filenames,val_filenames and test_filenames as list"""
+       Returns:
+       train_filenames,val_filenames and test_filenames as list"""
     file = open(self.input_csv_path, "r")
     for _ in range(1):
       next(file)
@@ -58,7 +59,7 @@ class Data_utils:
     self.createDirectoryForDataset(self.traindata)
     for i in self.createdtraindata:
       newfilename = i[0]
-      testfilename = newfilename + '.png'
+      testfilename = newfilename + self.extension
       files = os.listdir(self.input_filepath)
       if testfilename in files:
         shutil.copy(self.input_filepath + testfilename, self.output_path + self.traindata)
@@ -70,7 +71,7 @@ class Data_utils:
     self.createDirectoryForDataset(self.valdata)
     for i in self.createdval_data:
       newfilename = i[0]
-      testfilename = newfilename + '.png'
+      testfilename = newfilename + self.extension
       files = os.listdir(self.input_filepath)
       if testfilename in files:
         shutil.copy(self.input_filepath + testfilename, self.output_path + self.valdata)
@@ -82,7 +83,7 @@ class Data_utils:
     self.createDirectoryForDataset(self.testdata)
     for i in self.createdtest_data:
       newfilename = i[0]
-      testfilename = newfilename + '.png'
+      testfilename = newfilename + self.extension
       files = os.listdir(self.input_filepath)
       if testfilename in files:
         shutil.copy(self.input_filepath + testfilename, self.output_path + self.testdata)
