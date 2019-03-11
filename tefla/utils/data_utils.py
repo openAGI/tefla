@@ -2,12 +2,11 @@ import random
 import os
 import shutil
 
+
 class Data_utils:
   """Class creates dataset required for training."""
 
-
   def __init__(self, input_csv_path, input_filepath, output_path, train_percentage, val_percentage):
-
     self.traindata = 'train_dataset'
     self.valdata = 'val_dataset'
     self.testdata = 'test_dataset'
@@ -55,8 +54,7 @@ class Data_utils:
   def create_traindataset(self):
     """Function stores the split train data dataset.
     Returns:
-     None 
-    """
+     None """
     self.createDirectoryForDataset(self.traindata)
     for i in self.createdtraindata:
       newfilename = i[0]
