@@ -38,7 +38,7 @@ setup(
         'scikit-image==0.12.3', 'scikit-learn==0.18.2', 'six==1.10.0', 'setuptools==28.8.0',
         'ghalton==0.6', 'Pillow==4.0', 'progress', 'opencv-python==3.3.0.10', 'pyyaml',
         'portpicker', 'scipy==0.19.1', 'cython==0.27', 'pydensecrf==1.0rc3', 'bokeh>=1.0.4',
-        'selenium', 'phantomjs>=2.1'
+        'selenium', 'phantomjs'
     ],
     test_suite='tests',
     cmdclass={'test': PyTest},
