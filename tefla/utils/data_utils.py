@@ -1,9 +1,6 @@
 import random
 import os
-# from os import path
 import shutil
-# import csv
-
 
 class Data_utils:
   """Class creates dataset required for training."""
@@ -28,25 +25,16 @@ class Data_utils:
       pass
 
   def create_datasets(self):
-    """
-    Function to create datasets
-    """
-
-
+    """Function to create datasets. """
     self.createdtraindata, self.createdval_data, self.createdtest_data = self.split_dataset()
     traindata = self.create_traindataset()
     valdata = self.create_validationdataset()
     testdata = self.create_testdataset()
 
   def split_dataset(self):
-    """
-    Function to split the data into training set, validation set and test set
+    """Function to split the data into training,validation and test set
     Returns:
-     train_filenames,val_filenames and test_filenames as list
-
-    """
-
-
+    train_filenames,val_filenames and test_filenames as list"""
     file = open(self.input_csv_path, "r")
     for _ in range(1):
       next(file)
@@ -65,8 +53,7 @@ class Data_utils:
     return train_filenames, val_filenames, test_filenames
 
   def create_traindataset(self):
-    """
-    Function stores the split train data in specified location
+    """Function stores the split train data dataset.
     Returns:
      None 
     """
@@ -79,11 +66,9 @@ class Data_utils:
         shutil.copy(self.input_filepath + testfilename, self.output_path + self.traindata)
 
   def create_validationdataset(self):
-    """ 
-    Function to store the split validation data in the specified location
+    """Function to store the split validation data set.
     Returns:
-     None
-    """
+     None """
     self.createDirectoryForDataset(self.valdata)
     for i in self.createdval_data:
       newfilename = i[0]
@@ -93,11 +78,9 @@ class Data_utils:
         shutil.copy(self.input_filepath + testfilename, self.output_path + self.valdata)
 
   def create_testdataset(self):
-    """
-    Function stores the split test data in the specified location
+    """Function stores the split test data set.
     Returns:
-      None
-    """
+      None """
     self.createDirectoryForDataset(self.testdata)
     for i in self.createdtest_data:
       newfilename = i[0]
