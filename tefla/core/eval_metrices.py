@@ -276,7 +276,7 @@ def plot_conf_mat(conf_mat, classes):
     bokeh plot object
   """
   colors = ['#d5181c', '#fdbe62', '#ffffef', '#a6e99a', '#2a9631']
-  mapper = LinearColorMapper(palette="Spectral11", low=conf_mat.min(), high=conf_mat.max())
+  mapper = LinearColorMapper(palette=colors, low=conf_mat.min(), high=conf_mat.max())
   fig = figure(
       title="confusion matrix",
       x_axis_label="predicted",
@@ -284,7 +284,7 @@ def plot_conf_mat(conf_mat, classes):
       x_range=[str(cls) for cls in classes],
       y_range=[str(cls) for cls in classes],
       tooltips=[("value", "@image")])
-  fig.image(image=[conf_mat], x=0, y=0, dw=len(classes), dh=len(classes), palette="Spectral11")
+  fig.image(image=[conf_mat], x=0, y=0, dw=len(classes), dh=len(classes), palette=colors)
   color_bar = ColorBar(
       color_mapper=mapper, location=(0, 0), ticker=BasicTicker(desired_num_ticks=len(colors)))
   fig.add_layout(color_bar, 'right')

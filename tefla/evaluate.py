@@ -8,7 +8,7 @@ from __future__ import division, print_function, absolute_import
 import ast
 import click
 from prettytable import PrettyTable
-from bokeh.io import export_png
+from bokeh.io import save
 from tefla.core.eval_metrices import Evaluation
 
 
@@ -121,7 +121,7 @@ def main(truth_file, pred_files, eval_list, plot_list, over_all, ensemble_voting
   print(p_tab)
   if evl_plots:
     for i, plt in enumerate(evl_plots):
-      export_png(plt, filename=save_dir + '/' + str(i) + '.png')
+      save(plt, filename=save_dir + '/' + str(i) + '.html')
 
 
 if __name__ == '__main__':
