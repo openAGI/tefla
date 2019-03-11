@@ -6,7 +6,8 @@ import shutil
 class Data_utils:
   """Class creates dataset required for training."""
 
-  def __init__(self, input_csv_path, input_filepath, output_path, train_percentage, val_percentage,extension):
+  def __init__(self, input_csv_path, input_filepath, output_path, train_percentage,
+    val_percentage, extension):
     self.traindata = 'train_dataset'
     self.valdata = 'val_dataset'
     self.testdata = 'test_dataset'
@@ -33,7 +34,7 @@ class Data_utils:
 
   def split_dataset(self):
     """Function to split the data into training,validation and test set
-       Returns:
+    Returns:
        train_filenames,val_filenames and test_filenames as list"""
     file = open(self.input_csv_path, "r")
     for _ in range(1):
