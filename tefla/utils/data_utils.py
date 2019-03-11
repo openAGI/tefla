@@ -26,9 +26,9 @@ class Data_utils:
   def create_datasets(self):
     """Function to create datasets. """
     self.createdtraindata, self.createdval_data, self.createdtest_data = self.split_dataset()
-    traindata = self.create_traindataset()
-    valdata = self.create_validationdataset()
-    testdata = self.create_testdataset()
+    self.create_traindataset()
+    self.create_validationdataset()
+    self.create_testdataset()
 
   def split_dataset(self):
     """Function to split the data into training,validation and test set
