@@ -1,7 +1,6 @@
 """Wrapper to Evaluate model
 """
 # -------------------------------------------------------------------#
-# Contact: mkulariya@artelus.com
 # Copyright 2019 The Tefla Authors. All Rights Reserved.
 # -------------------------------------------------------------------#
 from __future__ import division, print_function, absolute_import
