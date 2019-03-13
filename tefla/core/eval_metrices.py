@@ -211,7 +211,6 @@ def calc_kappa(truth, pred):
     None
   """
   try:
-    # kappa = metrics.cohen_kappa_score(truth, pred)
     kappa = qwk.calculate_kappa(truth, pred)
     return round(kappa, 3)
   except BaseException:
@@ -331,7 +330,7 @@ class Evaluation():
       if len(pred_data.columns) > 2:
         self.classes = pred_data.columns[1:].tolist()
         pred_data['Pred'] = pred_data[pred_data.columns[1:]].replace(
-            '', np.nan).stack().groupby(level=0).apply(list)
+            '', 0).stack().groupby(level=0).apply(list)
         pred_data = pred_data[[pred_data.columns[0], 'Pred']]
       file_data = file_data.merge(pred_data, on=file_data.columns[0], how="inner")
     if len(file_data.columns) > 3:
