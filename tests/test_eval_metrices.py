@@ -33,10 +33,10 @@ class TestEvalMetrices(tf.test.TestCase):
         'f1score']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(self.tmpdirname +
+      res, _ = evl.eval_classification(self.tmpdirname +
                       '/truth_binary.csv', [self.tmpdirname +
                                 '/pred_binary.csv'], evaluation_list, plot_list)
-      target = {1: {'accuracy': 0.5,
+      target = {'pos': {'accuracy': 0.5,
               'recall': 0.2,
               'precision': 0.5,
               'fpr': 0.2,
@@ -47,24 +47,24 @@ class TestEvalMetrices(tf.test.TestCase):
               'specificity': 0.8,
               'npv': 0.5,
               'f1score': 0.286}}
-      self.assertDictEqual(res[1], target[1])
+      self.assertDictEqual(res['pos'], target['pos'])
 
   def test_multi(self):
     with self.test_session():
       evaluation_list = ['accuracy', 'recall']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(self.tmpdirname +
+      res, _ = evl.eval_classification(self.tmpdirname +
                       '/truth_multi.csv', [self.tmpdirname +
                                  '/pred_multi.csv'], evaluation_list, plot_list)
       target = {
-        0: {'accuracy': 0.72, 'recall': 0.2},
-        1: {'accuracy': 0.48, 'recall': 0.0},
-        2: {'accuracy': 0.6, 'recall': 0.2},
-        3: {'accuracy': 0.68, 'recall': 0.0},
-        4: {'accuracy': 0.68, 'recall': 0.0}}
+        'norm': {'accuracy': 0.72, 'recall': 0.2},
+        'abnorm1': {'accuracy': 0.48, 'recall': 0.0},
+        'abnorm2': {'accuracy': 0.6, 'recall': 0.2},
+        'abnorm3': {'accuracy': 0.68, 'recall': 0.0},
+        'abnorm4': {'accuracy': 0.68, 'recall': 0.0}}
       self.assertDictEqual(res, target)
-      res_2 = evl.eval_classification(
+      res_2, _ = evl.eval_classification(
         self.tmpdirname +
         '/truth_multi.csv',
         [
@@ -81,12 +81,12 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['accuracy', 'recall']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(self.tmpdirname +
+      res, _ = evl.eval_classification(self.tmpdirname +
                       '/truth_multi.csv', [self.tmpdirname +
                                  '/pred_multi.csv'], evaluation_list, plot_list,convert_binary=True,binary_threshold=0.3)
       target = {
-        0: {'accuracy': 0.72, 'recall': 0.2},
-        1: {'accuracy': 0.72, 'recall': 0.85}}
+      'norm': {'accuracy': 0.72, 'recall': 0.2},
+      '!norm': {'accuracy': 0.72, 'recall': 0.85}}
       self.assertDictEqual(res, target)
 
   def test_multi_withlabels(self):
@@ -94,7 +94,7 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['accuracy', 'recall']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(
+      res, _ = evl.eval_classification(
         self.tmpdirname +
         '/truth_multi_withlabel.csv',
         [
@@ -121,7 +121,7 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['accuracy', 'recall']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(
+      res, _ = evl.eval_classification(
         self.tmpdirname +
         '/truth_multi_ens.csv',
         [
@@ -137,13 +137,13 @@ class TestEvalMetrices(tf.test.TestCase):
         plot_list,
         ensemble_voting="hard")
       target = {
-        0.0: {'accuracy': 0.72, 'recall': 0.2},
-        1.0: {'accuracy': 0.6, 'recall': 0.2},
-        2.0: {'accuracy': 0.68, 'recall': 0.0},
-        3.0: {'accuracy': 0.64, 'recall': 0.2},
-        4.0: {'accuracy': 0.68, 'recall': 0.2}}
+        'norm': {'accuracy': 0.72, 'recall': 0.2},
+        'abnorm1': {'accuracy': 0.6, 'recall': 0.2},
+        'abnorm2': {'accuracy': 0.68, 'recall': 0.0},
+        'abnorm3': {'accuracy': 0.64, 'recall': 0.2},
+        'abnorm4': {'accuracy': 0.68, 'recall': 0.2}}
       self.assertDictEqual(target, res)
-      res_2 = evl.eval_classification(
+      res_2, _ = evl.eval_classification(
         self.tmpdirname +
         '/truth_multi_ens.csv',
         [
@@ -159,11 +159,11 @@ class TestEvalMetrices(tf.test.TestCase):
         plot_list,
         ensemble_voting="soft")
       target_2 = {
-        0: {'accuracy': 0.72, 'recall': 0.0},
-        1: {'accuracy': 0.64, 'recall': 0.2},
-        2: {'accuracy': 0.56, 'recall': 0.2},
-        3: {'accuracy': 0.68, 'recall': 0.2},
-        4: {'accuracy': 0.64, 'recall': 0.0}}
+        'norm': {'accuracy': 0.72, 'recall': 0.0},
+        'abnorm1': {'accuracy': 0.64, 'recall': 0.2},
+        'abnorm2': {'accuracy': 0.56, 'recall': 0.2},
+        'abnorm3': {'accuracy': 0.68, 'recall': 0.2},
+        'abnorm4': {'accuracy': 0.64, 'recall': 0.0}}
       self.assertDictEqual(target_2, res_2)
 
   def test_multilabel(self):
@@ -171,7 +171,7 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['accuracy', 'recall', 'precision']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_classification(self.tmpdirname +
+      res, _ = evl.eval_classification(self.tmpdirname +
                       '/truth_multilabel.csv', [self.tmpdirname +
                                   '/pred_multilabel.csv'], evaluation_list, plot_list)
       target = {
@@ -185,7 +185,7 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['mae', 'rmse', 'mse']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_regression(self.tmpdirname +
+      res, _ = evl.eval_regression(self.tmpdirname +
                     '/truth_reg.csv', [self.tmpdirname +
                              '/truth_reg.csv'], evaluation_list, plot_list)
       target = {'mae': 0.0, 'rmse': 0.0, 'mse': 0.0}
@@ -196,7 +196,7 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['mae', 'rmse', 'mse']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_regression(self.tmpdirname +
+      res, _ = evl.eval_regression(self.tmpdirname +
                     '/truth_reg.csv', [self.tmpdirname +
                              '/pred_reg_1.csv'], evaluation_list, plot_list)
       target = {'mae': 0.539, 'rmse': 0.619, 'mse': 0.383}
@@ -207,7 +207,7 @@ class TestEvalMetrices(tf.test.TestCase):
       evaluation_list = ['mae', 'rmse', 'mse']
       plot_list = []
       evl = Evaluation()
-      res = evl.eval_regression(self.tmpdirname +
+      res, _ = evl.eval_regression(self.tmpdirname +
                     '/truth_reg.csv', [self.tmpdirname +
                              '/pred_reg_1.csv', self.tmpdirname +
                              '/pred_reg_2.csv', self.tmpdirname +
@@ -236,9 +236,9 @@ def generate_datafiles(dir_name):
 
   with open(dir_name + '/pred_binary.csv', 'w', encoding="ISO-8859-1", newline='') as myfile:
     writer = csv.writer(myfile)
-    writer.writerow(["id", "pred_val"])
+    writer.writerow(["id", "neg", "pos"])
     for value in zip(instance_list, pred_val):
-      writer.writerow(value)
+      writer.writerow((value[0],*value[1]))
 
   # for multiclass classification
 
@@ -257,9 +257,9 @@ def generate_datafiles(dir_name):
 
   with open(dir_name + '/pred_multi.csv', 'w', encoding="ISO-8859-1", newline='') as myfile:
     writer = csv.writer(myfile)
-    writer.writerow(["id", "pred_val"])
+    writer.writerow(["id", "norm", "abnorm1", "abnorm2", "abnorm3", "abnorm4"])
     for value in zip(instance_list, pred_val):
-      writer.writerow(value)
+      writer.writerow((value[0],*value[1]))
 
   # multiclass classification ensemble
 
@@ -290,24 +290,24 @@ def generate_datafiles(dir_name):
 
   with open(dir_name + '/pred_multi_ens.csv', 'w', encoding="ISO-8859-1", newline='') as myfile:
     writer = csv.writer(myfile)
-    writer.writerow(["id", "pred_val"])
+    writer.writerow(["id", "norm", "abnorm1", "abnorm2", "abnorm3", "abnorm4"])
     for value in zip(instance_list, pred_val):
-      writer.writerow(value)
+      writer.writerow((value[0],*value[1]))
   with open(dir_name + '/pred_multi_ens_2.csv', 'w', encoding="ISO-8859-1", newline='') as myfile:
     writer = csv.writer(myfile)
-    writer.writerow(["id", "pred_val"])
+    writer.writerow(["id", "norm", "abnorm1", "abnorm2", "abnorm3", "abnorm4"])
     for value in zip(instance_list, pred_val_2):
-      writer.writerow(value)
+      writer.writerow((value[0],*value[1]))
   with open(dir_name + '/pred_multi_ens_3.csv', 'w', encoding="ISO-8859-1", newline='') as myfile:
     writer = csv.writer(myfile)
-    writer.writerow(["id", "pred_val"])
+    writer.writerow(["id", "norm", "abnorm1", "abnorm2", "abnorm3", "abnorm4"])
     for value in zip(instance_list, pred_val_3):
-      writer.writerow(value)
+      writer.writerow((value[0],*value[1]))
   with open(dir_name + '/pred_multi_ens_4.csv', 'w', encoding="ISO-8859-1", newline='') as myfile:
     writer = csv.writer(myfile)
-    writer.writerow(["id", "pred_val"])
+    writer.writerow(["id", "norm", "abnorm1", "abnorm2", "abnorm3", "abnorm4"])
     for value in zip(instance_list, pred_val_4):
-      writer.writerow(value)
+      writer.writerow((value[0],*value[1]))
 
   # Multilabel
 
@@ -395,9 +395,9 @@ def generate_datafiles(dir_name):
 
   with open(dir_name + '/pred_multi_withlabel.csv', 'w', encoding="ISO-8859-1", newline='') as myfile:
     writer = csv.writer(myfile)
-    writer.writerow(["id", "pred_val"])
+    writer.writerow(["id", "norm", "abnorm1", "abnorm2", "abnorm3", "abnorm4"])
     for value in zip(instance_list, pred_val):
-      writer.writerow(value)
+      writer.writerow((value[0],*value[1]))
 
 
 if __name__ == "__main__":
