@@ -46,7 +46,8 @@ class Base(object):
                loss_type='sparse_xentropy',
                weighted=False,
                label_smoothing=0.009,
-               model_name='graph.pbtxt'):
+               model_name='graph.pbtxt',
+               patience=99):
     self.model = model
     self.model_name = model_name
     self.cnf = cnf
@@ -69,8 +70,22 @@ class Base(object):
     self.label_smoothing = label_smoothing
     log.setFileHandler(log_file_name)
     log.setVerbosity(str(verbosity))
+    self.best_loss = np.inf
+    self.early_stop = False
+    self.stopping_step = 0
     super(Base, self).__init__()
 
+  def _early_stop(self, epoch_validation_loss):  
+    if (epoch_validation_loss < self.best_loss):
+      self.stopping_step = 0
+      self.best_loss = epoch_validation_loss
+    else:
+      self.stopping_step += 1
+    if self.stopping_step >= 5: 
+      self.early_stop = True
+      log.info('Early stopping has triggered')
+    return self.early_stop
+    
   def _setup_summaries(self,
                        d_grads_and_var=None,
                        input_summary=False,
@@ -867,7 +882,7 @@ class BaseMixin(object):
     print(loss_type)
     if is_training:
       self.training_end_points = model(
-          images, is_training=is_training, reuse=reuse, num_classes=self.num_classes)
+          images, is_training=is_training, reuse=reuse, num_classes=self.num_classes, **self.cnf)
       if is_classification:
         if loss_type == 'kappa_log':
           loss_temp = self._loss_kappa(
@@ -898,7 +913,7 @@ class BaseMixin(object):
         self._print_layer_shapes(self.training_end_points, log)
     else:
       self.validation_end_points = model(
-          images, is_training=is_training, reuse=reuse, num_classes=self.num_classes)
+          images, is_training=is_training, reuse=reuse, num_classes=self.num_classes, **self.cnf)
       if is_classification:
         if loss_type == 'kappa_log':
           loss = self._loss_kappa(self.validation_end_points['predictions'], labels, is_training)

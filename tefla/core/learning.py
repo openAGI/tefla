@@ -71,7 +71,7 @@ class SupervisedLearner(Base, BaseMixin):
         self._setup_summaries(**kwargs)
       self._setup_misc()
       self._print_info(data_set)
-      self._train_loop(data_set, weights_from, weights_dir, start_epoch, summary_every)
+      return self._train_loop(data_set, weights_from, weights_dir, start_epoch, summary_every)
 
   def _setup_misc(self):
     self.num_epochs = self.cnf.get('num_epochs', 500)
@@ -262,10 +262,16 @@ class SupervisedLearner(Base, BaseMixin):
         log.debug('10. Epoch done. [%d]' % epoch)
         learning_rate_value = self.lr_policy.epoch_update(learning_rate_value, training_history)
         log.info("Learning rate: %f " % learning_rate_value)
-      if self.is_summary:
-        train_writer.close()
-        validation_writer.close()
+        log.info("epoch_validation_loss rate: %f " % epoch_validation_loss)
+        if self.is_summary:
+          train_writer.close()
+          validation_writer.close()
 
+        early_stop = self._early_stop(epoch_validation_loss)
+        if early_stop:
+          break
+    return early_stop, epoch_validation_loss
+  
   def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
     tower_grads = []
     tower_loss = []
