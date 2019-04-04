@@ -266,12 +266,12 @@ class SupervisedLearner(Base, BaseMixin):
         if self.is_summary:
           train_writer.close()
           validation_writer.close()
+        if self.is_early_stop:
+          self.early_stop = self._early_stop(epoch_validation_loss)
+          if self.early_stop:
+            break
+    return self.early_stop, epoch_validation_loss
 
-        early_stop = self._early_stop(epoch_validation_loss)
-        if early_stop:
-          break
-    return early_stop, epoch_validation_loss
-  
   def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
     tower_grads = []
     tower_loss = []

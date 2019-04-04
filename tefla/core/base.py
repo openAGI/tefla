@@ -47,7 +47,8 @@ class Base(object):
                weighted=False,
                label_smoothing=0.009,
                model_name='graph.pbtxt',
-               patience=99):
+               is_early_stop=False,
+               patience=5):
     self.model = model
     self.model_name = model_name
     self.cnf = cnf
@@ -73,19 +74,21 @@ class Base(object):
     self.best_loss = np.inf
     self.early_stop = False
     self.stopping_step = 0
+    self.patience = patience
+    self.is_early_stop = is_early_stop
     super(Base, self).__init__()
 
-  def _early_stop(self, epoch_validation_loss):  
-    if (epoch_validation_loss < self.best_loss):
+  def _early_stop(self, epoch_validation_loss):
+    if epoch_validation_loss < self.best_loss:
       self.stopping_step = 0
       self.best_loss = epoch_validation_loss
     else:
       self.stopping_step += 1
-    if self.stopping_step >= 5: 
+    if self.stopping_step >= self.patience:
       self.early_stop = True
       log.info('Early stopping has triggered')
     return self.early_stop
-    
+
   def _setup_summaries(self,
                        d_grads_and_var=None,
                        input_summary=False,
