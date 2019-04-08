@@ -45,7 +45,6 @@ from tefla.core.hyperband import Hyperband
 @click.option(
     '--is_summary', default=False, show_default=True, help='Path to initial weights file.')
 @click.option('--verbose', default=1, show_default=True, help='Verbose level.')
-
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-arguments
 def main(model, training_cnf, tuning_cnf, data_dir, results_dir, parallel, start_epoch,

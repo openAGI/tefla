@@ -9,6 +9,7 @@ from hyperopt.pyll.stochastic import sample
 from tefla.utils import util
 from tefla.utils.hyperband_utils import get_config, handle_integers
 
+
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=too-many-locals
 # pylint: disable=invalid-name
