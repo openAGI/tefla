@@ -80,6 +80,13 @@ def main(model, training_cnf, tuning_cnf, data_dir, results_dir, parallel, start
 
 def try_config(args, cnf):
   """For trying out configurations on the custom model.
+
+  Args:
+      args: command line arguments regarding training
+      cnf: training configuration sampled from hyperband search space
+
+  Returns:
+      a dictionary containing final loss value and early stop flag
   """
   model_def = util.load_module(args['model'])
   model = model_def.model

@@ -5,7 +5,7 @@ import numpy as np
 
 # pylint: disable=invalid-name
 def layer_config(config, layer, layer_type='conv'):
-  """layerwise configuration
+  """layerwise configuration for a given layer-number and config
   """
   layer = layer_type + '_' + 'layer_' + str(layer)
   if layer_type == 'conv':
@@ -15,12 +15,15 @@ def layer_config(config, layer, layer_type='conv'):
 
 def get_config(config):
   """get configuration in a dict format
+
+  Args:
+      config: training configuration sampled from hyperband search space
+
+  Returns:
+      dict, layerwise configuration, proper formatting
   """
   current_config = dict()
   current_config.update({
-      'max_conv_layers': config['max_conv_layers'],
-      'n_conv_layers': config['n_conv_layers'],
-      'n_fc_layers': config['n_fc_layers'],
       'batch_norm': config['batch_norm'],
       'optname': config['optname']})
 
@@ -43,7 +46,13 @@ def get_config(config):
 
 
 def handle_integers(params):
-  """Handles integers in search space
+  """Handle floats which should be integers
+
+  Args:
+      params: dict, parameters from hyperband search space
+
+  Returns:
+      new_params: dict, parameters with corrected data types
   """
   new_params = {}
   for k, v in params.items():

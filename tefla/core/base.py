@@ -79,6 +79,14 @@ class Base(object):
     super(Base, self).__init__()
 
   def _early_stop(self, epoch_validation_loss):
+    """Check whether early stop or not
+
+    Args:
+        epoch_validation_loss: validation loss for the current epoch
+
+    Returns:
+        early_stop: Flag, whether early stop or not
+    """
     if epoch_validation_loss < self.best_loss:
       self.stopping_step = 0
       self.best_loss = epoch_validation_loss

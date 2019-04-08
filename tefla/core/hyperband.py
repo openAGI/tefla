@@ -15,14 +15,20 @@ from tefla.utils.hyperband_utils import get_config, handle_integers
 # pylint: disable=invalid-name
 class Hyperband(object):
   """Hyperband main logic
+  Args:
+      args: command line arguments regarding training
+      training_cnf: dict, training configs
+      tuning_cnf: dict, tuning configs
+      max_iter: maximum iterations per configuration
+      eta: defines configuration downsampling rate (default = 3)
+      s_max: number of unique executions of Successive Halving
+      B: total number of iterations (without reuse) per execution of Succesive Halving (n,r)
   """
   def __init__(self, try_params_function, args):
     self.args = args
     self.training_cnf = util.load_module(self.args['training_cnf']).cnf
     self.tuning_cnf = util.load_module(self.args['tuning_cnf']).space
-    # maximum iterations per configuration
     self.max_iter = self.tuning_cnf.get('hyperband', 81).get('max_iter')
-    # defines configuration downsampling rate (default = 3)
     self.eta = self.tuning_cnf.get('hyperband', 3).get('eta')
     self.logeta = lambda x: log(x) / log(self.eta)
     self.s_max = int(self.logeta(self.max_iter))
@@ -43,7 +49,7 @@ class Hyperband(object):
     """run configs
     """
     for s in reversed(range(self.s_max + 1)):
-      # initial number of configurations
+      # Begin Finite Horizon Hyperband outlerloop. Repeat indefinetely.
       n = int(ceil(self.B / self.max_iter / (s + 1) * self.eta ** s))
       # initial number of iterations per config
       r = self.max_iter * self.eta ** (-s)
@@ -59,6 +65,7 @@ class Hyperband(object):
         val_losses = []
         early_stops = []
         for t in T:
+          # Run each of the n_i configs for r_i iterations and keep best n_i/eta
           self.training_cnf.update(t)
           current_config = get_config(t)
           print('current configuration: \n', json.dumps(current_config, indent=4, sort_keys=True))
@@ -95,4 +102,5 @@ class Hyperband(object):
         indices = np.argsort(val_losses)
         T = [T[i] for i in indices if not early_stops[i]]
         T = T[0:int(n_configs / self.eta)]
+    # End Finite Horizon Successive Halving with (n,r)
     return self.results
