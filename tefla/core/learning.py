@@ -36,10 +36,15 @@ class SupervisedLearner(Base, BaseMixin):
       resume_lr: float, learning rate to use for new training
       classification: bool, classificattion or regression
       clip_norm: bool, to clip gradient using gradient norm, stabilizes the training
-      n_iters_per_epoch: int,  number of iteratiosn for each epoch;
+      n_iters_per_epoch: int,  number of iterations for each epoch;
           e.g: total_training_samples/batch_size
       gpu_memory_fraction: amount of gpu memory to use
       is_summary: bool, to write summary or not
+      is_early_stop: bool, to perform early stopping check or not
+      early_stop: bool, to stop training or not
+      stopping_step: int, counter in early stopping process
+      best_loss: float, best loss so far; regarding early stop
+      patience: int, cutoff value for stopping_step at which early stop triggers
   """
 
   def __init__(self, model, cnf, clip_by_global_norm=False, **kwargs):

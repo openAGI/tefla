@@ -5,7 +5,19 @@ import numpy as np
 
 # pylint: disable=invalid-name
 def layer_config(config, layer, layer_type='conv'):
-  """layerwise configuration for a given layer-number and config
+  """layerwise configuration for a given layer-number, type and config
+
+  Args:
+      config: training configuration sampled from hyperband search space
+      layer: layer number
+      layer_type: whether conv layer or fc layer
+
+  Returns:
+      1. activation name
+      2. hidden-units size in case of fc layer_type
+         output channel size in case of conv layer_type
+      3. whether or not maxpool if conv layer_type
+         dropout value in case fc layer_type
   """
   layer = layer_type + '_' + 'layer_' + str(layer)
   if layer_type == 'conv':
@@ -20,7 +32,7 @@ def get_config(config):
       config: training configuration sampled from hyperband search space
 
   Returns:
-      dict, layerwise configuration, proper formatting
+      dict, layerwise configuration with better readable format
   """
   current_config = dict()
   current_config.update({

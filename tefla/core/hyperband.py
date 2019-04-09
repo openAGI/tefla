@@ -23,6 +23,7 @@ class Hyperband(object):
       eta: defines configuration downsampling rate (default = 3)
       s_max: number of unique executions of Successive Halving
       B: total number of iterations (without reuse) per execution of Succesive Halving (n,r)
+      try_params_function: function for trying out configurations.
   """
   def __init__(self, try_params_function, args):
     self.args = args
@@ -45,8 +46,12 @@ class Hyperband(object):
     params = sample(self.tuning_cnf)
     return handle_integers(params)
 
-  def run(self, skip_last=0, dry_run=False):
-    """run configs
+  def run(self, skip_last=0):
+    """runs configs for just an iteration or two at first, to get a taste of how they perform.
+    Then it takes the best performers and runs them longer.
+
+    Returns:
+      dict, all the tested hyperparameters and their performances
     """
     for s in reversed(range(self.s_max + 1)):
       # Begin Finite Horizon Hyperband outlerloop. Repeat indefinetely.
@@ -70,15 +75,13 @@ class Hyperband(object):
           current_config = get_config(t)
           print('current configuration: \n', json.dumps(current_config, indent=4, sort_keys=True))
           self.training_cnf['num_epochs'] = int(n_iterations)
+          self.training_cnf['optname'] = current_config['optname']
           self.counter += 1
           print("\n{} | {} | lowest loss so far: {:.4f} (run {})\n".format(
               self.counter, ctime(), self.best_loss, self.best_counter))
           start_time = time()
-          if dry_run:
-            result = {'loss': random(), 'log_loss': random(), 'auc': random()}
-          else:
-            result = self.try_params(self.args, self.training_cnf)
-
+          # calling try_params function to run the current config
+          result = self.try_params(self.args, self.training_cnf)
           assert 'loss' in result
           seconds = int(round(time() - start_time))
           print("\n{} seconds.".format(
@@ -92,6 +95,7 @@ class Hyperband(object):
           if loss < self.best_loss:
             self.best_loss = loss
             self.best_counter = self.counter
+          # append all info to result dict.
           result['counter'] = self.counter
           result['seconds'] = seconds
           result['params'] = current_config

@@ -19,7 +19,7 @@ from tefla.core.hyperband import Hyperband
 @click.option('--data_dir', default=None, show_default=True, help='Path to training directory.')
 @click.option(
     '--results_dir',
-    default='./results.txt',
+    default='./results.pkl',
     show_default=True,
     help='Path to hyperband results directory.')
 @click.option('--parallel', default=True, show_default=True, help='parallel or queued.')
@@ -52,6 +52,7 @@ def main(model, training_cnf, tuning_cnf, data_dir, results_dir, parallel, start
          is_summary, loss_type, weighted, log_file_name, verbose):
   """main function to call hyperband
   """
+  # keeping the CL arguments in a dict for passing to multiple functions
   args = {
       'model': model,
       'training_cnf': training_cnf,
@@ -79,7 +80,7 @@ def main(model, training_cnf, tuning_cnf, data_dir, results_dir, parallel, start
 
 
 def try_config(args, cnf):
-  """For trying out configurations on the custom model.
+  """For trying out configurations.
 
   Args:
       args: command line arguments regarding training

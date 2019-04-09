@@ -85,7 +85,7 @@ class Base(object):
         epoch_validation_loss: validation loss for the current epoch
 
     Returns:
-        early_stop: Flag, whether early stop or not
+        early_stop: bool, to stop training or not
     """
     if epoch_validation_loss < self.best_loss:
       self.stopping_step = 0
