@@ -1,6 +1,5 @@
 '''hyperband
 '''
-from random import random
 from math import log, ceil
 from time import time, ctime
 import json
