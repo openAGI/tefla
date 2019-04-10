@@ -5,8 +5,8 @@ from time import time, ctime
 import json
 import numpy as np
 from hyperopt.pyll.stochastic import sample
-from tefla.utils import util
-from tefla.utils.hyperband_utils import get_config, handle_integers
+from ..utils import util
+from ..utils.hyperband_utils import get_config, handle_integers
 
 
 # pylint: disable=too-many-instance-attributes
