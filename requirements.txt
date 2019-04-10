@@ -20,4 +20,5 @@ pydensecrf==1.0rc3
 tensorflow-gpu==1.10.0
 bokeh
 PrettyTable
+hyperopt==0.1.2
 
