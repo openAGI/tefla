@@ -41,6 +41,24 @@ class ScalingStandardizer(NoDAMixin):
   def __call__(self, img, is_training):
     return img * self.scale
 
+class IRV2Standardizer(NoDAMixin):
+  """Samplewise Standardizer for inception resnet v2.
+  """
+
+  def __call__(self, img, **kwargs):
+    """ apply standardization to input image.
+
+    Args:
+      img: a `np.ndarray`, input image.
+
+    Returns:
+      a `np.ndarray`, output standardized image.
+    """
+    img = img / 255.0
+    img = np.subtract(img, 0.5)
+    img = np.multiply(img, 2.0)
+    return img
+
 
 class SamplewiseStandardizer(NoDAMixin):
   """Samplewise Standardizer.
