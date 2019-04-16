@@ -45,7 +45,7 @@ class IRV2Standardizer(NoDAMixin):
   """Samplewise Standardizer for inception resnet v2.
   """
 
-  def __call__(self, img, **kwargs):
+  def __call__(self, img, is_training=True):
     """ apply standardization to input image.
 
     Args:
