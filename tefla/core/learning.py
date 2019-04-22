@@ -36,10 +36,15 @@ class SupervisedLearner(Base, BaseMixin):
       resume_lr: float, learning rate to use for new training
       classification: bool, classificattion or regression
       clip_norm: bool, to clip gradient using gradient norm, stabilizes the training
-      n_iters_per_epoch: int,  number of iteratiosn for each epoch;
+      n_iters_per_epoch: int,  number of iterations for each epoch;
           e.g: total_training_samples/batch_size
       gpu_memory_fraction: amount of gpu memory to use
       is_summary: bool, to write summary or not
+      is_early_stop: bool, to perform early stopping check or not
+      early_stop: bool, to stop training or not
+      stopping_step: int, counter in early stopping process
+      best_loss: float, best loss so far; regarding early stop
+      patience: int, cutoff value for stopping_step at which early stop triggers
   """
 
   def __init__(self, model, cnf, clip_by_global_norm=False, **kwargs):
@@ -71,7 +76,7 @@ class SupervisedLearner(Base, BaseMixin):
         self._setup_summaries(**kwargs)
       self._setup_misc()
       self._print_info(data_set)
-      self._train_loop(data_set, weights_from, weights_dir, start_epoch, summary_every)
+      return self._train_loop(data_set, weights_from, weights_dir, start_epoch, summary_every)
 
   def _setup_misc(self):
     self.num_epochs = self.cnf.get('num_epochs', 500)
@@ -262,9 +267,15 @@ class SupervisedLearner(Base, BaseMixin):
         log.debug('10. Epoch done. [%d]' % epoch)
         learning_rate_value = self.lr_policy.epoch_update(learning_rate_value, training_history)
         log.info("Learning rate: %f " % learning_rate_value)
-      if self.is_summary:
-        train_writer.close()
-        validation_writer.close()
+        log.info("epoch_validation_loss rate: %f " % epoch_validation_loss)
+        if self.is_summary:
+          train_writer.close()
+          validation_writer.close()
+        if self.is_early_stop:
+          self.early_stop = self._early_stop(epoch_validation_loss)
+          if self.early_stop:
+            break
+    return self.early_stop, epoch_validation_loss
 
   def _process_towers_grads(self, opt, model, is_training=True, reuse=None, is_classification=True):
     tower_grads = []
@@ -362,6 +373,10 @@ class SupervisedLearner(Base, BaseMixin):
     self.inputs = tf.placeholder(
         tf.float32, shape=(self.cnf['batch_size_train'],) + self.cnf['input_size'], name="input")
     if self.loss_type == 'kappa_log':
+      self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
+      self.validation_labels = tf.placeholder(
+          tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
+    if self.loss_type == 'multiclass_multilabel':
       self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
       self.validation_labels = tf.placeholder(
           tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
