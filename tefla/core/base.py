@@ -878,6 +878,35 @@ class BaseMixin(object):
           predictions, labels, batch_size=self.cnf['batch_size_test'], num_classes=self.num_classes)
       return kappa_loss
 
+  def _multiclass_multilabel(self, logits, labels, is_training, weighted=False):
+    num_subclasses = self.cnf['num_subclasses']
+    labels = tf.cast(labels, tf.int32)
+    labels = tf.one_hot(labels, depth=num_subclasses, axis=1)
+    labels = tf.reshape(labels, [labels.get_shape()[0], num_subclasses, self.num_classes])
+    logits = tf.reshape(logits, [labels.get_shape()[0], num_subclasses, self.num_classes])
+    labels = tf.transpose(labels, [2, 0, 1])
+    logits = tf.transpose(logits, [2, 0, 1])
+    labels = tf.cast(labels, tf.int32)
+    ce_loss_list = []
+    for i in range(self.num_classes):
+      ce_loss_list.append(tf.losses.softmax_cross_entropy(
+                                                          onehot_labels = labels[i],
+                                                          logits=logits[i],
+                                                          label_smoothing=self.label_smoothing,
+                                                          scope='multiclass_multilabel_scope'))
+    ce_loss = tf.divide(tf.reduce_sum(ce_loss_list, axis=0, keep_dims=True), self.num_classes)
+    ce_loss_mean = tf.reduce_mean(ce_loss, name='multiclass_multilabel')
+    if is_training:
+      tf.add_to_collection('losses', ce_loss_mean)
+      l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
+      if len(l2_loss) > 0:
+        l2_loss = tf.add_n(l2_loss)
+        l2_loss = l2_loss * self.cnf.get('l2_reg', 0.0)
+        tf.add_to_collection('losses', l2_loss)
+      return tf.add_n(tf.get_collection('losses'), name='total_loss')
+    else:
+      return ce_loss_mean
+
   def _tower_loss(self,
                   scope,
                   model,
@@ -892,8 +921,12 @@ class BaseMixin(object):
                   gpu_id=0):
     print(loss_type)
     if is_training:
+      if loss_type == 'multiclass_multilabel':
+        _num_classes = self.num_classes * self.cnf['num_subclasses']
+      else:
+        _num_classes = self.num_classes
       self.training_end_points = model(
-          images, is_training=is_training, reuse=reuse, num_classes=self.num_classes, **self.cnf)
+          images, is_training=is_training, reuse=reuse, num_classes=_num_classes, **self.cnf)
       if is_classification:
         if loss_type == 'kappa_log':
           loss_temp = self._loss_kappa(
@@ -913,6 +946,9 @@ class BaseMixin(object):
         elif loss_type == 'sparse_xentropy':
           loss_temp = self._sparse_loss_softmax(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
+        elif loss_type == 'multiclass_multilabel':
+          loss_temp = self._multiclass_multilabel(
+              self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
         else:
           loss_temp = self._loss_softmax(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
@@ -923,8 +959,12 @@ class BaseMixin(object):
       if gpu_id == 0:
         self._print_layer_shapes(self.training_end_points, log)
     else:
+      if loss_type == 'multiclass_multilabel':
+        _num_classes = self.num_classes * self.cnf['num_subclasses']
+      else:
+        _num_classes = self.num_classes
       self.validation_end_points = model(
-          images, is_training=is_training, reuse=reuse, num_classes=self.num_classes, **self.cnf)
+          images, is_training=is_training, reuse=reuse, num_classes=_num_classes, **self.cnf)
       if is_classification:
         if loss_type == 'kappa_log':
           loss = self._loss_kappa(self.validation_end_points['predictions'], labels, is_training)
@@ -935,6 +975,9 @@ class BaseMixin(object):
         elif loss_type == 'binary_focal_loss':
           loss = self._loss_binary_focal(
               self.validation_end_points['logits'], labels, is_training, gamma=gamma)
+        elif loss_type == 'multiclass_multilabel':
+          loss = self._multiclass_multilabel(
+              self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
         else:
           loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
       else:

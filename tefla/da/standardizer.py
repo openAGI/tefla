@@ -41,6 +41,7 @@ class ScalingStandardizer(NoDAMixin):
   def __call__(self, img, is_training):
     return img * self.scale
 
+
 class IRV2Standardizer(NoDAMixin):
   """Samplewise Standardizer for inception resnet v2.
   """

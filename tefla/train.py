@@ -87,7 +87,7 @@ def main(model, training_cnf, data_dir, parallel, start_epoch, weights_from, wei
       loss_type=loss_type,
       weighted=weighted,
       log_file_name=log_file_name)
-  learner.fit(
+  _, _ = learner.fit(
       data_set, weights_from, start_epoch=start_epoch, weights_dir=weights_dir, summary_every=399)
 
 

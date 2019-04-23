@@ -376,6 +376,10 @@ class SupervisedLearner(Base, BaseMixin):
       self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
       self.validation_labels = tf.placeholder(
           tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
+    if self.loss_type == 'multiclass_multilabel':
+      self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
+      self.validation_labels = tf.placeholder(
+          tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
     elif self.loss_type in ('sigmoid_loss', 'binary_focal_loss'):
       self.labels = tf.placeholder(
           tf.float32, shape=(self.cnf['batch_size_train'], self.num_classes))
