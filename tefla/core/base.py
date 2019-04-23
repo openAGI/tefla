@@ -878,7 +878,7 @@ class BaseMixin(object):
           predictions, labels, batch_size=self.cnf['batch_size_test'], num_classes=self.num_classes)
       return kappa_loss
 
-  def _multiclass_multilabel(self, logits, labels, is_training, weighted=False):
+  def _multiclass_multilabel_loss(self, logits, labels, is_training, weighted=False):
     num_subclasses = self.cnf['num_subclasses']
     labels = tf.cast(labels, tf.int32)
     labels = tf.one_hot(labels, depth=num_subclasses, axis=1)
@@ -947,7 +947,7 @@ class BaseMixin(object):
           loss_temp = self._sparse_loss_softmax(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
         elif loss_type == 'multiclass_multilabel':
-          loss_temp = self._multiclass_multilabel(
+          loss_temp = self._multiclass_multilabel_loss(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
         else:
           loss_temp = self._loss_softmax(
@@ -976,7 +976,7 @@ class BaseMixin(object):
           loss = self._loss_binary_focal(
               self.validation_end_points['logits'], labels, is_training, gamma=gamma)
         elif loss_type == 'multiclass_multilabel':
-          loss = self._multiclass_multilabel(
+          loss = self._multiclass_multilabel_loss(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
         else:
           loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
