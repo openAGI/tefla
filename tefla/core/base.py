@@ -890,7 +890,7 @@ class BaseMixin(object):
     ce_loss_list = []
     for i in range(self.num_classes):
       ce_loss_list.append(tf.losses.softmax_cross_entropy(
-                                                          onehot_labels = labels[i],
+                                                          onehot_labels=labels[i],
                                                           logits=logits[i],
                                                           label_smoothing=self.label_smoothing,
                                                           scope='multiclass_multilabel_scope'))
@@ -977,7 +977,7 @@ class BaseMixin(object):
               self.validation_end_points['logits'], labels, is_training, gamma=gamma)
         elif loss_type == 'multiclass_multilabel':
           loss = self._multiclass_multilabel_loss(
-              self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
+              self.validation_end_points['logits'], labels, is_training, weighted=self.weighted)
         else:
           loss = self._loss_softmax(self.validation_end_points['logits'], labels, is_training)
       else:

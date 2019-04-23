@@ -103,7 +103,7 @@ class SupervisedLearner(Base, BaseMixin):
         config=tf.ConfigProto(
             gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=False)) as sess:
       if start_epoch > 1:
-        weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
+        weights_from = os.path.join(weights_dir, "/model-epoch-%d.ckpt" % (start_epoch - 1))
 
       sess.run([tf.global_variables_initializer(), tf.local_variables_initializer()])
       if weights_from:
