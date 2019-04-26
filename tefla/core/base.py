@@ -890,7 +890,8 @@ class BaseMixin(object):
                                                           logits=logits[:, :, i],
                                                           label_smoothing=self.label_smoothing,
                                                           scope='multiclass_multilabel_scope'))
-    ce_loss_mean = tf.reduce_mean(ce_loss, name='multiclass_multilabel')
+    ce_loss_stack = tf.stack(ce_loss_list, axis=-1, name='ce_loss_stack')
+    ce_loss_mean = tf.reduce_mean(ce_loss_stack, name='multiclass_multilabel')
     if is_training:
       tf.add_to_collection('losses', ce_loss_mean)
       l2_loss = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
