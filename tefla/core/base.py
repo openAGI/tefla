@@ -882,19 +882,14 @@ class BaseMixin(object):
     num_subclasses = self.cnf['num_subclasses']
     labels = tf.cast(labels, tf.int32)
     labels = tf.one_hot(labels, depth=num_subclasses, axis=1)
-    labels = tf.reshape(labels, [labels.get_shape()[0], num_subclasses, self.num_classes])
     logits = tf.reshape(logits, [labels.get_shape()[0], num_subclasses, self.num_classes])
-    labels = tf.transpose(labels, [2, 0, 1])
-    logits = tf.transpose(logits, [2, 0, 1])
-    labels = tf.cast(labels, tf.int32)
     ce_loss_list = []
     for i in range(self.num_classes):
       ce_loss_list.append(tf.losses.softmax_cross_entropy(
-                                                          onehot_labels=labels[i],
-                                                          logits=logits[i],
+                                                          onehot_labels=labels[:, :, i],
+                                                          logits=logits[:, :, i],
                                                           label_smoothing=self.label_smoothing,
                                                           scope='multiclass_multilabel_scope'))
-    ce_loss = tf.divide(tf.reduce_sum(ce_loss_list, axis=0, keep_dims=True), self.num_classes)
     ce_loss_mean = tf.reduce_mean(ce_loss, name='multiclass_multilabel')
     if is_training:
       tf.add_to_collection('losses', ce_loss_mean)
@@ -920,11 +915,11 @@ class BaseMixin(object):
                   is_classification=True,
                   gpu_id=0):
     print(loss_type)
+    if loss_type == 'multiclass_multilabel':
+      _num_classes = self.num_classes * self.cnf['num_subclasses']
+    else:
+      _num_classes = self.num_classes
     if is_training:
-      if loss_type == 'multiclass_multilabel':
-        _num_classes = self.num_classes * self.cnf['num_subclasses']
-      else:
-        _num_classes = self.num_classes
       self.training_end_points = model(
           images, is_training=is_training, reuse=reuse, num_classes=_num_classes, **self.cnf)
       if is_classification:
@@ -959,10 +954,6 @@ class BaseMixin(object):
       if gpu_id == 0:
         self._print_layer_shapes(self.training_end_points, log)
     else:
-      if loss_type == 'multiclass_multilabel':
-        _num_classes = self.num_classes * self.cnf['num_subclasses']
-      else:
-        _num_classes = self.num_classes
       self.validation_end_points = model(
           images, is_training=is_training, reuse=reuse, num_classes=_num_classes, **self.cnf)
       if is_classification:
