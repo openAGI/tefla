@@ -650,8 +650,12 @@ class Base(object):
         metrics_update_ops['Avg-' + metric_name].append(update_ops)
       elif metric_name in ('accuracy',
                            'auc', 'f1score') and self.loss_type == 'multiclass_multilabel':
+        # labels: from labels csv; shape=(batch_size, num_classes),
         labels = tf.one_hot(labels, depth=self.cnf.get('num_subclasses',), axis=1)
+        # labels: after on_hot encode; shape=(batch_size, num_subclasses, num_classes)
         labels = labels[:, 1, :]
+        # labels: sliced off positive sub classes; shape=(batch_size, num_classes)
+        # predictions: endpoint from model module; shape=(batch_size, num_classes)
         for i in range(self.num_classes):
           metric_score, update_ops = metric_function(
               labels[:, i], predictions[:, i], name=metric_name + str(i))
@@ -890,10 +894,13 @@ class BaseMixin(object):
       return kappa_loss
 
   def _multiclass_multilabel_loss(self, logits, labels, is_training, weighted=False):
-    num_subclasses = self.cnf['num_subclasses']
+    # labels: from label_csv; shape=(batch_size, num_classes)
+    # logits: from model def; shape=(batch_size, num_subclasses*num_classes) 
     labels = tf.cast(labels, tf.int32)
-    labels = tf.one_hot(labels, depth=num_subclasses, axis=1)
-    logits = tf.reshape(logits, [labels.get_shape()[0], num_subclasses, self.num_classes])
+    labels = tf.one_hot(labels, depth=self.cnf['num_subclasses'], axis=1)
+    logits = tf.reshape(logits, [labels.get_shape()[0], self.cnf['num_subclasses'], self.num_classes])
+    # labels: after one_hot; shape=(batch_size, num_subclasses, num_classes)
+    # logits: after reshape; shape=(batch_size, num_subclasses, num_classes)
     ce_loss_list = []
     for i in range(self.num_classes):
       ce_loss_list.append(tf.losses.softmax_cross_entropy(
