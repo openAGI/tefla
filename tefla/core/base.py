@@ -648,7 +648,18 @@ class Base(object):
         metric_score, update_ops = metric_function(labels, predictions, name='Avg-' + metric_name)
         metrics_scores['Avg-' + metric_name].append(metric_score)
         metrics_update_ops['Avg-' + metric_name].append(update_ops)
-
+      elif metric_name in ('accuracy',
+                           'auc', 'f1score') and self.loss_type == 'multiclass_multilabel':
+        labels = tf.one_hot(labels, depth=self.cnf.get('num_subclasses',), axis=1)
+        labels = labels[:, 1, :]
+        for i in range(self.num_classes):
+          metric_score, update_ops = metric_function(
+              labels[:, i], predictions[:, i], name=metric_name + str(i))
+          metrics_scores[metric_name + str(i)].append(metric_score)
+          metrics_update_ops[metric_name + str(i)].append(update_ops)
+        metric_score, update_ops = metric_function(labels, predictions, name='Avg-' + metric_name)
+        metrics_scores['Avg-' + metric_name].append(metric_score)
+        metrics_update_ops['Avg-' + metric_name].append(update_ops)
       else:
         metric_score, update_ops = metric_function(labels, tf.round(predictions), name=metric_name)
         metrics_scores[metric_name].append(metric_score)
