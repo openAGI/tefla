@@ -895,10 +895,11 @@ class BaseMixin(object):
 
   def _multiclass_multilabel_loss(self, logits, labels, is_training, weighted=False):
     # labels: from label_csv; shape=(batch_size, num_classes)
-    # logits: from model def; shape=(batch_size, num_subclasses*num_classes) 
+    # logits: from model def; shape=(batch_size, num_subclasses*num_classes)
     labels = tf.cast(labels, tf.int32)
     labels = tf.one_hot(labels, depth=self.cnf['num_subclasses'], axis=1)
-    logits = tf.reshape(logits, [labels.get_shape()[0], self.cnf['num_subclasses'], self.num_classes])
+    logits = tf.reshape(logits,
+                        [labels.get_shape()[0], self.cnf['num_subclasses'], self.num_classes])
     # labels: after one_hot; shape=(batch_size, num_subclasses, num_classes)
     # logits: after reshape; shape=(batch_size, num_subclasses, num_classes)
     ce_loss_list = []
