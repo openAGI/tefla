@@ -103,7 +103,7 @@ class SupervisedLearner(Base, BaseMixin):
         config=tf.ConfigProto(
             gpu_options=gpu_options, allow_soft_placement=True, log_device_placement=False)) as sess:
       if start_epoch > 1:
-        weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
+        weights_from = weights_dir + "/model-epoch-%d.ckpt" % (start_epoch - 1)
 
       sess.run([tf.global_variables_initializer(), tf.local_variables_initializer()])
       if weights_from:
@@ -373,6 +373,10 @@ class SupervisedLearner(Base, BaseMixin):
     self.inputs = tf.placeholder(
         tf.float32, shape=(self.cnf['batch_size_train'],) + self.cnf['input_size'], name="input")
     if self.loss_type == 'kappa_log':
+      self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
+      self.validation_labels = tf.placeholder(
+          tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
+    if self.loss_type == 'multiclass_multilabel':
       self.labels = tf.placeholder(tf.int64, shape=(self.cnf['batch_size_train'], self.num_classes))
       self.validation_labels = tf.placeholder(
           tf.int64, shape=(self.cnf['batch_size_test'], self.num_classes))
