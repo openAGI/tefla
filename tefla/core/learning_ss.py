@@ -327,7 +327,6 @@ class SemiSupervisedTrainer(Base):
         tc = tf.maximum(.01, 1. / num_error_rate)
       update = tf.assign(avg_error_rate, (1. - tc) * avg_error_rate + tc * self.error_rate)
       with tf.control_dependencies([update]):
-        # d_loss_class = tf.Print(d_loss_class, [avg_error_rate], "running top-1 error rate")
         self.d_loss_class = tf.identity(self.d_loss_class)
     self.d_loss_fake = tf.nn.sigmoid_cross_entropy_with_logits(
         logits=self.end_points_D['D_on_G_logits'],
@@ -421,7 +420,6 @@ class SemiSupervisedTrainer(Base):
     self._tower_loss_semi_supervised(
         self.inputs, self.labels, num_classes=num_classes, is_fm_loss=True)
 
-    # global_update_ops = set(tf.get_collection(tf.GraphKeys.UPDATE_OPS))
     global_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     if update_ops is None:
       update_ops = global_update_ops

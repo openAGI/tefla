@@ -421,10 +421,8 @@ def segment_loss(logits, labels, num_classes, head=None):
     loss: Loss tensor of type float.
   """
   with tf.name_scope('segment_loss'):
-    # logits = tf.reshape(logits, (-1, num_classes))
     epsilon = tf.constant(value=1e-7)
     labels = tf.to_float(labels)
-    # labels = tf.to_float(tf.reshape(labels, (-1, num_classes)))
 
     softmax = tf.nn.softmax(logits) + epsilon
 
@@ -530,7 +528,7 @@ def correlation_loss(source_samples, target_samples, weight, name='corr_loss'):
   assert_op = tf.Assert(tf.is_finite(corr_loss), [corr_loss])
   with tf.control_dependencies([assert_op]):
     tag = 'Correlation Loss'
-    barrier = tf.no_op(tag)
+    _ = tf.no_op(tag)
 
   return corr_loss
 
@@ -597,7 +595,7 @@ def mmd_loss(source_samples, target_samples, weight, name='mmd_loss'):
   assert_op = tf.Assert(tf.is_finite(loss_value), [loss_value])
   with tf.control_dependencies([assert_op]):
     tag = 'MMD_Loss'
-    barrier = tf.no_op(tag)
+    _ = tf.no_op(tag)
   return loss_value
 
 
@@ -631,12 +629,10 @@ def dann_loss(source_samples, target_samples, weight, name='dann_loss'):
 
   domain_loss = tf.losses.log_loss(domain_selection_mask, domain_predictions, weights=weight)
 
-  domain_accuracy = util.accuracy_tf(domain_selection_mask, tf.round(domain_predictions))
-
   assert_op = tf.Assert(tf.is_finite(domain_loss), [domain_loss])
   with tf.control_dependencies([assert_op]):
     tag_loss = 'losses/domain_loss'
-    barrier = tf.no_op(tag_loss)
+    _ = tf.no_op(tag_loss)
 
   return domain_loss
 
@@ -664,7 +660,7 @@ def difference_loss(private_samples, shared_samples, weight=1.0, name='differenc
 
   assert_op = tf.Assert(tf.is_finite(cost), [cost])
   with tf.control_dependencies([assert_op]):
-    barrier = tf.no_op(name)
+    _ = tf.no_op(name)
   return cost
 
 
@@ -983,7 +979,6 @@ def cross_entropy_sequence_loss(logits, targets, sequence_length):
 
 def dice_loss(predictions, targets, weights=1., name='dice_loss'):
   with tf.name_scope(name):
-    # predictions = tf.to_float(predictions)
     targets = tf.to_float(targets)
     intersection = 2 * tf.reduce_sum(predictions * targets) + weights
     union = weights + tf.reduce_sum(predictions) + tf.reduce_sum(targets)

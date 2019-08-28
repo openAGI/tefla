@@ -3,8 +3,6 @@
 # Contact: mrinal.haloi11@gmail.com
 # Copyright 2017, Mrinal Haloi
 # -------------------------------------------------------------------#
-from __future__ import division, print_function, absolute_import
-
 import pprint
 import numpy as np
 import os
@@ -123,10 +121,9 @@ class Base(object):
             'training (cross entropy) loss',
             self.epoch_loss_g,
             collections=[TRAINING_EPOCH_SUMMARIES])
-      if input_summary:
-        if len(self.inputs.get_shape()) == 4:
-          summary.summary_image(
-              self.inputs, 'inputs', max_images=10, collections=[TRAINING_BATCH_SUMMARIES])
+      if input_summary and len(self.inputs.get_shape()) == 4:
+        summary.summary_image(
+            self.inputs, 'inputs', max_images=10, collections=[TRAINING_BATCH_SUMMARIES])
       if activation_summary:
         for key, val in self.training_end_points.items():
           summary.summary_activation(val, name=key, collections=[TRAINING_BATCH_SUMMARIES])
@@ -487,7 +484,6 @@ class Base(object):
         gradient_shape = gradient.get_shape()
       noise = tf.truncated_normal(gradient_shape) * gradient_noise_scale
       noisy_gradients.append(gradient + noise)
-    # return list(zip(noisy_gradients, variables))
     return noisy_gradients
 
   def _adaptive_max_norm(self, norm, std_factor, decay, global_step, epsilon, name):
@@ -555,9 +551,6 @@ class Base(object):
     self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     if self.update_ops is not None and len(self.update_ops) == 0:
       self.update_ops = None
-      # if update_ops is not None:
-      #     regularized_training_loss = control_flow_ops.with_dependencies(update_ops,
-      # regularized_training_loss)
 
   def _print_info(self, data_set=None):
     log.info('Config:')
@@ -944,31 +937,31 @@ class BaseMixin(object):
           images, is_training=is_training, reuse=reuse, num_classes=_num_classes, **self.cnf)
       if is_classification:
         if loss_type == 'kappa_log':
-          loss_temp = self._loss_kappa(
+          _ = self._loss_kappa(
               self.training_end_points['predictions'], labels, is_training, y_pow=y_pow)
         elif loss_type == 'dice_loss':
-          loss_temp = self._loss_dice(self.training_end_points['predictions'], labels, is_training)
+          _ = self._loss_dice(self.training_end_points['predictions'], labels, is_training)
         elif loss_type == 'binary_focal_loss':
-          loss_temp = self._loss_binary_focal(
+          _ = self._loss_binary_focal(
               self.training_end_points['logits'], labels, is_training, gamma=gamma)
         elif loss_type == 'sigmoid_loss':
-          loss_temp = self._loss_sigmoid(
+          _ = self._loss_sigmoid(
               self.training_end_points['logits'],
               labels,
               is_training,
               self.cnf.get('batch_size_train'),
               weighted=self.weighted)
         elif loss_type == 'sparse_xentropy':
-          loss_temp = self._sparse_loss_softmax(
+          _ = self._sparse_loss_softmax(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
         elif loss_type == 'multiclass_multilabel':
-          loss_temp = self._multiclass_multilabel_loss(
+          _ = self._multiclass_multilabel_loss(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
         else:
-          loss_temp = self._loss_softmax(
+          _ = self._loss_softmax(
               self.training_end_points['logits'], labels, is_training, weighted=self.weighted)
       else:
-        loss_temp = self._loss_regression(self.training_end_points['logits'], labels, is_training)
+        _ = self._loss_regression(self.training_end_points['logits'], labels, is_training)
       losses = tf.get_collection('losses', scope)
       total_loss = tf.add_n(losses, name='total_loss')
       if gpu_id == 0:

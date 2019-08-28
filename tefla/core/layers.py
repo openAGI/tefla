@@ -2636,8 +2636,6 @@ def gumbel_softmax(logits, temperature, hard=False):
   """
   y = gumbel_softmax_sample(logits, temperature)
   if hard:
-    k = tf.shape(logits)[-1]
-    # y_hard = tf.cast(tf.one_hot(tf.argmax(y,1),k), y.dtype)
     y_hard = tf.cast(tf.equal(y, tf.reduce_max(y, 1, keep_dims=True)), y.dtype)
     y = tf.stop_gradient(y_hard - y) + y
   return y
@@ -2847,8 +2845,6 @@ def stack(inputs, layer, stack_args, is_training, reuse, outputs_collections=Non
     for i in range(len(stack_args)):
       kwargs['name'] = name + '_' + str(i + 1)
       layer_args = stack_args[i]
-      # if not isinstance(layer_args, (list, tuple)):
-      #    layer_args = [layer_args]
       outputs = layer(outputs, layer_args, is_training, reuse, **kwargs)
     return _collect_named_outputs(outputs_collections, name, outputs)
 

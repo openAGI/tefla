@@ -102,8 +102,6 @@ def get_convert_fname(fname, fname_label, extension, directory, convert_director
     convert_directory += "/"
 
   extension0 = fname.split("/")[-1].split(".")[-1]
-  # print("file: %s, old ext: %s, new ext: %s, old dir: %s, new dir: %s" % (
-  #     fname, extension0, extension, directory, convert_directory))
   fname2 = replace_last(fname, extension0, extension)
   fname_img = replace_first(fname2, directory, convert_directory)
   fname_label = replace_first(fname_label, directory, convert_directory)
@@ -149,17 +147,8 @@ def main(directory, convert_directory, test, crop_size, extension):
     os.mkdir(convert_directory)
   except OSError:
     pass
-
-  supported_extensions = set(['jpg', 'png', 'tiff', 'jpeg', 'tif'])
-
-  # filenames = [os.path.join(dp, f) for dp, dn, fn in os.walk(directory)
-  # for f in fn if f.split('.')[-1].lower() in supported_extensions]
   filenames = [each for each in os.listdir(directory) if each.endswith('.jpg')]
   filenames = [os.path.join(directory, filename.strip('\n')) for filename in filenames]
-  # with open('/home/artelus_server/data/segment_artelus/train.txt', 'r') as f:
-  #    filenames = f.readlines()
-  # filenames = [os.path.join(directory, filename.strip(
-  #    '\n') + '.jpg') for filename in filenames]
   filenames = sorted(filenames)
 
   if test:

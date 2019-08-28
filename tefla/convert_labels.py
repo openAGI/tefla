@@ -4,8 +4,6 @@
 # Contact: mrinalhaloi11@gmail.com
 # Copyright 2017, Mrinal Haloi
 # -------------------------------------------------------------------#
-from __future__ import division, print_function
-
 import os
 from multiprocessing import cpu_count
 from multiprocessing.pool import Pool
@@ -95,17 +93,12 @@ def convert_labels(label_image, image_height, image_width):
       key = (arr_3d[i, j, 0], arr_3d[i, j, 1], arr_3d[i, j, 2])
       arr_2d[i, j] = palette.get(key, 0)
   print(sum(sum(arr_2d)))
-  # import matplotlib.pyplot as plt
-  # plt.imshow(arr_2d)
-  # plt.show()
   return arr_2d
 
 
 def convert_seg_labels(label_file, image_height, image_width):
   image = scipy.misc.imread(label_file, mode='RGB')
   print(label_file)
-  # arr_3d = scipy.misc.imresize(image, size=(
-  #    image_height, image_width), interp='cubic')
   arr_3d = image
   arr_2d = np.zeros((arr_3d.shape[0], arr_3d.shape[1]), dtype=np.uint8)
   palette = pascal_palette()
@@ -115,9 +108,6 @@ def convert_seg_labels(label_file, image_height, image_width):
       key = (arr_3d[i, j, 0], arr_3d[i, j, 1], arr_3d[i, j, 2])
       arr_2d[i, j] = palette.get(key, 0)
   print(sum(sum(arr_2d)))
-  # import matplotlib.pyplot as plt
-  # plt.imshow(arr_2d)
-  # plt.show()
   return arr_2d
 
 
@@ -147,8 +137,6 @@ def get_convert_fname(fname, extension, directory, convert_directory):
     convert_directory += "/"
 
   extension0 = fname.split("/")[-1].split(".")[-1]
-  # print("file: %s, old ext: %s, new ext: %s, old dir: %s, new dir: %s" % (
-  #     fname, extension0, extension, directory, convert_directory))
   fname2 = replace_last(fname, extension0, extension)
   return replace_first(fname2, directory, convert_directory)
 

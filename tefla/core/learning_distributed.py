@@ -183,9 +183,6 @@ class DistSupervisedLearner(Base):
     self.update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     if self.update_ops is not None and len(self.update_ops) == 0:
       self.update_ops = None
-      # if update_ops is not None:
-      #     self.regularized_training_loss = tf.with_dependencies(update_ops,
-      # self.regularized_training_loss)
 
   def train(self,
             task_id,
@@ -205,8 +202,6 @@ class DistSupervisedLearner(Base):
     num_parameter_servers = len(cluster_spec.as_dict()['ps'])
     if num_replicas_to_aggregate == -1:
       num_replicas_to_aggregate = num_workers
-    else:
-      num_replicas_to_aggregate = num_replicas_to_aggregate
 
     assert num_workers > 0 and num_parameter_servers > 0, (
         ' num_workers and num_parameter_servers must be > 0.')
@@ -316,9 +311,8 @@ class DistSupervisedLearner(Base):
       coord = tf.train.Coordinator()
       with sv.managed_session(server.target, config=sess_config) as sess:
         log.info('Starting Session.')
-        if is_chief:
-          if logdir:
-            sv.start_standard_services(sess)
+        if is_chief and logdir:
+          sv.start_standard_services(sess)
         log.info('Starting Queues.')
         if is_chief:
           sv.start_queue_runners(sess, chief_queue_runners)
@@ -328,7 +322,6 @@ class DistSupervisedLearner(Base):
           if weights_from:
             self._load_weights(sess, saver, weights_from)
 
-        # threads = sv.start_queue_runners(sess)
         tf.train.start_queue_runners(sess, coord=coord)
         try:
           while not sv.should_stop():
@@ -357,8 +350,6 @@ class DistSupervisedLearner(Base):
 
               if is_chief and next_summary_time < time.time():
                 log.info('Running Summary operation on the chief.')
-                # summary_str = sess.run(summary_op)
-                # sv.summary_computed(sess, summary_str)
                 log.info('Finished running Summary operation.')
 
                 # Determine the next time for running the
@@ -463,13 +454,11 @@ class DistSupervisedLearner(Base):
     if is_training:
       self.training_end_points = model(images, is_training=is_training, reuse=reuse)
       if is_classification:
-        loss_temp = self._loss_softmax(self.training_end_points['logits'], labels, is_training)
+        _ = self._loss_softmax(self.training_end_points['logits'], labels, is_training)
       else:
-        loss_temp = self._loss_regression(self.training_end_points['logits'], labels, is_training)
+        _ = self._loss_regression(self.training_end_points['logits'], labels, is_training)
       losses = tf.get_collection('losses', scope)
       total_loss = tf.add_n(losses, name='total_loss')
-      for l in losses + [total_loss]:
-        loss_name = re.sub('%s_[0-9]*/' % self.cnf['TOWER_NAME'], '', l.op.name)
       return losses, total_loss
     else:
       self.validation_end_points = model(images, is_training=is_training, reuse=reuse)

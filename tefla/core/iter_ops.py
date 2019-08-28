@@ -59,7 +59,6 @@ def create_training_iters(cnf,
         standardizer=standardizer,
         cutout=cutout,
         fill_mode='constant'
-        # save_to_dir=da_training_preview_dir
     )
   else:
     training_iterator = training_iterator_maker(
@@ -72,7 +71,6 @@ def create_training_iters(cnf,
         standardizer=standardizer,
         cutout=cutout,
         fill_mode='constant'
-        # save_to_dir=da_training_preview_dir
     )
 
   validation_iterator = validation_iterator_maker(
