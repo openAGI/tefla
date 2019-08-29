@@ -3,10 +3,7 @@
 # Contact: mrinal.haloi11@gmail.com
 # Copyright 2017, Mrinal Haloi
 # -------------------------------------------------------------------#
-from __future__ import division, print_function, absolute_import
-
 import os
-import re
 import time
 from datetime import datetime
 
@@ -105,27 +102,25 @@ class DistSupervisedLearner(Base):
     """
     if self.is_summary:
       self._setup_summaries()
-    dataflow_train, dataflow_val = self._setup_data_ops(
-        datadir,
-        datadir_val,
-        features_keys=features_keys,
-        training_set_size=training_set_size,
-        val_set_size=val_set_size,
-        dataset_name=dataset_name)
+    dataflow_train, dataflow_val = self._setup_data_ops(datadir,
+                                                        datadir_val,
+                                                        features_keys=features_keys,
+                                                        training_set_size=training_set_size,
+                                                        val_set_size=val_set_size,
+                                                        dataset_name=dataset_name)
     self._setup_misc()
     self._print_info(datadir)
-    self.train(
-        task_id,
-        server,
-        dataflow_train,
-        dataflow_val,
-        cluster_spec,
-        is_training,
-        weights_from=weights_from,
-        start_epoch=1,
-        reuse=None,
-        num_replicas_to_aggregate=-1,
-        variables_to_train=None)
+    self.train(task_id,
+               server,
+               dataflow_train,
+               dataflow_val,
+               cluster_spec,
+               is_training,
+               weights_from=weights_from,
+               start_epoch=1,
+               reuse=None,
+               num_replicas_to_aggregate=-1,
+               variables_to_train=None)
 
   def _setup_data_ops(self,
                       data_dir,
@@ -147,33 +142,29 @@ class DistSupervisedLearner(Base):
 
     decoder = Decoder(features_keys)
 
-    dataset = Dataset(
-        dataset_name,
-        decoder,
-        data_dir,
-        num_examples_per_epoch=training_set_size,
-        batch_size=self.cnf['batch_size_train'])
+    dataset = Dataset(dataset_name,
+                      decoder,
+                      data_dir,
+                      num_examples_per_epoch=training_set_size,
+                      batch_size=self.cnf['batch_size_train'])
 
-    dataflow_train = Dataflow(
-        dataset,
-        num_readers=num_readers,
-        shuffle=True,
-        min_queue_examples=self.cnf.get('min_queue_examples', 1000),
-        capacity=self.cnf.get('capacity', 2000))
+    dataflow_train = Dataflow(dataset,
+                              num_readers=num_readers,
+                              shuffle=True,
+                              min_queue_examples=self.cnf.get('min_queue_examples', 1000),
+                              capacity=self.cnf.get('capacity', 2000))
     if data_dir_val is not None:
-      dataset_val = Dataset(
-          dataset_name,
-          decoder,
-          data_dir_val,
-          num_examples_per_epoch=val_set_size,
-          batch_size=self.cnf['batch_size_train'])
+      dataset_val = Dataset(dataset_name,
+                            decoder,
+                            data_dir_val,
+                            num_examples_per_epoch=val_set_size,
+                            batch_size=self.cnf['batch_size_train'])
 
-      dataflow_val = Dataflow(
-          dataset_val,
-          num_readers=num_readers,
-          shuffle=False,
-          min_queue_examples=self.cnf.get('min_queue_examples', 1000),
-          capacity=self.cnf.get('capacity', 2000))
+      dataflow_val = Dataflow(dataset_val,
+                              num_readers=num_readers,
+                              shuffle=False,
+                              min_queue_examples=self.cnf.get('min_queue_examples', 1000),
+                              capacity=self.cnf.get('capacity', 2000))
       return dataflow_train, dataflow_val
     else:
       return dataflow_train, None
@@ -208,34 +199,31 @@ class DistSupervisedLearner(Base):
 
     is_chief = (task_id == 0)
     with tf.device(
-        tf.train.replica_device_setter(
-            worker_device="/job:worker/replica:0/task:%d/gpu:0" % (task_id),
-            cluster=cluster_spec)) as scope:
-      global_step = tf.get_variable(
-          'global_step',
-          shape=[],
-          dtype=tf.int64,
-          initializer=tf.zeros_initializer(),
-          trainable=False)
+        tf.train.replica_device_setter(worker_device="/job:worker/replica:0/task:%d/gpu:0" %
+                                       (task_id),
+                                       cluster=cluster_spec)) as scope:
+      global_step = tf.get_variable('global_step',
+                                    shape=[],
+                                    dtype=tf.int64,
+                                    initializer=tf.zeros_initializer(),
+                                    trainable=False)
       learning_rate = self.lr_policy.initial_lr
       n_iters_per_epoch = dataflow.n_iters_per_epoch
       n_val_iters_per_epoch = dataflow_val.n_iters_per_epoch
       self.lr_policy.n_iters_per_epoch = n_iters_per_epoch
-      images, labels = distorted_inputs(
-          dataflow,
-          self.cnf['tfrecords_im_size'],
-          self.cnf.get('crop_size'),
-          batch_size=self.cnf['batch_size_train'],
-          num_preprocess_threads=32,
-          num_readers=8)
+      images, labels = distorted_inputs(dataflow,
+                                        self.cnf['tfrecords_im_size'],
+                                        self.cnf.get('crop_size'),
+                                        batch_size=self.cnf['batch_size_train'],
+                                        num_preprocess_threads=32,
+                                        num_readers=8)
       labels = self._adjust_ground_truth(labels)
-      val_images, val_labels = inputs(
-          dataflow_val,
-          self.cnf['tfrecords_im_size'],
-          self.cnf.get('crop_size'),
-          batch_size=self.cnf['batch_size_test'],
-          num_preprocess_threads=32,
-          num_readers=8)
+      val_images, val_labels = inputs(dataflow_val,
+                                      self.cnf['tfrecords_im_size'],
+                                      self.cnf.get('crop_size'),
+                                      batch_size=self.cnf['batch_size_test'],
+                                      num_preprocess_threads=32,
+                                      num_readers=8)
       val_labels = self._adjust_ground_truth(val_labels)
 
       total_loss, opt, validation_metric = self._setup_model_loss(
@@ -252,18 +240,17 @@ class DistSupervisedLearner(Base):
           reuse=None,
           global_step=global_step,
           num_replicas_to_aggregate=num_replicas_to_aggregate)
-      train_op = self.create_train_op(
-          total_loss,
-          opt,
-          global_step=global_step,
-          update_ops=None,
-          variables_to_train=None,
-          clip_by_global_norm=self.clip_by_global_norm,
-          gradient_noise_scale=self.gradient_noise_scale,
-          gradient_multipliers=self.gradient_multipliers,
-          gate_gradients=tf.train.Optimizer.GATE_OP,
-          aggregation_method=self.aggregation_method,
-          colocate_gradients_with_ops=self.colocate_gradients_with_ops)
+      train_op = self.create_train_op(total_loss,
+                                      opt,
+                                      global_step=global_step,
+                                      update_ops=None,
+                                      variables_to_train=None,
+                                      clip_by_global_norm=self.clip_by_global_norm,
+                                      gradient_noise_scale=self.gradient_noise_scale,
+                                      gradient_multipliers=self.gradient_multipliers,
+                                      gate_gradients=tf.train.Optimizer.GATE_OP,
+                                      aggregation_method=self.aggregation_method,
+                                      colocate_gradients_with_ops=self.colocate_gradients_with_ops)
 
       chief_queue_runners = [opt.get_chief_queue_runner()]
       init_tokens_op = opt.get_init_tokens_op()
@@ -280,24 +267,22 @@ class DistSupervisedLearner(Base):
           local_init_op = opt.local_step_init_op
       ready_for_local_init_op = opt.ready_for_local_init_op
 
-      sv = tf.train.Supervisor(
-          is_chief=is_chief,
-          logdir=self.cnf.get('train_dir', '/tmp'),
-          init_op=init_op,
-          local_init_op=local_init_op,
-          ready_for_local_init_op=ready_for_local_init_op,
-          summary_op=None,
-          global_step=global_step,
-          saver=saver,
-          save_model_secs=self.cnf.get('save_interval_secs', 600))
+      sv = tf.train.Supervisor(is_chief=is_chief,
+                               logdir=self.cnf.get('train_dir', '/tmp'),
+                               init_op=init_op,
+                               local_init_op=local_init_op,
+                               ready_for_local_init_op=ready_for_local_init_op,
+                               summary_op=None,
+                               global_step=global_step,
+                               saver=saver,
+                               save_model_secs=self.cnf.get('save_interval_secs', 600))
 
       log.info('%s Supervisor' % datetime.now())
 
       gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=self.gpu_memory_fraction)
-      sess_config = tf.ConfigProto(
-          gpu_options=gpu_options,
-          allow_soft_placement=True,
-          log_device_placement=self.cnf.get('log_device_placement', False))
+      sess_config = tf.ConfigProto(gpu_options=gpu_options,
+                                   allow_soft_placement=True,
+                                   log_device_placement=self.cnf.get('log_device_placement', False))
 
       if start_epoch > 1:
         weights_from = "weights/model-epoch-%d.ckpt" % (start_epoch - 1)
@@ -345,8 +330,8 @@ class DistSupervisedLearner(Base):
                 examples_per_sec = self.cnf.get('batch_size', 32) / float(duration)
                 format_str = (
                     'Worker %d: %s: step %d, loss = %.2f (%.1f examples/sec; %.3f  sec/batch)')
-                log.info(format_str % (task_id, datetime.now(), step, loss_value, examples_per_sec,
-                                       duration))
+                log.info(format_str %
+                         (task_id, datetime.now(), step, loss_value, examples_per_sec, duration))
 
               if is_chief and next_summary_time < time.time():
                 log.info('Running Summary operation on the chief.')
@@ -397,10 +382,9 @@ class DistSupervisedLearner(Base):
                       time.time() - epoch_start_time, epoch_training_loss, epoch_validation_loss,
                       custom_metrics_string))
 
-            epoch_info = dict(
-                epoch=epoch,
-                training_loss=epoch_training_loss,
-                validation_loss=epoch_validation_loss)
+            epoch_info = dict(epoch=epoch,
+                              training_loss=epoch_training_loss,
+                              validation_loss=epoch_validation_loss)
 
             training_history.append(epoch_info)
 
@@ -436,8 +420,9 @@ class DistSupervisedLearner(Base):
 
   def _loss_softmax(self, logits, labels, is_training):
     labels = tf.cast(labels, tf.int64)
-    ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-        labels=labels, logits=logits, name='cross_entropy_loss')
+    ce_loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels,
+                                                             logits=logits,
+                                                             name='cross_entropy_loss')
     ce_loss_mean = tf.reduce_mean(ce_loss, name='cross_entropy')
     if is_training:
       tf.add_to_collection('losses', ce_loss_mean)
@@ -488,10 +473,20 @@ class DistSupervisedLearner(Base):
     validation_metric_tmp = [[] for _, _ in self.validation_metrics_def]
     self.learning_rate = tf.placeholder(tf.float32, shape=[], name="learning_rate_placeholder")
 
-    losses, total_loss = self._tower_loss(
-        scope, self.model, inputs, labels, is_training, reuse, is_classification=True)
-    val_total_loss = self._tower_loss(
-        scope, self.model, validation_inputs, validation_labels, False, True, is_classification=True)
+    losses, total_loss = self._tower_loss(scope,
+                                          self.model,
+                                          inputs,
+                                          labels,
+                                          is_training,
+                                          reuse,
+                                          is_classification=True)
+    val_total_loss = self._tower_loss(scope,
+                                      self.model,
+                                      validation_inputs,
+                                      validation_labels,
+                                      False,
+                                      True,
+                                      is_classification=True)
     for i, (_, metric_function) in enumerate(self.validation_metrics_def):
       metric_score = metric_function(validation_labels, tf.argmax(self.validation_predictions, 1))
       validation_metric_tmp[i].append(metric_score)
@@ -506,23 +501,21 @@ class DistSupervisedLearner(Base):
       with tf.control_dependencies([loss_averages_op]):
         total_loss = tf.identity(total_loss)
 
-    exp_moving_averager = tf.train.ExponentialMovingAverage(
-        self.cnf.get('mv_decay', 0.9), global_step)
+    exp_moving_averager = tf.train.ExponentialMovingAverage(self.cnf.get('mv_decay', 0.9),
+                                                            global_step)
 
     variables_to_average = (tf.trainable_variables() + tf.moving_average_variables())
 
     # Create synchronous replica optimizer.
     learning_rate = self.lr_policy.batch_update(initial_lr, 0)
-    opt = self._optimizer(
-        learning_rate,
-        optname=self.cnf.get('optname', 'momentum'),
-        **self.cnf.get('opt_kwargs', {'decay': 0.9}))
-    opt = tf.train.SyncReplicasOptimizer(
-        opt,
-        replicas_to_aggregate=num_replicas_to_aggregate,
-        total_num_replicas=num_workers,
-        variable_averages=exp_moving_averager,
-        variables_to_average=variables_to_average)
+    opt = self._optimizer(learning_rate,
+                          optname=self.cnf.get('optname', 'momentum'),
+                          **self.cnf.get('opt_kwargs', {'decay': 0.9}))
+    opt = tf.train.SyncReplicasOptimizer(opt,
+                                         replicas_to_aggregate=num_replicas_to_aggregate,
+                                         total_num_replicas=num_workers,
+                                         variable_averages=exp_moving_averager,
+                                         variables_to_average=variables_to_average)
     return total_loss, opt, validation_metric
 
   def create_train_op(self,
@@ -566,8 +559,11 @@ class DistSupervisedLearner(Base):
             loss value.
     """
     if global_step is None:
-      global_step = tf.get_variable(
-          'global_step', shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+      global_step = tf.get_variable('global_step',
+                                    shape=[],
+                                    dtype=tf.int64,
+                                    initializer=tf.zeros_initializer,
+                                    trainable=False)
 
     # Update ops use GraphKeys.UPDATE_OPS collection if update_ops is None.
     global_update_ops = set(tf.get_collection(tf.GraphKeys.UPDATE_OPS))
@@ -594,17 +590,16 @@ class DistSupervisedLearner(Base):
 
     assert variables_to_train
     if clip_by_global_norm:
-      grads_and_vars = self._clip_grad_global_norms(
-          variables_to_train,
-          total_loss,
-          optimizer,
-          global_norm=8,
-          gate_gradients=gate_gradients,
-          gradient_noise_scale=gradient_noise_scale,
-          GATE_GRAPH=2,
-          grad_loss=None,
-          agre_method=aggregation_method,
-          col_grad_ops=colocate_gradients_with_ops)
+      grads_and_vars = self._clip_grad_global_norms(variables_to_train,
+                                                    total_loss,
+                                                    optimizer,
+                                                    global_norm=8,
+                                                    gate_gradients=gate_gradients,
+                                                    gradient_noise_scale=gradient_noise_scale,
+                                                    GATE_GRAPH=2,
+                                                    grad_loss=None,
+                                                    agre_method=aggregation_method,
+                                                    col_grad_ops=colocate_gradients_with_ops)
     else:
       grads_and_vars = optimizer.compute_gradients(
           total_loss,
