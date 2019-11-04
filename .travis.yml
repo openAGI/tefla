@@ -26,6 +26,7 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda config --add channels http://conda.binstar.org/omnia
+  - conda config --append channels conda-forge
   - conda create -y --name tefla python=$python_version
   - source activate tefla
   - pip install -U pip
