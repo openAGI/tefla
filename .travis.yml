@@ -39,7 +39,8 @@ install:
   - pip install -U pytest-cov
   - pip install --upgrade pip setuptools wheel
   - pip install entrypoints
-  - pip install --only-binary=numpy,scipy numpy scipy
+  - pip install --only-binary=numpy
+  - pip install scipy==1.1.0
   - pip install Cython==0.27.1
   - pip install pyaml==17.12.1
   - pip install git+https://github.com/lucasb-eyer/pydensecrf.git
