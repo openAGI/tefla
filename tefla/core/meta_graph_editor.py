@@ -452,37 +452,6 @@ def _add_pruned_saver(base_meta_graph_def, meta_graph_def, removed_op_names):
     _check_tensor_not_removed(save_tensor_name, removed_op_names)
     _check_tensor_not_removed(restore_op_name, removed_op_names)
 
-    # TODO(n3011): Once we strip unused variables, remove references to
-    # them from save and restore ops.  Retain those ops only if they also refer
-    # to retained Variables. See if we can use _clean_save_and_restore() for
-    # this.
-
-    # saver_name, restore_all = restore_op_name.rsplit('/', 1)
-    # if restore_all != 'restore_all':
-    #   raise ValueError(
-    #       'SaverDef restore_op_name did not have expected form */restore_all')
-
-    # save_tensor_names_op_name = '{}/SaveV2/tensor_names'.format(saver_name)
-    # restore_tensor_names_op_name = (
-    #     '{}/RestoreV2/tensor_names'.format(saver_name))
-
-    # save_tensor_names_op = _find_op(meta_graph_def.graph_def,
-    #                                 save_tensor_names_op_name)
-    # save_tensor_names_value_tensor = save_tensor_names_op.attr['value'].tensor
-    # save_tensor_names_value_tensor.string_val[:] = [
-    #     s for s in save_tensor_names_value_tensor.string_val
-    #     if not _is_removed(s, removed_op_names)]
-
-    # restore_tensor_names_op = _find_op(
-    #     meta_graph_def.graph_def, restore_tensor_names_op_name)
-    # restore_tensor_names_value_tensor = (
-    #     restore_tensor_names_op.attr['value'].tensor)
-    # restore_tensor_names_value_tensor.string_val[:] = [
-    #     s for s in restore_tensor_names_value_tensor.string_val
-    #     if not _is_removed(s, removed_op_names)]
-
-    # if (save_tensor_names_value_tensor.string_val
-    #     or restore_tensor_names_value_tensor.string_val):
     meta_graph_def.saver_def.CopyFrom(base_meta_graph_def.saver_def)
 
 

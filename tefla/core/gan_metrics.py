@@ -382,7 +382,6 @@ def frechet_classifier_distance(real_images, generated_images, classifier_fn, nu
   m_v = tf.reduce_mean(gen_a, 0)
   num_examples = tf.to_double(tf.shape(real_a)[0])
 
-  # sigma = (1 / (n - 1)) * (X - mu) (X - mu)^T
   sigma = tf.matmul(real_a - m, real_a - m, transpose_a=True) / (num_examples - 1)
 
   sigma_v = tf.matmul(gen_a - m_v, gen_a - m_v, transpose_a=True) / (num_examples - 1)

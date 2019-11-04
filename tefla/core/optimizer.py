@@ -1214,15 +1214,12 @@ class NadamOptimizer(tf.train.AdamOptimizer):
     beta2_t = tf.cast(self._beta2_t, var.dtype.base_dtype)
     epsilon_t = tf.cast(self._epsilon_t, var.dtype.base_dtype)
     lr = (lr_t * tf.sqrt(1 - beta2_power) / (1 - beta1_power))
-    # m_t = beta1 * m + (1 - beta1) * g_t
     m = self.get_slot(var, "m")
     m_scaled_g_values = grad * (1 - beta1_t)
     m_t = tf.assign(m, m * beta1_t, use_locking=self._use_locking)
     with tf.control_dependencies([m_t]):
       m_t = scatter_add(m, indices, m_scaled_g_values)
-      # m_bar = (1 - beta1) * g_t + beta1 * m_t
       m_bar = m_scaled_g_values + beta1_t * m_t
-    # v_t = beta2 * v + (1 - beta2) * (g_t * g_t)
     v = self.get_slot(var, "v")
     v_scaled_g_values = (grad * grad) * (1 - beta2_t)
     v_t = tf.assign(v, v * beta2_t, use_locking=self._use_locking)
@@ -1259,7 +1256,6 @@ class LazyAdamOptimizer(tf.train.AdamOptimizer):
     epsilon_t = tf.cast(self._epsilon_t, var.dtype.base_dtype)
     lr = (lr_t * tf.sqrt(1 - beta2_power) / (1 - beta1_power))
 
-    # m := beta1 * m + (1 - beta1) * g_t
     m = self.get_slot(var, "m")
     m_t = tf.scatter_update(
         m,
@@ -1267,7 +1263,6 @@ class LazyAdamOptimizer(tf.train.AdamOptimizer):
         beta1_t * tf.gather(m, grad.indices) + (1 - beta1_t) * grad.values,
         use_locking=self._use_locking)
 
-    # v := beta2 * v + (1 - beta2) * (g_t * g_t)
     v = self.get_slot(var, "v")
     v_t = tf.scatter_update(
         v,
@@ -1275,7 +1270,6 @@ class LazyAdamOptimizer(tf.train.AdamOptimizer):
         beta2_t * tf.gather(v, grad.indices) + (1 - beta2_t) * tf.square(grad.values),
         use_locking=self._use_locking)
 
-    # variable -= learning_rate * m_t / (epsilon_t + sqrt(v_t))
     m_t_slice = tf.gather(m_t, grad.indices)
     v_t_slice = tf.gather(v_t, grad.indices)
     denominator_slice = tf.sqrt(v_t_slice) + epsilon_t

@@ -55,7 +55,7 @@ class MetricMixin(object):
     if max_rating is None:
       max_rating = max(rater_a + rater_b)
     num_ratings = int(max_rating - min_rating + 1)
-    conf_mat = [[0 for i in range(num_ratings)] for j in range(num_ratings)]
+    conf_mat = [[0 for _ in range(num_ratings)] for _ in range(num_ratings)]
     for a, b in zip(rater_a, rater_b):
       conf_mat[a - min_rating][b - min_rating] += 1
     return conf_mat
@@ -67,7 +67,7 @@ class MetricMixin(object):
     if max_rating is None:
       max_rating = max(ratings)
     num_ratings = int(max_rating - min_rating + 1)
-    hist_ratings = [0 for x in range(num_ratings)]
+    hist_ratings = [0 for _ in range(num_ratings)]
     for r in ratings:
       hist_ratings[r - min_rating] += 1
     return hist_ratings
@@ -930,7 +930,6 @@ def rouge_n(evaluated_sentences, reference_sentences, n=2):
 
   f1_score = 2.0 * ((precision * recall) / (precision + recall + 1e-8))
 
-  # return overlapping_count / reference_count
   return f1_score, precision, recall
 
 

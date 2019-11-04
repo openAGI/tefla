@@ -14,7 +14,7 @@ def convert(fname, target_size=512):
 
   blurred = img.filter(ImageFilter.BLUR)
   ba = np.array(blurred)
-  h, w, _ = ba.shape
+  h, w, _ = ba.shape  # pylint: disable=unpacking-non-sequence
 
   if w > 1.2 * h:
     left_max = ba[:, :w // 32, :].max(axis=(0, 1)).astype(int)

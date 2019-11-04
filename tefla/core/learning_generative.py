@@ -90,8 +90,6 @@ class GenerativeLearner(Base):
     if self.is_summary:
       training_batch_summary_op = tf.merge_all_summaries(key=TRAINING_BATCH_SUMMARIES)
       training_epoch_summary_op = tf.merge_all_summaries(key=TRAINING_EPOCH_SUMMARIES)
-      validation_batch_summary_op = tf.merge_all_summaries(key=VALIDATION_BATCH_SUMMARIES)
-      validation_epoch_summary_op = tf.merge_all_summaries(key=VALIDATION_EPOCH_SUMMARIES)
 
     # Build an initialization operation to run below.
     init = tf.global_variables_initializer()
@@ -247,7 +245,6 @@ class GenerativeLearner(Base):
                                   is_fm_loss=False,
                                   gpu_id=0):
     batch_size_train = self.cnf['batch_size_train']
-    batch_size_val = self.cnf['batch_size_test']
     z_input = self.model.get_z([batch_size_train, 512], reuse, name='g_z')
     end_points_G = model.generator(z_input, is_training, reuse, batch_size_train)
     end_points_E = model.encoder(inputs, is_training, reuse)
@@ -369,10 +366,6 @@ class GenerativeLearner(Base):
                         scope, is_training, reuse, model, images_gpus[i],
                         num_classes=num_classes, gpu_id=i)
             tf.get_variable_scope().reuse_variables()
-            # reuse = True
-
-            # global_update_ops =
-            # set(tf.get_collection(tf.GraphKeys.UPDATE_OPS))
             global_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
             if update_ops is None:
               update_ops = global_update_ops

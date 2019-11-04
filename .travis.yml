@@ -1,6 +1,6 @@
 language: python
 python:
-  - '3.6.0'
+  - '3.6'
 sudo: required
 dist: trusty
 
@@ -26,6 +26,7 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda config --add channels http://conda.binstar.org/omnia
+  - conda config --append channels conda-forge
   - conda create -y --name tefla python=$python_version
   - source activate tefla
   - pip install -U pip
@@ -38,7 +39,8 @@ install:
   - pip install -U pytest-cov
   - pip install --upgrade pip setuptools wheel
   - pip install entrypoints
-  - pip install --only-binary=numpy,scipy numpy scipy
+  - pip install --only-binary=numpy, numpy
+  - pip install scipy==1.1.0
   - pip install Cython==0.27.1
   - pip install pyaml==17.12.1
   - pip install git+https://github.com/lucasb-eyer/pydensecrf.git

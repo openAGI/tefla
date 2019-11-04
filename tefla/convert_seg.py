@@ -27,7 +27,7 @@ def convert(image_fname, label_fname, target_size):
 
   blurred = img.filter(ImageFilter.BLUR)
   ba = np.array(blurred)
-  h, w, _ = ba.shape
+  h, w, _ = ba.shape  # pylint: disable=unpacking-non-sequence
 
   if w > 1.2 * h:
     left_max = ba[:, :w // 32, :].max(axis=(0, 1)).astype(int)
@@ -102,8 +102,6 @@ def get_convert_fname(fname, fname_label, extension, directory, convert_director
     convert_directory += "/"
 
   extension0 = fname.split("/")[-1].split(".")[-1]
-  # print("file: %s, old ext: %s, new ext: %s, old dir: %s, new dir: %s" % (
-  #     fname, extension0, extension, directory, convert_directory))
   fname2 = replace_last(fname, extension0, extension)
   fname_img = replace_first(fname2, directory, convert_directory)
   fname_label = replace_first(fname_label, directory, convert_directory)
@@ -129,19 +127,19 @@ def save(img, label, fname, fname_label):
 
 
 @click.command()
-@click.option(
-    '--directory', default='data/train', show_default=True, help="Directory with original images.")
-@click.option(
-    '--convert_directory',
-    default='data/train_res',
-    show_default=True,
-    help="Where to save converted images.")
-@click.option(
-    '--test',
-    is_flag=True,
-    default=False,
-    show_default=True,
-    help="Convert images one by one and examine them on screen.")
+@click.option('--directory',
+              default='data/train',
+              show_default=True,
+              help="Directory with original images.")
+@click.option('--convert_directory',
+              default='data/train_res',
+              show_default=True,
+              help="Where to save converted images.")
+@click.option('--test',
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Convert images one by one and examine them on screen.")
 @click.option('--crop_size', default=1024, show_default=True, help="Size of converted images.")
 @click.option('--extension', default='jpg', show_default=True, help="Filetype of converted images.")
 def main(directory, convert_directory, test, crop_size, extension):
@@ -149,17 +147,8 @@ def main(directory, convert_directory, test, crop_size, extension):
     os.mkdir(convert_directory)
   except OSError:
     pass
-
-  supported_extensions = set(['jpg', 'png', 'tiff', 'jpeg', 'tif'])
-
-  # filenames = [os.path.join(dp, f) for dp, dn, fn in os.walk(directory)
-  # for f in fn if f.split('.')[-1].lower() in supported_extensions]
   filenames = [each for each in os.listdir(directory) if each.endswith('.jpg')]
   filenames = [os.path.join(directory, filename.strip('\n')) for filename in filenames]
-  # with open('/home/artelus_server/data/segment_artelus/train.txt', 'r') as f:
-  #    filenames = f.readlines()
-  # filenames = [os.path.join(directory, filename.strip(
-  #    '\n') + '.jpg') for filename in filenames]
   filenames = sorted(filenames)
 
   if test:

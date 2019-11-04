@@ -41,7 +41,7 @@ def get_some_image_files(datadir, n):
   import random
   fs = glob('{}/*'.format(datadir))
   result = []
-  for i in xrange(n):
+  for _ in range(n):
     c1 = random.choice(fs)
     result.append(c1)
     fs.remove(c1)
