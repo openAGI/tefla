@@ -9,7 +9,7 @@ six==1.10.0
 setuptools==28.8.0
 matplotlib==2.2.3
 jupyter==1.0.0
-opencv-python==3.3.0.10
+opencv-python==3.4.7.28
 pyyaml
 ghalton==0.6
 Pillow==6.2.0
